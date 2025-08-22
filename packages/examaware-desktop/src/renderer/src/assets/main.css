@@ -1,0 +1,137 @@
+/* 自定义字体定义 */
+@font-face {
+  font-family: 'TCloudNumber';
+  src: url('./fonts/TCloudNumberVF.ttf') format('truetype-variations'),
+       url('./fonts/TCloudNumberVF.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'Misans', sans-serif;
+  overflow: hidden;
+}
+
+.root {
+  /* 使用 flex 来实现 */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: black;
+  color: white;
+}
+
+.code-layout-title-bar {
+  /* display: flex;
+  align-items: center; */
+  /* 避免被收缩 */
+  flex-shrink: 0;
+  /* 高度与 main.js 中 titleBarOverlay.height 一致  */
+  height: 35px;
+  width: 100%;
+  /* 标题栏始终在最顶层（避免后续被 Modal 之类的覆盖） */
+  /* z-index: 9999; */
+  /* padding-left: 4px; */
+  /* font-size: 14px; */
+  /* 整个标题栏默认可拖动 */
+  -webkit-app-region: drag;
+}
+
+/* 左侧和右侧区域设置为不可拖动 */
+.code-layout-title-bar > div:first-child,
+.code-layout-title-bar > div:last-child {
+  -webkit-app-region: no-drag;
+}
+
+/* 确保左侧和右侧区域的所有子元素都不可拖动 */
+.code-layout-title-bar > div:first-child *,
+.code-layout-title-bar > div:last-child * {
+  -webkit-app-region: no-drag;
+}
+
+/* 中心区域保持可拖动（继承父级设置） */
+.code-layout-title-bar > div:nth-child(2) {
+  -webkit-app-region: drag;
+}
+
+/* 额外确保菜单栏区域不可拖动 */
+.code-layout-title-bar .code-layout-menu-bar,
+.code-layout-title-bar [class*="menu"],
+.code-layout-title-bar [class*="Menu"] {
+  -webkit-app-region: no-drag;
+}
+
+/*
+.content {
+  overflow: auto;
+}
+*/
+
+
+.ea_app,
+.mainpage {
+  background: var(--td-bg-color-page) !important; /* TDesign 背景色 */
+  width: 100%;
+  height: 100%;
+}
+
+h1,
+h2,
+p {
+  user-select: none;
+}
+
+
+.t-layout__sider {
+  width: auto !important;
+}
+.t-default-menu.t-menu--dark .t-menu__logo:not(:empty) {
+  border-bottom-color: transparent !important;
+  bottom: 15px !important;
+}
+.t-default-menu__inner {
+  padding-top: 50% !important;
+  padding-bottom: 8% !important;
+  height: calc(100vh - 50px) !important;
+}
+.t-menu__item {
+  padding-top: 20px !important;
+  padding-bottom: 20px !important;
+
+  margin: 3px !important;
+
+  margin-bottom: 10px !important;
+}
+.flex-box {
+  flex-flow: 1;
+}
+
+.t-menu--scroll{
+  height: auto !important;
+  /* flex: none !important; */
+}
+
+.t-menu__operations{
+  padding: 8px !important;
+  position: relative !important;
+  bottom: 50px !important;
+  left:0px !important;
+}
+.t-default-menu.t-menu--dark .t-menu__operations:not(:empty) {
+  border-top-color: transparent !important;
+}
+.t-menu__operations .t-menu__item {
+  padding-left: 11px !important;
+}
+
+/* 使.code-layout-split-base .split-n-container>.content 内容区在垂直方向溢出时自动滚动 */
+.content {
+  overflow-y: auto !important;
+}
+

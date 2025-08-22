@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "preserve",
+    "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "paths": {
+      "@examaware/player-core": ["./packages/player-core/src"],
+      "@examaware/player-core/*": ["./packages/player-core/src/*"]
+    }
+  },
+  "references": [
+    { "path": "./packages/player-core" },
+    { "path": "./packages/examaware-web" },
+    { "path": "./packages/examaware-desktop" }
+  ]
+}

@@ -1,0 +1,7 @@
+packages:
+  - packages/examaware-desktop
+
+onlyBuiltDependencies:
+  - electron
+  - esbuild
+  - vue-demi

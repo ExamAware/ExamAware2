@@ -1,0 +1,22 @@
+{
+  "name": "examaware-workspace",
+  "private": true,
+  "description": "ExamAware 知试",
+  "scripts": {
+    "dev": "pnpm --filter @examaware/desktop dev",
+    "build": "pnpm --filter @examaware/desktop build",
+    "preview": "pnpm --filter @examaware/desktop preview",
+    "lint": "pnpm -r lint",
+    "type-check": "pnpm -r type-check",
+    "clean": "pnpm -r clean"
+  },
+  "devDependencies": {
+    "@types/node": "^22.17.2",
+    "typescript": "~5.7.3",
+    "prettier": "^3.6.2",
+    "eslint": "^9.33.0"
+  },
+  "packageManager": "pnpm@10.15.0",
+  "author": "hello8693 <hello8693@hello8693.xyz>",
+  "license": "MIT"
+}
