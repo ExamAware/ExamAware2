@@ -36,7 +36,7 @@
         >
           <InfoItem label="当前科目" :value="currentExamName" />
           <InfoItem label="考试时间" :value="currentExamTimeRange" />
-          <InfoItem label="剩余时间" :value="remainingTime" />
+          <InfoItem label="剩余时间" :value="displayedRemainingTime" />
 
           <!-- 动态展开考试材料 -->
           <template v-if="currentExam?.materials && currentExam.materials.length > 0">
@@ -86,7 +86,7 @@
               class="room-input"
             />
           </div>
-          
+
           <!-- 虚拟键盘容器 -->
           <div class="keyboard-container">
             <div ref="keyboardRef" class="virtual-keyboard"></div>
@@ -241,10 +241,10 @@ const handleRoomNumberClick = () => {
     emit('roomNumberClick')
     return
   }
-  
+
   tempRoomNumber.value = props.roomNumber || '01'
   showRoomNumberModal.value = true
-  
+
   // 延迟初始化键盘，确保DOM已渲染
   setTimeout(() => {
     initKeyboard()
@@ -274,7 +274,7 @@ const initKeyboard = () => {
         layout: {
           default: [
             "1 2 3",
-            "4 5 6", 
+            "4 5 6",
             "7 8 9",
             "{clear} 0 {bksp}"
           ]
@@ -326,6 +326,11 @@ const displayFormattedExamInfos = computed(() => {
   const formatted = formattedExamInfos.value || []
   console.log('ExamPlayer: displayFormattedExamInfos computed', formatted)
   return formatted
+})
+
+// pending 状态时不显示剩余时间
+const displayedRemainingTime = computed(() => {
+  return examStatus.value?.status === 'pending' ? '' : (remainingTime.value || '')
 })
 
 // 添加调试信息

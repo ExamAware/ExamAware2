@@ -27,7 +27,7 @@ const statusClass = computed(() => {
       return 'status-finished'
     case '进行中':
       return 'status-ongoing'
-    case '未开始':
+  case '未开始':
       return 'status-pending'
     default:
       return ''

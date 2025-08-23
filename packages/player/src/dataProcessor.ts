@@ -41,13 +41,13 @@ export class ExamDataProcessor {
       const now = currentTime
 
       // 判断考试状态
-      let status: 'pending' | 'inProgress' | 'completed' = 'pending'
-      let statusText: '未开始' | '进行中' | '已结束' = '未开始'
+  let status: 'pending' | 'inProgress' | 'completed' = 'pending'
+  let statusText: '未开始' | '进行中' | '已结束' = '未开始'
 
       if (now > endDate.getTime()) {
         status = 'completed'
         statusText = '已结束'
-      } else if (now >= startDate.getTime()) {
+  } else if (now >= startDate.getTime()) {
         status = 'inProgress'
         statusText = '进行中'
       }
@@ -99,7 +99,7 @@ export class ExamDataProcessor {
       const timeRemaining = startTime - now
       return {
         status: 'pending',
-        message: `将于 ${new Date(startTime).toLocaleString()} 开始`,
+  message: `未开始 · 开始时间 ${new Date(startTime).toLocaleString()}`,
         timeRemaining
       }
     } else if (now >= startTime && now < endTime) {
@@ -183,7 +183,7 @@ export class ExamDataProcessor {
     } else if (minutes > 0) {
       return `${prefix} ${minutes}分钟`
     } else {
-      return prefix === '剩余' ? '即将结束' : '即将开始'
+      return prefix === '剩余' ? '即将结束' : '未开始'
     }
   }
 

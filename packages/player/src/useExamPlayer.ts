@@ -120,12 +120,16 @@ export function useExamPlayer(
     taskQueue.createTasksForConfig(newConfig, {
       onExamStart: (exam) => {
         console.log(`考试开始: ${exam.name}`)
-        updateCurrentExam() // 更新当前考试状态
+  // 立即刷新时间与状态，避免等待下一次 tick
+  currentTime.value = timeProvider.getCurrentTime()
+  updateCurrentExam() // 更新当前考试状态
         eventHandlers.onExamStart?.(exam)
       },
       onExamEnd: (exam) => {
         console.log(`考试结束: ${exam.name}`)
-        updateCurrentExam() // 更新当前考试状态
+  // 立即刷新时间与状态，立刻切换到下一场
+  currentTime.value = timeProvider.getCurrentTime()
+  updateCurrentExam() // 更新当前考试状态
         eventHandlers.onExamEnd?.(exam)
       },
       onExamAlert: (exam, alertTime) => {
@@ -145,19 +149,33 @@ export function useExamPlayer(
   const updateCurrentExam = () => {
     if (!examConfig.value?.examInfos) return
 
-    const targetIndex = ExamDataProcessor.getCurrentExamIndex(
+    const sorted = sortedExamInfos.value
+    if (!sorted.length) return
+
+    // 计算目标索引
+    let targetIndex = ExamDataProcessor.getCurrentExamIndex(
       examConfig.value,
       currentTime.value
     )
 
+    // 防御：如果当前索引指向已结束且不是最后一场，推进到下一场
     const oldIndex = state.value.currentExamIndex
+    const oldExam = sorted[oldIndex]
+    if (oldExam) {
+      const end = oldExam ? oldExam.end : undefined
+      if (end) {
+        const endMs = parseDateTime(end).getTime()
+        if (currentTime.value >= endMs && oldIndex < sorted.length - 1) {
+          targetIndex = Math.max(targetIndex, oldIndex + 1)
+        }
+      }
+    }
+
     state.value.currentExamIndex = targetIndex
 
     // 触发考试切换事件
     if (oldIndex !== targetIndex && eventHandlers.onExamSwitch) {
-      const sortedExams = sortedExamInfos.value
-      const oldExam = sortedExams[oldIndex]
-      const newExam = sortedExams[targetIndex]
+      const newExam = sorted[targetIndex]
       eventHandlers.onExamSwitch(oldExam, newExam)
     }
   }
