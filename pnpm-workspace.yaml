@@ -1,6 +1,6 @@
 packages:
-  - packages/examaware-desktop
-  - packages/examaware-core
+  - packages/desktop
+  - packages/core
 
 onlyBuiltDependencies:
   - electron
