@@ -1,0 +1,44 @@
+{
+  "name": "@examaware/core",
+  "version": "1.0.0",
+  "description": "ExamAware Core",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "examaware",
+    "exam",
+    "config",
+    "parser",
+    "validation"
+  ],
+  "author": "hello8693 <hello8693@hello8693.xyz>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.17.2",
+    "tsup": "^8.0.0",
+    "typescript": "~5.7.3",
+    "rimraf": "^5.0.0",
+    "eslint": "^9.33.0"
+  },
+  "peerDependencies": {},
+  "dependencies": {}
+}

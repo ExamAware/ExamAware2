@@ -1,7 +1,7 @@
 {
   "name": "@examaware/desktop",
   "version": "1.0.0",
-  "description": "ExamAware 考试系统 - Desktop 版本",
+  "description": "ExamAware Desktop",
   "main": "./dist/main/index.js",
   "type": "module",
   "scripts": {
@@ -16,6 +16,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@examaware/core": "workspace:*",
     "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/utils": "^3.0.0",
     "chokidar": "^4.0.3",

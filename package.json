@@ -6,6 +6,8 @@
     "dev": "pnpm --filter @examaware/desktop dev",
     "build": "pnpm --filter @examaware/desktop build",
     "preview": "pnpm --filter @examaware/desktop preview",
+    "core:build": "pnpm --filter @examaware/core build",
+    "core:dev": "pnpm --filter @examaware/core dev",
     "lint": "pnpm -r lint",
     "type-check": "pnpm -r type-check",
     "clean": "pnpm -r clean"

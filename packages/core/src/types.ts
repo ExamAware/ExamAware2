@@ -10,16 +10,24 @@ export interface ExamMaterial {
   unit: string
 }
 
+/**
+ * 考试信息
+ */
 export interface ExamInfo {
+  /** 考试名称 */
   name: string
+  /** 考试开始时间 */
   start: string
+  /** 考试结束时间 */
   end: string
-  alertTime: number // 考试结束前几分钟提醒
+  /** 考试结束前几分钟提醒 */
+  alertTime: number
   /** 考试材料清单 */
   materials?: ExamMaterial[]
 }
 
 /**
+ * 考试配置
  * Represents the configuration for an exam.
  */
 export interface ExamConfig {

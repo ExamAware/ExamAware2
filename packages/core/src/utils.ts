@@ -2,8 +2,6 @@
  * 时间格式化工具函数
  */
 
-import { getSyncedTime } from './timeUtils'
-
 /**
  * 将 Date 对象格式化为本地时间字符串
  * 格式: YYYY-MM-DD HH:mm:ss
@@ -79,5 +77,32 @@ export function parseDateTime(dateStr: string): Date {
  * 获取当前本地时间字符串
  */
 export function getCurrentLocalDateTime(): string {
-  return formatLocalDateTime(new Date(getSyncedTime()))
+  return formatLocalDateTime(new Date())
+}
+
+/**
+ * 检查两个时间段是否重叠
+ */
+export function isTimeRangeOverlap(
+  start1: string | Date,
+  end1: string | Date,
+  start2: string | Date,
+  end2: string | Date
+): boolean {
+  const s1 = typeof start1 === 'string' ? parseDateTime(start1) : start1
+  const e1 = typeof end1 === 'string' ? parseDateTime(end1) : end1
+  const s2 = typeof start2 === 'string' ? parseDateTime(start2) : start2
+  const e2 = typeof end2 === 'string' ? parseDateTime(end2) : end2
+
+  return s1.getTime() < e2.getTime() && s2.getTime() < e1.getTime()
+}
+
+/**
+ * 计算两个时间点之间的分钟差
+ */
+export function getMinutesDifference(start: string | Date, end: string | Date): number {
+  const startTime = typeof start === 'string' ? parseDateTime(start) : start
+  const endTime = typeof end === 'string' ? parseDateTime(end) : end
+  
+  return Math.round((endTime.getTime() - startTime.getTime()) / (1000 * 60))
 }

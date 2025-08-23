@@ -1,4 +1,4 @@
-import type { ExamConfig } from './configTypes'
+import type { ExamConfig } from './types'
 
 /**
  * 解析考试配置的 JSON 字符串，并返回 `ExamConfig` 对象。
@@ -16,6 +16,12 @@ export function parseExamConfig(jsonString: string): ExamConfig | null {
   }
 }
 
+/**
+ * 验证考试配置是否有效
+ *
+ * @param config - 考试配置对象
+ * @returns 如果配置有效则返回 true，否则返回 false
+ */
 export function validateExamConfig(config: ExamConfig): boolean {
   if (!config.examName || !config.examInfos?.length) return false
   return config.examInfos.every((info) => info.name && info.start && info.end)
