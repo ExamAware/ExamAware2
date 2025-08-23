@@ -8,6 +8,8 @@
     "preview": "pnpm --filter @examaware/desktop preview",
     "core:build": "pnpm --filter @examaware/core build",
     "core:dev": "pnpm --filter @examaware/core dev",
+    "player:build": "pnpm --filter @examaware/player build",
+    "player:dev": "pnpm --filter @examaware/player dev",
     "lint": "pnpm -r lint",
     "type-check": "pnpm -r type-check",
     "clean": "pnpm -r clean"

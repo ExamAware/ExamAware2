@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@examaware/core": "workspace:*",
+    "@examaware/player": "workspace:*",
     "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/utils": "^3.0.0",
     "chokidar": "^4.0.3",

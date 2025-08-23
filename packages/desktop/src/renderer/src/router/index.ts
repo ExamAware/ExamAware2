@@ -38,7 +38,7 @@ const router = createRouter({
     {
       path: '/playerview',
       name: 'playerview',
-      component: () => import('../views/PlayerView.vue'),
+      component: () => import('../views/PlayerViewNew.vue'),
     }
   ],
 })

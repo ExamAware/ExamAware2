@@ -1,6 +1,7 @@
 packages:
   - packages/desktop
   - packages/core
+  - packages/player
 
 onlyBuiltDependencies:
   - electron
