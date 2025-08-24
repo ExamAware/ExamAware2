@@ -1,4 +1,6 @@
 import 'misans/lib/Normal/MiSans-Normal.min.css'
+import 'misans/lib/Normal/MiSans-Regular.min.css'
+import 'misans/lib/Normal/MiSans-Bold.min.css'
 // import 'misans/lib/Normal/MiSans-Thin.min.css'
 // import 'misans/lib/Normal/MiSans-Semibold.min.css'
 
