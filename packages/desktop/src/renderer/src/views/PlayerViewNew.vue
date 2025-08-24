@@ -9,9 +9,10 @@
       v-model:roomNumber="roomNumber"
       :allow-edit-room-number="true"
       :show-action-bar="true"
+      @exit="handleExit"
       @edit-click="handleEditClick"
-  @room-number-click="handleRoomNumberClick"
-  @room-number-change="handleRoomNumberChange"
+      @room-number-click="handleRoomNumberClick"
+      @room-number-change="handleRoomNumberChange"
       @exam-start="handleExamStart"
       @exam-end="handleExamEnd"
       @exam-alert="handleExamAlert"
@@ -157,6 +158,15 @@ const handleError = (error: string) => {
     placement: 'bottom-right',
     closeBtn: true
   })
+}
+
+// 退出播放（关闭窗口）
+const handleExit = () => {
+  try {
+    window.close()
+  } catch (e) {
+    console.warn('关闭窗口失败:', e)
+  }
 }
 
 // === 考场号设置相关 === 已移至 ExamPlayer 内部
