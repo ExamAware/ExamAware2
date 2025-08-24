@@ -1,0 +1,66 @@
+/* 自定义字体定义 */
+@font-face {
+  font-family: 'TCloudNumber';
+  src: url('./fonts/TCloudNumberVF.ttf') format('truetype-variations'),
+       url('./fonts/TCloudNumberVF.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'MiSans', sans-serif;
+}
+
+/* 设置主题为深色 */
+html {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--td-bg-color-page, #0a0a0a);
+  color: var(--td-text-color-primary, #ffffff);
+}
+
+/* 通用样式 */
+* {
+  box-sizing: border-box;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: 500;
+}
+
+p {
+  margin: 0;
+}
+
+/* 确保 TDesign 组件样式正常工作 */
+.t-button {
+  font-family: inherit;
+}
+
+/* 自定义滚动条样式 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--td-bg-color-container, #1a1a1a);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--td-bg-color-component, #333333);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--td-bg-color-component-hover, #444444);
+}

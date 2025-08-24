@@ -324,7 +324,6 @@ const handleRoomNumberCancel = () => {
 // 格式化的考试信息用于CurrentExamInfo组件 - 现在使用 examPlayer 的 formattedExamInfos
 const displayFormattedExamInfos = computed(() => {
   const formatted = formattedExamInfos.value || []
-  console.log('ExamPlayer: displayFormattedExamInfos computed', formatted)
   return formatted
 })
 
@@ -515,8 +514,8 @@ watch(() => playerExamConfig?.value?.message, () => adjustTitleSize())
   z-index: 10;
   height: 100vh;
   display: flex;
-  padding: calc(var(--ui-scale, 1) * 4rem) calc(var(--ui-scale, 1) * 2rem) calc(var(--ui-scale, 1) * 8rem)
-    calc(var(--ui-scale, 1) * 2rem); /* 增加顶部padding和底部padding为按钮栏留出空间 */
+  padding: calc(var(--ui-scale, 1) * 2rem) calc(var(--ui-scale, 1) * 2rem) calc(var(--ui-scale, 1) * 8rem)
+    calc(var(--ui-scale, 1) * 2rem);
   gap: calc(var(--ui-scale, 1) * 100px);
 }
 

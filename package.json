@@ -10,6 +10,8 @@
     "core:dev": "pnpm --filter @examaware/core dev",
     "player:build": "pnpm --filter @examaware/player build",
     "player:dev": "pnpm --filter @examaware/player dev",
+    "web:build": "pnpm --filter @examaware/web build",
+    "web:dev": "pnpm --filter @examaware/web dev",
     "lint": "pnpm -r lint",
     "type-check": "pnpm -r type-check",
     "clean": "pnpm -r clean"

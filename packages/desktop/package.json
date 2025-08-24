@@ -42,7 +42,7 @@
     "@vue/tsconfig": "^0.7.0",
     "electron": "^31.7.7",
     "electron-builder": "^24.13.3",
-    "electron-vite": "^2.3.0",
+    "electron-vite": "^4.0.0",
     "eslint": "^9.33.0",
     "eslint-plugin-oxlint": "^0.15.15",
     "eslint-plugin-vue": "^9.33.0",

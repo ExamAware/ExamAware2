@@ -21,8 +21,9 @@
     }
   },
   "references": [
-    { "path": "./packages/player-core" },
-    { "path": "./packages/examaware-web" },
-    { "path": "./packages/examaware-desktop" }
+    { "path": "./packages/core" },
+    { "path": "./packages/web" },
+    { "path": "./packages/desktop" },
+    { "path": "./packages/player" }
   ]
 }
