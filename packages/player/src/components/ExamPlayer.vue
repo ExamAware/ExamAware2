@@ -63,8 +63,8 @@
       </div>
     </div>
 
-    <!-- 底部按钮栏 -->
-    <ActionButtonBar v-if="showActionBar" />
+  <!-- 底部按钮栏 -->
+  <ActionButtonBar v-if="showActionBar" @exit="emit('exit')" />
 
     <!-- 考场号设置弹窗 -->
     <div v-if="showRoomNumberModal" class="room-number-modal">
@@ -146,6 +146,7 @@ interface Emits {
   (e: 'roomNumberClick'): void
   (e: 'roomNumberChange', roomNumber: string): void
   (e: 'update:roomNumber', roomNumber: string): void
+  (e: 'exit'): void
   (e: 'examStart', exam: any): void
   (e: 'examEnd', exam: any): void
   (e: 'examAlert', exam: any, alertTime: number): void
@@ -366,7 +367,7 @@ const displayedRemainingTime = computed(() => {
   return examStatus.value?.status === 'pending' ? '' : (remainingTime.value || '')
 })
 
-// 添加调试信息
+// 添加调试信息与本地存储同步
 onMounted(() => {
   console.log('ExamPlayer: mounted, props.examConfig:', props.examConfig)
   console.log('ExamPlayer: examPlayer state:', examPlayer.state.value)

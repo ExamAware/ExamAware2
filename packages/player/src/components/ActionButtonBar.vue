@@ -72,6 +72,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
+const emit = defineEmits<{ (e: 'exit'): void }>()
 import { LogoutIcon, SettingIcon } from 'tdesign-icons-vue-next'
 
 const uiScale = ref(getInitialScale())
@@ -277,9 +278,8 @@ const cancelLongPress = () => {
 }
 
 const handleExitPlayback = () => {
-  console.log('退出播放')
-  // 实际退出逻辑：关闭当前窗口
-  window.close()
+  console.log('退出播放（触发 exit 事件）')
+  emit('exit')
 }
 
 const handlePlaybackSettings = () => {
