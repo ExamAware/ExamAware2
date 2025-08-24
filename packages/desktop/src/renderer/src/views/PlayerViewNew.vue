@@ -160,12 +160,12 @@ const handleError = (error: string) => {
   })
 }
 
-// 退出播放（关闭窗口）
+// 退出播放（通过 IPC 请求主进程关闭窗口）
 const handleExit = () => {
   try {
-    window.close()
+    ipcRenderer?.send?.('player-window-exit')
   } catch (e) {
-    console.warn('关闭窗口失败:', e)
+    console.warn('发送退出请求失败:', e)
   }
 }
 
