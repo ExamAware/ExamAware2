@@ -14,7 +14,7 @@ body,
   height: 100%;
   margin: 0;
   padding: 0;
-  font-family: 'MiSans', sans-serif;
+  font-family: 'MiSans', MiSans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Liberation Sans', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
 }
 
 /* 设置主题为深色 */
@@ -30,6 +30,7 @@ body {
 /* 通用样式 */
 * {
   box-sizing: border-box;
+  font-family: inherit;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -42,9 +43,7 @@ p {
 }
 
 /* 确保 TDesign 组件样式正常工作 */
-.t-button {
-  font-family: inherit;
-}
+.t-button { font-family: inherit; }
 
 /* 自定义滚动条样式 */
 ::-webkit-scrollbar {

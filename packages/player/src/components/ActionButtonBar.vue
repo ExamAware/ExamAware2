@@ -57,6 +57,17 @@
       <span class="ui-scale-value">{{ uiScale.toFixed(2) }}x</span>
     </div>
   </div>
+
+  <!-- 播放设置弹窗（空内容） -->
+  <t-dialog
+    v-model:visible="showSettings"
+    header="播放设置"
+    :footer="false"
+    :closeOnOverlayClick="true"
+    :closeOnEscKeydown="true"
+  >
+    <!-- 预留：后续填充具体设置项 -->
+  </t-dialog>
 </template>
 
 <script setup lang="ts">
@@ -66,6 +77,9 @@ import { LogoutIcon, SettingIcon } from 'tdesign-icons-vue-next'
 const uiScale = ref(getInitialScale())
 let animationId: number | null = null
 let currentScale = 1
+
+// 播放设置弹窗开关
+const showSettings = ref(false)
 
 // 长按相关状态
 const isPressing = ref(false)
@@ -269,8 +283,8 @@ const handleExitPlayback = () => {
 }
 
 const handlePlaybackSettings = () => {
-  console.log('播放设置')
-  // 处理播放设置逻辑
+  console.log('打开播放设置弹窗')
+  showSettings.value = true
 }
 </script>
 

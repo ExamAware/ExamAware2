@@ -14,7 +14,8 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "jsx": "preserve"
+  "jsx": "preserve",
+  "types": ["vite/client", "node"]
   },
   "include": [
     "src/**/*"
