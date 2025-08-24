@@ -1,6 +1,6 @@
 <template>
   <div class="player" v-if="config">
-    <ExamPlayer :exam-config="config" :config="playerConfig" :time-sync-status="'网络时间'" :room-number="roomNumber" :show-action-bar="true" />
+  <ExamPlayer :exam-config="config" :config="playerConfig" :time-sync-status="'电脑时间'" v-model:roomNumber="roomNumber" :show-action-bar="true" />
   </div>
   <div v-else class="fallback">
     <p>未找到配置，请先上传考试档案。</p>

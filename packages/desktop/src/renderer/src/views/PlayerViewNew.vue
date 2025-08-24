@@ -6,7 +6,7 @@
       :config="playerConfig"
       :time-provider="timeProvider"
       :time-sync-status="timeSyncStatusText"
-      :room-number="roomNumber"
+      v-model:roomNumber="roomNumber"
       :allow-edit-room-number="true"
       :show-action-bar="true"
       @edit-click="handleEditClick"
@@ -29,7 +29,7 @@ import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { NotifyPlugin, DialogPlugin } from 'tdesign-vue-next'
 import { ExamPlayer, type PlayerConfig } from '@examaware/player'
 // 导入 player 包的样式
-import '@examaware/player/dist/style.css'
+import '@examaware/player/dist/player.css'
 import { useConfigLoader } from '@renderer/composables/useConfigLoader'
 import { ElectronTimeProvider } from '@renderer/adapters/ElectronTimeProvider'
 import { RecentFileManager } from '@renderer/core/recentFileManager'
@@ -163,66 +163,6 @@ const handleError = (error: string) => {
 
 // === 初始化和清理 ===
 
-// UI 缩放相关
-let animationId: number | null = null
-let currentScale = 1
-
-// 根据窗口宽度计算缩放比例
-const calculateScale = () => {
-  const w = window.innerWidth
-  if (w >= 1920) return 1.2
-  if (w >= 1440) return 1.0
-  if (w >= 1024) return 0.85
-  return 0.7
-}
-
-// 缓动函数 - 使用 ease-out-cubic
-const easeOutCubic = (t: number): number => {
-  return 1 - Math.pow(1 - t, 3)
-}
-
-const setRootScale = (scale: number) => {
-  document.documentElement.style.setProperty('--ui-scale', String(scale))
-}
-
-// 平滑动画到目标缩放值
-const animateToScale = (target: number) => {
-  if (animationId) {
-    cancelAnimationFrame(animationId)
-  }
-
-  const startScale = currentScale
-  const startTime = performance.now()
-  const duration = 400 // 动画持续时间400ms
-
-  const animate = (currentTime: number) => {
-    const elapsed = currentTime - startTime
-    const progress = Math.min(elapsed / duration, 1)
-
-    // 应用缓动函数
-    const easedProgress = easeOutCubic(progress)
-
-    // 计算当前缩放值
-    const scale = startScale + (target - startScale) * easedProgress
-    currentScale = scale
-    setRootScale(scale)
-
-    if (progress < 1) {
-      animationId = requestAnimationFrame(animate)
-    } else {
-      animationId = null
-    }
-  }
-
-  animationId = requestAnimationFrame(animate)
-}
-
-// 处理窗口大小变化
-const handleResize = () => {
-  const targetScale = calculateScale()
-  animateToScale(targetScale)
-}
-
 onMounted(async () => {
   console.log('PlayerViewNew mounted, starting initialization...')
 
@@ -239,11 +179,6 @@ onMounted(async () => {
   }
 
   console.log('IPC renderer available, setting up listeners...')
-
-  // 初始化 UI 缩放
-  currentScale = calculateScale()
-  setRootScale(currentScale)
-  window.addEventListener('resize', handleResize)
 
   // 执行时间同步
   try {
@@ -304,13 +239,6 @@ onUnmounted(() => {
 
   // 清理资源
   timeProvider.destroy()
-
-  window.removeEventListener('resize', handleResize)
-
-  // 清理动画
-  if (animationId) {
-    cancelAnimationFrame(animationId)
-  }
 })
 
 // 暴露调试接口

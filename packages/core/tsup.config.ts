@@ -3,7 +3,7 @@ import { defineConfig } from 'tsup'
 export default defineConfig({
   entry: ['src/index.ts'],
   format: ['cjs', 'esm'],
-  dts: true,
+  dts: false, // 禁用 tsup 的 dts 生成
   clean: true,
   sourcemap: true,
   outDir: 'dist',

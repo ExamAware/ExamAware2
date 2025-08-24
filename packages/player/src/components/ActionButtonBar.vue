@@ -51,7 +51,7 @@
         min="0.5"
         max="2"
         step="0.01"
-        :value="uiScale"
+        v-model.number="uiScale"
         @input="onScaleChange"
       />
       <span class="ui-scale-value">{{ uiScale.toFixed(2) }}x</span>
@@ -60,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { LogoutIcon, SettingIcon } from 'tdesign-icons-vue-next'
 
 const uiScale = ref(getInitialScale())
@@ -90,7 +90,21 @@ const easeOutCubic = (t: number): number => {
 }
 
 const setRootScale = (scale: number) => {
+  // 停止自动缩放动画，允许手动缩放覆盖
+  const autoScaleAnimationId = (window as any).autoScaleAnimationId
+  if (autoScaleAnimationId) {
+    cancelAnimationFrame(autoScaleAnimationId)
+    ;(window as any).autoScaleAnimationId = null
+  }
+  // 设置到 documentElement
   document.documentElement.style.setProperty('--ui-scale', String(scale))
+  // 同时设置到最近的 .exam-container（如果存在）
+  const container = document.querySelector('.exam-container') as HTMLElement | null
+  if (container) {
+    container.style.setProperty('--ui-scale', String(scale))
+  }
+  console.log('Manual scale set to:', scale)
+  console.log('CSS variable --ui-scale is now:', getComputedStyle(document.documentElement).getPropertyValue('--ui-scale'))
 }
 
 // 平滑动画到目标缩放值
@@ -125,15 +139,27 @@ const animateToScale = (target: number) => {
   animationId = requestAnimationFrame(animate)
 }
 
-const onScaleChange = (e: Event) => {
-  const val = Number((e.target as HTMLInputElement).value)
-  uiScale.value = val
-  animateToScale(val)
+const onScaleChange = () => {
+  console.log('UI Scale input changed:', uiScale.value)
+  // 实际的缩放由watch处理
 }
 
 onMounted(() => {
   currentScale = uiScale.value
   setRootScale(uiScale.value)
+})
+
+// 监听uiScale变化
+watch(uiScale, (newValue) => {
+  console.log('uiScale watch triggered:', newValue)
+  // 直接设置缩放值，不使用动画以避免拖动时的延迟
+  if (animationId) {
+    cancelAnimationFrame(animationId)
+    animationId = null
+  }
+  currentScale = newValue
+  setRootScale(newValue)
+  console.log('CSS variable --ui-scale set to:', newValue)
 })
 
 onUnmounted(() => {
@@ -396,6 +422,56 @@ const handlePlaybackSettings = () => {
   border-radius: 8px; /* 添加圆角 */
   border: 1px solid rgba(255, 255, 255, 0.1); /* 添加边框 */
 }
+
+/* Range input 样式 */
+.ui-scale-bar input[type="range"] {
+  width: 120px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  position: relative;
+  z-index: 70; /* 确保滑块在最上层 */
+  pointer-events: auto; /* 确保可以接收事件 */
+}
+
+.ui-scale-bar input[type="range"]::-webkit-slider-thumb {
+  width: 16px;
+  height: 16px;
+  background: #ffffff;
+  border-radius: 50%;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  border: 2px solid #0052d9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.ui-scale-bar input[type="range"]::-webkit-slider-thumb:hover {
+  background: #f0f0f0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.ui-scale-bar input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #ffffff;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid #0052d9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.ui-scale-bar input[type="range"]::-moz-range-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
 .ui-scale-label {
   color: #fff;
   font-size: 0.875rem; /* 固定大小，不受缩放影响 */

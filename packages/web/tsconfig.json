@@ -10,7 +10,12 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "types": ["vite/client"]
+    "types": ["vite/client"],
+    "baseUrl": ".",
+    "paths": {
+      "@examaware/core": ["../core/src/index.ts"],
+      "@examaware/player": ["../player/src/index.ts"]
+    }
   },
   "include": ["src"]
 }

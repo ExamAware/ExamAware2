@@ -1,5 +1,5 @@
 <template>
-  <div class="exam-container">
+  <div class="exam-container" ref="rootRef">
     <!-- 背景渐变椭圆 -->
     <div class="background-ellipse"></div>
 
@@ -55,7 +55,7 @@
       <!-- 右侧列 -->
       <div class="right-column">
         <div class="exam-room-container">
-          <ExamRoomNumber :room-number="roomNumber" @click="handleRoomNumberClick" />
+          <ExamRoomNumber :room-number="effectiveRoomNumber" @click="handleRoomNumberClick" />
         </div>
 
         <!-- 本次考试信息卡片 -->
@@ -117,6 +117,9 @@ import ExamRoomNumber from './ExamRoomNumber.vue'
 import CurrentExamInfo from './CurrentExamInfo.vue'
 import ActionButtonBar from './ActionButtonBar.vue'
 
+// 根容器，用于就近设置 CSS 变量，避免继承/作用域导致的失效
+const rootRef = ref<HTMLElement | null>(null)
+
 // Props 定义
 interface Props {
   /** 考试配置 */
@@ -142,6 +145,7 @@ interface Emits {
   (e: 'editClick'): void
   (e: 'roomNumberClick'): void
   (e: 'roomNumberChange', roomNumber: string): void
+  (e: 'update:roomNumber', roomNumber: string): void
   (e: 'examStart', exam: any): void
   (e: 'examEnd', exam: any): void
   (e: 'examAlert', exam: any, alertTime: number): void
@@ -231,7 +235,33 @@ const {
 
 // === 考场号设置相关状态 ===
 const showRoomNumberModal = ref(false)
-const tempRoomNumber = ref(props.roomNumber || '01')
+const STORAGE_KEY = 'examaware:roomNumber'
+
+const loadStoredRoomNumber = (): string | null => {
+  if (typeof window === 'undefined') return null
+  try {
+    const v = window.localStorage.getItem(STORAGE_KEY)
+    return v && v.trim() ? v.trim() : null
+  } catch {
+    return null
+  }
+}
+
+const saveStoredRoomNumber = (val: string) => {
+  if (typeof window === 'undefined') return
+  try {
+    window.localStorage.setItem(STORAGE_KEY, val)
+  } catch {}
+}
+
+// 内部房间号（用于本地持久化与无外部绑定时的显示）
+const localRoomNumber = ref<string>(props.roomNumber || loadStoredRoomNumber() || '01')
+
+// 对外生效的房间号（优先使用外部的 prop，否则使用内部本地值）
+const effectiveRoomNumber = computed<string>(() => props.roomNumber ?? localRoomNumber.value)
+
+// 弹窗里的临时值
+const tempRoomNumber = ref(effectiveRoomNumber.value)
 const keyboardRef = ref<HTMLElement>()
 let keyboardInstance: any = null
 
@@ -242,7 +272,7 @@ const handleRoomNumberClick = () => {
     return
   }
 
-  tempRoomNumber.value = props.roomNumber || '01'
+  tempRoomNumber.value = effectiveRoomNumber.value || '01'
   showRoomNumberModal.value = true
 
   // 延迟初始化键盘，确保DOM已渲染
@@ -306,7 +336,11 @@ const destroyKeyboard = () => {
 // 确认考场号设置
 const handleRoomNumberConfirm = () => {
   if (tempRoomNumber.value && tempRoomNumber.value.trim()) {
-    emit('roomNumberChange', tempRoomNumber.value.trim())
+    const next = tempRoomNumber.value.trim()
+    localRoomNumber.value = next
+    saveStoredRoomNumber(next)
+    emit('update:roomNumber', next)       // v-model 支持
+    emit('roomNumberChange', next)        // 兼容旧事件
     showRoomNumberModal.value = false
     destroyKeyboard()
   } else {
@@ -317,7 +351,7 @@ const handleRoomNumberConfirm = () => {
 // 取消考场号设置
 const handleRoomNumberCancel = () => {
   showRoomNumberModal.value = false
-  tempRoomNumber.value = props.roomNumber || '01'
+  tempRoomNumber.value = effectiveRoomNumber.value || '01'
   destroyKeyboard()
 }
 
@@ -337,7 +371,83 @@ onMounted(() => {
   console.log('ExamPlayer: mounted, props.examConfig:', props.examConfig)
   console.log('ExamPlayer: examPlayer state:', examPlayer.state.value)
   console.log('ExamPlayer: formattedExamInfos:', formattedExamInfos.value)
+  // 初次挂载时，如果本地存储有值且与外部不同，则同步给外部
+  const stored = loadStoredRoomNumber()
+  if (stored && stored !== props.roomNumber) {
+    localRoomNumber.value = stored
+    emit('update:roomNumber', stored)
+    emit('roomNumberChange', stored)
+  }
 })
+
+// === UI 自动缩放逻辑 ===
+let autoScaleAnimationId: number | null = null
+let currentAutoScale = 1
+
+// 根据窗口宽度计算缩放比例
+const calculateAutoScale = () => {
+  const w = window.innerWidth
+  if (w >= 1920) return 1.2
+  if (w >= 1440) return 1.0
+  if (w >= 1024) return 0.85
+  return 0.7
+}
+
+// 缓动函数 - 使用 ease-out-cubic
+const easeOutCubic = (t: number): number => {
+  return 1 - Math.pow(1 - t, 3)
+}
+
+const setAutoRootScale = (scale: number) => {
+  // 同时设置到 documentElement 与组件根容器，确保 scoped 样式也能读取到
+  document.documentElement.style.setProperty('--ui-scale', String(scale))
+  if (rootRef.value) {
+    rootRef.value.style.setProperty('--ui-scale', String(scale))
+  }
+  console.log('Auto-scale set to:', scale)
+}
+
+// 平滑动画到目标缩放值
+const animateToAutoScale = (target: number) => {
+  if (autoScaleAnimationId) {
+    cancelAnimationFrame(autoScaleAnimationId)
+  }
+
+  const startScale = currentAutoScale
+  const startTime = performance.now()
+  const duration = 400 // 动画持续时间400ms
+
+  const animate = (currentTime: number) => {
+    const elapsed = currentTime - startTime
+    const progress = Math.min(elapsed / duration, 1)
+
+    // 应用缓动函数
+    const easedProgress = easeOutCubic(progress)
+
+    // 计算当前缩放值
+    const scale = startScale + (target - startScale) * easedProgress
+    currentAutoScale = scale
+    setAutoRootScale(scale)
+
+    if (progress < 1) {
+      autoScaleAnimationId = requestAnimationFrame(animate)
+      // 将动画ID暴露到window对象，以便ActionButtonBar可以停止它
+      ;(window as any).autoScaleAnimationId = autoScaleAnimationId
+    } else {
+      autoScaleAnimationId = null
+      ;(window as any).autoScaleAnimationId = null
+    }
+  }
+
+  autoScaleAnimationId = requestAnimationFrame(animate)
+  ;(window as any).autoScaleAnimationId = autoScaleAnimationId
+}
+
+// 处理窗口大小变化
+const handleAutoScaleResize = () => {
+  const targetScale = calculateAutoScale()
+  animateToAutoScale(targetScale)
+}
 
 // 标题大小调整
 const mainTitleRef = ref<HTMLElement>()
@@ -384,6 +494,11 @@ onMounted(() => {
   adjustTitleSize()
   window.addEventListener('resize', adjustTitleSize)
 
+  // 初始化 UI 自动缩放
+  currentAutoScale = calculateAutoScale()
+  setAutoRootScale(currentAutoScale)
+  window.addEventListener('resize', handleAutoScaleResize)
+
   // 监听UI缩放变化
   const observer = new MutationObserver(() => {
     adjustTitleSize()
@@ -401,11 +516,25 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('resize', adjustTitleSize)
+  window.removeEventListener('resize', handleAutoScaleResize)
+
+  // 清理自动缩放动画
+  if (autoScaleAnimationId) {
+    cancelAnimationFrame(autoScaleAnimationId)
+  }
 })
 
 // 当标题/副标题内容变化时，重新计算自适应字号
 watch(() => playerExamConfig?.value?.examName, () => adjustTitleSize())
 watch(() => playerExamConfig?.value?.message, () => adjustTitleSize())
+
+// 同步外部传入 roomNumber 的变化
+watch(() => props.roomNumber, (val) => {
+  if (val != null) {
+    localRoomNumber.value = val
+    tempRoomNumber.value = val
+  }
+})
 </script>
 
 <style scoped>
@@ -419,6 +548,8 @@ watch(() => playerExamConfig?.value?.message, () => adjustTitleSize())
   position: relative;
   overflow: hidden;
   background: #02080d;
+  /* 提供本地默认变量，防止未继承导致的变量缺失 */
+  --ui-scale: 1;
 }
 
 .background-ellipse {
