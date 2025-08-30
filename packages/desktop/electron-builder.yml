@@ -1,5 +1,5 @@
 appId: org.examaware.desktop2
-productName: ExamAware2
+productName: ExamAware
 directories:
   buildResources: build
   output: out
@@ -89,14 +89,56 @@ dmg:
       type: link
       path: /Applications
 linux:
+  executableName: ExamAware
   target:
-    - AppImage
-    - snap
-    - deb
-  maintainer: examaware.cn
-  category: Utility
+    - target: AppImage
+      arch: [x64]
+    - target: snap
+      arch: [x64]
+    - target: deb
+      arch: [x64]
+  maintainer: ExamAware Team <hello@examaware.cn>
+  category: Education
+  desktop:
+    Name: ExamAware
+    Comment: Exam monitoring and management application
+    Categories: Education;Office;
+    MimeType: application/json;
+  icon: build/icon.png
 appImage:
-  artifactName: ${name}-${version}.${ext}
+  artifactName: ${productName}-${version}.${ext}
+  systemIntegration: ask
+snap:
+  artifactName: ${name}-${version}-${arch}.${ext}
+  summary: Exam monitoring and management application
+  description: |
+    ExamAware is a comprehensive exam monitoring and management application
+    designed for educational institutions and certification bodies.
+  grade: stable
+  confinement: strict
+  plugs:
+    - default
+    - home
+    - network
+    - removable-media
+    - camera
+    - audio-record
+    - desktop
+    - desktop-legacy
+    - wayland
+  apps:
+    examaware:
+      command: ExamAware
+      desktop: usr/share/applications/examaware.desktop
+deb:
+  artifactName: ${name}-${version}-${arch}.${ext}
+  depends:
+    - gconf2
+    - gconf-service
+    - libnotify4
+    - libappindicator1
+    - libxtst6
+    - libnss3
 npmRebuild: false
 electronDownload:
   mirror: https://npmmirror.com/mirrors/electron/

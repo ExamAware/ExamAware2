@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=ExamAware
+Comment=Exam monitoring and management application
+Exec=AppRun %U
+Terminal=false
+Type=Application
+Icon=examaware
+StartupWMClass=ExamAware
+X-AppImage-Version=1.0.0
+Categories=Education;Office;
+MimeType=application/json;
