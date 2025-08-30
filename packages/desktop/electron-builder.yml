@@ -1,5 +1,5 @@
 appId: org.examaware.desktop2
-productName: ExamAware
+productName: ExamAware2
 directories:
   buildResources: build
   output: out
@@ -107,7 +107,8 @@ linux:
   icon: build/icon.png
 appImage:
   artifactName: ${productName}-${version}.${ext}
-  systemIntegration: ask
+  desktop: build/examaware.desktop
+  category: Education
 snap:
   artifactName: ${name}-${version}-${arch}.${ext}
   summary: Exam monitoring and management application
