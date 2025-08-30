@@ -16,11 +16,12 @@ files:
   - "!build/*"
   - "!out/*"
 fileAssociations:
-  - ext: exam.json
-    name: ExamAware2 档案文件
-    description: ExamAware2 考试档案文件
+  - ext: examjson
+    name: ExamAware 档案文件
+    description: ExamAware 考试档案文件
     mimeType: application/json
     role: Editor
+    icon: build/icon
 asarUnpack:
   - resources/**
 win:
@@ -99,11 +100,14 @@ linux:
       arch: [x64]
   maintainer: ExamAware Team <hello@examaware.cn>
   category: Education
+  mimeTypes:
+    - application/x-examaware-examjson
   desktop:
     Name: ExamAware
     Comment: Exam monitoring and management application
     Categories: Education;Office;
-    MimeType: application/json;
+    MimeType: application/x-examaware-examjson;
+    Icon: examaware
   icon: build/icon.png
 appImage:
   artifactName: ${productName}-${version}.${ext}
