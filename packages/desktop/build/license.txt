@@ -1,0 +1,34 @@
+SOFTWARE LICENSE AGREEMENT
+ExamAware Desktop Application
+
+This Software License Agreement ("Agreement") is entered into between you ("User") and ExamAware ("Company") regarding the use of the ExamAware Desktop Application ("Software").
+
+1. GRANT OF LICENSE
+Subject to the terms and conditions of this Agreement, Company grants to User a non-exclusive, non-transferable license to use the Software.
+
+2. RESTRICTIONS
+User may not:
+- Modify, adapt, alter, translate, or create derivative works of the Software
+- Reverse engineer, disassemble, decompile, or otherwise attempt to derive the source code
+- Remove or alter any proprietary notices or labels on the Software
+- Distribute, sublicense, or transfer the Software to third parties
+
+3. OWNERSHIP
+Company retains all right, title, and interest in and to the Software, including all intellectual property rights.
+
+4. DISCLAIMER OF WARRANTIES
+THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.
+
+5. LIMITATION OF LIABILITY
+IN NO EVENT SHALL COMPANY BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES.
+
+6. TERMINATION
+This Agreement is effective until terminated. Company may terminate this Agreement at any time if User breaches any term.
+
+7. GOVERNING LAW
+This Agreement shall be governed by and construed in accordance with applicable laws.
+
+By installing and using the Software, User acknowledges that they have read, understood, and agree to be bound by the terms of this Agreement.
+
+ExamAware
+Copyright © 2024 All Rights Reserved.

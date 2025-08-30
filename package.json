@@ -12,8 +12,12 @@
     "player:dev": "pnpm --filter @examaware/player dev",
     "web:build": "pnpm --filter @examaware/web build",
     "web:dev": "pnpm --filter @examaware/web dev",
+    "desktop:build:win": "pnpm --filter @examaware/desktop build:win",
+    "desktop:build:mac": "pnpm --filter @examaware/desktop build:mac",
+    "desktop:build:linux": "pnpm --filter @examaware/desktop build:linux",
+    "desktop:build:all": "pnpm --filter @examaware/desktop build:all",
+    "desktop:dist": "pnpm --filter @examaware/desktop dist",
     "lint": "pnpm -r lint",
-    "type-check": "pnpm -r type-check",
     "clean": "pnpm -r clean"
   },
   "devDependencies": {
