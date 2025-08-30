@@ -48,6 +48,7 @@ nsis:
   include: build/installer.nsh
   license: build/license.txt
   displayLanguageSelector: false
+  warningsAsErrors: false
   installerLanguages:
     - zh_CN
     - en_US
