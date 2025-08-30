@@ -17,8 +17,8 @@ files:
   - "!out/*"
 fileAssociations:
   - ext: exam.json
-    name: ExamAware 档案文件
-    description: ExamAware 考试档案文件
+    name: ExamAware2 档案文件
+    description: ExamAware2 考试档案文件
     mimeType: application/json
     role: Editor
 asarUnpack:
@@ -112,11 +112,14 @@ appImage:
 snap:
   artifactName: ${name}-${version}-${arch}.${ext}
   summary: Exam monitoring and management application
+  title: ExamAware
   description: |
     ExamAware is a comprehensive exam monitoring and management application
     designed for educational institutions and certification bodies.
+  base: core22
   grade: stable
   confinement: strict
+  category: education
   plugs:
     - default
     - home
@@ -127,10 +130,6 @@ snap:
     - desktop
     - desktop-legacy
     - wayland
-  apps:
-    examaware:
-      command: ExamAware
-      desktop: usr/share/applications/examaware.desktop
 deb:
   artifactName: ${name}-${version}-${arch}.${ext}
   depends:
