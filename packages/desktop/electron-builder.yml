@@ -31,7 +31,7 @@ win:
         - x64
         - ia32
 nsis:
-  artifactName: ${name}-${version}-setup.${ext}
+  artifactName: ${productName}-${version}-setup.${ext}
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
@@ -74,7 +74,7 @@ mac:
   gatekeeperAssess: false
 
 dmg:
-  artifactName: ${name}-${version}-${arch}.${ext}
+  artifactName: ${productName}-${version}-${arch}.${ext}
   title: "${productName} ${version}"
   icon: build/icon.icns
   window:
@@ -110,7 +110,7 @@ appImage:
   desktop: build/examaware.desktop
   category: Education
 snap:
-  artifactName: ${name}-${version}-${arch}.${ext}
+  artifactName: ${productName}-${version}-${arch}.${ext}
   summary: Exam monitoring and management application
   title: ExamAware
   description: |
@@ -131,7 +131,7 @@ snap:
     - desktop-legacy
     - wayland
 deb:
-  artifactName: ${name}-${version}-${arch}.${ext}
+  artifactName: ${productName}-${version}-${arch}.${ext}
   depends:
     - gconf2
     - gconf-service
