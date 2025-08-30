@@ -2,6 +2,7 @@
   "name": "@examaware/desktop",
   "version": "1.0.0",
   "description": "ExamAware Desktop",
+  "homepage": "https://examaware.cn",
   "author": "ExamAware Team <team@examaware.cn>",
   "main": "./dist/main/index.js",
   "type": "module",

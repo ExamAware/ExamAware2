@@ -1,5 +1,6 @@
 appId: org.examaware.desktop2
-productName: ExamAware2
+productName: ExamAware
+homepage: https://examaware.cn
 directories:
   buildResources: build
   output: out
