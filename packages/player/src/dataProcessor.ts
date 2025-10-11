@@ -35,7 +35,7 @@ export class ExamDataProcessor {
     const sortedConfig = getSortedExamConfig(config)
     let lastDisplayedDate = ''
 
-    return sortedConfig.examInfos.map((exam, index) => {
+  return sortedConfig.examInfos.map((exam: ExamInfo, index: number) => {
       const startDate = parseDateTime(exam.start)
       const endDate = parseDateTime(exam.end)
       const now = currentTime
@@ -300,7 +300,7 @@ export class ExamDataProcessor {
     }
 
     // 验证每场考试
-    config.examInfos.forEach((exam, index) => {
+  config.examInfos.forEach((exam: ExamInfo, index: number) => {
       if (!exam.name || exam.name.trim() === '') {
         errors.push(`第${index + 1}场考试名称不能为空`)
       }
