@@ -22,6 +22,7 @@ export type {
 export { useExamPlayer } from './useExamPlayer'
 export { ExamTaskQueue } from './taskQueue'
 export { ExamDataProcessor } from './dataProcessor'
+export { useReminderService, ReminderUtils } from './reminderService'
 
 // Vue components
 export { default as ExamPlayer } from './components/ExamPlayer.vue'

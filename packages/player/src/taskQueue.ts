@@ -109,7 +109,7 @@ export class ExamTaskQueue {
 
     const now = this.timeProvider()
 
-    config.examInfos.forEach((exam) => {
+  config.examInfos.forEach((exam: any) => {
       const startTime = parseDateTime(exam.start).getTime()
       const endTime = parseDateTime(exam.end).getTime()
 

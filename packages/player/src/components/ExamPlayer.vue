@@ -68,6 +68,29 @@
     <!-- 底部按钮栏 -->
     <ActionButtonBar v-if="showActionBar" @exit="emit('exit')" />
 
+    <!-- 考试即将结束提醒：全屏红色遮罩，淡入动画 -->
+    <transition name="fade-soft">
+      <div
+        v-if="endingVisible"
+        class="overlay ending-overlay"
+        :style="endingOverlayStyle"
+      >
+        <div class="ending-title">{{ endingTitle }}</div>
+      </div>
+    </transition>
+
+    <!-- 普通提醒：全屏高斯模糊遮罩 + Markdown 内容 + 关闭按钮（含倒计时） -->
+    <transition name="fade-soft">
+      <div v-if="currentNotice" class="overlay notice-overlay">
+        <div class="notice-card">
+          <div class="notice-content" v-html="renderedMarkdown"></div>
+          <t-button theme="primary" size="large" @click="handleCloseNotice">
+            关闭（{{ currentNotice?.remainingSec }}s）
+          </t-button>
+        </div>
+      </div>
+    </transition>
+
     <!-- 考场号设置弹窗（TDesign Dialog） -->
     <t-dialog
       header="设置考场号"
@@ -94,7 +117,12 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted, watch } from 'vue'
-import type { ExamConfig } from '@examaware/core'
+// 为避免 SFC 类型解析跨包问题，这里使用本地最小类型定义
+type ExamConfig = {
+  examName: string
+  message: string
+  examInfos: any[]
+}
 import { useExamPlayer, type TimeProvider } from '../useExamPlayer'
 import type { PlayerConfig, PlayerEventHandlers } from '../types'
 import 'simple-keyboard/build/css/index.css'
@@ -105,7 +133,30 @@ import ExamRoomNumber from './ExamRoomNumber.vue'
 import CurrentExamInfo from './CurrentExamInfo.vue'
 import ActionButtonBar from './ActionButtonBar.vue'
 // 本地引入 TDesign 组件，确保不依赖宿主全局注册
-import { Dialog as TDialog, Input as TInput } from 'tdesign-vue-next'
+import { Dialog as TDialog, Input as TInput, Button as TButton } from 'tdesign-vue-next'
+import { useReminderService, ReminderUtils } from '../reminderService'
+
+// 轻量 Markdown 渲染器：使用浏览器原生实现，避免引入重依赖
+// 支持少量常见标记：# 标题、**加粗**、*斜体*、`行内代码`、换行
+const renderMarkdownLight = (md: string): string => {
+  let html = md
+  // 转义基础字符以避免注入
+  html = html
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+  // 标题（仅支持 # 与 ##）
+  html = html.replace(/^##\s+(.+)$/gm, '<h2>$1</h2>')
+  html = html.replace(/^#\s+(.+)$/gm, '<h1>$1</h1>')
+  // 加粗与斜体
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>')
+  // 代码
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>')
+  // 换行
+  html = html.replace(/\n/g, '<br/>')
+  return html
+}
 
 // 根容器，用于就近设置 CSS 变量，避免继承/作用域导致的失效
 const rootRef = ref<HTMLElement | null>(null)
@@ -160,6 +211,7 @@ const emit = defineEmits<Emits>()
 // 在 <script setup> 中，import 即可自动可用，但为兼容性，保留命名引用
 const TDialogComp = TDialog
 const TInputComp = TInput
+const TButtonComp = TButton
 
 // 合并事件处理器
 const mergedEventHandlers: PlayerEventHandlers = {
@@ -175,6 +227,8 @@ const mergedEventHandlers: PlayerEventHandlers = {
   onExamAlert: (exam: any, alertTime: number) => {
     props.eventHandlers?.onExamAlert?.(exam, alertTime)
     emit('examAlert', exam, alertTime)
+    // 与提醒服务联动：显示“考试即将结束”提醒
+    reminder.showEndingAlert({ durationMs: 8000 })
   },
   onExamSwitch: (fromExam: any, toExam: any) => {
     props.eventHandlers?.onExamSwitch?.(fromExam, toExam)
@@ -240,6 +294,60 @@ const {
   switchToExam,
   updateConfig
 } = examPlayer
+
+// === 提醒服务 ===
+const reminder = useReminderService()
+// ending 提醒派生
+const endingVisible = reminder.isEndingVisible
+const endingTitle = computed(() => reminder._endingReminder.value?.title || '考试即将结束')
+const endingOverlayStyle = computed(() => {
+  const base = reminder._endingReminder.value?.themeBaseColor || '#ff3b30'
+  const text = ReminderUtils.getContrastingTextColor(base)
+  return {
+    '--ending-bg': base,
+    '--ending-text': text
+  } as Record<string, string>
+})
+
+// 普通通知派生
+const currentNotice = computed(() => reminder.currentNotice.value)
+const renderedMarkdown = computed(() =>
+  currentNotice.value ? renderMarkdownLight(currentNotice.value.markdown) : ''
+)
+const handleCloseNotice = () => reminder.closeCurrentNotice('manual')
+
+// 将 API 暴露给父组件，便于外部触发
+defineExpose({
+  // 结束提醒
+  showEndingAlert: reminder.showEndingAlert,
+  hideEndingAlert: reminder.hideEndingAlert,
+  // 普通提醒
+  notify: reminder.notify,
+  closeCurrentNotice: reminder.closeCurrentNotice,
+  clearAllNotices: reminder.clearAllNotices
+})
+
+// 与考试事件联动：当 onExamAlert 触发时，自动弹出“即将结束”提醒
+// 注意：这里通过 mergedEventHandlers 上报事件，但在本组件内也监听 examPlayer 的 eventHandlers
+// 我们在 mergedEventHandlers 中已 emit('examAlert'...)，此处再监听 props.eventHandlers 的回调即可。
+// 为避免重复，这里本地监听 examAlert 事件：在 props.eventHandlers.onExamAlert 外，我们也用 watch examStatus。
+let hasShownEndingForExamId: string | null = null
+watch(
+  () => remainingTime.value,
+  (txt) => {
+    // 简单启发：当剩余时间文本中出现 “分钟” 且小于等于 10 分钟时触发一次。
+    if (!txt || !currentExam.value) return
+    const m = txt.match(/(\d+)\s*分钟/i)
+    if (m) {
+      const minutes = parseInt(m[1])
+      const examId = currentExam.value?.id || currentExam.value?.name
+      if (minutes <= 10 && examId && hasShownEndingForExamId !== examId) {
+        hasShownEndingForExamId = examId
+        reminder.showEndingAlert({ durationMs: 8000 })
+      }
+    }
+  }
+)
 
 // === 考场号设置相关状态 ===
 const showRoomNumberModal = ref(false)
@@ -799,5 +907,68 @@ watch(
 :deep(.numeric-keyboard-dark .hg-row) {
   display: flex !important;
   justify-content: center !important;
+}
+
+/* 覆盖层与动画 */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fade-soft-enter-active,
+.fade-soft-leave-active {
+  transition: opacity 320ms ease, transform 320ms ease;
+}
+.fade-soft-enter-from,
+.fade-soft-leave-to {
+  opacity: 0;
+  transform: scale(1.02);
+}
+
+/* 结束提醒：红色遮罩 */
+.ending-overlay {
+  background: color-mix(in srgb, var(--ending-bg, #ff3b30) 85%, transparent);
+  backdrop-filter: blur(2px);
+}
+.ending-title {
+  color: var(--ending-text, #fff);
+  font-size: calc(var(--ui-scale, 1) * 5rem);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+}
+
+/* 普通通知：毛玻璃卡片 */
+.notice-overlay {
+  backdrop-filter: blur(12px) saturate(1.1);
+  background: rgba(0, 0, 0, 0.35);
+  padding: 24px;
+}
+.notice-card {
+  background: rgba(16, 22, 33, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  max-width: min(960px, 92vw);
+  padding: 28px;
+  color: #fff;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+.notice-content :is(h1, h2, h3) {
+  margin: 0 0 12px 0;
+}
+.notice-content h1 { font-size: 2rem; }
+.notice-content h2 { font-size: 1.5rem; }
+.notice-content p, .notice-content br { line-height: 1.6; }
+.notice-content code {
+  background: rgba(255,255,255,0.08);
+  padding: 0 6px;
+  border-radius: 4px;
+}
+.notice-card :deep(.t-button) {
+  margin-top: 18px;
 }
 </style>
