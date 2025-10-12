@@ -20,6 +20,12 @@ export interface PlayerState {
   loaded: boolean
   /** 配置错误信息 */
   error: string | null
+  /** 配置错误详细信息（可选，便于恢复与诊断） */
+  errorDetails?: {
+    isValid: boolean
+    errors: string[]
+    warnings: string[]
+  } | null
 }
 
 export interface TaskInfo {

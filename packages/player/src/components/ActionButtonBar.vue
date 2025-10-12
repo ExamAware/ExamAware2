@@ -201,7 +201,7 @@ const startLongPress = (e: Event) => {
 
   const startTime = performance.now()
   const duration = 2000
-  const darknessPhase = 600 // 第一秒内完成变暗
+  const darknessPhase = 600
 
   longPressTimer = window.setTimeout(() => {
     handleExitPlayback()

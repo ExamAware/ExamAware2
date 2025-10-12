@@ -1,20 +1,12 @@
-import { ref, computed, onMounted, onUnmounted, watch, readonly } from 'vue'
+import { onMounted, onUnmounted, readonly } from 'vue'
 import type { ExamConfig } from '@examaware/core'
-import {
-  validateExamConfig,
-  hasExamTimeOverlap,
-  getSortedExamConfig,
-  parseDateTime
-} from '@examaware/core'
-import type { PlayerConfig, PlayerState, PlayerEventHandlers } from './types'
-import { ExamTaskQueue } from './taskQueue'
+import { validateExamConfig, hasExamTimeOverlap, getSortedExamConfig, parseDateTime } from '@examaware/core'
+import type { PlayerConfig, PlayerEventHandlers } from './types'
+import { ExamPlayerCore } from './core/ExamPlayerCore'
+import type { TimeProvider } from './core/interfaces'
 import { ExamDataProcessor } from './dataProcessor'
 
-export interface TimeProvider {
-  getCurrentTime: () => number
-  onTimeChange?: (callback: () => void) => void
-  offTimeChange?: (callback: () => void) => void
-}
+export type { TimeProvider }
 
 /**
  * 考试播放器核心逻辑
@@ -25,232 +17,53 @@ export function useExamPlayer(
   timeProvider: TimeProvider = { getCurrentTime: () => Date.now() },
   eventHandlers: PlayerEventHandlers = {}
 ) {
-  // 基础状态
-  const state = ref<PlayerState>({
-    currentExamIndex: 0,
-    loading: false,
-    loaded: false,
-    error: null
-  })
-
-  const examConfig = ref<ExamConfig | null>(config)
-  const currentTime = ref(timeProvider.getCurrentTime())
-
-  // 创建任务队列
-  const taskQueue = new ExamTaskQueue(timeProvider.getCurrentTime)
-
-  // 当前考试信息
-  const currentExam = computed(() => {
-    if (!examConfig.value || state.value.currentExamIndex < 0 ||
-        state.value.currentExamIndex >= examConfig.value.examInfos.length) {
-      return null
+  // 构造面向对象核心
+  const core = new ExamPlayerCore(
+    config,
+    playerConfig,
+    timeProvider,
+    eventHandlers,
+    {
+      validate: validateExamConfig,
+      hasOverlap: hasExamTimeOverlap,
+      getSortedConfig: getSortedExamConfig,
+      parse: parseDateTime
     }
-    return examConfig.value.examInfos[state.value.currentExamIndex]
-  })
+  )
 
-  // 排序后的考试信息
-  const sortedExamInfos = computed(() => {
-    if (!examConfig.value) return []
-    return getSortedExamConfig(examConfig.value).examInfos
-  })
-
-  // 考试状态计算
-  const examStatus = computed(() => {
-    return ExamDataProcessor.getExamStatus(currentExam.value, currentTime.value)
-  })
-
-  // 当前考试名称
-  const currentExamName = computed(() => {
-    return currentExam.value?.name || '暂无考试'
-  })
-
-  // 当前考试时间范围
-  const currentExamTimeRange = computed(() => {
-    return ExamDataProcessor.getExamTimeRange(currentExam.value)
-  })
-
-  // 剩余时间计算
-  const remainingTime = computed(() => {
-    return ExamDataProcessor.getRemainingTimeText(currentExam.value, currentTime.value)
-  })
-
-  // 格式化的当前时间
-  const formattedCurrentTime = computed(() => {
-    return ExamDataProcessor.formatCurrentTime(currentTime.value)
-  })
-
-  // 格式化的考试信息列表
-  const formattedExamInfos = computed(() => {
-    return ExamDataProcessor.formatExamInfos(examConfig.value, currentTime.value)
-  })
+  const view = core.view()
+  const currentExam = view.currentExam
+  const sortedExamInfos = view.sortedExamInfos
+  const examStatus = view.examStatus
+  const currentExamName = view.currentExamName
+  const currentExamTimeRange = view.currentExamTimeRange
+  const remainingTime = view.remainingTime
+  const formattedCurrentTime = view.formattedCurrentTime
+  const formattedExamInfos = view.formattedExamInfos
+  const state = view.state
+  const examConfigRef = view.examConfig
+  const currentTime = view.currentTime
 
   // 更新配置
-  const updateConfig = (newConfig: ExamConfig | null) => {
-    if (!newConfig) {
-      state.value.error = '配置为空'
-      state.value.loaded = false
-      taskQueue.clear()
-      return false
-    }
-
-    // 验证配置
-    if (!validateExamConfig(newConfig)) {
-      state.value.error = '配置验证失败'
-      state.value.loaded = false
-      taskQueue.clear()
-      return false
-    }
-
-    // 检查时间重叠
-    if (hasExamTimeOverlap(newConfig)) {
-      state.value.error = '考试时间存在重叠'
-      state.value.loaded = false
-      taskQueue.clear()
-      return false
-    }
-
-    examConfig.value = newConfig
-    state.value.error = null
-    state.value.loaded = true
-
-    // 自动选择当前考试
-    updateCurrentExam()
-
-    // 创建任务队列中的任务
-    taskQueue.createTasksForConfig(newConfig, {
-      onExamStart: (exam) => {
-        console.log(`考试开始: ${exam.name}`)
-  // 立即刷新时间与状态，避免等待下一次 tick
-  currentTime.value = timeProvider.getCurrentTime()
-  updateCurrentExam() // 更新当前考试状态
-        eventHandlers.onExamStart?.(exam)
-      },
-      onExamEnd: (exam) => {
-        console.log(`考试结束: ${exam.name}`)
-  // 立即刷新时间与状态，立刻切换到下一场
-  currentTime.value = timeProvider.getCurrentTime()
-  updateCurrentExam() // 更新当前考试状态
-        eventHandlers.onExamEnd?.(exam)
-      },
-      onExamAlert: (exam, alertTime) => {
-        console.log(`考试提醒: ${exam.name} 将在 ${alertTime} 分钟后结束`)
-        eventHandlers.onExamAlert?.(exam, alertTime)
-      },
-      onExamSwitch: eventHandlers.onExamSwitch
-    })
-
-    // 启动任务队列
-    taskQueue.start()
-
-    return true
-  }
+  const updateConfig = (newConfig: ExamConfig | null) => core.updateConfig(newConfig)
 
   // 智能更新当前考试
-  const updateCurrentExam = () => {
-    if (!examConfig.value?.examInfos) return
-
-    const sorted = sortedExamInfos.value
-    if (!sorted.length) return
-
-    // 计算目标索引
-    let targetIndex = ExamDataProcessor.getCurrentExamIndex(
-      examConfig.value,
-      currentTime.value
-    )
-
-    // 防御：如果当前索引指向已结束且不是最后一场，推进到下一场
-    const oldIndex = state.value.currentExamIndex
-    const oldExam = sorted[oldIndex]
-    if (oldExam) {
-      const end = oldExam ? oldExam.end : undefined
-      if (end) {
-        const endMs = parseDateTime(end).getTime()
-        if (currentTime.value >= endMs && oldIndex < sorted.length - 1) {
-          targetIndex = Math.max(targetIndex, oldIndex + 1)
-        }
-      }
-    }
-
-    state.value.currentExamIndex = targetIndex
-
-    // 触发考试切换事件
-    if (oldIndex !== targetIndex && eventHandlers.onExamSwitch) {
-      const newExam = sorted[targetIndex]
-      eventHandlers.onExamSwitch(oldExam, newExam)
-    }
-  }
+  const updateCurrentExam = () => core.updateCurrentExam()
 
   // 切换到指定考试
-  const switchToExam = (index: number) => {
-    if (!examConfig.value || index < 0 || index >= examConfig.value.examInfos.length) {
-      return false
-    }
-
-    const oldIndex = state.value.currentExamIndex
-    state.value.currentExamIndex = index
-
-    if (eventHandlers.onExamSwitch && oldIndex !== index) {
-      const oldExam = sortedExamInfos.value[oldIndex]
-      const newExam = sortedExamInfos.value[index]
-      eventHandlers.onExamSwitch(oldExam, newExam)
-    }
-
-    return true
-  }
+  const switchToExam = (index: number) => core.switchToExam(index)
 
   // 时间更新定时器
-  let timeInterval: NodeJS.Timeout | null = null
+  const startTimeUpdates = () => core.start()
+  const stopTimeUpdates = () => core.stop()
 
-  // 启动时间更新
-  const startTimeUpdates = () => {
-    if (timeInterval) return
-
-    timeInterval = setInterval(() => {
-      currentTime.value = timeProvider.getCurrentTime()
-    }, 1000)
-
-    // 如果时间提供者支持变更监听，也注册监听器
-    if (timeProvider.onTimeChange) {
-      timeProvider.onTimeChange(() => {
-        currentTime.value = timeProvider.getCurrentTime()
-        // 更新任务队列的时间提供器
-        taskQueue.updateTimeProvider(timeProvider.getCurrentTime)
-      })
-    }
-  }
-
-  // 停止时间更新
-  const stopTimeUpdates = () => {
-    if (timeInterval) {
-      clearInterval(timeInterval)
-      timeInterval = null
-    }
-
-    if (timeProvider.offTimeChange) {
-      timeProvider.offTimeChange(() => {
-        currentTime.value = timeProvider.getCurrentTime()
-      })
-    }
-
-    // 停止任务队列
-    taskQueue.stop()
-  }
-
-  // 监听当前时间变化，定期检查考试状态
-  watch(currentTime, () => {
-    if (examConfig.value?.examInfos && state.value.loaded) {
-      // 每30秒检查一次考试状态
-      if (currentTime.value % 30000 < 1000) {
-        updateCurrentExam()
-      }
-    }
-  })
+  // 使用 core 的 examConfig（保持原返回结构）
 
   // 生命周期
   onMounted(() => {
     startTimeUpdates()
-    if (examConfig.value) {
-      updateConfig(examConfig.value)
+    if (examConfigRef.value) {
+      updateConfig(examConfigRef.value)
     }
   })
 
@@ -261,7 +74,7 @@ export function useExamPlayer(
   return {
     // 状态
     state: readonly(state),
-    examConfig: readonly(examConfig),
+    examConfig: readonly(examConfigRef),
     currentTime: readonly(currentTime),
 
     // 计算属性
@@ -282,14 +95,7 @@ export function useExamPlayer(
     stopTimeUpdates,
 
     // 任务队列相关
-    taskQueue: {
-      getTaskCount: () => taskQueue.getTaskCount(),
-      getTaskDetails: () => taskQueue.getTaskDetails(),
-      getPendingTasks: () => taskQueue.getPendingTasks(),
-      clear: () => taskQueue.clear(),
-      start: () => taskQueue.start(),
-      stop: () => taskQueue.stop()
-    },
+    taskQueue: core.taskQueueApi(),
 
     // 数据处理工具
     dataProcessor: ExamDataProcessor

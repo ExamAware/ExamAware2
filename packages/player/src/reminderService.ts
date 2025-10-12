@@ -1,6 +1,6 @@
 import { ref, computed, onUnmounted, type ComputedRef } from 'vue'
 
-export type ReminderKind = 'ending' | 'normal'
+export type ReminderKind = 'colorful' | 'normal'
 
 export type CloseReason = 'manual' | 'timeout'
 
@@ -9,9 +9,9 @@ export interface NormalNoticeOptions {
   id?: string
 }
 
-export interface EndingAlertOptions {
+export interface ColorfulAlertOptions {
   durationMs?: number // default 8000
-  title?: string // default '考试即将结束'
+  title?: string // default '提示'
   themeBaseColor?: string // 用于计算对比色
 }
 
@@ -21,12 +21,12 @@ export interface ReminderServiceApi {
   closeCurrentNotice(reason?: CloseReason): void
   clearAllNotices(): void
 
-  // 考试即将结束提醒（全屏）
-  showEndingAlert(options?: EndingAlertOptions): void
-  hideEndingAlert(): void
+  // 彩色提醒（全屏），用于考试开始/即将结束/考试结束等
+  showColorfulAlert(options?: ColorfulAlertOptions): void
+  hideColorfulAlert(): void
 
   // 状态
-  isEndingVisible: ComputedRef<boolean>
+  isColorfulVisible: ComputedRef<boolean>
   currentNotice: ComputedRef<NormalReminder | null>
   queueLength: ComputedRef<number>
 }
@@ -44,8 +44,8 @@ export interface NormalReminder extends BaseReminder {
   remainingSec: number
 }
 
-export interface EndingReminder extends BaseReminder {
-  kind: 'ending'
+export interface ColorfulReminder extends BaseReminder {
+  kind: 'colorful'
   title: string
   durationMs: number
   themeBaseColor?: string
@@ -81,14 +81,18 @@ function getContrastingTextColor(baseColor?: string): string {
   return luminance > 0.5 ? '#000000' : '#ffffff'
 }
 
-export function useReminderService(): ReminderServiceApi & {
+export function useReminderService(): (ReminderServiceApi & {
   // 暴露少量内部状态供组件样式/动画使用
-  _endingReminder: ReturnType<typeof ref<EndingReminder | null>>
+  _colorfulReminder: ReturnType<typeof ref<ColorfulReminder | null>>
   _currentNotice: ReturnType<typeof ref<NormalReminder | null>>
+}) & {
+  // 兼容旧 API（已废弃）
+  showEndingAlert: (opts?: ColorfulAlertOptions) => void
+  hideEndingAlert: () => void
 } {
   const queue = ref<NormalReminder[]>([])
   const currentNoticeRef = ref<NormalReminder | null>(null)
-  const endingRef = ref<EndingReminder | null>(null)
+  const colorfulRef = ref<ColorfulReminder | null>(null)
 
   let noticeTimer: number | null = null
   let endingTimer: number | null = null
@@ -114,7 +118,7 @@ export function useReminderService(): ReminderServiceApi & {
   }
 
   const processNext = () => {
-    if (endingRef.value) return // 结束提醒显示时暂停普通队列
+    if (colorfulRef.value) return // 彩色提醒显示时暂停普通队列
     if (currentNoticeRef.value) return
     const next = queue.value.shift() || null
     if (next) {
@@ -154,7 +158,7 @@ export function useReminderService(): ReminderServiceApi & {
     currentNoticeRef.value = null
   }
 
-  const showEndingAlert = (options: EndingAlertOptions = {}) => {
+  const showColorfulAlert = (options: ColorfulAlertOptions = {}) => {
     // 若正显示普通通知，先暂存回队列前端，结束提醒后再继续
     if (currentNoticeRef.value) {
       const cur = currentNoticeRef.value
@@ -170,13 +174,13 @@ export function useReminderService(): ReminderServiceApi & {
     }
 
     // 若已有相同类型，刷新时长与标题
-    const title = options.title ?? '考试即将结束'
-    const durationMs = options.durationMs ?? 8000
+    const title = options.title ?? '提示'
+  const durationMs = options.durationMs ?? 5000
     const themeBaseColor = options.themeBaseColor
 
-    endingRef.value = {
-      id: genId('e'),
-      kind: 'ending',
+    colorfulRef.value = {
+      id: genId('c'),
+      kind: 'colorful',
       createdAt: Date.now(),
       title,
       durationMs,
@@ -189,19 +193,19 @@ export function useReminderService(): ReminderServiceApi & {
     }
     if (durationMs > 0) {
       endingTimer = window.setTimeout(() => {
-        hideEndingAlert()
+        hideColorfulAlert()
       }, durationMs)
     }
   }
 
-  const hideEndingAlert = () => {
-    if (!endingRef.value) return
-    endingRef.value = null
+  const hideColorfulAlert = () => {
+    if (!colorfulRef.value) return
+    colorfulRef.value = null
     if (endingTimer != null) {
       window.clearTimeout(endingTimer)
       endingTimer = null
     }
-    // 结束提醒关闭后继续处理普通队列
+    // 彩色提醒关闭后继续处理普通队列
     processNext()
   }
 
@@ -210,23 +214,36 @@ export function useReminderService(): ReminderServiceApi & {
     if (endingTimer != null) window.clearTimeout(endingTimer)
   })
 
-  return {
+  const api = {
     // API
     notify,
     closeCurrentNotice,
     clearAllNotices,
-    showEndingAlert,
-    hideEndingAlert,
+    showColorfulAlert,
+    hideColorfulAlert,
+    // 兼容旧 API（已废弃）：
+    // @deprecated 请改用 showColorfulAlert/hideColorfulAlert
+    // 这样可避免外部调用立刻报错
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    showEndingAlert: ((opts?: ColorfulAlertOptions) => showColorfulAlert(opts)) as any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    hideEndingAlert: ((() => hideColorfulAlert())) as any,
 
     // 状态
-    isEndingVisible: computed(() => !!endingRef.value),
+    isColorfulVisible: computed(() => !!colorfulRef.value),
     currentNotice: computed(() => currentNoticeRef.value),
     queueLength: computed(() => queue.value.length),
 
     // 内部状态暴露
-    _endingReminder: endingRef,
+    _colorfulReminder: colorfulRef,
     _currentNotice: currentNoticeRef
-  }
+  } as const
+
+  // 返回时附加兼容方法（不改变类型收窄）
+  return Object.assign({}, api, {
+    showEndingAlert: (opts?: ColorfulAlertOptions) => api.showColorfulAlert(opts),
+    hideEndingAlert: () => api.hideColorfulAlert()
+  })
 }
 
 export const ReminderUtils = {
