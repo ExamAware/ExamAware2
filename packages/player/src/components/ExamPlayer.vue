@@ -3,79 +3,43 @@
     <!-- 背景渐变椭圆 -->
     <div class="background-ellipse"></div>
 
-    <!-- 主要内容 -->
+    <!-- 主要内容（可插拔卡片区域） -->
     <div class="content-wrapper">
-      <!-- 左侧列 -->
+      <!-- 左侧列（默认布局） -->
       <div class="left-column">
-        <div class="logo-container">
-          <span class="logo-text">DSZ ExamAware 知试</span>
-        </div>
+        <slot name="left:logo">
+          <div class="logo-container"><span class="logo-text">DSZ ExamAware 知试</span></div>
+        </slot>
 
-        <!-- 标题区域 -->
-        <div class="title-section">
-          <h1 ref="mainTitleRef" class="main-title">{{ playerExamConfig?.examName || '考试' }}</h1>
-          <p ref="subtitleRef" class="subtitle">
-            {{ playerExamConfig?.message || '请遵守考场纪律' }}
-          </p>
-        </div>
-
-        <!-- 时钟卡片 -->
-        <BaseCard custom-class="clock-card">
-          <div class="clock-content">
-            <div class="time-display">{{ formattedCurrentTime }}</div>
-            <div class="time-note">
-              <div>{{ timeSyncStatus || '电脑时间' }}仅供参考</div>
-              <div>以考场铃声为准</div>
-            </div>
+        <slot name="left:title">
+          <div class="title-section">
+            <h1 ref="mainTitleRef" class="main-title">{{ playerExamConfig?.examName || '考试' }}</h1>
+            <p ref="subtitleRef" class="subtitle">{{ playerExamConfig?.message || '请遵守考场纪律' }}</p>
           </div>
-        </BaseCard>
+        </slot>
 
-        <!-- 考试信息卡片 -->
-        <InfoCardWithIcon
-          title="当前考试信息"
-          @icon-click="$emit('editClick')"
-          custom-class="exam-info-card"
-        >
-          <InfoItem label="当前科目" :value="currentExamName" />
-          <InfoItem label="考试时间" :value="currentExamTimeRange" />
-          <InfoItem label="剩余时间" :value="displayedRemainingTime" />
-
-          <!-- 动态展开考试材料 -->
-          <template v-if="currentExam?.materials && currentExam.materials.length > 0">
-            <InfoItem
-              v-for="material in currentExam.materials"
-              :key="material.name"
-              :label="material.name"
-              :value="`${material.quantity}${material.unit}`"
-            />
-          </template>
-
-          <div></div>
-        </InfoCardWithIcon>
+  <div class="card-item"><component :is="resolvedCards.clock" /></div>
+  <div class="card-item"><component :is="resolvedCards.examInfo" @editClick="$emit('editClick')" /></div>
       </div>
 
-      <!-- 右侧列 -->
+      <!-- 右侧列（默认布局） -->
       <div class="right-column">
-        <div class="exam-room-container">
-          <ExamRoomNumber :room-number="effectiveRoomNumber" @click="handleRoomNumberClick" />
-        </div>
-
-        <!-- 本次考试信息卡片 -->
-        <CurrentExamInfo :exam-infos="displayFormattedExamInfos" />
+  <div class="card-item"><component :is="resolvedCards.room" /></div>
+  <div class="card-item"><component :is="resolvedCards.list" /></div>
       </div>
     </div>
 
     <!-- 底部按钮栏 -->
     <ActionButtonBar v-if="showActionBar" @exit="emit('exit')" />
 
-    <!-- 考试即将结束提醒：全屏红色遮罩，淡入动画 -->
+    <!-- 彩色提醒：用于考试开始/即将结束/考试结束，淡入动画 -->
     <transition name="fade-soft">
       <div
-        v-if="endingVisible"
-        class="overlay ending-overlay"
-        :style="endingOverlayStyle"
+        v-if="colorfulVisible"
+        class="overlay colorful-overlay"
+        :style="colorfulOverlayStyle"
       >
-        <div class="ending-title">{{ endingTitle }}</div>
+        <div class="colorful-title">{{ colorfulTitle }}</div>
       </div>
     </transition>
 
@@ -116,7 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted, watch } from 'vue'
+import { computed, ref, onMounted, onUnmounted, watch, provide } from 'vue'
 // 为避免 SFC 类型解析跨包问题，这里使用本地最小类型定义
 type ExamConfig = {
   examName: string
@@ -131,6 +95,10 @@ import InfoCardWithIcon from './InfoCardWithIcon.vue'
 import InfoItem from './InfoItem.vue'
 import ExamRoomNumber from './ExamRoomNumber.vue'
 import CurrentExamInfo from './CurrentExamInfo.vue'
+import ClockCard from './cards/ClockCard.vue'
+import ExamInfoCard from './cards/ExamInfoCard.vue'
+import ExamRoomCard from './cards/ExamRoomCard.vue'
+import CurrentListCard from './cards/CurrentListCard.vue'
 import ActionButtonBar from './ActionButtonBar.vue'
 // 本地引入 TDesign 组件，确保不依赖宿主全局注册
 import { Dialog as TDialog, Input as TInput, Button as TButton } from 'tdesign-vue-next'
@@ -179,6 +147,13 @@ interface Props {
   allowEditRoomNumber?: boolean
   /** 事件处理器 */
   eventHandlers?: PlayerEventHandlers
+  /** 可插拔卡片：替换默认卡片组件 */
+  cards?: Partial<{
+    clock: any
+    examInfo: any
+    room: any
+    list: any
+  }>
 }
 
 // Events 定义
@@ -203,6 +178,7 @@ const props = withDefaults(defineProps<Props>(), {
   showActionBar: true,
   allowEditRoomNumber: true,
   eventHandlers: () => ({})
+  , cards: () => ({})
 })
 
 const emit = defineEmits<Emits>()
@@ -219,16 +195,20 @@ const mergedEventHandlers: PlayerEventHandlers = {
   onExamStart: (exam: any) => {
     props.eventHandlers?.onExamStart?.(exam)
     emit('examStart', exam)
+    // 考试开始（绿色）
+    reminder.showColorfulAlert({ title: '考试开始', themeBaseColor: '#2ecc71' })
   },
   onExamEnd: (exam: any) => {
     props.eventHandlers?.onExamEnd?.(exam)
     emit('examEnd', exam)
+    // 考试结束（红色）
+    reminder.showColorfulAlert({ title: '考试结束', themeBaseColor: '#ff3b30' })
   },
   onExamAlert: (exam: any, alertTime: number) => {
     props.eventHandlers?.onExamAlert?.(exam, alertTime)
     emit('examAlert', exam, alertTime)
-    // 与提醒服务联动：显示“考试即将结束”提醒
-    reminder.showEndingAlert({ durationMs: 8000 })
+    // 考试即将结束（黄色）
+    reminder.showColorfulAlert({ title: '考试即将结束', themeBaseColor: '#f1c40f' })
   },
   onExamSwitch: (fromExam: any, toExam: any) => {
     props.eventHandlers?.onExamSwitch?.(fromExam, toExam)
@@ -297,15 +277,15 @@ const {
 
 // === 提醒服务 ===
 const reminder = useReminderService()
-// ending 提醒派生
-const endingVisible = reminder.isEndingVisible
-const endingTitle = computed(() => reminder._endingReminder.value?.title || '考试即将结束')
-const endingOverlayStyle = computed(() => {
-  const base = reminder._endingReminder.value?.themeBaseColor || '#ff3b30'
+// colorful 提醒派生
+const colorfulVisible = reminder.isColorfulVisible
+const colorfulTitle = computed(() => reminder._colorfulReminder.value?.title || '提示')
+const colorfulOverlayStyle = computed(() => {
+  const base = reminder._colorfulReminder.value?.themeBaseColor || '#ff3b30'
   const text = ReminderUtils.getContrastingTextColor(base)
   return {
-    '--ending-bg': base,
-    '--ending-text': text
+    '--colorful-bg': base,
+    '--colorful-text': text
   } as Record<string, string>
 })
 
@@ -316,9 +296,14 @@ const renderedMarkdown = computed(() =>
 )
 const handleCloseNotice = () => reminder.closeCurrentNotice('manual')
 
+// 可插拔卡片：注册与上下文将在依赖项声明后注入（见下文）
+
 // 将 API 暴露给父组件，便于外部触发
 defineExpose({
-  // 结束提醒
+  // 彩色提醒（新）
+  showColorfulAlert: reminder.showColorfulAlert,
+  hideColorfulAlert: reminder.hideColorfulAlert,
+  // 兼容旧名
   showEndingAlert: reminder.showEndingAlert,
   hideEndingAlert: reminder.hideEndingAlert,
   // 普通提醒
@@ -343,7 +328,7 @@ watch(
       const examId = currentExam.value?.id || currentExam.value?.name
       if (minutes <= 10 && examId && hasShownEndingForExamId !== examId) {
         hasShownEndingForExamId = examId
-        reminder.showEndingAlert({ durationMs: 8000 })
+  reminder.showColorfulAlert({ title: '考试即将结束', themeBaseColor: '#f1c40f' })
       }
     }
   }
@@ -491,6 +476,18 @@ onMounted(() => {
     emit('update:roomNumber', stored)
     emit('roomNumberChange', stored)
   }
+
+  // 初次挂载后，根据当前状态弹一次彩色提醒
+  setTimeout(() => {
+    const status = examStatus.value?.status
+    if (status === 'inProgress') {
+      reminder.showColorfulAlert({ title: '考试进行中', themeBaseColor: '#2ecc71' })
+    } else if (status === 'pending') {
+      // 不打扰：未开始不弹，或按需提示“未开始”
+    } else if (status === 'completed') {
+      reminder.showColorfulAlert({ title: '考试已结束', themeBaseColor: '#ff3b30' })
+    }
+  }, 0)
 })
 
 // === UI 自动缩放逻辑 ===
@@ -657,6 +654,27 @@ watch(
     }
   }
 )
+
+// === 可插拔卡片：在依赖都声明后注入 provide，并计算卡片组件 ===
+const ctxForCards = {
+  formattedCurrentTime,
+  timeSyncStatus: computed(() => props.timeSyncStatus),
+  currentExam,
+  currentExamName,
+  currentExamTimeRange,
+  displayedRemainingTime: computed(() => examStatus.value?.status === 'pending' ? '' : remainingTime.value || ''),
+  displayFormattedExamInfos,
+  effectiveRoomNumber,
+  handleRoomNumberClick
+}
+provide('ExamPlayerCtx', ctxForCards)
+
+const resolvedCards = computed(() => ({
+  clock: props.cards?.clock ?? ClockCard,
+  examInfo: props.cards?.examInfo ?? ExamInfoCard,
+  room: props.cards?.room ?? ExamRoomCard,
+  list: props.cards?.list ?? CurrentListCard
+}))
 </script>
 
 <style scoped>
@@ -784,6 +802,14 @@ watch(
   min-width: 0; /* 允许收缩 */
   padding-top: calc(var(--ui-scale, 1) * 40px * 100vh / 1080px);
   overflow: hidden; /* 防止内容溢出 */
+}
+
+/* 统一卡片间距（适配可插拔卡片） */
+.card-item {
+  margin-bottom: calc(var(--ui-scale, 1) * 2rem);
+}
+.card-item:last-child {
+  margin-bottom: 0;
 }
 
 /* 弹窗样式 */
@@ -929,17 +955,18 @@ watch(
   transform: scale(1.02);
 }
 
-/* 结束提醒：红色遮罩 */
-.ending-overlay {
-  background: color-mix(in srgb, var(--ending-bg, #ff3b30) 85%, transparent);
+/* 彩色提醒：全屏遮罩（可定制颜色） */
+.colorful-overlay {
+  background: color-mix(in srgb, var(--colorful-bg, #ff3b30) 85%, transparent);
   backdrop-filter: blur(2px);
 }
-.ending-title {
-  color: var(--ending-text, #fff);
+.colorful-title {
+  color: var(--colorful-text, #fff);
   font-size: calc(var(--ui-scale, 1) * 5rem);
   font-weight: 800;
   letter-spacing: 0.05em;
   text-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  text-align: center;
 }
 
 /* 普通通知：毛玻璃卡片 */
