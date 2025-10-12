@@ -3,7 +3,10 @@
   "private": true,
   "description": "ExamAware 知试",
   "scripts": {
-    "dev": "pnpm --filter @examaware/desktop dev",
+    "dev:prebuild": "pnpm core:build && pnpm player:build",
+    "dev:watch": "pnpm -r --parallel --filter @examaware/core --filter @examaware/player dev",
+    "dev": "pnpm run dev:prebuild && pnpm -r --parallel --filter @examaware/core --filter @examaware/player --filter @examaware/desktop dev",
+    "desktop:dev": "pnpm --filter @examaware/desktop dev",
     "build": "pnpm --filter @examaware/desktop build",
     "preview": "pnpm --filter @examaware/desktop preview",
     "core:build": "pnpm --filter @examaware/core build",
