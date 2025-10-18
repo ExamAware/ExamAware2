@@ -17,11 +17,13 @@ import { themeModule } from './app/modules/theme'
 import { capabilitiesModule } from './app/modules/capabilities'
 import { pagesModule } from './app/modules/pages'
 import { routerRegistrarModule } from './app/modules/routerRegistrar'
+import { homeButtonsModule } from './app/modules/homeButtons'
 
 async function bootstrap() {
   const app = await createDesktopApp({
     modules: [
       capabilitiesModule,
+      homeButtonsModule,
       pagesModule,
       routerRegistrarModule,
       piniaModule,

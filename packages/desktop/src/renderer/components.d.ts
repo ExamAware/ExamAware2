@@ -19,6 +19,7 @@ declare module 'vue' {
     ExamListCard: typeof import('./src/components/ExamListCard.vue')['default']
     ExamMaterialsPanel: typeof import('./src/components/ExamMaterialsPanel.vue')['default']
     ExamRoomNumber: typeof import('./src/components/player/ExamRoomNumber.vue')['default']
+    HomeButtonsGrid: typeof import('./src/components/HomeButtonsGrid.vue')['default']
     InfoCardWithIcon: typeof import('./src/components/player/InfoCardWithIcon.vue')['default']
     InfoItem: typeof import('./src/components/player/InfoItem.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
