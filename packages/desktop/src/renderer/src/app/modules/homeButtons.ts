@@ -1,0 +1,159 @@
+import type { App } from 'vue'
+import type { AppModule } from '../types'
+
+export interface HomeButtonMeta {
+  id: string
+  label: string
+  icon: string
+  theme?: 'default' | 'primary' | 'success' | 'warning' | 'danger'
+  order?: number
+  action: () => void | Promise<void>
+}
+
+export class HomeButtonsRegistry {
+  private buttons = new Map<string, HomeButtonMeta>()
+  private listeners = new Set<() => void>()
+
+  register(meta: HomeButtonMeta) {
+    this.buttons.set(meta.id, { order: 0, theme: 'default', ...meta })
+    this.notify()
+  }
+
+  unregister(id: string) {
+    this.buttons.delete(id)
+    this.notify()
+  }
+
+  get(id: string): HomeButtonMeta | undefined {
+    return this.buttons.get(id)
+  }
+
+  list(): HomeButtonMeta[] {
+    return Array.from(this.buttons.values()).sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+  }
+
+  subscribe(listener: () => void): () => void {
+    this.listeners.add(listener)
+    return () => this.listeners.delete(listener)
+  }
+
+  private notify() {
+    this.listeners.forEach((l) => {
+      try {
+        l()
+      } catch {}
+    })
+  }
+}
+
+export const homeButtonsModule: AppModule = {
+  name: 'home-buttons',
+  install(app: App, ctx) {
+    const registry = new HomeButtonsRegistry()
+
+    // 注册默认按钮
+    registry.register({
+      id: 'editor',
+      label: '编辑器',
+      icon: 'edit',
+      theme: 'success',
+      order: 1,
+      action: () => {
+        window.api.ipc.send('open-editor-window')
+      }
+    })
+
+    registry.register({
+      id: 'player',
+      label: '放映器',
+      icon: 'play-circle',
+      theme: 'warning',
+      order: 2,
+      action: async () => {
+        const router = (app.config.globalProperties as any).$router
+        if (router) {
+          await router.push('/playerhome')
+        }
+      }
+    })
+
+    registry.register({
+      id: 'url-player',
+      label: '从 URL 放映',
+      icon: 'link',
+      theme: 'default',
+      order: 3,
+      action: () => {
+        // TODO: 实现 URL 放映功能
+        console.log('URL 放映功能待实现')
+      }
+    })
+
+    registry.register({
+      id: 'control',
+      label: '集控',
+      icon: 'server',
+      theme: 'default',
+      order: 4,
+      action: () => {
+        // TODO: 实现集控功能
+        console.log('集控功能待实现')
+      }
+    })
+
+    // 添加更多按钮来展示分页效果
+    registry.register({
+      id: 'settings',
+      label: '设置',
+      icon: 'setting',
+      theme: 'default',
+      order: 5,
+      action: () => {
+        console.log('设置功能待实现')
+      }
+    })
+
+    registry.register({
+      id: 'help',
+      label: '帮助',
+      icon: 'help-circle',
+      theme: 'default',
+      order: 6,
+      action: () => {
+        console.log('帮助功能待实现')
+      }
+    })
+
+    registry.register({
+      id: 'about',
+      label: '关于',
+      icon: 'info-circle',
+      theme: 'default',
+      order: 7,
+      action: () => {
+        console.log('关于功能待实现')
+      }
+    })
+
+    // 添加更多示例按钮以测试滚动功能
+    registry.register({
+      id: 'logs',
+      label: '日志',
+      icon: 'file-code',
+      theme: 'default',
+      order: 8,
+      action: () => {
+        console.log('打开日志页面')
+      }
+    })
+
+    ;(app.config.globalProperties as any).$homeButtons = registry
+    app.provide('homeButtons' as any, registry)
+    ctx.provides.homeButtons = registry
+  },
+  uninstall(app: App) {
+    if ((app.config.globalProperties as any).$homeButtons) {
+      delete (app.config.globalProperties as any).$homeButtons
+    }
+  }
+}
