@@ -6,38 +6,32 @@ import 'misans/lib/Normal/MiSans-Bold.min.css'
 
 import './assets/main.css'
 
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
-
-import App from './App.vue'
-import router from './router'
-
 import 'vue-code-layout/lib/vue-code-layout.css'
-import CodeLayout from 'vue-code-layout'
-
-// import TDesign from 'tdesign-vue-next'
 import 'tdesign-vue-next/es/style/index.css'
 
-const app = createApp(App)
-const pinia = createPinia()
+import { createDesktopApp } from './app/createDesktopApp'
+import { piniaModule } from './app/modules/pinia'
+import { routerModule } from './app/modules/router'
+import { codeLayoutModule } from './app/modules/codeLayout'
+import { themeModule } from './app/modules/theme'
+import { capabilitiesModule } from './app/modules/capabilities'
+import { pagesModule } from './app/modules/pages'
+import { routerRegistrarModule } from './app/modules/routerRegistrar'
 
-app.use(pinia)
-app.use(router)
-app.use(CodeLayout)
-// app.use(TDesign)
+async function bootstrap() {
+  const app = await createDesktopApp({
+    modules: [
+      capabilitiesModule,
+      pagesModule,
+      routerRegistrarModule,
+      piniaModule,
+      routerModule,
+      codeLayoutModule,
+      themeModule('dark')
+    ]
+  })
 
-// const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+  app.app.mount('#app')
+}
 
-// function updateTheme(event: MediaQueryListEvent) {
-//   console.log('updateTheme', event.matches)
-//   document.documentElement.setAttribute('theme-mode', event.matches ? 'dark' : 'light')
-// }
-
-// mediaQuery.addEventListener('change', updateTheme)
-
-// // Set the initial theme
-// document.documentElement.setAttribute('theme-mode', mediaQuery.matches ? 'dark' : 'light')
-
-document.documentElement.setAttribute('theme-mode', 'dark')
-
-app.mount('#app')
+bootstrap()

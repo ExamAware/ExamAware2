@@ -40,29 +40,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { NotifyPlugin } from 'tdesign-vue-next'
+import { createPlayerLauncher } from '@renderer/services/playerLauncher'
 
-const ipcRenderer = window.api.ipc
-const filePath = ref('')
+const launcher = createPlayerLauncher()
 
 const selectFile = async () => {
-  const result = await ipcRenderer.invoke('select-file')
-  if (result) {
-    filePath.value = result
-    openPlayerWindow()
-  }
+  await launcher.selectLocalAndOpen()
 }
 
 const openUrl = () => {
   console.log('打开 URL')
-}
-
-const openPlayerWindow = () => {
-  if (filePath.value) {
-    ipcRenderer.send('open-player-window', filePath.value)
-  }
-  console.log('打开放映器', filePath.value)
 }
 </script>
 

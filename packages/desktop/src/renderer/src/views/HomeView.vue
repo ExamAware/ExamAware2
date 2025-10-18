@@ -6,23 +6,11 @@
           <template #logo>
             <img width="35" class="logo" :src="eaLogo" alt="logo" />
           </template>
-          <t-menu-item value="home">
+          <t-menu-item v-for="item in sidebarItems" :key="item.id" :value="item.id">
             <template #icon>
-              <t-icon name="home" />
+              <t-icon :name="item.icon || 'app'" />
             </template>
-            主页
-          </t-menu-item>
-          <t-menu-item value="playerhome">
-            <template #icon>
-              <t-icon name="play-circle" />
-            </template>
-            放映器
-          </t-menu-item>
-          <t-menu-item value="ntpsettings">
-            <template #icon>
-              <t-icon name="time" />
-            </template>
-            NTP 设置
+            {{ item.label }}
           </t-menu-item>
         </t-menu>
       </t-aside>
@@ -34,32 +22,33 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { FileIcon } from 'tdesign-icons-vue-next'
 import eaLogo from "@renderer/assets/logo.svg"
+import { usePages, useSidebarPages } from '@renderer/composables/usePages'
 
 const router = useRouter()
 const route = useRoute()
 
-const routeMap = {
-  // 侧栏
-  home: '/mainpage',
-  playerhome: '/playerhome',
-  ntpsettings: '/ntpsettings'
-}
+const pages = usePages()
+const { list: listSidebar } = useSidebarPages(pages)
+const sidebarItems = computed(() => listSidebar())
+const routeMap = computed(() =>
+  Object.fromEntries(sidebarItems.value.map((p) => [p.id, p.path]))
+)
 
-const currentMenu = ref(Object.keys(routeMap).find((key) => routeMap[key] === route.path) || 'home')
+const currentMenu = ref(Object.keys(routeMap.value).find((key) => routeMap.value[key] === route.path) || 'home')
 
 const handleMenuChange = (value) => {
-  const route = routeMap[value]
+  const route = routeMap.value[value]
   if (route) {
     router.push(route)
   }
 }
 
 watch(route, (newRoute) => {
-  currentMenu.value = Object.keys(routeMap).find((key) => routeMap[key] === newRoute.path) || 'home'
+  currentMenu.value = Object.keys(routeMap.value).find((key) => routeMap.value[key] === newRoute.path) || 'home'
 })
 </script>
 
