@@ -147,3 +147,6 @@ deb:
 npmRebuild: false
 electronDownload:
   mirror: https://npmmirror.com/mirrors/electron/
+rebuild:
+  buildFromSource: false
+  force: false
