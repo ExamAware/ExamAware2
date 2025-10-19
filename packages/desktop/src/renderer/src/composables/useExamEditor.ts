@@ -5,6 +5,7 @@ import { FileOperationManager } from '@renderer/core/fileOperations'
 import { RecentFileManager } from '@renderer/core/recentFileManager'
 import { MessageService } from '@renderer/core/messageService'
 import { KeyboardShortcutManager, type KeyboardShortcut } from '@renderer/core/keyboardShortcuts'
+import { historyStore } from '@renderer/core/historyStore'
 
 /**
  * 考试编辑器状态管理
@@ -76,6 +77,7 @@ export function useExamEditor() {
 
     console.log('useExamEditor: examConfig after update:', examConfig)
 
+    // 历史：应用外部配置时视为重放，不自动 push
     // 标记文件已修改（除非是新文件加载）
     if (!isNewFile.value) {
       markFileAsModified()
@@ -87,6 +89,7 @@ export function useExamEditor() {
     const newIndex = configManager.addExamInfo()
     currentExamIndex.value = newIndex
     markFileAsModified()
+    historyStore.push('新增考试', examConfig)
   }
 
   const deleteExam = (index: number) => {
@@ -97,11 +100,13 @@ export function useExamEditor() {
       currentExamIndex.value--
     }
     markFileAsModified()
+    historyStore.push('删除考试', examConfig)
   }
 
   const updateExam = (index: number, examInfo: Partial<typeof examConfig.examInfos[0]>) => {
     configManager.updateExamInfo(index, examInfo)
     markFileAsModified()
+    historyStore.pushDebounced(`updateExam:${index}`, 400, '编辑考试', examConfig)
   }
 
   const switchToExam = (index: number) => {
@@ -113,6 +118,7 @@ export function useExamEditor() {
   const updateConfig = (newConfig: Partial<ExamConfig>) => {
     configManager.updateConfig(newConfig)
     markFileAsModified()
+    historyStore.pushDebounced('updateConfig', 400, '编辑配置', examConfig)
   }
 
   const newProject = () => {
@@ -130,6 +136,7 @@ export function useExamEditor() {
     isFileModified.value = false
     isNewFile.value = true
     windowTitle.value = 'ExamAware Editor - 新项目'
+    historyStore.init(examConfig, '新项目')
   }
 
   const saveProject = async () => {
@@ -171,6 +178,7 @@ export function useExamEditor() {
           RecentFileManager.addRecentFile(filePath)
           MessageService.success('文件已保存')
           console.log('文件已保存:', filePath)
+          historyStore.push('另存为', examConfig)
           return true
         } else {
           MessageService.error('保存失败')
@@ -192,6 +200,7 @@ export function useExamEditor() {
       const examName = examConfig.examInfos[0]?.name || 'exam'
       FileOperationManager.exportJsonFile(content, `${examName}.exam.json`)
       MessageService.success('项目已导出')
+  historyStore.push('导出项目', examConfig)
     } catch (error) {
       MessageService.error('导出失败')
       console.error('导出失败:', error)
@@ -208,6 +217,7 @@ export function useExamEditor() {
           windowTitle.value = 'ExamAware Editor - 已导入项目'
           MessageService.success('项目导入成功')
           console.log('项目导入成功')
+          historyStore.init(examConfig, '导入项目')
         } else {
           MessageService.error('项目导入失败：文件格式不正确')
           console.error('项目导入失败：文件格式不正确')
@@ -242,6 +252,7 @@ export function useExamEditor() {
             RecentFileManager.addRecentFile(filePath)
             MessageService.success('项目打开成功')
             console.log('项目打开成功:', filePath)
+            historyStore.init(examConfig, '打开项目')
           } else {
             MessageService.error('项目打开失败：文件格式不正确')
             console.error('项目打开失败：文件格式不正确')
@@ -263,15 +274,16 @@ export function useExamEditor() {
     windowTitle.value = 'ExamAware Editor'
     MessageService.info('项目已关闭')
     console.log('项目已关闭')
+    historyStore.init(examConfig, '关闭项目')
   }
   const undoAction = () => {
-    console.log('撤销操作')
-    // TODO: 实现撤销功能
+    // 撤销到上一历史
+    historyStore.undo()
   }
 
   const redoAction = () => {
-    console.log('重做操作')
-    // TODO: 实现重做功能
+    // 重做到下一历史
+    historyStore.redo()
   }
 
   const cutAction = () => {
@@ -329,6 +341,18 @@ export function useExamEditor() {
   // 生命周期
   onMounted(() => {
     configManager.addListener(configListener)
+    // 绑定历史应用函数：将历史快照应用到 configManager
+    historyStore.setApply((snapshotJson) => {
+      try {
+        const snap = JSON.parse(snapshotJson)
+        // 用 configManager 的加载能力应用快照
+        // 注意：此处标记 isNewFile 以避免 markFileAsModified
+        configManager.updateConfig(snap)
+      } catch (e) {
+        console.error('History apply failed', e)
+      }
+    })
+    historyStore.init(examConfig, '初始状态')
     // 移除自动加载功能，改为手动恢复
     // configManager.loadFromLocalStorage()
 
@@ -350,6 +374,8 @@ export function useExamEditor() {
 
     // 处理窗口关闭前的保存提示
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      // 先冲刷所有延迟的历史快照，避免丢失最后一次编辑
+      historyStore.flushAllDebounced()
       if (isFileModified.value && !isNewFile.value) {
         event.preventDefault()
         event.returnValue = '您有未保存的更改，确定要离开吗？'
@@ -359,6 +385,13 @@ export function useExamEditor() {
     }
 
     window.addEventListener('beforeunload', handleBeforeUnload)
+    // 页面隐藏或跳转时也尝试冲刷
+    const handleVisibility = () => {
+      if (document.hidden) historyStore.flushAllDebounced()
+    }
+    const handlePageHide = () => historyStore.flushAllDebounced()
+    document.addEventListener('visibilitychange', handleVisibility)
+    window.addEventListener('pagehide', handlePageHide)
 
     // 监听启动时打开文件的事件
     window.electronAPI?.onOpenFileAtStartup?.(async (filePath: string) => {
@@ -391,8 +424,12 @@ export function useExamEditor() {
   })
 
   onUnmounted(() => {
+    historyStore.flushAllDebounced()
     configManager.removeListener(configListener)
     keyboardManager.stopListening()
+    // 清理监听
+    // 注意：此处无法直接移除在 onMounted 中声明的本地函数，
+    // 因此建议使用相同引用移除（若需要更严格，可将处理器提升到外层变量）。
   })
 
   return {

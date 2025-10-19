@@ -1,8 +1,10 @@
 import { ipcMain, dialog, BrowserWindow } from 'electron'
+import { addLog, getLogs, clearLogs } from '../logging/logStore'
 import type { MainContext } from '../runtime/context'
 import { createEditorWindow } from '../windows/editorWindow'
 import { createPlayerWindow } from '../windows/playerWindow'
 import { fileApi } from '../fileUtils'
+import { createLogsWindow } from '../windows/logsWindow'
 
 // 存储当前加载的配置数据
 let currentConfigData: string | null = null
@@ -50,6 +52,33 @@ function handle(channel: string, listener: Parameters<typeof ipcMain.handle>[1])
 
 export function registerIpcHandlers(ctx?: MainContext): () => void {
   const group = createDisposerGroup()
+  // 拦截主进程 console 输出
+  const originalConsole: Partial<Record<'log'|'info'|'warn'|'error'|'debug', any>> = {}
+  ;(['log','info','warn','error','debug'] as const).forEach((level) => {
+    const orig = console[level]
+    originalConsole[level] = orig
+    // @ts-ignore
+    console[level] = (...args: any[]) => {
+      try {
+        addLog({
+          timestamp: Date.now(),
+          level,
+          process: 'main',
+          message: args.map((a) => (typeof a === 'string' ? a : JSON.stringify(a))).join(' '),
+        })
+      } catch {}
+      try { orig.apply(console, args as any) } catch {}
+    }
+  })
+  group.add(() => {
+    ;(['log','info','warn','error','debug'] as const).forEach((level) => {
+      const orig = originalConsole[level]
+      if (orig) {
+        // @ts-ignore
+        console[level] = orig
+      }
+    })
+  })
   // IPC test
   if (ctx) ctx.ipc.on('ping', () => console.log('pong'))
   else group.add(on('ping', () => console.log('pong')))
@@ -65,6 +94,38 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
     console.log('get-config requested, returning:', config)
     return config
   }))
+
+  // ===== Logging IPC =====
+  if (ctx) ctx.ipc.on('logs:renderer', (event, payload: { level: string; message: string; stack?: string; source?: string }) => {
+    const window = BrowserWindow.fromWebContents(event.sender)
+    addLog({
+      timestamp: Date.now(),
+      level: (['log','info','warn','error','debug'] as any).includes(payload.level) ? (payload.level as any) : 'log',
+      process: 'renderer',
+      windowId: window?.id,
+      message: payload.message,
+      stack: payload.stack,
+      source: payload.source,
+    })
+  })
+  else group.add(on('logs:renderer', (event, payload: { level: string; message: string; stack?: string; source?: string }) => {
+    const window = BrowserWindow.fromWebContents(event.sender)
+    addLog({
+      timestamp: Date.now(),
+      level: (['log','info','warn','error','debug'] as any).includes(payload.level) ? (payload.level as any) : 'log',
+      process: 'renderer',
+      windowId: window?.id,
+      message: payload.message,
+      stack: payload.stack,
+      source: payload.source,
+    })
+  }))
+
+  if (ctx) ctx.ipc.handle('logs:get', () => getLogs())
+  else group.add(handle('logs:get', () => getLogs()))
+
+  if (ctx) ctx.ipc.on('logs:clear', () => clearLogs())
+  else group.add(on('logs:clear', () => clearLogs()))
 
   // Handle set config data (called from playerWindow)
   if (ctx) ctx.ipc.on('set-config', (_event, data: string) => {
@@ -89,6 +150,14 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
   })
   else group.add(on('open-player-window', (_event, configPath) => {
     createPlayerWindow(configPath)
+  }))
+
+  // 打开日志窗口
+  if (ctx) ctx.ipc.on('open-logs-window', () => {
+    createLogsWindow()
+  })
+  else group.add(on('open-logs-window', () => {
+    createLogsWindow()
   }))
 
   // 窗口控制处理程序

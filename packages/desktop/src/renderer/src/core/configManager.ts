@@ -75,7 +75,8 @@ export class ExamConfigManager {
    */
   updateExamInfo(index: number, examInfo: Partial<ExamInfo>): void {
     if (index >= 0 && index < this.config.examInfos.length) {
-      this.config.examInfos[index] = { ...this.config.examInfos[index], ...examInfo }
+      // 保持对象引用不变，避免外层基于对象身份的追踪/UID 失效
+      Object.assign(this.config.examInfos[index], examInfo)
       this.notifyListeners()
       this.saveToLocalStorage()
     }

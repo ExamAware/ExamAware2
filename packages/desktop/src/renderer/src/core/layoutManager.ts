@@ -1,6 +1,6 @@
 import { h, type Component } from 'vue'
 import type { CodeLayoutInstance } from 'vue-code-layout'
-import { FileIcon, InfoCircleIcon, AddIcon, BugIcon, CheckCircleIcon } from 'tdesign-icons-vue-next'
+import { FileIcon, InfoCircleIcon, AddIcon, BugIcon, CheckCircleIcon, HistoryIcon } from 'tdesign-icons-vue-next'
 
 /**
  * 布局管理器
@@ -82,6 +82,27 @@ export class LayoutManager {
       tooltip: 'Exam Info',
       name: 'explorer.examinfo',
       noHide: true,
+      startOpen: true,
+      iconSmall: () => h(InfoCircleIcon),
+      iconLarge: () => h(InfoCircleIcon, { size: '16pt' }),
+    })
+
+    // 操作记录独立分组（在主侧边栏）
+    const groupHistory = this.codeLayout.addGroup(
+      {
+        title: '历史',
+        tooltip: 'History',
+        name: 'history',
+        badge: '',
+        iconLarge: () => h(HistoryIcon, { size: '16pt' }),
+      },
+      'primarySideBar',
+    )
+    groupHistory.addPanel({
+      title: '操作记录',
+      tooltip: 'Operation History',
+      name: 'history.operations',
+      noHide: false,
       startOpen: true,
       iconSmall: () => h(InfoCircleIcon),
       iconLarge: () => h(InfoCircleIcon, { size: '16pt' }),

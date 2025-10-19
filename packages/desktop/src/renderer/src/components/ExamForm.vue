@@ -13,6 +13,9 @@
           v-model="formData.name"
           placeholder="请输入考试名称"
           @input="handleFieldChange('name')"
+          @blur="flushAutoSave"
+          @compositionstart="onNameCompositionStart"
+          @compositionend="onNameCompositionEnd"
         />
       </t-form-item>
 
@@ -24,6 +27,7 @@
           clearable
           placeholder="请选择开始时间"
           @change="handleFieldChange('start')"
+          @blur="flushAutoSave"
         />
       </t-form-item>
 
@@ -35,6 +39,7 @@
           clearable
           placeholder="请选择结束时间"
           @change="handleFieldChange('end')"
+          @blur="flushAutoSave"
         />
       </t-form-item>
 
@@ -48,6 +53,7 @@
           placeholder="提醒时间"
           @change="handleFieldChange('alertTime')"
           @input="handleFieldChange('alertTime')"
+          @blur="flushAutoSave"
         />
       </t-form-item>
 
@@ -75,7 +81,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, computed } from 'vue'
+import { ref, reactive, watch, computed, onBeforeUnmount } from 'vue'
 import type { ExamInfo } from '@renderer/core/configTypes'
 import type { FormRule } from 'tdesign-vue-next'
 import { formatLocalDateTime, parseDateTime } from '@renderer/utils/dateFormat'
@@ -108,6 +114,8 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>()
 
 const formRef = ref()
+const isComposing = ref(false)
+const pendingSync = ref<ExamInfo | null>(null)
 
 // 表单数据
 const formData = reactive<ExamInfo>({
@@ -205,7 +213,11 @@ watch(
   () => props.modelValue,
   (newValue) => {
     if (newValue) {
-      Object.assign(formData, newValue)
+      if (isComposing.value) {
+        pendingSync.value = { ...newValue }
+      } else {
+        Object.assign(formData, newValue)
+      }
     }
   },
   { immediate: true, deep: true }
@@ -230,10 +242,11 @@ const handleFieldChange = (field: keyof ExamInfo) => {
 
   if (props.autoSave) {
     // 实时保存，稍微延迟避免频繁触发
-    clearTimeout(autoSaveTimer.value)
+    if (autoSaveTimer.value) clearTimeout(autoSaveTimer.value as any)
     autoSaveTimer.value = setTimeout(() => {
       handleSave()
-    }, 300) // 减少延迟时间，让保存更及时
+      autoSaveTimer.value = null
+    }, 300) as any // 减少延迟时间，让保存更及时
   }
 }
 
@@ -243,7 +256,34 @@ const handleMaterialsChange = (materials: ExamMaterial[]) => {
   handleFieldChange('materials' as keyof ExamInfo)
 }
 
-const autoSaveTimer = ref<ReturnType<typeof setTimeout>>()
+// 处理中文输入法合成标志
+const onNameCompositionStart = () => {
+  isComposing.value = true
+}
+const onNameCompositionEnd = () => {
+  isComposing.value = false
+  // 合成结束，若有待同步的外部值，应用之
+  if (pendingSync.value) {
+    Object.assign(formData, pendingSync.value)
+    pendingSync.value = null
+  }
+  // 同步最新值并保存
+  handleFieldChange('name')
+  flushAutoSave()
+}
+
+const autoSaveTimer = ref<ReturnType<typeof setTimeout> | null>(null)
+
+// 立刻冲刷自动保存，避免因页面切换或 IME 结束导致的丢失
+const flushAutoSave = () => {
+  if (autoSaveTimer.value) {
+    clearTimeout(autoSaveTimer.value as any)
+    autoSaveTimer.value = null
+    // 先将最终值同步给父组件，避免丢失最后一次编辑
+    emit('update:modelValue', { ...formData })
+    handleSave()
+  }
+}
 
 // 处理提交
 const handleSubmit = async (e?: Event) => {
@@ -287,6 +327,11 @@ defineExpose({
   validate,
   resetValidation,
   formData,
+  flushAutoSave,
+})
+
+onBeforeUnmount(() => {
+  flushAutoSave()
 })
 </script>
 

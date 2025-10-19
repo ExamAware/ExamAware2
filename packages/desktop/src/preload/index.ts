@@ -39,6 +39,20 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('electronAPI', windowAPI)
     contextBridge.exposeInMainWorld('api', api)
+    // 拦截渲染进程 console，转发到主进程
+    const levels: Array<'log'|'info'|'warn'|'error'|'debug'> = ['log','info','warn','error','debug']
+    const original: any = {}
+    levels.forEach((lvl) => {
+      original[lvl] = console[lvl]
+      // @ts-ignore
+      console[lvl] = (...args: any[]) => {
+        try {
+          const message = args.map((a) => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ')
+          ipcRenderer.send('logs:renderer', { level: lvl, message })
+        } catch {}
+        try { original[lvl].apply(console, args as any) } catch {}
+      }
+    })
   } catch (error) {
     console.error(error)
   }
@@ -49,4 +63,18 @@ if (process.contextIsolated) {
   window.electronAPI = windowAPI
   // @ts-ignore (define in dts)
   window.api = api
+  // 非隔离模式也拦截 console
+  const levels: Array<'log'|'info'|'warn'|'error'|'debug'> = ['log','info','warn','error','debug']
+  const original: any = {}
+  levels.forEach((lvl) => {
+    original[lvl] = console[lvl]
+    // @ts-ignore
+    console[lvl] = (...args: any[]) => {
+      try {
+        const message = args.map((a) => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ')
+        ipcRenderer.send('logs:renderer', { level: lvl, message })
+      } catch {}
+      try { original[lvl].apply(console, args as any) } catch {}
+    }
+  })
 }
