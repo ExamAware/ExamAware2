@@ -132,25 +132,20 @@ onUnmounted(() => {
 
 .minimize-btn:hover,
 .maximize-btn:hover {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: var(--td-bg-color-container-hover);
 }
 
 .close-btn:hover {
   background-color: #e81123;
-  color: white;
+  color: var(--td-text-color-anti);
 }
 
 .close-btn:hover :deep(.t-icon) {
-  color: white;
+  color: var(--td-text-color-anti);
 }
 
 /* 深色主题样式 */
 @media (prefers-color-scheme: dark) {
-  .minimize-btn:hover,
-  .maximize-btn:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-  }
-
   .close-btn:hover {
     background-color: #e81123;
   }

@@ -299,7 +299,7 @@ if (typeof window !== 'undefined') {
 
 :deep(.numeric-keyboard-dark .hg-button) {
   background: #2d2d2d !important;
-  color: #ffffff !important;
+  color: var(--td-text-color-anti) !important;
   border: 1px solid #404040 !important;
   border-radius: 6px !important;
   height: 50px !important;
@@ -325,7 +325,7 @@ if (typeof window !== 'undefined') {
 
 :deep(.numeric-keyboard-dark .hg-button.hg-functionBtn) {
   background: #0052d9 !important;
-  color: #ffffff !important;
+  color: var(--td-text-color-anti) !important;
   border-color: #0052d9 !important;
 }
 

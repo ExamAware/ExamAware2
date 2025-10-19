@@ -159,7 +159,8 @@ export const homeButtonsModule: AppModule = {
       theme: 'default',
       order: 8,
       action: () => {
-        console.log('打开日志页面')
+        // 打开/聚焦独立的日志窗口（单例）
+        window.api?.ipc?.send('open-logs-window')
       }
   }))
 

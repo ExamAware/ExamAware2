@@ -4,10 +4,10 @@ import 'misans/lib/Normal/MiSans-Bold.min.css'
 // import 'misans/lib/Normal/MiSans-Thin.min.css'
 // import 'misans/lib/Normal/MiSans-Semibold.min.css'
 
-import './assets/main.css'
-
 import 'vue-code-layout/lib/vue-code-layout.css'
 import 'tdesign-vue-next/es/style/index.css'
+// 自定义样式与变量映射需在库样式之后导入，确保覆盖生效
+import './assets/main.css'
 
 import { createDesktopApp } from './app/createDesktopApp'
 import { piniaModule } from './app/modules/pinia'
@@ -29,7 +29,8 @@ async function bootstrap() {
       piniaModule,
       routerModule,
       codeLayoutModule,
-      themeModule('dark')
+      // 使用自动主题，随系统或后续切换
+      themeModule('auto')
     ]
   })
 
