@@ -1,5 +1,5 @@
 /**
- * @examaware/core
+ * @dsz-examaware/core
  * ExamAware 核心库 - 考试配置解析和验证
  */
 

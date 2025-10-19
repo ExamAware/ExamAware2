@@ -1,5 +1,5 @@
 import { ref, computed, readonly, watch } from 'vue'
-import type { ExamConfig } from '@examaware/core'
+import type { ExamConfig } from '@dsz-examaware/core'
 import { ExamTaskQueue } from '../taskQueue'
 import { ExamDataProcessor } from '../dataProcessor'
 import type { PlayerConfig, PlayerEventHandlers, PlayerState } from '../types'

@@ -1,5 +1,5 @@
-import type { ExamConfig } from '@examaware/core'
-import { parseDateTime } from '@examaware/core'
+import type { ExamConfig } from '@dsz-examaware/core'
+import { parseDateTime } from '@dsz-examaware/core'
 import type { TaskInfo, PlayerEventHandlers } from './types'
 
 export type TaskType = 'exam-start' | 'exam-end' | 'exam-alert'

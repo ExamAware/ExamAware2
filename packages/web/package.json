@@ -1,5 +1,5 @@
 {
-  "name": "@examaware/web",
+  "name": "@dsz-examaware/web",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -9,8 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@examaware/player": "workspace:*",
-  "@examaware/core": "workspace:*",
+    "@dsz-examaware/player": "workspace:*",
+  "@dsz-examaware/core": "workspace:*",
   "tdesign-vue-next": "^1.15.5",
   "vue": "^3.5.19",
   "vue-router": "^4.5.1"

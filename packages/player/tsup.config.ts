@@ -11,5 +11,5 @@ export default defineConfig({
   minify: false,
   splitting: false,
   treeshake: true,
-  external: ['vue', '@examaware/core']
+  external: ['vue', '@dsz-examaware/core']
 })

@@ -13,8 +13,8 @@
     "types": ["vite/client"],
     "baseUrl": ".",
     "paths": {
-      "@examaware/core": ["../core/src/index.ts"],
-      "@examaware/player": ["../player/src/index.ts"]
+      "@dsz-examaware/core": ["../core/src/index.ts"],
+      "@dsz-examaware/player": ["../player/src/index.ts"]
     }
   },
   "include": ["src"]

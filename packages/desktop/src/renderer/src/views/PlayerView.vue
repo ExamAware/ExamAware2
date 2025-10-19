@@ -28,9 +28,9 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { NotifyPlugin, DialogPlugin } from 'tdesign-vue-next'
-import { ExamPlayer, type PlayerConfig } from '@examaware/player'
+import { ExamPlayer, type PlayerConfig } from '@dsz-examaware/player'
 // 导入 player 包的样式
-import '@examaware/player/dist/player.css'
+import '@dsz-examaware/player/dist/player.css'
 import { useConfigLoader } from '@renderer/composables/useConfigLoader'
 import { ElectronTimeProvider } from '@renderer/adapters/ElectronTimeProvider'
 import { RecentFileManager } from '@renderer/core/recentFileManager'

@@ -22,11 +22,11 @@ export default defineConfig({
       fileName: (format) => `index.${format === 'es' ? 'mjs' : 'js'}`
     },
     rollupOptions: {
-      external: ['vue', '@examaware/core'],
+      external: ['vue', '@dsz-examaware/core'],
       output: {
         globals: {
           vue: 'Vue',
-          '@examaware/core': 'ExamAwareCore'
+          '@dsz-examaware/core': 'ExamAwareCore'
         },
         exports: 'named'
       }

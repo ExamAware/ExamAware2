@@ -1,6 +1,6 @@
 import { onMounted, onUnmounted, readonly } from 'vue'
-import type { ExamConfig } from '@examaware/core'
-import { validateExamConfig, hasExamTimeOverlap, getSortedExamConfig, parseDateTime } from '@examaware/core'
+import type { ExamConfig } from '@dsz-examaware/core'
+import { validateExamConfig, hasExamTimeOverlap, getSortedExamConfig, parseDateTime } from '@dsz-examaware/core'
 import type { PlayerConfig, PlayerEventHandlers } from './types'
 import { ExamPlayerCore } from './core/ExamPlayerCore'
 import type { TimeProvider } from './core/interfaces'
