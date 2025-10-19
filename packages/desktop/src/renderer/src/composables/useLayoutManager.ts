@@ -6,6 +6,7 @@ import SideExamsPanel from '@renderer/components/SideExamsPanel.vue'
 import SideExamInfoPanel from '@renderer/components/SideExamInfoPanel.vue'
 import SettingsPanel from '@renderer/components/SettingsPanel.vue'
 import ValidationPanel from '@renderer/components/ValidationPanel.vue'
+import OperationHistoryPanel from '@renderer/components/OperationHistoryPanel.vue'
 
 /**
  * 布局管理组合式函数
@@ -17,6 +18,7 @@ export function useLayoutManager() {
   const panelComponents: Record<string, Component> = {
     'explorer.examlist': SideExamsPanel,
     'explorer.examinfo': SideExamInfoPanel,
+    'history.operations': OperationHistoryPanel,
     'settings.general': SettingsPanel,
     'bottom.validation': ValidationPanel,
   }

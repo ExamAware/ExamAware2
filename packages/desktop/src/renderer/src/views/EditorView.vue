@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { type CodeLayoutConfig, defaultCodeLayoutConfig } from 'vue-code-layout'
 import type { MenuOptions } from '@imengyu/vue3-context-menu'
-import { reactive, onMounted, ref, computed } from 'vue'
+import { reactive, onMounted, ref, computed, watch } from 'vue'
 import AboutDialog from '@renderer/components/AboutDialog.vue'
 import ExamForm from '@renderer/components/ExamForm.vue'
 import WindowControls from '@renderer/components/WindowControls.vue'
@@ -9,11 +9,12 @@ import { useExamEditor } from '@renderer/composables/useExamEditor'
 import { useLayoutManager } from '@renderer/composables/useLayoutManager'
 import { useExamValidation } from '@renderer/composables/useExamValidation'
 import { getSyncedTime } from '@renderer/utils/timeUtils'
+import type { ExamInfo } from '@renderer/core/configTypes'
 
 // 平台检测 - 通过 electronAPI 获取
 const windowAPI = (window as any).electronAPI
 const isMacOS = windowAPI?.platform === 'darwin'
-console.log("platform: " + windowAPI?.platform)
+console.log('platform: ' + windowAPI?.platform)
 
 // 配置 CodeLayout 的默认设置
 const config = reactive<CodeLayoutConfig>({
@@ -29,7 +30,7 @@ const config = reactive<CodeLayoutConfig>({
   statusBar: true,
   menuBar: true,
   bottomPanelMaximize: false,
-  primarySideBarWidth: 40,
+  primarySideBarWidth: 40
 })
 
 // 使用组合式函数管理状态
@@ -62,23 +63,69 @@ const {
   replaceAction,
   openAboutDialog,
   closeAboutDialog,
-  openGithub,
+  openGithub
 } = useExamEditor()
 
 // 使用布局管理器
 const { codeLayout, setupLayout, getPanelComponent } = useLayoutManager()
 
+// 多标签（TDesign Tabs）状态
+const activeTabUid = ref<string | null>(null)
+const openTabUids = ref<Set<string>>(new Set())
+
+const openExams = computed(() =>
+  examConfig.examInfos.filter((e) => openTabUids.value.has(getExamUid(e)))
+)
+
+function addOpenUid(uid: string) {
+  if (openTabUids.value.has(uid)) return
+  const next = new Set(openTabUids.value)
+  next.add(uid)
+  openTabUids.value = next
+}
+
+function removeOpenUid(uid: string) {
+  if (!openTabUids.value.has(uid)) return
+  const next = new Set(openTabUids.value)
+  next.delete(uid)
+  openTabUids.value = next
+}
+let uidCounter = 0
+const examUidMap = new WeakMap<ExamInfo, string>()
+const getExamUid = (exam: ExamInfo): string => {
+  let uid = examUidMap.get(exam)
+  if (!uid) {
+    uid = `${Date.now().toString(36)}-${uidCounter++}`
+    examUidMap.set(exam, uid)
+  }
+  return uid
+}
+
+const findExamIndexByUid = (uid: string): number => {
+  return examConfig.examInfos.findIndex((e) => examUidMap.get(e) === uid)
+}
+
+const ensureActiveTab = (index: number) => {
+  const exam = examConfig.examInfos[index]
+  if (!exam) return
+  const uid = getExamUid(exam)
+  // 确保标签已加入打开集合
+  addOpenUid(uid)
+  activeTabUid.value = uid
+}
+
 // 使用考试验证
-const { isValid, hasErrors, hasWarnings, validationErrors, validationWarnings } = useExamValidation(examConfig)
+const { isValid, hasErrors, hasWarnings, validationErrors, validationWarnings } =
+  useExamValidation(examConfig)
 
 // 格式化验证错误供底部面板使用
 const formattedValidationErrors = computed(() => {
-  const errors = validationErrors.value.map(error => ({
+  const errors = validationErrors.value.map((error) => ({
     message: error,
     type: 'error' as const
   }))
 
-  const warnings = validationWarnings.value.map(warning => ({
+  const warnings = validationWarnings.value.map((warning) => ({
     message: warning,
     type: 'warning' as const
   }))
@@ -91,6 +138,7 @@ const menuData = ref<MenuOptions | null>(null)
 
 // 处理切换考试信息
 function handleSwitchExamInfo(payload: { examId: number }) {
+  ensureActiveTab(payload.examId)
   switchToExam(payload.examId)
 }
 
@@ -100,83 +148,127 @@ function updateProfile(newConfig: any) {
   updateConfig(newConfig)
   console.log('EditorView: after updateConfig, examConfig:', examConfig)
 }
+// 保存处理（接收 ExamForm 的 save 事件）
+function handleExamSave(_val: ExamInfo) {
+  // 目前 ExamForm 内已做自动保存，这里保留钩子以便后续扩展
+}
 
-// 处理考试保存
-function handleExamSave(examInfo: any) {
-  if (currentExamIndex.value !== null) {
-    updateExam(currentExamIndex.value, examInfo)
+// 关闭标签：仅关闭，不删除考试
+function handleTabRemove(ctx: any) {
+  const value = ctx?.value ?? ctx
+  if (!value) return
+  removeOpenUid(value)
+  if (activeTabUid.value === value) {
+    // 若关闭的是活动标签，选择打开集合的任意一个作为新的活动；若没有则置空
+    const anyUid = Array.from(openTabUids.value)[0]
+    activeTabUid.value = anyUid ?? null
   }
 }
 
-// 下一个考试
-const nextExam = () => {
-  if (currentExamIndex.value !== null && currentExamIndex.value < examConfig.examInfos.length - 1) {
-    switchToExam(currentExamIndex.value + 1)
-  } else if (examConfig.examInfos.length > 0) {
-    switchToExam(0)
-  }
+function handleTabAdd() {
+  addExam()
 }
 
-// 上一个考试
-const prevExam = () => {
-  if (currentExamIndex.value !== null && currentExamIndex.value > 0) {
-    switchToExam(currentExamIndex.value - 1)
-  } else if (examConfig.examInfos.length > 0) {
-    switchToExam(examConfig.examInfos.length - 1)
+// 标签与当前考试索引同步：
+// - 列表变化时，新增自动选中新项；若当前活动标签被删除，则迁移到当前索引或第一个
+let prevUids = new Set<string>()
+watch(
+  () => examConfig.examInfos,
+  (list) => {
+    const currUids = new Set<string>()
+    list.forEach((e) => currUids.add(getExamUid(e)))
+
+    // 新增：切到新标签
+    currUids.forEach((uid) => {
+      if (!prevUids.has(uid)) {
+        const idx = findExamIndexByUid(uid)
+        if (idx >= 0) ensureActiveTab(idx)
+      }
+    })
+
+    // 删除：同步移除打开集合里不存在的 UID
+    // 清理打开集合中已删除的 UID
+    const cleaned = new Set(Array.from(openTabUids.value).filter((uid) => currUids.has(uid)))
+    openTabUids.value = cleaned
+
+    // 删除：若当前活动不在集合内，则选中当前索引或第一个
+    if (activeTabUid.value && !currUids.has(activeTabUid.value)) {
+      // 仅在该 UID 依然在打开集合时才尝试迁移，否则保持为空，直到用户主动选择
+      if (typeof currentExamIndex.value === 'number' && currentExamIndex.value >= 0)
+        ensureActiveTab(currentExamIndex.value)
+      else activeTabUid.value = null
+    }
+
+    prevUids = currUids
+  },
+  { deep: true }
+)
+
+// 当前考试索引变化时，同步活动标签
+watch(
+  () => currentExamIndex.value,
+  (idx) => {
+    if (typeof idx === 'number' && idx >= 0) ensureActiveTab(idx)
   }
-}
+)
 
-// 删除当前考试
-const deleteCurrentExam = () => {
-  if (currentExamIndex.value !== null) {
-    deleteExam(currentExamIndex.value)
-  }
-}
-
-// 获取考试状态
-const getExamStatus = (exam: any) => {
-  if (!exam) return ''
-
+// 计算考试状态与主题（用于状态栏）
+function getExamStatus(exam: ExamInfo | null | undefined): string {
+  if (!exam || !exam.start || !exam.end) return ''
   const now = new Date(getSyncedTime())
   const start = new Date(exam.start)
   const end = new Date(exam.end)
-
-  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-    return '待设置'
-  }
-
-  if (now < start) {
-    return '未开始'
-  } else if (now >= start && now <= end) {
-    return '进行中'
-  } else {
-    return '已结束'
-  }
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) return '待设置'
+  if (now < start) return '未开始'
+  if (now >= start && now <= end) return '进行中'
+  return '已结束'
 }
 
-// 获取状态主题
-const getExamStatusTheme = (exam: any) => {
+function getExamStatusTheme(
+  exam: ExamInfo | null | undefined
+): 'default' | 'success' | 'warning' | 'danger' {
   const status = getExamStatus(exam)
   switch (status) {
-    case '未开始':
-      return 'warning'
     case '进行中':
       return 'success'
-    case '已结束':
+    case '未开始':
       return 'default'
+    case '已结束':
+      return 'warning'
+    case '待设置':
+      return 'danger'
     default:
       return 'default'
   }
 }
 
-// 组件挂载时初始化
-onMounted(async () => {
-  // 为非 Linux 平台设置窗口状态监听
-  if (windowAPI?.platform && windowAPI.platform !== 'linux') {
-    windowAPI.setupListeners()
+// 菜单快捷操作
+const deleteCurrentExam = () => {
+  if (typeof currentExamIndex.value === 'number' && currentExamIndex.value >= 0) {
+    deleteExam(currentExamIndex.value)
   }
+}
 
-  // 设置布局和菜单
+const nextExam = () => {
+  const len = examConfig.examInfos.length
+  if (len === 0) return
+  const curr = typeof currentExamIndex.value === 'number' ? currentExamIndex.value : -1
+  const next = (curr + 1) % len
+  switchToExam(next)
+  ensureActiveTab(next)
+}
+
+const prevExam = () => {
+  const len = examConfig.examInfos.length
+  if (len === 0) return
+  const curr = typeof currentExamIndex.value === 'number' ? currentExamIndex.value : 0
+  const prev = (curr - 1 + len) % len
+  switchToExam(prev)
+  ensureActiveTab(prev)
+}
+
+// 初始化布局与菜单
+onMounted(async () => {
   const menuResult = await setupLayout(addExam, {
     onNew: newProject,
     onOpen: openProject,
@@ -201,38 +293,34 @@ onMounted(async () => {
     onAddExam: addExam,
     onDeleteExam: deleteCurrentExam,
     onNextExam: nextExam,
-    onPrevExam: prevExam,
+    onPrevExam: prevExam
   })
 
   menuData.value = menuResult.menuConfig
 
+  // 初始激活标签
+  if (typeof currentExamIndex.value === 'number' && currentExamIndex.value >= 0) {
+    ensureActiveTab(currentExamIndex.value)
+  } else if (examConfig.examInfos[0]) {
+    // 初始不强制打开，保持空白，直到用户选择
+    // 如需默认打开第一个，可改为：ensureActiveTab(0)
+    activeTabUid.value = null
+  }
+
   // 检查 CodeLayout 实例
   setTimeout(() => {
     console.log('CodeLayout ref:', codeLayout.value)
-    if (codeLayout.value) {
-      console.log('CodeLayout instance found')
-    } else {
-      console.warn('CodeLayout ref not found!')
-    }
   }, 100)
 })
 </script>
 
 <template>
-  <CodeLayout
-    ref="codeLayout"
-    :layout-config="config"
-    :mainMenuConfig="menuData"
-  >
+  <CodeLayout ref="codeLayout" :layout-config="config" :mainMenuConfig="menuData">
     <template #statusBar>
       <div class="status-bar">
         <div class="status-left">
-          <span v-if="hasExams">
-            共 {{ examConfig.examInfos.length }} 个考试
-          </span>
-          <span v-else>
-            暂无考试
-          </span>
+          <span v-if="hasExams"> 共 {{ examConfig.examInfos.length }} 个考试 </span>
+          <span v-else> 暂无考试 </span>
         </div>
         <div class="status-center">
           <span v-if="currentExamIndex !== null && currentExam">
@@ -241,7 +329,7 @@ onMounted(async () => {
               v-if="getExamStatus(currentExam)"
               size="small"
               :theme="getExamStatusTheme(currentExam)"
-              style="margin-left: 8px;"
+              style="margin-left: 8px"
             >
               {{ getExamStatus(currentExam) }}
             </t-tag>
@@ -264,7 +352,9 @@ onMounted(async () => {
       <component
         :is="getPanelComponent(panel.name)"
         :profile="examConfig"
-        :validation-errors="panel.name === 'bottom.validation' ? formattedValidationErrors : undefined"
+        :validation-errors="
+          panel.name === 'bottom.validation' ? formattedValidationErrors : undefined
+        "
         @switch-exam-info="handleSwitchExamInfo"
         @update:profile="updateProfile"
       />
@@ -272,14 +362,14 @@ onMounted(async () => {
     <template #titleBarIcon>
       <!-- macOS 下隐藏logo为交通灯按钮让路，其他平台显示logo -->
       <img
-         v-if="!isMacOS"
+        v-if="!isMacOS"
         src="@renderer/assets/logo.svg"
         style="margin: 10px"
         alt="logo"
         width="20px"
       />
       <!-- macOS 下用空白区域撑开左侧空间 -->
-      <div v-else style="width: 80px; height: 35px; -webkit-app-region: no-drag;"></div>
+      <div v-else style="width: 80px; height: 35px; -webkit-app-region: no-drag"></div>
     </template>
     <template #titleBarCenter>
       <div class="title-bar-center">
@@ -312,24 +402,49 @@ onMounted(async () => {
       </div>
     </template> -->
     <template #centerArea>
-      <div style="padding: 20px">
-        <div v-if="currentExamIndex === null" class="empty-state">
+      <div class="editor-center-wrap">
+        <div v-if="!hasExams || openTabUids.size === 0" class="empty-state">
           <t-empty description="请从左侧的考试列表中选择一个考试进行编辑">
             <template #image>
               <t-icon name="calendar" size="64px" />
             </template>
-            <t-button theme="primary" @click="addExam">
-              添加第一个考试
-            </t-button>
+            <t-button theme="primary" @click="addExam">添加第一个考试</t-button>
           </t-empty>
         </div>
-        <div v-else>
-          <ExamForm
-            v-if="currentExam"
-            v-model="currentExam"
-            :auto-save="true"
-            @save="handleExamSave"
-          />
+        <div v-else class="editor-tabs">
+          <t-tabs
+            v-model:value="activeTabUid"
+            theme="card"
+            size="medium"
+            :style="{ height: '100%', display: 'flex', flexDirection: 'column' }"
+            scroll-position="center"
+            @change="
+              (val: any) => {
+                const idx = findExamIndexByUid(val)
+                if (idx >= 0) switchToExam(idx)
+              }
+            "
+            :addable="true"
+            @add="handleTabAdd"
+            @remove="handleTabRemove"
+          >
+            <t-tab-panel
+              v-for="exam in openExams"
+              :key="getExamUid(exam)"
+              :value="getExamUid(exam)"
+              :label="(() => { const uid = getExamUid(exam); const i = findExamIndexByUid(uid); return exam.name || `考试 ${i + 1}` })()"
+              :removable="true"
+            >
+              <div class="editor-tab-panel">
+                <ExamForm
+                  :model-value="exam as any"
+                  :auto-save="true"
+                  @update:modelValue="(val: any) => { const uid = getExamUid(exam); const idx = findExamIndexByUid(uid); if (idx >= 0) updateExam(idx, val) }"
+                  @save="handleExamSave"
+                />
+              </div>
+            </t-tab-panel>
+          </t-tabs>
         </div>
       </div>
     </template>
@@ -379,6 +494,37 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   height: 400px;
+}
+
+.editor-center-wrap {
+  position: relative;
+  height: 100%;
+  padding: 0; /* 去除内边距，消除与父容器之间的空隙 */
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-tabs {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.editor-tab-panel {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.editor-tabs :deep(.t-tabs__content) {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
 }
 
 .title-bar-center {
@@ -443,4 +589,3 @@ onMounted(async () => {
   }
 }
 </style>
-
