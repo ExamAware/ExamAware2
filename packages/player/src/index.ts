@@ -1,5 +1,5 @@
 /**
- * @examaware/player
+ * @dsz-examaware/player
  * ExamAware Player - 考试信息播放器组件
  */
 

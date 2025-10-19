@@ -16,8 +16,8 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@examaware/player-core": ["./packages/player-core/src"],
-      "@examaware/player-core/*": ["./packages/player-core/src/*"]
+      "@dsz-examaware/player-core": ["./packages/player-core/src"],
+      "@dsz-examaware/player-core/*": ["./packages/player-core/src/*"]
     }
   },
   "references": [

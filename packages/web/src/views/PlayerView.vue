@@ -17,8 +17,8 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted } from 'vue'
-import type { ExamConfig } from '@examaware/core'
-import { ExamPlayer, type PlayerConfig } from '@examaware/player'
+import type { ExamConfig } from '@dsz-examaware/core'
+import { ExamPlayer, type PlayerConfig } from '@dsz-examaware/player'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()

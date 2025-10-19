@@ -1,4 +1,4 @@
-import type { ExamConfig } from '@examaware/core'
+import type { ExamConfig } from '@dsz-examaware/core'
 
 export interface TimeProvider {
   getCurrentTime: () => number

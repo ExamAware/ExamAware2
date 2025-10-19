@@ -1,4 +1,4 @@
-# @examaware/core
+# @dsz-examaware/core
 
 ExamAware 核心库 - 提供考试配置解析、验证和时间处理等核心功能。
 
@@ -13,7 +13,7 @@ ExamAware 核心库 - 提供考试配置解析、验证和时间处理等核心�
 ## 安装
 
 ```bash
-pnpm add @examaware/core
+pnpm add @dsz-examaware/core
 ```
 
 ## 使用方法
@@ -21,7 +21,7 @@ pnpm add @examaware/core
 ### 类型定义
 
 ```typescript
-import type { ExamConfig, ExamInfo, ExamMaterial } from '@examaware/core'
+import type { ExamConfig, ExamInfo, ExamMaterial } from '@dsz-examaware/core'
 
 const examConfig: ExamConfig = {
   examName: '期中考试',
@@ -44,12 +44,12 @@ const examConfig: ExamConfig = {
 ### 配置解析和验证
 
 ```typescript
-import { 
-  parseExamConfig, 
-  validateExamConfig, 
+import {
+  parseExamConfig,
+  validateExamConfig,
   hasExamTimeOverlap,
-  getSortedExamConfig 
-} from '@examaware/core'
+  getSortedExamConfig
+} from '@dsz-examaware/core'
 
 // 解析 JSON 配置
 const config = parseExamConfig(jsonString)
@@ -73,7 +73,7 @@ import {
   formatTimeRange,
   parseDateTime,
   isTimeRangeOverlap
-} from '@examaware/core'
+} from '@dsz-examaware/core'
 
 // 格式化时间
 const formatted = formatLocalDateTime(new Date())
@@ -92,7 +92,7 @@ const overlap = isTimeRangeOverlap(start1, end1, start2, end2)
 #### `ExamMaterial`
 考试材料信息接口
 - `name: string` - 材料名称
-- `quantity: number` - 材料数量  
+- `quantity: number` - 材料数量
 - `unit: string` - 材料单位
 
 #### `ExamInfo`
@@ -167,4 +167,4 @@ pnpm lint
 
 ## 许可证
 
-MIT
+GPL-3.0

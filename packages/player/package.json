@@ -1,6 +1,6 @@
 {
-  "name": "@examaware/player",
-  "version": "1.0.0",
+  "name": "@dsz-examaware/player",
+  "version": "1.2.0",
   "description": "ExamAware Player - 考试信息播放器组件",
   "type": "module",
   "main": "./dist/index.js",
@@ -14,12 +14,16 @@
     },
     "./dist/player.css": "./dist/player.css"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "files": [
     "dist",
     "src"
   ],
   "scripts": {
     "build": "vite build",
+    "prepublishOnly": "pnpm run build",
     "dev": "vite build --watch",
     "type-check": "tsc --noEmit",
     "lint": "eslint src --ext .ts,.vue",
@@ -33,9 +37,9 @@
     "vue"
   ],
   "author": "hello8693 <hello8693@hello8693.xyz>",
-  "license": "MIT",
+  "license": "GPL-3.0-only",
   "dependencies": {
-    "@examaware/core": "workspace:*",
+    "@dsz-examaware/core": "workspace:*",
     "misans": "^4.1.0",
     "ogl": "^1.0.11",
     "simple-keyboard": "^3.8.2"

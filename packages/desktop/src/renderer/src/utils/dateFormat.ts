@@ -8,7 +8,7 @@ import {
   formatDisplayTime as coreFormatDisplayTime,
   formatTimeRange as coreFormatTimeRange,
   parseDateTime as coreParseDateTime
-} from '@examaware/core'
+} from '@dsz-examaware/core'
 
 // 重新导出 core 包中的函数
 export const formatDisplayTime = coreFormatDisplayTime

@@ -1,7 +1,7 @@
-declare module '@examaware/core' {
+declare module '@dsz-examaware/core' {
   export * from '../../../packages/core/src/index'
 }
 
-declare module '@examaware/player' {
+declare module '@dsz-examaware/player' {
   export * from '../../../packages/player/src/index'
 }

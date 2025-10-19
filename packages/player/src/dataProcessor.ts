@@ -1,5 +1,5 @@
-import type { ExamConfig, ExamInfo } from '@examaware/core'
-import { getSortedExamConfig, parseDateTime } from '@examaware/core'
+import type { ExamConfig, ExamInfo } from '@dsz-examaware/core'
+import { getSortedExamConfig, parseDateTime } from '@dsz-examaware/core'
 
 export interface FormattedExamInfo {
   index: number
