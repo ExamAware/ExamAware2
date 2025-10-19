@@ -566,24 +566,20 @@ onMounted(async () => {
 }
 
 .minimize-btn:hover {
-  background-color: #e6e6e6;
+  background-color: var(--td-bg-color-container-hover);
 }
 
 .close-btn:hover {
   background-color: #e81123;
-  color: white;
+  color: var(--td-text-color-anti);
 }
 
 .close-btn:hover .t-icon {
-  color: white;
+  color: var(--td-text-color-anti);
 }
 
 /* macOS 样式 */
 @media (prefers-color-scheme: dark) {
-  .minimize-btn:hover {
-    background-color: #404040;
-  }
-
   .close-btn:hover {
     background-color: #e81123;
   }

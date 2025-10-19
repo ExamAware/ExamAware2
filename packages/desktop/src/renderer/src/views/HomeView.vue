@@ -2,7 +2,7 @@
   <div class="mainpage">
     <t-layout class="mainpage-layout">
       <t-aside width="60px">
-        <t-menu theme="dark" v-model="currentMenu" :collapsed="true" @change="handleMenuChange">
+        <t-menu v-model="currentMenu" :collapsed="true" @change="handleMenuChange">
           <template #logo>
             <img width="35" class="logo" :src="eaLogo" alt="logo" />
           </template>

@@ -18,7 +18,18 @@ body,
   overflow: hidden;
 }
 
-/* 自定义滚动条（深色主题适配） */
+/* 自定义滚动条（亮/暗主题适配） */
+/* 统一变量 */
+:root[theme-mode='light'] {
+  --ea-scrollbar-thumb: rgba(0, 0, 0, 0.26);
+  --ea-scrollbar-thumb-hover: rgba(0, 0, 0, 0.36);
+}
+
+:root[theme-mode='dark'] {
+  --ea-scrollbar-thumb: rgba(255, 255, 255, 0.18);
+  --ea-scrollbar-thumb-hover: rgba(255, 255, 255, 0.28);
+}
+
 /* WebKit 浏览器 */
 *::-webkit-scrollbar {
   width: 10px;
@@ -28,19 +39,19 @@ body,
   background: transparent;
 }
 *::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.18);
+  background-color: var(--ea-scrollbar-thumb);
   border-radius: 8px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 *::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(255, 255, 255, 0.28);
+  background-color: var(--ea-scrollbar-thumb-hover);
 }
 
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.28) transparent;
+  scrollbar-color: var(--ea-scrollbar-thumb-hover) transparent;
 }
 
 .root {
@@ -48,8 +59,8 @@ body,
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: black;
-  color: white;
+  background-color: var(--td-bg-color-page);
+  color: var(--td-text-color-primary);
 }
 
 .code-layout-title-bar {
@@ -116,7 +127,7 @@ p {
 .t-layout__sider {
   width: auto !important;
 }
-.t-default-menu.t-menu--dark .t-menu__logo:not(:empty) {
+.t-default-menu .t-menu__logo:not(:empty) {
   border-bottom-color: transparent !important;
   bottom: 15px !important;
 }
@@ -148,7 +159,7 @@ p {
   bottom: 50px !important;
   left:0px !important;
 }
-.t-default-menu.t-menu--dark .t-menu__operations:not(:empty) {
+.t-default-menu .t-menu__operations:not(:empty) {
   border-top-color: transparent !important;
 }
 .t-menu__operations .t-menu__item {
@@ -158,5 +169,69 @@ p {
 /* 使.code-layout-split-base .split-n-container>.content 内容区在垂直方向溢出时自动滚动 */
 .content {
   overflow-y: auto !important;
+}
+
+
+/* 将 vue-code-layout 的主题变量映射到 TDesign 设计令牌，使其随主题自动切换 */
+:root {
+  /* 基础背景与层次 */
+  --code-layout-color-background: var(--td-bg-color-page);
+  --code-layout-color-background-second: var(--td-bg-color-secondarycontainer);
+  --code-layout-color-background-light: var(--td-bg-color-component);
+  --code-layout-color-background-hover: var(--td-bg-color-component-hover);
+  --code-layout-color-background-hover-light: var(--td-bg-color-secondarycontainer-hover);
+  --code-layout-color-background-highlight: color-mix(in srgb, var(--td-brand-color-7, var(--td-brand-color, #0052d9)) 18%, transparent);
+  --code-layout-color-background-mask-light: color-mix(in srgb, var(--td-text-color-primary) 20%, transparent);
+
+  /* 品牌/高亮 */
+  --code-layout-color-highlight: var(--td-brand-color, var(--td-brand-color-7));
+
+  /* 文字颜色 */
+  --code-layout-color-text: var(--td-text-color-primary);
+  --code-layout-color-text-light: var(--td-text-color-primary);
+  --code-layout-color-text-highlight: var(--td-brand-color, var(--td-brand-color-7));
+  --code-layout-color-text-gray: var(--td-text-color-secondary);
+  --code-layout-color-text-disabled: var(--td-text-color-disabled);
+
+  /* 边框与阴影 */
+  --code-layout-color-border: var(--td-border-level-1-color);
+  --code-layout-color-border-light: var(--td-border-level-1-color);
+  --code-layout-color-border-background: var(--td-bg-color-secondarycontainer);
+  --code-layout-color-border-white: var(--td-text-color-anti);
+  --code-layout-color-shadow: var(--td-table-shadow-color, rgba(0, 0, 0, 0.08));
+
+  /* 滚动条 */
+  --code-layout-color-scrollbar-thumb: var(--td-scrollbar-color, var(--ea-scrollbar-thumb));
+  --code-layout-color-scrollbar-thumb-light: var(--td-scrollbar-color, var(--ea-scrollbar-thumb-hover));
+
+  /* 尺寸（沿用库默认约定，必要时可对齐 TDesign 半径/字号） */
+  /* --code-layout-border-size: 1px; */
+  /* --code-layout-border-size-larger: 2px; */
+  /* --code-layout-border-size-dragger: 4px; */
+  /* --code-layout-border-radius-small: var(--td-radius-small, 4px); */
+  /* --code-layout-border-radius-large: var(--td-radius-default, 6px); */
+  /* --code-layout-header-height: 22px; */
+  --code-layout-titlebar-background: var(--td-bg-color-container);
+  /* --code-layout-titlebar-height: 35px; */
+  /* --code-layout-status-height: 20px; */
+  /* --code-layout-font-size: 13px; */
+  /* --code-layout-font-size-small: 11px; */
+}
+
+/* SplitLayout Tab 变量使用与 TDesign 统一的配色体系 */
+.code-layout-split-tab {
+  /* 高度/字号沿用库默认，如需统一可放开注释
+  --tab-height: 35px;
+  --tab-font-size: 12px;
+  --tab-icon-size: 14px;
+  */
+  --tab-text-color: var(--code-layout-color-text);
+  --tab-active-text-color: var(--code-layout-color-text);
+  --tab-mormal-color: var(--code-layout-color-background-light);
+  --tab-active-color: var(--td-bg-color-container);
+  --tab-border-color: var(--code-layout-color-border);
+  --tab-button-normal-color: transparent;
+  --tab-button-hover-color: var(--td-bg-color-component-hover);
+  /* --tab-close-size: 18px; */
 }
 
