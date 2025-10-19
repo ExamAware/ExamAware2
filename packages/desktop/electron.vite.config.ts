@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     main: {
-      plugins: [externalizeDepsPlugin()],
+      // plugins: [externalizeDepsPlugin()],
       build: {
         outDir: 'dist/main',
         lib: {
@@ -21,10 +21,14 @@ export default defineConfig(({ mode }) => {
         },
         minify: isProduction,
         sourcemap: !isProduction
+        ,
+        rollupOptions: {
+          external: ['electron', 'node:*']
+        }
       }
     },
     preload: {
-      plugins: [externalizeDepsPlugin()],
+      // plugins: [externalizeDepsPlugin()],
       build: {
         outDir: 'dist/preload',
         lib: {
@@ -32,6 +36,10 @@ export default defineConfig(({ mode }) => {
         },
         minify: isProduction,
         sourcemap: !isProduction
+        ,
+        rollupOptions: {
+          external: ['electron', 'node:*']
+        }
       }
     },
     renderer: {

@@ -1,4 +1,5 @@
 import { BrowserWindow } from 'electron'
+import { is } from '@electron-toolkit/utils'
 import { windowManager } from './windowManager'
 
 export function createMainWindow(): BrowserWindow {
@@ -20,6 +21,10 @@ export function createMainWindow(): BrowserWindow {
     setup(win) {
       win.setAspectRatio(720 / 480)
       win.setMinimumSize(720, 480)
+      // 自动打开开发者工具（仅开发环境）
+      // if (is.dev) {
+      // win.webContents.openDevTools()
+      // }
     }
   })) as unknown as BrowserWindow
 }
