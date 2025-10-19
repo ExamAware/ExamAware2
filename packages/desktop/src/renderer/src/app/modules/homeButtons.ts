@@ -1,5 +1,6 @@
 import type { App } from 'vue'
 import type { AppModule } from '../types'
+import { DisposerGroup } from '@renderer/runtime/disposable'
 
 export interface HomeButtonMeta {
   id: string
@@ -17,6 +18,13 @@ export class HomeButtonsRegistry {
   register(meta: HomeButtonMeta) {
     this.buttons.set(meta.id, { order: 0, theme: 'default', ...meta })
     this.notify()
+    // return disposer to unregister
+    return () => {
+      if (this.buttons.has(meta.id)) {
+        this.buttons.delete(meta.id)
+        this.notify()
+      }
+    }
   }
 
   unregister(id: string) {
@@ -50,9 +58,17 @@ export const homeButtonsModule: AppModule = {
   name: 'home-buttons',
   install(app: App, ctx) {
     const registry = new HomeButtonsRegistry()
+    const group = new DisposerGroup()
 
     // 注册默认按钮
-    registry.register({
+    const add = (meta: HomeButtonMeta) => group.add(registry.register(meta))
+
+    ctx.addHomeButton = async (meta: HomeButtonMeta) => {
+      if (ctx.disposable) await ctx.disposable(() => registry.register(meta))
+      else add(meta)
+    }
+
+    group.add(registry.register({
       id: 'editor',
       label: '编辑器',
       icon: 'edit',
@@ -61,9 +77,9 @@ export const homeButtonsModule: AppModule = {
       action: () => {
         window.api.ipc.send('open-editor-window')
       }
-    })
+  }))
 
-    registry.register({
+    group.add(registry.register({
       id: 'player',
       label: '放映器',
       icon: 'play-circle',
@@ -75,9 +91,9 @@ export const homeButtonsModule: AppModule = {
           await router.push('/playerhome')
         }
       }
-    })
+  }))
 
-    registry.register({
+    group.add(registry.register({
       id: 'url-player',
       label: '从 URL 放映',
       icon: 'link',
@@ -87,9 +103,9 @@ export const homeButtonsModule: AppModule = {
         // TODO: 实现 URL 放映功能
         console.log('URL 放映功能待实现')
       }
-    })
+  }))
 
-    registry.register({
+    group.add(registry.register({
       id: 'control',
       label: '集控',
       icon: 'server',
@@ -99,10 +115,10 @@ export const homeButtonsModule: AppModule = {
         // TODO: 实现集控功能
         console.log('集控功能待实现')
       }
-    })
+  }))
 
     // 添加更多按钮来展示分页效果
-    registry.register({
+    group.add(registry.register({
       id: 'settings',
       label: '设置',
       icon: 'setting',
@@ -111,9 +127,9 @@ export const homeButtonsModule: AppModule = {
       action: () => {
         console.log('设置功能待实现')
       }
-    })
+  }))
 
-    registry.register({
+    group.add(registry.register({
       id: 'help',
       label: '帮助',
       icon: 'help-circle',
@@ -122,9 +138,9 @@ export const homeButtonsModule: AppModule = {
       action: () => {
         console.log('帮助功能待实现')
       }
-    })
+  }))
 
-    registry.register({
+    group.add(registry.register({
       id: 'about',
       label: '关于',
       icon: 'info-circle',
@@ -133,10 +149,10 @@ export const homeButtonsModule: AppModule = {
       action: () => {
         console.log('关于功能待实现')
       }
-    })
+  }))
 
     // 添加更多示例按钮以测试滚动功能
-    registry.register({
+    group.add(registry.register({
       id: 'logs',
       label: '日志',
       icon: 'file-code',
@@ -145,15 +161,20 @@ export const homeButtonsModule: AppModule = {
       action: () => {
         console.log('打开日志页面')
       }
-    })
+  }))
 
     ;(app.config.globalProperties as any).$homeButtons = registry
     app.provide('homeButtons' as any, registry)
     ctx.provides.homeButtons = registry
+    if (ctx.provide) ctx.provide('homeButtons', registry)
+    ctx.provides.homeButtonsGroup = group
   },
-  uninstall(app: App) {
+  uninstall(app: App, ctx) {
+    // Remove provided instance
     if ((app.config.globalProperties as any).$homeButtons) {
       delete (app.config.globalProperties as any).$homeButtons
     }
+    const group = ctx.provides.homeButtonsGroup as DisposerGroup | undefined
+    if (group) group.disposeAll()
   }
 }

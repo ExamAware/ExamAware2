@@ -8,6 +8,17 @@ export interface AppContext {
   router?: Router
   pinia?: Pinia
   provides: Record<string | symbol, unknown>
+  // disposable/context APIs
+  effect?: (d: () => void) => void
+  disposable?: (fn: () => void | (() => void) | Promise<void | (() => void)>) => Promise<void>
+  provide?: (name: string | symbol, value: unknown) => void
+  inject?: <T = unknown>(name: string | symbol) => T | undefined
+  // optional sugar helpers
+  addHomeButton?: (meta: any) => Promise<void>
+  addPage?: (meta: any) => Promise<void>
+  // event & store helpers
+  on?: (target: any, event: string, listener: (...args: any[]) => any, options?: any) => void
+  piniaSubscribe?: (store: { $subscribe: Function }, cb: (...args: any[]) => any, options?: any) => void
 }
 
 export interface AppModule {

@@ -1,4 +1,5 @@
 import { ipcMain, dialog, BrowserWindow } from 'electron'
+import type { MainContext } from '../runtime/context'
 import { createEditorWindow } from '../windows/editorWindow'
 import { createPlayerWindow } from '../windows/playerWindow'
 import { fileApi } from '../fileUtils'
@@ -16,48 +17,108 @@ export function getCurrentConfigData(): string | null {
   return currentConfigData
 }
 
-export function registerIpcHandlers(): void {
+// minimal disposer group for main process
+function createDisposerGroup() {
+  const disposers: Array<() => void> = []
+  let disposed = false
+  return {
+    add(d?: () => void) {
+      if (!d) return
+      if (disposed) {
+        try { d() } catch {}
+        return
+      }
+      disposers.push(() => { try { d() } catch {} })
+    },
+    disposeAll() {
+      if (disposed) return
+      disposed = true
+      for (let i = disposers.length - 1; i >= 0; i--) disposers[i]()
+    }
+  }
+}
+
+// disposable ipc helpers
+function on(channel: string, listener: Parameters<typeof ipcMain.on>[1]) {
+  ipcMain.on(channel, listener)
+  return () => ipcMain.removeListener(channel, listener)
+}
+function handle(channel: string, listener: Parameters<typeof ipcMain.handle>[1]) {
+  ipcMain.handle(channel, listener)
+  return () => ipcMain.removeHandler(channel)
+}
+
+export function registerIpcHandlers(ctx?: MainContext): () => void {
+  const group = createDisposerGroup()
   // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
+  if (ctx) ctx.ipc.on('ping', () => console.log('pong'))
+  else group.add(on('ping', () => console.log('pong')))
 
   // Handle get current config data
-  ipcMain.handle('get-config', () => {
+  if (ctx) ctx.ipc.handle('get-config', () => {
     const config = getCurrentConfigData()
     console.log('get-config requested, returning:', config)
     return config
   })
+  else group.add(handle('get-config', () => {
+    const config = getCurrentConfigData()
+    console.log('get-config requested, returning:', config)
+    return config
+  }))
 
   // Handle set config data (called from playerWindow)
-  ipcMain.on('set-config', (_event, data: string) => {
+  if (ctx) ctx.ipc.on('set-config', (_event, data: string) => {
     console.log('Setting config data via IPC:', data)
     setCurrentConfigData(data)
   })
+  else group.add(on('set-config', (_event, data: string) => {
+    console.log('Setting config data via IPC:', data)
+    setCurrentConfigData(data)
+  }))
 
   // Handle open editor window request
-  ipcMain.on('open-editor-window', () => {
+  if (ctx) ctx.ipc.on('open-editor-window', () => {
     createEditorWindow()
   })
+  else group.add(on('open-editor-window', () => {
+    createEditorWindow()
+  }))
 
-  ipcMain.on('open-player-window', (_event, configPath) => {
+  if (ctx) ctx.ipc.on('open-player-window', (_event, configPath) => {
     createPlayerWindow(configPath)
   })
+  else group.add(on('open-player-window', (_event, configPath) => {
+    createPlayerWindow(configPath)
+  }))
 
   // 窗口控制处理程序
-  ipcMain.on('window-minimize', (event) => {
+  if (ctx) ctx.ipc.on('window-minimize', (event) => {
     const window = BrowserWindow.fromWebContents(event.sender)
     if (window) {
       window.minimize()
     }
   })
+  else group.add(on('window-minimize', (event) => {
+    const window = BrowserWindow.fromWebContents(event.sender)
+    if (window) {
+      window.minimize()
+    }
+  }))
 
-  ipcMain.on('window-close', (event) => {
+  if (ctx) ctx.ipc.on('window-close', (event) => {
     const window = BrowserWindow.fromWebContents(event.sender)
     if (window) {
       window.close()
     }
   })
+  else group.add(on('window-close', (event) => {
+    const window = BrowserWindow.fromWebContents(event.sender)
+    if (window) {
+      window.close()
+    }
+  }))
 
-  ipcMain.on('window-maximize', (event) => {
+  if (ctx) ctx.ipc.on('window-maximize', (event) => {
     const window = BrowserWindow.fromWebContents(event.sender)
     if (window) {
       if (window.isMaximized()) {
@@ -67,12 +128,26 @@ export function registerIpcHandlers(): void {
       }
     }
   })
+  else group.add(on('window-maximize', (event) => {
+    const window = BrowserWindow.fromWebContents(event.sender)
+    if (window) {
+      if (window.isMaximized()) {
+        window.unmaximize()
+      } else {
+        window.maximize()
+      }
+    }
+  }))
 
   // 检查窗口是否最大化
-  ipcMain.handle('window-is-maximized', (event) => {
+  if (ctx) ctx.ipc.handle('window-is-maximized', (event) => {
     const window = BrowserWindow.fromWebContents(event.sender)
     return window ? window.isMaximized() : false
   })
+  else group.add(handle('window-is-maximized', (event) => {
+    const window = BrowserWindow.fromWebContents(event.sender)
+    return window ? window.isMaximized() : false
+  }))
 
   // 监听窗口状态变化事件
   const setupWindowStateListeners = (window: BrowserWindow) => {
@@ -86,14 +161,20 @@ export function registerIpcHandlers(): void {
   }
 
   // 为新创建的编辑器窗口设置状态监听
-  ipcMain.on('setup-window-listeners', (event) => {
+  if (ctx) ctx.ipc.on('setup-window-listeners', (event) => {
     const window = BrowserWindow.fromWebContents(event.sender)
     if (window) {
       setupWindowStateListeners(window)
     }
   })
+  else group.add(on('setup-window-listeners', (event) => {
+    const window = BrowserWindow.fromWebContents(event.sender)
+    if (window) {
+      setupWindowStateListeners(window)
+    }
+  }))
 
-  ipcMain.handle('select-file', async () => {
+  if (ctx) ctx.ipc.handle('select-file', async () => {
     const result = await dialog.showOpenDialog({
       properties: ['openFile'],
       filters: [
@@ -108,8 +189,23 @@ export function registerIpcHandlers(): void {
       return result.filePaths[0]
     }
   })
+  else group.add(handle('select-file', async () => {
+    const result = await dialog.showOpenDialog({
+      properties: ['openFile'],
+      filters: [
+        { name: 'ExamAware 档案文件', extensions: ['exam.json'] },
+        { name: 'JSON 文件', extensions: ['json'] },
+        { name: '所有文件', extensions: ['*'] }
+      ]
+    })
+    if (result.canceled) {
+      return null
+    } else {
+      return result.filePaths[0]
+    }
+  }))
 
-  ipcMain.handle('read-file', async (_event, filePath: string) => {
+  if (ctx) ctx.ipc.handle('read-file', async (_event, filePath: string) => {
     try {
       const content = await fileApi.readFile(filePath)
       return content
@@ -118,8 +214,17 @@ export function registerIpcHandlers(): void {
       return null
     }
   })
+  else group.add(handle('read-file', async (_event, filePath: string) => {
+    try {
+      const content = await fileApi.readFile(filePath)
+      return content
+    } catch (error) {
+      console.error('Error reading file:', error)
+      return null
+    }
+  }))
 
-  ipcMain.handle('save-file', async (_, filePath: string, content: string) => {
+  if (ctx) ctx.ipc.handle('save-file', async (_e, filePath: string, content: string) => {
     try {
       await fileApi.writeFile(filePath, content)
       return true
@@ -128,8 +233,17 @@ export function registerIpcHandlers(): void {
       return false
     }
   })
+  else group.add(handle('save-file', async (_e, filePath: string, content: string) => {
+    try {
+      await fileApi.writeFile(filePath, content)
+      return true
+    } catch (error) {
+      console.error('Error saving file:', error)
+      return false
+    }
+  }))
 
-  ipcMain.handle('save-file-dialog', async () => {
+  if (ctx) ctx.ipc.handle('save-file-dialog', async () => {
     const result = await dialog.showSaveDialog({
       filters: [
         { name: 'ExamAware 档案文件', extensions: ['exam.json'] },
@@ -144,8 +258,23 @@ export function registerIpcHandlers(): void {
       return result.filePath
     }
   })
+  else group.add(handle('save-file-dialog', async () => {
+    const result = await dialog.showSaveDialog({
+      filters: [
+        { name: 'ExamAware 档案文件', extensions: ['exam.json'] },
+        { name: 'JSON 文件', extensions: ['json'] },
+        { name: '所有文件', extensions: ['*'] }
+      ],
+      defaultPath: 'untitled.exam.json'
+    })
+    if (result.canceled) {
+      return null
+    } else {
+      return result.filePath
+    }
+  }))
 
-  ipcMain.handle('open-file-dialog', async () => {
+  if (ctx) ctx.ipc.handle('open-file-dialog', async () => {
     const result = await dialog.showOpenDialog({
       properties: ['openFile'],
       filters: [
@@ -160,4 +289,21 @@ export function registerIpcHandlers(): void {
       return result.filePaths[0]
     }
   })
+  else group.add(handle('open-file-dialog', async () => {
+    const result = await dialog.showOpenDialog({
+      properties: ['openFile'],
+      filters: [
+        { name: 'ExamAware 档案文件', extensions: ['exam.json'] },
+        { name: 'JSON 文件', extensions: ['json'] },
+        { name: '所有文件', extensions: ['*'] }
+      ]
+    })
+    if (result.canceled) {
+      return null
+    } else {
+      return result.filePaths[0]
+    }
+  }))
+
+  return () => group.disposeAll()
 }

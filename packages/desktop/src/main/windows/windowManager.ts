@@ -1,4 +1,5 @@
 import { BrowserWindow, shell } from 'electron'
+import type { MainContext } from '../runtime/context'
 import * as path from 'path'
 import { is } from '@electron-toolkit/utils'
 
@@ -20,6 +21,11 @@ type WindowRecord = { win: BrowserWindow; cleanup?: () => void }
 
 export class WindowManager {
   private windows = new Map<string, WindowRecord>()
+  private ctx: MainContext | undefined
+
+  setContext(ctx: MainContext) {
+    this.ctx = ctx
+  }
 
   get(id: string): BrowserWindow | undefined {
     return this.windows.get(id)?.win
@@ -69,7 +75,9 @@ export class WindowManager {
       this.windows.delete(id)
     }
 
-    const win = new BrowserWindow(options)
+  const win = new BrowserWindow(options)
+  // track window for disposal safety
+  this.ctx?.windows.track(win)
 
     // default: open external links in system browser
     if (externalOpenHandler) {
