@@ -22,7 +22,7 @@
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\卸载 ${PRODUCT_NAME}.lnk" "$INSTDIR\Uninstall ${PRODUCT_NAME}.exe"
 
   ; 注册文件关联
-  WriteRegStr HKCR ".exam.json" "" "ExamAware.Document"
+  WriteRegStr HKCR ".ea2" "" "ExamAware.Document"
   WriteRegStr HKCR "ExamAware.Document" "" "ExamAware 考试档案文件"
   WriteRegStr HKCR "ExamAware.Document\DefaultIcon" "" "$INSTDIR\${PRODUCT_FILENAME},0"
   WriteRegStr HKCR "ExamAware.Document\shell\open\command" "" '"$INSTDIR\${PRODUCT_FILENAME}" "%1"'
@@ -36,7 +36,7 @@
   RMDir /r "$SMPROGRAMS\${PRODUCT_NAME}"
 
   ; 删除文件关联
-  DeleteRegKey HKCR ".exam.json"
+  DeleteRegKey HKCR ".ea2"
   DeleteRegKey HKCR "ExamAware.Document"
 
   ; 刷新图标缓存

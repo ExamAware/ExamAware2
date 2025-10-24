@@ -42,7 +42,7 @@ export function useExamEditor() {
   const computedWindowTitle = computed(() => {
     let title = 'ExamAware Editor'
     if (currentFilePath.value) {
-      const fileName = currentFilePath.value.split('/').pop()?.replace('.exam.json', '').replace('.json', '')
+      const fileName = currentFilePath.value.split('/').pop()?.replace('.ea2', '').replace('.json', '')
       title += ` - ${fileName}`
     } else if (examConfig.examName) {
       title += ` - ${examConfig.examName}`
@@ -198,7 +198,7 @@ export function useExamEditor() {
     try {
       const content = configManager.exportToJson()
       const examName = examConfig.examInfos[0]?.name || 'exam'
-      FileOperationManager.exportJsonFile(content, `${examName}.exam.json`)
+      FileOperationManager.exportJsonFile(content, `${examName}.ea2`)
       MessageService.success('项目已导出')
   historyStore.push('导出项目', examConfig)
     } catch (error) {

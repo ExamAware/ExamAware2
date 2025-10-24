@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
     <div class="uploader">
-      <t-button theme="primary" size="large" @click="triggerFile">选择考试档案(.exam.json)</t-button>
-      <input ref="fileInput" type="file" accept=".json,.exam.json,application/json" class="hidden-input" @change="onFileChange" />
+      <t-button theme="primary" size="large" @click="triggerFile">选择考试档案(.ea2)</t-button>
+      <input ref="fileInput" type="file" accept=".json,.ea2,application/json" class="hidden-input" @change="onFileChange" />
       <p class="tip">ExamAware2 知试 在线放映器</p>
     </div>
   </div>

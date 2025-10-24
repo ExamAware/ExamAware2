@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=ExamAware
-Comment=Exam monitoring and management application
+Comment=考试信息显示工具
 Exec=AppRun %F
 Terminal=false
 Type=Application

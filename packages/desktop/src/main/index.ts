@@ -49,7 +49,7 @@ app.whenReady().then(async () => {
 // 处理打开文件的请求（macOS）
 app.on('open-file', (event, path) => {
   event.preventDefault()
-  if (path.endsWith('.exam.json') || path.endsWith('.json')) {
+  if (path.endsWith('.ea2') || path.endsWith('.json')) {
     if (app.isReady()) {
       createEditorWindow(path)
     } else {
@@ -61,7 +61,7 @@ app.on('open-file', (event, path) => {
 // 处理从命令行打开文件（Windows/Linux）
 if (process.argv.length > 1) {
   const filePath = process.argv[process.argv.length - 1]
-  if (filePath.endsWith('.exam.json') || filePath.endsWith('.json')) {
+  if (filePath.endsWith('.ea2') || filePath.endsWith('.json')) {
     fileToOpen = filePath
   }
 }

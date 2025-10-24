@@ -150,7 +150,7 @@ const handleLanguageChange = (value: 'zh-CN' | 'en-US') => {
 const exportData = () => {
   if (props.configManager) {
     const data = props.configManager.exportToJson()
-    FileOperationManager.exportJsonFile(data, 'exam-backup.exam.json')
+    FileOperationManager.exportJsonFile(data, 'exam-backup.ea2')
   }
 }
 

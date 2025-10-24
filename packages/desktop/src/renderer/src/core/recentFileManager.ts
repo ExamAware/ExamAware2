@@ -38,7 +38,7 @@ export class RecentFileManager {
    */
   static addRecentFile(filePath: string): void {
     try {
-      const fileName = filePath.split('/').pop()?.replace('.exam.json', '').replace('.json', '') || 'Unnamed'
+      const fileName = filePath.split('/').pop()?.replace('.ea2', '').replace('.json', '') || 'Unnamed'
       const recent = this.getRecentFiles()
 
       // 移除已存在的相同文件

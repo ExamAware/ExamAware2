@@ -226,7 +226,7 @@ onMounted(async () => {
       console.warn('配置加载器返回了空配置')
       NotifyPlugin.warning({
         title: '未找到考试档案',
-        content: '未找到有效的考试档案文件(.exam.json)，请确保档案文件已正确拷贝到大屏设备',
+        content: '未找到有效的考试档案文件(.ea2)，请确保档案文件已正确拷贝到大屏设备',
         placement: 'bottom-right',
         closeBtn: true
       })
@@ -236,7 +236,7 @@ onMounted(async () => {
     const errorMessage = error instanceof Error ? error.message : '未知错误'
     NotifyPlugin.error({
       title: '考试档案加载失败',
-      content: `考试档案文件(.exam.json)加载失败：${errorMessage}。请检查文件是否损坏或格式是否正确。`,
+      content: `考试档案文件(.ea2)加载失败：${errorMessage}。请检查文件是否损坏或格式是否正确。`,
       placement: 'bottom-right',
       closeBtn: true,
       duration: 15000
