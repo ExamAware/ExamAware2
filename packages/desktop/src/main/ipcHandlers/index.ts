@@ -319,7 +319,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
         { name: 'JSON 文件', extensions: ['json'] },
         { name: '所有文件', extensions: ['*'] }
       ],
-      defaultPath: 'untitled.exam.json'
+      defaultPath: 'untitled.ea2'
     })
     if (result.canceled) {
       return null
@@ -334,7 +334,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
         { name: 'JSON 文件', extensions: ['json'] },
         { name: '所有文件', extensions: ['*'] }
       ],
-      defaultPath: 'untitled.exam.json'
+      defaultPath: 'untitled.ea2'
     })
     if (result.canceled) {
       return null

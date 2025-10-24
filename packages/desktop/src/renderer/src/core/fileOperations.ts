@@ -13,7 +13,7 @@ export class FileOperationManager {
     return new Promise((resolve) => {
       const input = document.createElement('input')
       input.type = 'file'
-      input.accept = '.exam.json,.json'
+      input.accept = '.ea2,.json'
 
       input.onchange = (e) => {
         const files = (e.target as HTMLInputElement).files
@@ -40,7 +40,7 @@ export class FileOperationManager {
   /**
    * 导出JSON文件
    */
-  static exportJsonFile(content: string, filename: string = 'exam.exam.json'): void {
+  static exportJsonFile(content: string, filename: string = 'exam.ea2'): void {
     const blob = new Blob([content], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -55,11 +55,11 @@ export class FileOperationManager {
   /**
    * 另存为 - 允许用户选择文件名
    */
-  static exportJsonFileAs(content: string, defaultName: string = 'exam.exam.json'): void {
+  static exportJsonFileAs(content: string, defaultName: string = 'exam.ea2'): void {
     // 在浏览器环境中，我们仍然使用标准的下载方式
     // 因为 File System Access API 在某些浏览器中支持有限
     const timestamp = new Date(getSyncedTime()).toISOString().replace(/[:.]/g, '-').split('T')[0]
-    const filename = defaultName.replace('.exam.json', `_${timestamp}.exam.json`)
+    const filename = defaultName.replace('.ea2', `_${timestamp}.ea2`)
     this.exportJsonFile(content, filename)
   }
 
@@ -163,7 +163,7 @@ export class FileOperationManager {
       const files = e.dataTransfer?.files
       if (files && files.length > 0) {
         const file = files[0]
-        if (file.type === 'application/json' || file.name.endsWith('.json') || file.name.endsWith('.exam.json')) {
+        if (file.type === 'application/json' || file.name.endsWith('.json') || file.name.endsWith('.ea2')) {
           const reader = new FileReader()
           reader.onload = () => {
             const content = reader.result?.toString()

@@ -4,7 +4,7 @@
     <comment>ExamAware 考试档案文件</comment>
     <comment xml:lang="en">ExamAware Exam Archive File</comment>
     <icon name="examaware"/>
-    <glob pattern="*.exam.json"/>
+    <glob pattern="*.ea2"/>
     <sub-class-of type="application/json"/>
   </mime-type>
 </mime-info>
