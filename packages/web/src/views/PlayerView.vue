@@ -13,7 +13,7 @@
     <p>未找到配置，请先上传考试档案。</p>
     <t-button theme="default" @click="goHome">返回首页</t-button>
   </div>
-  </template>
+</template>
 
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted } from 'vue'
@@ -45,10 +45,11 @@ const playerConfig = computed<PlayerConfig>(() => ({
 const goHome = () => router.push('/')
 
 // === 全屏相关（Web） ===
-const getDoc = () => document as Document & {
-  webkitExitFullscreen?: () => Promise<void> | void
-  webkitFullscreenElement?: Element | null
-}
+const getDoc = () =>
+  document as Document & {
+    webkitExitFullscreen?: () => Promise<void> | void
+    webkitFullscreenElement?: Element | null
+  }
 
 const requestFullscreen = async (el: HTMLElement) => {
   const anyEl = el as any
@@ -99,6 +100,14 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.player { width: 100vw; height: 100vh; }
-.fallback { min-height: 100vh; display: grid; place-content: center; gap: 12px; }
+.player {
+  width: 100vw;
+  height: 100vh;
+}
+.fallback {
+  min-height: 100vh;
+  display: grid;
+  place-content: center;
+  gap: 12px;
+}
 </style>

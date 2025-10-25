@@ -58,7 +58,9 @@ const genId = (p = 'r') => `${p}-${Date.now()}-${++uid}`
 function getContrastingTextColor(baseColor?: string): string {
   if (!baseColor) return '#ffffff'
   // 支持 #rrggbb 或 rgb/rgba
-  let r = 0, g = 0, b = 0
+  let r = 0,
+    g = 0,
+    b = 0
   const hex = baseColor.trim().toLowerCase()
   const hexMatch = hex.match(/^#([0-9a-f]{6})$/i)
   if (hexMatch) {
@@ -175,7 +177,7 @@ export function useReminderService(): (ReminderServiceApi & {
 
     // 若已有相同类型，刷新时长与标题
     const title = options.title ?? '提示'
-  const durationMs = options.durationMs ?? 5000
+    const durationMs = options.durationMs ?? 5000
     const themeBaseColor = options.themeBaseColor
 
     colorfulRef.value = {
@@ -227,7 +229,7 @@ export function useReminderService(): (ReminderServiceApi & {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     showEndingAlert: ((opts?: ColorfulAlertOptions) => showColorfulAlert(opts)) as any,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    hideEndingAlert: ((() => hideColorfulAlert())) as any,
+    hideEndingAlert: (() => hideColorfulAlert()) as any,
 
     // 状态
     isColorfulVisible: computed(() => !!colorfulRef.value),

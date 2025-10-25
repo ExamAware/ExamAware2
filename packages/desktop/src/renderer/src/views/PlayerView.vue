@@ -253,15 +253,31 @@ onUnmounted(() => {
 
 // 暴露调试接口
 if (typeof window !== 'undefined') {
-  (window as any).debugPlayerView = {
-    get config() { return configData.value },
-    get roomNumber() { return roomNumber.value },
-    get timeProvider() { return timeProvider },
-    get syncStatus() { return timeProvider.getSyncStatus() },
-    get syncStatusText() { return timeSyncStatusText.value },
-    get loading() { return loading.value },
-    get loaded() { return loaded.value },
-    get source() { return configSource.value },
+  ;(window as any).debugPlayerView = {
+    get config() {
+      return configData.value
+    },
+    get roomNumber() {
+      return roomNumber.value
+    },
+    get timeProvider() {
+      return timeProvider
+    },
+    get syncStatus() {
+      return timeProvider.getSyncStatus()
+    },
+    get syncStatusText() {
+      return timeSyncStatusText.value
+    },
+    get loading() {
+      return loading.value
+    },
+    get loaded() {
+      return loaded.value
+    },
+    get source() {
+      return configSource.value
+    },
     performSync: () => timeProvider.performSync(),
     reloadConfig
   }

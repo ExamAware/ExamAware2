@@ -1,8 +1,9 @@
 /* 自定义字体定义 */
 @font-face {
   font-family: 'TCloudNumber';
-  src: url('./fonts/TCloudNumberVF.ttf') format('truetype-variations'),
-       url('./fonts/TCloudNumberVF.ttf') format('truetype');
+  src:
+    url('./fonts/TCloudNumberVF.ttf') format('truetype-variations'),
+    url('./fonts/TCloudNumberVF.ttf') format('truetype');
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -98,8 +99,8 @@ body,
 
 /* 额外确保菜单栏区域不可拖动 */
 .code-layout-title-bar .code-layout-menu-bar,
-.code-layout-title-bar [class*="menu"],
-.code-layout-title-bar [class*="Menu"] {
+.code-layout-title-bar [class*='menu'],
+.code-layout-title-bar [class*='Menu'] {
   -webkit-app-region: no-drag;
 }
 
@@ -108,7 +109,6 @@ body,
   overflow: auto;
 }
 */
-
 
 .ea_app,
 .mainpage {
@@ -122,7 +122,6 @@ h2,
 p {
   user-select: none;
 }
-
 
 .t-layout__sider {
   width: auto !important;
@@ -148,16 +147,16 @@ p {
   flex-flow: 1;
 }
 
-.t-menu--scroll{
+.t-menu--scroll {
   height: auto !important;
   /* flex: none !important; */
 }
 
-.t-menu__operations{
+.t-menu__operations {
   padding: 8px !important;
   position: relative !important;
   bottom: 50px !important;
-  left:0px !important;
+  left: 0px !important;
 }
 .t-default-menu .t-menu__operations:not(:empty) {
   border-top-color: transparent !important;
@@ -171,7 +170,6 @@ p {
   overflow-y: auto !important;
 }
 
-
 /* 将 vue-code-layout 的主题变量映射到 TDesign 设计令牌，使其随主题自动切换 */
 :root {
   /* 基础背景与层次 */
@@ -180,8 +178,16 @@ p {
   --code-layout-color-background-light: var(--td-bg-color-component);
   --code-layout-color-background-hover: var(--td-bg-color-component-hover);
   --code-layout-color-background-hover-light: var(--td-bg-color-secondarycontainer-hover);
-  --code-layout-color-background-highlight: color-mix(in srgb, var(--td-brand-color-7, var(--td-brand-color, #0052d9)) 18%, transparent);
-  --code-layout-color-background-mask-light: color-mix(in srgb, var(--td-text-color-primary) 20%, transparent);
+  --code-layout-color-background-highlight: color-mix(
+    in srgb,
+    var(--td-brand-color-7, var(--td-brand-color, #0052d9)) 18%,
+    transparent
+  );
+  --code-layout-color-background-mask-light: color-mix(
+    in srgb,
+    var(--td-text-color-primary) 20%,
+    transparent
+  );
 
   /* 品牌/高亮 */
   --code-layout-color-highlight: var(--td-brand-color, var(--td-brand-color-7));
@@ -202,7 +208,10 @@ p {
 
   /* 滚动条 */
   --code-layout-color-scrollbar-thumb: var(--td-scrollbar-color, var(--ea-scrollbar-thumb));
-  --code-layout-color-scrollbar-thumb-light: var(--td-scrollbar-color, var(--ea-scrollbar-thumb-hover));
+  --code-layout-color-scrollbar-thumb-light: var(
+    --td-scrollbar-color,
+    var(--ea-scrollbar-thumb-hover)
+  );
 
   /* 尺寸（沿用库默认约定，必要时可对齐 TDesign 半径/字号） */
   /* --code-layout-border-size: 1px; */
@@ -234,4 +243,3 @@ p {
   --tab-button-hover-color: var(--td-bg-color-component-hover);
   /* --tab-close-size: 18px; */
 }
-

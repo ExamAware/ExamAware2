@@ -25,7 +25,7 @@
 import { ref, watch, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { FileIcon } from 'tdesign-icons-vue-next'
-import eaLogo from "@renderer/assets/logo.svg"
+import eaLogo from '@renderer/assets/logo.svg'
 import { usePages, useSidebarPages } from '@renderer/composables/usePages'
 
 const router = useRouter()
@@ -34,11 +34,11 @@ const route = useRoute()
 const pages = usePages()
 const { list: listSidebar } = useSidebarPages(pages)
 const sidebarItems = computed(() => listSidebar())
-const routeMap = computed(() =>
-  Object.fromEntries(sidebarItems.value.map((p) => [p.id, p.path]))
-)
+const routeMap = computed(() => Object.fromEntries(sidebarItems.value.map((p) => [p.id, p.path])))
 
-const currentMenu = ref(Object.keys(routeMap.value).find((key) => routeMap.value[key] === route.path) || 'home')
+const currentMenu = ref(
+  Object.keys(routeMap.value).find((key) => routeMap.value[key] === route.path) || 'home'
+)
 
 const handleMenuChange = (value) => {
   const route = routeMap.value[value]
@@ -48,7 +48,8 @@ const handleMenuChange = (value) => {
 }
 
 watch(route, (newRoute) => {
-  currentMenu.value = Object.keys(routeMap.value).find((key) => routeMap.value[key] === newRoute.path) || 'home'
+  currentMenu.value =
+    Object.keys(routeMap.value).find((key) => routeMap.value[key] === newRoute.path) || 'home'
 })
 </script>
 

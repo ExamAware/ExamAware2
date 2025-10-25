@@ -2,10 +2,27 @@
   <div class="logs-view">
     <div class="toolbar">
       <t-input v-model="keyword" placeholder="搜索内容或来源" clearable style="width: 260px" />
-      <t-select v-model="level" :options="levelOptions" clearable placeholder="级别" style="width: 140px" />
-      <t-select v-model="proc" :options="procOptions" clearable placeholder="进程" style="width: 120px" />
+      <t-select
+        v-model="level"
+        :options="levelOptions"
+        clearable
+        placeholder="级别"
+        style="width: 140px"
+      />
+      <t-select
+        v-model="proc"
+        :options="procOptions"
+        clearable
+        placeholder="进程"
+        style="width: 120px"
+      />
       <t-switch v-model="followTail" size="small" label="跟随滚动" />
-      <t-button theme="default" @click="onlyErrors = !onlyErrors" :variant="onlyErrors ? 'base' : 'outline'">仅错误</t-button>
+      <t-button
+        theme="default"
+        @click="onlyErrors = !onlyErrors"
+        :variant="onlyErrors ? 'base' : 'outline'"
+        >仅错误</t-button
+      >
       <t-button theme="default" @click="clearLogs"><t-icon name="delete" /> 清空</t-button>
     </div>
     <div class="logs-table" ref="tableWrapRef">
@@ -28,7 +45,9 @@
         </template>
         <template #cell(message)="{ row }">
           <div class="msg-wrap" :class="'lvl-' + row.level">
-            <pre class="msg" :class="{ collapsed: isCollapsed(row) }">{{ displayMessage(row) }}</pre>
+            <pre class="msg" :class="{ collapsed: isCollapsed(row) }">{{
+              displayMessage(row)
+            }}</pre>
             <div class="msg-actions">
               <t-link theme="primary" variant="text" size="small" @click="toggleExpand(row.id)">
                 {{ isCollapsed(row) ? '展开' : '收起' }}
@@ -92,16 +111,21 @@ const formatTime = (ts: number) => new Date(ts).toLocaleString()
 
 const levelTheme = (lvl: LogLevel) => {
   switch (lvl) {
-    case 'error': return 'danger'
-    case 'warn': return 'warning'
-    case 'info': return 'primary'
-    case 'debug': return 'success'
-    default: return 'default'
+    case 'error':
+      return 'danger'
+    case 'warn':
+      return 'warning'
+    case 'info':
+      return 'primary'
+    case 'debug':
+      return 'success'
+    default:
+      return 'default'
   }
 }
 
 const filtered = computed(() => {
-  return rows.filter(r => {
+  return rows.filter((r) => {
     if (level.value && r.level !== level.value) return false
     if (proc.value && r.process !== proc.value) return false
     if (onlyErrors.value && r.level !== 'error') return false
@@ -171,7 +195,9 @@ function displayMessage(row: LogEntry): string {
 }
 
 function copyText(text: string) {
-  try { navigator.clipboard.writeText(text) } catch {}
+  try {
+    navigator.clipboard.writeText(text)
+  } catch {}
 }
 
 function scrollToBottom() {
@@ -197,7 +223,11 @@ function rowClassName({ row }: { row: LogEntry }) {
   padding: 8px;
   align-items: center;
 }
-.logs-table { flex: 1; min-height: 0; overflow: auto; }
+.logs-table {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
 .msg-wrap {
   background: var(--td-bg-color-container);
   border: 1px solid var(--td-border-level-1-color);
@@ -205,15 +235,25 @@ function rowClassName({ row }: { row: LogEntry }) {
   border-radius: 6px;
   padding: 8px 10px;
 }
-.msg-wrap.lvl-error { border-left-color: var(--td-color-error); }
-.msg-wrap.lvl-warn { border-left-color: var(--td-color-warning); }
-.msg-wrap.lvl-info { border-left-color: var(--td-color-primary); }
-.msg-wrap.lvl-debug { border-left-color: var(--td-color-success); }
+.msg-wrap.lvl-error {
+  border-left-color: var(--td-color-error);
+}
+.msg-wrap.lvl-warn {
+  border-left-color: var(--td-color-warning);
+}
+.msg-wrap.lvl-info {
+  border-left-color: var(--td-color-primary);
+}
+.msg-wrap.lvl-debug {
+  border-left-color: var(--td-color-success);
+}
 .msg {
   margin: 0;
   white-space: pre-wrap;
   word-break: break-word;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+    monospace;
   font-size: 12px;
   line-height: 1.5;
   max-width: 100%;
@@ -226,12 +266,23 @@ function rowClassName({ row }: { row: LogEntry }) {
 .msg.collapsed::after {
   content: '';
   position: absolute;
-  left: 0; right: 0; bottom: 0; height: 1.2em;
-  background: linear-gradient(180deg, rgba(0,0,0,0), var(--td-bg-color-container));
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1.2em;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0), var(--td-bg-color-container));
 }
-.msg-actions { margin-top: 4px; display: flex; gap: 8px; }
+.msg-actions {
+  margin-top: 4px;
+  display: flex;
+  gap: 8px;
+}
 
 /* 行级轻微强调（不喧宾夺主） */
-:deep(.t-table .row-error td) { background-color: color-mix(in srgb, var(--td-color-error) 6%, transparent); }
-:deep(.t-table .row-warn td) { background-color: color-mix(in srgb, var(--td-color-warning) 4%, transparent); }
+:deep(.t-table .row-error td) {
+  background-color: color-mix(in srgb, var(--td-color-error) 6%, transparent);
+}
+:deep(.t-table .row-warn td) {
+  background-color: color-mix(in srgb, var(--td-color-warning) 4%, transparent);
+}
 </style>

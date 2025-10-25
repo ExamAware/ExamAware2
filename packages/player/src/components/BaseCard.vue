@@ -17,7 +17,7 @@ export interface BaseCardProps {
 
 withDefaults(defineProps<BaseCardProps>(), {
   customClass: '',
-  customStyle: () => ({}),
+  customStyle: () => ({})
 })
 </script>
 

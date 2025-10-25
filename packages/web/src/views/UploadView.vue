@@ -2,11 +2,17 @@
   <div class="app-container">
     <div class="uploader">
       <t-button theme="primary" size="large" @click="triggerFile">选择考试档案(.ea2)</t-button>
-      <input ref="fileInput" type="file" accept=".json,.ea2,application/json" class="hidden-input" @change="onFileChange" />
+      <input
+        ref="fileInput"
+        type="file"
+        accept=".json,.ea2,application/json"
+        class="hidden-input"
+        @change="onFileChange"
+      />
       <p class="tip">ExamAware2 知试 在线放映器</p>
     </div>
   </div>
-  </template>
+</template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
@@ -47,7 +53,14 @@ const onFileChange = async (e: Event) => {
   align-items: center;
   justify-content: center;
 }
-.uploader { text-align: center; }
-.hidden-input { display: none; }
-.tip { margin-top: 12px; color: rgba(255,255,255,0.6); }
+.uploader {
+  text-align: center;
+}
+.hidden-input {
+  display: none;
+}
+.tip {
+  margin-top: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
 </style>

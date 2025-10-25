@@ -1,5 +1,9 @@
 <template>
-  <InfoCardWithIcon title="当前考试信息" @icon-click="$emit('editClick')" custom-class="exam-info-card">
+  <InfoCardWithIcon
+    title="当前考试信息"
+    @icon-click="$emit('editClick')"
+    custom-class="exam-info-card"
+  >
     <InfoItem label="当前科目" :value="ctx.currentExamName.value" />
     <InfoItem label="考试时间" :value="ctx.currentExamTimeRange.value" />
     <InfoItem label="剩余时间" :value="ctx.displayedRemainingTime.value" />

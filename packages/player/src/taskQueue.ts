@@ -29,12 +29,7 @@ export class ExamTaskQueue {
   /**
    * 添加任务
    */
-  addTask(
-    executeTime: number,
-    type: TaskType,
-    examInfo: any,
-    callback: () => void
-  ): string {
+  addTask(executeTime: number, type: TaskType, examInfo: any, callback: () => void): string {
     const id = `${type}-${examInfo.name}-${executeTime}`
     const task: Task = {
       id,
@@ -97,10 +92,7 @@ export class ExamTaskQueue {
   /**
    * 为考试配置创建任务
    */
-  createTasksForConfig(
-    config: ExamConfig,
-    eventHandlers: PlayerEventHandlers = {}
-  ) {
+  createTasksForConfig(config: ExamConfig, eventHandlers: PlayerEventHandlers = {}) {
     this.clear()
 
     if (!config.examInfos || config.examInfos.length === 0) {
@@ -109,7 +101,7 @@ export class ExamTaskQueue {
 
     const now = this.timeProvider()
 
-  config.examInfos.forEach((exam: any) => {
+    config.examInfos.forEach((exam: any) => {
       const startTime = parseDateTime(exam.start).getTime()
       const endTime = parseDateTime(exam.end).getTime()
 
@@ -131,7 +123,7 @@ export class ExamTaskQueue {
 
       // 考试提醒任务
       if (exam.alertTime && exam.alertTime > 0) {
-        const alertTime = endTime - (exam.alertTime * 60 * 1000)
+        const alertTime = endTime - exam.alertTime * 60 * 1000
         if (alertTime > now) {
           this.addTask(alertTime, 'exam-alert', exam, () => {
             console.log(`考试提醒: ${exam.name} 将在 ${exam.alertTime} 分钟后结束`)
@@ -151,7 +143,7 @@ export class ExamTaskQueue {
     this.isRunning = true
 
     // 调度所有待执行的任务
-    this.tasks.forEach(task => {
+    this.tasks.forEach((task) => {
       if (task.status === 'pending') {
         this.scheduleTask(task)
       }
@@ -165,7 +157,7 @@ export class ExamTaskQueue {
     this.isRunning = false
 
     // 清理所有定时器
-    this.timeouts.forEach(timeout => {
+    this.timeouts.forEach((timeout) => {
       clearTimeout(timeout)
     })
     this.timeouts.clear()
@@ -203,7 +195,7 @@ export class ExamTaskQueue {
    * 获取任务详情
    */
   getTaskDetails(): TaskInfo[] {
-    return Array.from(this.tasks.values()).map(task => ({
+    return Array.from(this.tasks.values()).map((task) => ({
       id: task.id,
       executeTime: task.executeTime,
       type: task.type,
@@ -216,6 +208,6 @@ export class ExamTaskQueue {
    * 获取待执行的任务
    */
   getPendingTasks(): TaskInfo[] {
-    return this.getTaskDetails().filter(task => task.status === 'pending')
+    return this.getTaskDetails().filter((task) => task.status === 'pending')
   }
 }

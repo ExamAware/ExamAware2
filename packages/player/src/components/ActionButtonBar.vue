@@ -11,7 +11,7 @@
       <!-- 退出播放按钮 - 长按3秒退出 -->
       <button
         class="action-button exit-button"
-        :class="{ 'pressing': isPressing }"
+        :class="{ pressing: isPressing }"
         @mousedown="startLongPress"
         @mouseup="cancelLongPress"
         @mouseleave="cancelLongPress"
@@ -19,7 +19,11 @@
         @touchend="cancelLongPress"
         @touchcancel="cancelLongPress"
       >
-        <div class="progress-border" v-if="isPressing" :style="{ '--progress': pressProgress }"></div>
+        <div
+          class="progress-border"
+          v-if="isPressing"
+          :style="{ '--progress': pressProgress }"
+        ></div>
         <div class="button-icon">
           <LogoutIcon />
         </div>
@@ -119,7 +123,10 @@ const setRootScale = (scale: number) => {
     container.style.setProperty('--ui-scale', String(scale))
   }
   console.log('Manual scale set to:', scale)
-  console.log('CSS variable --ui-scale is now:', getComputedStyle(document.documentElement).getPropertyValue('--ui-scale'))
+  console.log(
+    'CSS variable --ui-scale is now:',
+    getComputedStyle(document.documentElement).getPropertyValue('--ui-scale')
+  )
 }
 
 // 平滑动画到目标缩放值
@@ -380,9 +387,13 @@ const handlePlaybackSettings = () => {
     transparent calc(360deg * var(--progress, 0)),
     transparent 360deg
   );
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
   mask-composite: exclude;
 }
 
@@ -437,7 +448,7 @@ const handlePlaybackSettings = () => {
 }
 
 /* Range input 样式 */
-.ui-scale-bar input[type="range"] {
+.ui-scale-bar input[type='range'] {
   width: 120px;
   height: 6px;
   background: rgba(255, 255, 255, 0.2);
@@ -451,7 +462,7 @@ const handlePlaybackSettings = () => {
   pointer-events: auto; /* 确保可以接收事件 */
 }
 
-.ui-scale-bar input[type="range"]::-webkit-slider-thumb {
+.ui-scale-bar input[type='range']::-webkit-slider-thumb {
   width: 16px;
   height: 16px;
   background: #ffffff;
@@ -463,12 +474,12 @@ const handlePlaybackSettings = () => {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.ui-scale-bar input[type="range"]::-webkit-slider-thumb:hover {
+.ui-scale-bar input[type='range']::-webkit-slider-thumb:hover {
   background: #f0f0f0;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
-.ui-scale-bar input[type="range"]::-moz-range-thumb {
+.ui-scale-bar input[type='range']::-moz-range-thumb {
   width: 16px;
   height: 16px;
   background: #ffffff;
@@ -478,7 +489,7 @@ const handlePlaybackSettings = () => {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.ui-scale-bar input[type="range"]::-moz-range-track {
+.ui-scale-bar input[type='range']::-moz-range-track {
   width: 100%;
   height: 6px;
   background: rgba(255, 255, 255, 0.2);

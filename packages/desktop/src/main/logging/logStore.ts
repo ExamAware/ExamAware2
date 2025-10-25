@@ -25,7 +25,9 @@ export function addLog(entry: Omit<LogEntry, 'id'>) {
   }
   // 广播到所有窗口
   BrowserWindow.getAllWindows().forEach((w) => {
-    try { w.webContents.send('logs:push', e) } catch {}
+    try {
+      w.webContents.send('logs:push', e)
+    } catch {}
   })
 }
 

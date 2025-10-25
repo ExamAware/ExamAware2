@@ -40,9 +40,15 @@ app.whenReady().then(async () => {
 
   // optional: clean up on quit
   app.on('before-quit', () => {
-    try { disposeTimeIpc() } catch {}
-    try { disposeIpc() } catch {}
-    try { disposeMainCtx() } catch {}
+    try {
+      disposeTimeIpc()
+    } catch {}
+    try {
+      disposeIpc()
+    } catch {}
+    try {
+      disposeMainCtx()
+    } catch {}
   })
 })
 

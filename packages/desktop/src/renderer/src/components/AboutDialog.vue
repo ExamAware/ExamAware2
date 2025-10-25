@@ -5,11 +5,11 @@
     header="关于 DSZ知试"
     :cancel-btn="{
       content: '确定',
-      variant: 'outline',
+      variant: 'outline'
     }"
     :confirm-btn="{
       content: '复制',
-      variant: 'base',
+      variant: 'base'
     }"
     :on-close="close1"
     :on-confirm="copyToClipboard"
@@ -54,7 +54,7 @@ const versionInfo = ref({
     M = M[2] ? [M[1], M[2]] : [navigator.appName, navigator.appVersion, '-?']
     if ((tem = ua.match(/version\/(\d+)/i)) != null) M.splice(1, 1, tem[1])
     return M.join(' ')
-  })(),
+  })()
 })
 
 const readableVersionInfo = computed(() => {
@@ -62,7 +62,7 @@ const readableVersionInfo = computed(() => {
 })
 
 const props = defineProps({
-  visible: Boolean,
+  visible: Boolean
 })
 
 const emit = defineEmits(['update:closedialog'])
@@ -80,7 +80,7 @@ function copyToClipboard() {
         title: '复制成功',
         content: '“关于”信息已复制到您的剪贴板',
         placement: 'bottom-right',
-        closeBtn: true,
+        closeBtn: true
       })
     })
     .catch((err) => {
@@ -88,7 +88,7 @@ function copyToClipboard() {
         title: '复制失败',
         content: err,
         placement: 'bottom-right',
-        closeBtn: true,
+        closeBtn: true
       })
     })
 }

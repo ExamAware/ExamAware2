@@ -19,7 +19,7 @@ import { formatLocalDateTime } from '@renderer/utils/dateFormat'
 import { getSyncedTime } from '@renderer/utils/timeUtils'
 
 const props = defineProps({
-  profile: Object as () => ExamConfig,
+  profile: Object as () => ExamConfig
 })
 
 const emit = defineEmits(['switch-exam-info', 'update:profile'])
@@ -45,7 +45,7 @@ const addExam = () => {
     name: `考试${(currentProfile.value.examInfos || []).length + 1}`,
     start: startTime,
     end: endTime,
-    alertTime: 15,
+    alertTime: 15
   }
 
   const updatedProfile = {
@@ -92,7 +92,7 @@ const duplicateExam = (index: number) => {
 
   // 找到所有考试中最晚的结束时间
   let latestEndTime = new Date(0) // 初始化为最早时间
-  examInfos.forEach(exam => {
+  examInfos.forEach((exam) => {
     const examEnd = new Date(exam.end)
     if (examEnd > latestEndTime) {
       latestEndTime = examEnd
@@ -107,7 +107,7 @@ const duplicateExam = (index: number) => {
     ...originalExam,
     name: `${originalExam.name} (副本)`,
     start: formatLocalDateTime(newStartTime),
-    end: formatLocalDateTime(newEndTime),
+    end: formatLocalDateTime(newEndTime)
   }
 
   const updatedExamInfos = [...examInfos, duplicatedExam] // 添加到末尾而不是原位置

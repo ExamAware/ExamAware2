@@ -116,7 +116,7 @@ export class FileOperationManager {
   static addToRecentFiles(filename: string): void {
     try {
       const recent = this.getRecentFiles()
-      const filtered = recent.filter(f => f !== filename)
+      const filtered = recent.filter((f) => f !== filename)
       filtered.unshift(filename)
 
       // 只保留最近10个文件
@@ -163,7 +163,11 @@ export class FileOperationManager {
       const files = e.dataTransfer?.files
       if (files && files.length > 0) {
         const file = files[0]
-        if (file.type === 'application/json' || file.name.endsWith('.json') || file.name.endsWith('.ea2')) {
+        if (
+          file.type === 'application/json' ||
+          file.name.endsWith('.json') ||
+          file.name.endsWith('.ea2')
+        ) {
           const reader = new FileReader()
           reader.onload = () => {
             const content = reader.result?.toString()

@@ -432,14 +432,26 @@ onMounted(async () => {
               v-for="exam in openExams"
               :key="getExamUid(exam)"
               :value="getExamUid(exam)"
-              :label="(() => { const uid = getExamUid(exam); const i = findExamIndexByUid(uid); return exam.name || `考试 ${i + 1}` })()"
+              :label="
+                (() => {
+                  const uid = getExamUid(exam)
+                  const i = findExamIndexByUid(uid)
+                  return exam.name || `考试 ${i + 1}`
+                })()
+              "
               :removable="true"
             >
               <div class="editor-tab-panel">
                 <ExamForm
                   :model-value="exam as any"
                   :auto-save="true"
-                  @update:modelValue="(val: any) => { const uid = getExamUid(exam); const idx = findExamIndexByUid(uid); if (idx >= 0) updateExam(idx, val) }"
+                  @update:modelValue="
+                    (val: any) => {
+                      const uid = getExamUid(exam)
+                      const idx = findExamIndexByUid(uid)
+                      if (idx >= 0) updateExam(idx, val)
+                    }
+                  "
                   @save="handleExamSave"
                 />
               </div>

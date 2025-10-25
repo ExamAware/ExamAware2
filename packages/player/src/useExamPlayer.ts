@@ -1,6 +1,11 @@
 import { onMounted, onUnmounted, readonly } from 'vue'
 import type { ExamConfig } from '@dsz-examaware/core'
-import { validateExamConfig, hasExamTimeOverlap, getSortedExamConfig, parseDateTime } from '@dsz-examaware/core'
+import {
+  validateExamConfig,
+  hasExamTimeOverlap,
+  getSortedExamConfig,
+  parseDateTime
+} from '@dsz-examaware/core'
 import type { PlayerConfig, PlayerEventHandlers } from './types'
 import { ExamPlayerCore } from './core/ExamPlayerCore'
 import type { TimeProvider } from './core/interfaces'
@@ -18,18 +23,12 @@ export function useExamPlayer(
   eventHandlers: PlayerEventHandlers = {}
 ) {
   // 构造面向对象核心
-  const core = new ExamPlayerCore(
-    config,
-    playerConfig,
-    timeProvider,
-    eventHandlers,
-    {
-      validate: validateExamConfig,
-      hasOverlap: hasExamTimeOverlap,
-      getSortedConfig: getSortedExamConfig,
-      parse: parseDateTime
-    }
-  )
+  const core = new ExamPlayerCore(config, playerConfig, timeProvider, eventHandlers, {
+    validate: validateExamConfig,
+    hasOverlap: hasExamTimeOverlap,
+    getSortedConfig: getSortedExamConfig,
+    parse: parseDateTime
+  })
 
   const view = core.view()
   const currentExam = view.currentExam

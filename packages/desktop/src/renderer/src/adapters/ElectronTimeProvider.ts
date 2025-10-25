@@ -81,7 +81,8 @@ export class ElectronTimeProvider implements TimeProvider {
       this.syncStatus = syncInfo.syncStatus
 
       // 如果偏移量发生变化，触发回调
-      if (Math.abs(newOffset - oldOffset) > 100) { // 超过100ms的变化才触发
+      if (Math.abs(newOffset - oldOffset) > 100) {
+        // 超过100ms的变化才触发
         this.notifyTimeChange()
       }
     } catch (error) {
@@ -116,7 +117,7 @@ export class ElectronTimeProvider implements TimeProvider {
   }
 
   private notifyTimeChange(): void {
-    this.changeCallbacks.forEach(callback => {
+    this.changeCallbacks.forEach((callback) => {
       try {
         callback()
       } catch (error) {

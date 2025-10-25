@@ -53,7 +53,7 @@ export class MenuConfigManager {
             { label: '导入', onClick: this.handlers.onImport },
             { label: '导出', onClick: this.handlers.onExport },
             { divided: true },
-            { label: '关闭', onClick: this.handlers.onClose, shortcut: 'Ctrl+W' },
+            { label: '关闭', onClick: this.handlers.onClose, shortcut: 'Ctrl+W' }
           ]
         },
         {
@@ -67,7 +67,7 @@ export class MenuConfigManager {
             { label: '粘贴', onClick: this.handlers.onPaste, shortcut: 'Ctrl+V' },
             { divided: true },
             { label: '查找', onClick: this.handlers.onFind, shortcut: 'Ctrl+F' },
-            { label: '替换', onClick: this.handlers.onReplace, shortcut: 'Ctrl+H' },
+            { label: '替换', onClick: this.handlers.onReplace, shortcut: 'Ctrl+H' }
           ]
         },
         {
@@ -79,14 +79,14 @@ export class MenuConfigManager {
             { label: '上一个考试', onClick: this.handlers.onPrevExam },
             { label: '下一个考试', onClick: this.handlers.onNextExam },
             { divided: true },
-            { label: '开始放映', onClick: this.handlers.onPresentation },
+            { label: '开始放映', onClick: this.handlers.onPresentation }
           ]
         },
         {
           label: '帮助',
           children: [
             { label: '关于', onClick: this.handlers.onAbout },
-            { label: 'GitHub', onClick: this.handlers.onGithub },
+            { label: 'GitHub', onClick: this.handlers.onGithub }
           ]
         }
       ]

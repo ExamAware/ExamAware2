@@ -20,7 +20,7 @@ export function useLayoutManager() {
     'explorer.examinfo': SideExamInfoPanel,
     'history.operations': OperationHistoryPanel,
     'settings.general': SettingsPanel,
-    'bottom.validation': ValidationPanel,
+    'bottom.validation': ValidationPanel
   }
 
   let layoutManager: LayoutManager | null = null
@@ -114,6 +114,6 @@ export function useLayoutManager() {
     getPanelComponent,
     addPanelComponent,
     layoutManager: () => layoutManager,
-    menuManager: () => menuManager,
+    menuManager: () => menuManager
   }
 }

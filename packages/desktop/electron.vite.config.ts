@@ -20,8 +20,7 @@ export default defineConfig(({ mode }) => {
           entry: resolve(__dirname, 'src/main/index.ts')
         },
         minify: isProduction,
-        sourcemap: !isProduction
-        ,
+        sourcemap: !isProduction,
         rollupOptions: {
           external: ['electron', 'node:*']
         }
@@ -35,8 +34,7 @@ export default defineConfig(({ mode }) => {
           entry: resolve(__dirname, 'src/preload/index.ts')
         },
         minify: isProduction,
-        sourcemap: !isProduction
-        ,
+        sourcemap: !isProduction,
         rollupOptions: {
           external: ['electron', 'node:*']
         }

@@ -49,13 +49,18 @@ export function createMainContext(): { ctx: MainContext; dispose: () => void } {
       const res = await fn()
       if (typeof res === 'function') group.add(res)
     },
-    provide: (n, v) => { provides[n as any] = v },
+    provide: (n, v) => {
+      provides[n as any] = v
+    },
     inject: (n) => provides[n as any] as any,
     windows: {
       track: (win) => {
         tracked.add(win)
         group.add(() => {
-          if (!win.isDestroyed()) try { win.close() } catch {}
+          if (!win.isDestroyed())
+            try {
+              win.close()
+            } catch {}
         })
         win.on('closed', () => tracked.delete(win))
       }
@@ -79,7 +84,11 @@ export function createMainContext(): { ctx: MainContext; dispose: () => void } {
     tray: {
       set: (trayInstance) => {
         // When a Tray is provided, bind its destroy on dispose
-        group.add(() => { try { trayInstance.destroy() } catch {} })
+        group.add(() => {
+          try {
+            trayInstance.destroy()
+          } catch {}
+        })
       }
     },
     menu: {
@@ -92,9 +101,15 @@ export function createMainContext(): { ctx: MainContext; dispose: () => void } {
     protocol: {
       register: (scheme, handler) => {
         // ensure scheme is registered for file protocol before app ready usages
-        try { protocol.unregisterProtocol(scheme) } catch {}
+        try {
+          protocol.unregisterProtocol(scheme)
+        } catch {}
         protocol.registerFileProtocol(scheme, handler)
-        group.add(() => { try { protocol.unregisterProtocol(scheme) } catch {} })
+        group.add(() => {
+          try {
+            protocol.unregisterProtocol(scheme)
+          } catch {}
+        })
       }
     },
     timer: {
@@ -110,7 +125,11 @@ export function createMainContext(): { ctx: MainContext; dispose: () => void } {
     fs: {
       watch: (path, listener) => {
         const watcher = fs.watch(path, listener as any)
-        group.add(() => { try { watcher.close() } catch {} })
+        group.add(() => {
+          try {
+            watcher.close()
+          } catch {}
+        })
       }
     }
   }

@@ -1,10 +1,10 @@
-import { ipcMain } from 'electron';
+import { ipcMain } from 'electron'
 import {
   performTimeSync,
   getTimeSyncInfo,
   saveTimeSyncConfig,
   getSyncedTime
-} from '../ntpService/timeService';
+} from '../ntpService/timeService'
 
 export function registerTimeSyncHandlers(): () => void {
   const disposers: Array<() => void> = []
@@ -20,20 +20,24 @@ export function registerTimeSyncHandlers(): () => void {
   disposers.push(handle('time:get-sync-info', async () => getTimeSyncInfo()))
 
   // 执行时间同步
-  disposers.push(handle('time:sync-now', async () => {
-    try {
-      return await performTimeSync();
-    } catch (error) {
-      throw new Error(error instanceof Error ? error.message : String(error));
-    }
-  }))
+  disposers.push(
+    handle('time:sync-now', async () => {
+      try {
+        return await performTimeSync()
+      } catch (error) {
+        throw new Error(error instanceof Error ? error.message : String(error))
+      }
+    })
+  )
 
   // 更新时间同步配置
   disposers.push(handle('time:update-config', async (_e, config) => saveTimeSyncConfig(config)))
 
   return () => {
     for (let i = disposers.length - 1; i >= 0; i--) {
-      try { disposers[i]() } catch {}
+      try {
+        disposers[i]()
+      } catch {}
     }
   }
 }

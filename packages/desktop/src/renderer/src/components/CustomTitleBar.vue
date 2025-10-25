@@ -7,22 +7,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { Button as TButton } from 'tdesign-vue-next';
+import { ref } from 'vue'
+import { Button as TButton } from 'tdesign-vue-next'
 
-const ipcRenderer = window.api.ipc;
+const ipcRenderer = window.api.ipc
 
 const minimizeWindow = () => {
-  ipcRenderer.send('minimize-window');
-};
+  ipcRenderer.send('minimize-window')
+}
 
 const maximizeWindow = () => {
-  ipcRenderer.send('maximize-window');
-};
+  ipcRenderer.send('maximize-window')
+}
 
 const closeWindow = () => {
-  ipcRenderer.send('close-window');
-};
+  ipcRenderer.send('close-window')
+}
 </script>
 
 <style scoped>

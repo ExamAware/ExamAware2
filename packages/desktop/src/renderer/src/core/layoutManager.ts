@@ -1,6 +1,13 @@
 import { h, type Component } from 'vue'
 import type { CodeLayoutInstance } from 'vue-code-layout'
-import { FileIcon, InfoCircleIcon, AddIcon, BugIcon, CheckCircleIcon, HistoryIcon } from 'tdesign-icons-vue-next'
+import {
+  FileIcon,
+  InfoCircleIcon,
+  AddIcon,
+  BugIcon,
+  CheckCircleIcon,
+  HistoryIcon
+} from 'tdesign-icons-vue-next'
 
 /**
  * 布局管理器
@@ -11,10 +18,7 @@ export class LayoutManager {
   private panelComponents: Record<string, Component> = {}
   private onAddExam?: () => void
 
-  constructor(
-    panelComponents: Record<string, Component>,
-    onAddExam?: () => void
-  ) {
+  constructor(panelComponents: Record<string, Component>, onAddExam?: () => void) {
     this.panelComponents = panelComponents
     this.onAddExam = onAddExam
   }
@@ -51,9 +55,9 @@ export class LayoutManager {
         tooltip: 'Explorer',
         name: 'explorer',
         badge: '2',
-        iconLarge: () => h(FileIcon, { size: '16pt' }),
+        iconLarge: () => h(FileIcon, { size: '16pt' })
       },
-      'primarySideBar',
+      'primarySideBar'
     )
 
     // 添加考试列表面板
@@ -71,9 +75,9 @@ export class LayoutManager {
           icon: () => h(AddIcon),
           onClick: () => {
             this.onAddExam?.()
-          },
-        },
-      ],
+          }
+        }
+      ]
     })
 
     // 添加考试信息面板
@@ -84,7 +88,7 @@ export class LayoutManager {
       noHide: true,
       startOpen: true,
       iconSmall: () => h(InfoCircleIcon),
-      iconLarge: () => h(InfoCircleIcon, { size: '16pt' }),
+      iconLarge: () => h(InfoCircleIcon, { size: '16pt' })
     })
 
     // 操作记录独立分组（在主侧边栏）
@@ -94,9 +98,9 @@ export class LayoutManager {
         tooltip: 'History',
         name: 'history',
         badge: '',
-        iconLarge: () => h(HistoryIcon, { size: '16pt' }),
+        iconLarge: () => h(HistoryIcon, { size: '16pt' })
       },
-      'primarySideBar',
+      'primarySideBar'
     )
     groupHistory.addPanel({
       title: '操作记录',
@@ -105,7 +109,7 @@ export class LayoutManager {
       noHide: false,
       startOpen: true,
       iconSmall: () => h(InfoCircleIcon),
-      iconLarge: () => h(InfoCircleIcon, { size: '16pt' }),
+      iconLarge: () => h(InfoCircleIcon, { size: '16pt' })
     })
   }
 
@@ -131,9 +135,9 @@ export class LayoutManager {
           tooltip: '重新验证',
           onClick: () => {
             console.log('刷新验证结果')
-          },
-        },
-      ],
+          }
+        }
+      ]
     })
   }
 

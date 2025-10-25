@@ -4,17 +4,17 @@ directories:
   buildResources: build
   output: out
 files:
-  - "dist/**/*"
-  - "node_modules/**/*"
-  - "package.json"
-  - "!**/.vscode/*"
-  - "!src/*"
-  - "!electron.vite.config.{js,ts,mjs,cjs}"
-  - "!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}"
-  - "!{.env,.env.*,.npmrc,pnpm-lock.yaml}"
-  - "!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}"
-  - "!build/*"
-  - "!out/*"
+  - 'dist/**/*'
+  - 'node_modules/**/*'
+  - 'package.json'
+  - '!**/.vscode/*'
+  - '!src/*'
+  - '!electron.vite.config.{js,ts,mjs,cjs}'
+  - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
+  - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
+  - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+  - '!build/*'
+  - '!out/*'
 fileAssociations:
   - ext: exam.json
     name: ExamAware 档案文件
@@ -41,9 +41,9 @@ nsis:
   perMachine: true
   allowElevation: true
   allowToChangeInstallationDirectory: true
-  installerIcon: build/icon.ico
-  uninstallerIcon: build/icon.ico
-  installerHeaderIcon: build/icon.ico
+  installerIcon: build/icon.png
+  uninstallerIcon: build/icon.png
+  installerHeaderIcon: build/icon.png
   runAfterFinish: true
   menuCategory: false
   include: build/installer.nsh
@@ -55,7 +55,7 @@ nsis:
     - en_US
 mac:
   category: public.app-category.education
-  icon: build/icon.icns
+  icon: build/icon.png
   target:
     - target: zip
       arch:
@@ -63,22 +63,22 @@ mac:
         - arm64
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
-    - NSCameraUsageDescription: "ExamAware needs access to your camera for exam monitoring and verification purposes."
-    - NSMicrophoneUsageDescription: "ExamAware needs access to your microphone for exam monitoring and audio recording."
-    - NSDocumentsFolderUsageDescription: "ExamAware needs access to your Documents folder to save and load exam files."
-    - NSDownloadsFolderUsageDescription: "ExamAware needs access to your Downloads folder to import exam materials."
+    - NSCameraUsageDescription: 'ExamAware needs access to your camera for exam monitoring and verification purposes.'
+    - NSMicrophoneUsageDescription: 'ExamAware needs access to your microphone for exam monitoring and audio recording.'
+    - NSDocumentsFolderUsageDescription: 'ExamAware needs access to your Documents folder to save and load exam files.'
+    - NSDownloadsFolderUsageDescription: 'ExamAware needs access to your Downloads folder to import exam materials.'
     - CFBundleURLTypes:
-        - CFBundleURLName: "ExamAware Document"
+        - CFBundleURLName: 'ExamAware Document'
           CFBundleURLSchemes:
-            - "examaware"
+            - 'examaware'
   notarize: false
   hardenedRuntime: true
   gatekeeperAssess: false
 
 dmg:
   artifactName: ${productName}-${version}-${arch}.${ext}
-  title: "${productName} ${version}"
-  icon: build/icon.icns
+  title: '${productName} ${version}'
+  icon: build/icon.png
   window:
     width: 540
     height: 380

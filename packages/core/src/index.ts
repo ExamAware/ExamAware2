@@ -4,11 +4,7 @@
  */
 
 // 导出类型定义
-export type {
-  ExamMaterial,
-  ExamInfo,
-  ExamConfig
-} from './types'
+export type { ExamMaterial, ExamInfo, ExamConfig } from './types'
 
 // 导出解析和验证功能
 export {
