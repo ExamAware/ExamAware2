@@ -13,19 +13,25 @@
 
         <slot name="left:title">
           <div class="title-section">
-            <h1 ref="mainTitleRef" class="main-title">{{ playerExamConfig?.examName || '考试' }}</h1>
-            <p ref="subtitleRef" class="subtitle">{{ playerExamConfig?.message || '请遵守考场纪律' }}</p>
+            <h1 ref="mainTitleRef" class="main-title">
+              {{ playerExamConfig?.examName || '考试' }}
+            </h1>
+            <p ref="subtitleRef" class="subtitle">
+              {{ playerExamConfig?.message || '请遵守考场纪律' }}
+            </p>
           </div>
         </slot>
 
-  <div class="card-item"><component :is="resolvedCards.clock" /></div>
-  <div class="card-item"><component :is="resolvedCards.examInfo" @editClick="$emit('editClick')" /></div>
+        <div class="card-item"><component :is="resolvedCards.clock" /></div>
+        <div class="card-item">
+          <component :is="resolvedCards.examInfo" @editClick="$emit('editClick')" />
+        </div>
       </div>
 
       <!-- 右侧列（默认布局） -->
       <div class="right-column">
-  <div class="card-item"><component :is="resolvedCards.room" /></div>
-  <div class="card-item"><component :is="resolvedCards.list" /></div>
+        <div class="card-item"><component :is="resolvedCards.room" /></div>
+        <div class="card-item"><component :is="resolvedCards.list" /></div>
       </div>
     </div>
 
@@ -34,11 +40,7 @@
 
     <!-- 彩色提醒：用于考试开始/即将结束/考试结束，淡入动画 -->
     <transition name="fade-soft">
-      <div
-        v-if="colorfulVisible"
-        class="overlay colorful-overlay"
-        :style="colorfulOverlayStyle"
-      >
+      <div v-if="colorfulVisible" class="overlay colorful-overlay" :style="colorfulOverlayStyle">
         <div class="colorful-title">{{ colorfulTitle }}</div>
       </div>
     </transition>
@@ -109,10 +111,7 @@ import { useReminderService, ReminderUtils } from '../reminderService'
 const renderMarkdownLight = (md: string): string => {
   let html = md
   // 转义基础字符以避免注入
-  html = html
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
+  html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   // 标题（仅支持 # 与 ##）
   html = html.replace(/^##\s+(.+)$/gm, '<h2>$1</h2>')
   html = html.replace(/^#\s+(.+)$/gm, '<h1>$1</h1>')
@@ -177,8 +176,8 @@ const props = withDefaults(defineProps<Props>(), {
   roomNumber: '01',
   showActionBar: true,
   allowEditRoomNumber: true,
-  eventHandlers: () => ({})
-  , cards: () => ({})
+  eventHandlers: () => ({}),
+  cards: () => ({})
 })
 
 const emit = defineEmits<Emits>()
@@ -328,7 +327,7 @@ watch(
       const examId = currentExam.value?.id || currentExam.value?.name
       if (minutes <= 10 && examId && hasShownEndingForExamId !== examId) {
         hasShownEndingForExamId = examId
-  reminder.showColorfulAlert({ title: '考试即将结束', themeBaseColor: '#f1c40f' })
+        reminder.showColorfulAlert({ title: '考试即将结束', themeBaseColor: '#f1c40f' })
       }
     }
   }
@@ -662,7 +661,9 @@ const ctxForCards = {
   currentExam,
   currentExamName,
   currentExamTimeRange,
-  displayedRemainingTime: computed(() => examStatus.value?.status === 'pending' ? '' : remainingTime.value || ''),
+  displayedRemainingTime: computed(() =>
+    examStatus.value?.status === 'pending' ? '' : remainingTime.value || ''
+  ),
   displayFormattedExamInfos,
   effectiveRoomNumber,
   handleRoomNumberClick
@@ -947,7 +948,9 @@ const resolvedCards = computed(() => ({
 
 .fade-soft-enter-active,
 .fade-soft-leave-active {
-  transition: opacity 320ms ease, transform 320ms ease;
+  transition:
+    opacity 320ms ease,
+    transform 320ms ease;
 }
 .fade-soft-enter-from,
 .fade-soft-leave-to {
@@ -987,11 +990,18 @@ const resolvedCards = computed(() => ({
 .notice-content :is(h1, h2, h3) {
   margin: 0 0 12px 0;
 }
-.notice-content h1 { font-size: 2rem; }
-.notice-content h2 { font-size: 1.5rem; }
-.notice-content p, .notice-content br { line-height: 1.6; }
+.notice-content h1 {
+  font-size: 2rem;
+}
+.notice-content h2 {
+  font-size: 1.5rem;
+}
+.notice-content p,
+.notice-content br {
+  line-height: 1.6;
+}
 .notice-content code {
-  background: rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.08);
   padding: 0 6px;
   border-radius: 4px;
 }

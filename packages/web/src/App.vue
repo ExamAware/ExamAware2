@@ -7,6 +7,12 @@
 </script>
 
 <style>
-html, body, #app { height: 100%; }
-body { margin: 0; }
+html,
+body,
+#app {
+  height: 100%;
+}
+body {
+  margin: 0;
+}
 </style>

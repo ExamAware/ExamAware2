@@ -102,13 +102,9 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 // 分离错误和警告
-const errors = computed(() =>
-  props.validationErrors.filter(item => item.type === 'error')
-)
+const errors = computed(() => props.validationErrors.filter((item) => item.type === 'error'))
 
-const warnings = computed(() =>
-  props.validationErrors.filter(item => item.type === 'warning')
-)
+const warnings = computed(() => props.validationErrors.filter((item) => item.type === 'warning'))
 </script>
 
 <style scoped>

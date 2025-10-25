@@ -48,23 +48,23 @@ export function createPlayerWindow(configPath: string): BrowserWindow {
 
       // windowManager 已统一设置外链打开处理
 
-  playerWindow.webContents.on('before-input-event', (event, input) => {
-    const key = (input.key || '').toLowerCase()
-    const ctrlOrCmd = input.control || input.meta
-    const alt = input.alt
-    const shift = input.shift
+      playerWindow.webContents.on('before-input-event', (event, input) => {
+        const key = (input.key || '').toLowerCase()
+        const ctrlOrCmd = input.control || input.meta
+        const alt = input.alt
+        const shift = input.shift
 
-    const block =
-      // 退出/关闭/刷新
-      (ctrlOrCmd && (key === 'q' || key === 'w' || key === 'r')) ||
-      // 开发者工具
-      (ctrlOrCmd && shift && key === 'i') ||
-      // 最小化
-      (ctrlOrCmd && key === 'm') ||
-      // 切换全屏
-      key === 'f11' ||
-      // Windows 下的 Alt+F4（跨平台防御）
-      (alt && key === 'f4')
+        const block =
+          // 退出/关闭/刷新
+          (ctrlOrCmd && (key === 'q' || key === 'w' || key === 'r')) ||
+          // 开发者工具
+          (ctrlOrCmd && shift && key === 'i') ||
+          // 最小化
+          (ctrlOrCmd && key === 'm') ||
+          // 切换全屏
+          key === 'f11' ||
+          // Windows 下的 Alt+F4（跨平台防御）
+          (alt && key === 'f4')
 
         if (block) {
           event.preventDefault()

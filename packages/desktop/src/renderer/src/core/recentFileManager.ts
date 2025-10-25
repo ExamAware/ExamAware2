@@ -21,7 +21,7 @@ export class RecentFileManager {
       const recent = localStorage.getItem(this.STORAGE_KEY)
       if (recent) {
         const files = JSON.parse(recent) as RecentFile[]
-        return files.map(file => ({
+        return files.map((file) => ({
           ...file,
           lastOpened: new Date(file.lastOpened)
         }))
@@ -38,11 +38,12 @@ export class RecentFileManager {
    */
   static addRecentFile(filePath: string): void {
     try {
-      const fileName = filePath.split('/').pop()?.replace('.ea2', '').replace('.json', '') || 'Unnamed'
+      const fileName =
+        filePath.split('/').pop()?.replace('.ea2', '').replace('.json', '') || 'Unnamed'
       const recent = this.getRecentFiles()
 
       // 移除已存在的相同文件
-      const filtered = recent.filter(f => f.filePath !== filePath)
+      const filtered = recent.filter((f) => f.filePath !== filePath)
 
       // 添加新文件到开头
       filtered.unshift({
@@ -77,7 +78,7 @@ export class RecentFileManager {
   static removeRecentFile(filePath: string): void {
     try {
       const recent = this.getRecentFiles()
-      const filtered = recent.filter(f => f.filePath !== filePath)
+      const filtered = recent.filter((f) => f.filePath !== filePath)
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(filtered))
     } catch (error) {
       console.error('Failed to remove recent file:', error)
@@ -88,6 +89,6 @@ export class RecentFileManager {
    * 获取最近文件的文件名列表（用于向后兼容）
    */
   static getRecentFileNames(): string[] {
-    return this.getRecentFiles().map(f => f.fileName)
+    return this.getRecentFiles().map((f) => f.fileName)
   }
 }

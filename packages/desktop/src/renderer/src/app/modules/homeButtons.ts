@@ -68,102 +68,117 @@ export const homeButtonsModule: AppModule = {
       else add(meta)
     }
 
-    group.add(registry.register({
-      id: 'editor',
-      label: '编辑器',
-      icon: 'edit',
-      theme: 'success',
-      order: 1,
-      action: () => {
-        window.api.ipc.send('open-editor-window')
-      }
-  }))
-
-    group.add(registry.register({
-      id: 'player',
-      label: '放映器',
-      icon: 'play-circle',
-      theme: 'warning',
-      order: 2,
-      action: async () => {
-        const router = (app.config.globalProperties as any).$router
-        if (router) {
-          await router.push('/playerhome')
+    group.add(
+      registry.register({
+        id: 'editor',
+        label: '编辑器',
+        icon: 'edit',
+        theme: 'success',
+        order: 1,
+        action: () => {
+          window.api.ipc.send('open-editor-window')
         }
-      }
-  }))
+      })
+    )
 
-    group.add(registry.register({
-      id: 'url-player',
-      label: '从 URL 放映',
-      icon: 'link',
-      theme: 'default',
-      order: 3,
-      action: () => {
-        // TODO: 实现 URL 放映功能
-        console.log('URL 放映功能待实现')
-      }
-  }))
+    group.add(
+      registry.register({
+        id: 'player',
+        label: '放映器',
+        icon: 'play-circle',
+        theme: 'warning',
+        order: 2,
+        action: async () => {
+          const router = (app.config.globalProperties as any).$router
+          if (router) {
+            await router.push('/playerhome')
+          }
+        }
+      })
+    )
 
-    group.add(registry.register({
-      id: 'control',
-      label: '集控',
-      icon: 'server',
-      theme: 'default',
-      order: 4,
-      action: () => {
-        // TODO: 实现集控功能
-        console.log('集控功能待实现')
-      }
-  }))
+    group.add(
+      registry.register({
+        id: 'url-player',
+        label: '从 URL 放映',
+        icon: 'link',
+        theme: 'default',
+        order: 3,
+        action: () => {
+          // TODO: 实现 URL 放映功能
+          console.log('URL 放映功能待实现')
+        }
+      })
+    )
+
+    group.add(
+      registry.register({
+        id: 'control',
+        label: '集控',
+        icon: 'server',
+        theme: 'default',
+        order: 4,
+        action: () => {
+          // TODO: 实现集控功能
+          console.log('集控功能待实现')
+        }
+      })
+    )
 
     // 添加更多按钮来展示分页效果
-    group.add(registry.register({
-      id: 'settings',
-      label: '设置',
-      icon: 'setting',
-      theme: 'default',
-      order: 5,
-      action: () => {
-        console.log('设置功能待实现')
-      }
-  }))
+    group.add(
+      registry.register({
+        id: 'settings',
+        label: '设置',
+        icon: 'setting',
+        theme: 'default',
+        order: 5,
+        action: () => {
+          console.log('设置功能待实现')
+        }
+      })
+    )
 
-    group.add(registry.register({
-      id: 'help',
-      label: '帮助',
-      icon: 'help-circle',
-      theme: 'default',
-      order: 6,
-      action: () => {
-        console.log('帮助功能待实现')
-      }
-  }))
+    group.add(
+      registry.register({
+        id: 'help',
+        label: '帮助',
+        icon: 'help-circle',
+        theme: 'default',
+        order: 6,
+        action: () => {
+          console.log('帮助功能待实现')
+        }
+      })
+    )
 
-    group.add(registry.register({
-      id: 'about',
-      label: '关于',
-      icon: 'info-circle',
-      theme: 'default',
-      order: 7,
-      action: () => {
-        console.log('关于功能待实现')
-      }
-  }))
+    group.add(
+      registry.register({
+        id: 'about',
+        label: '关于',
+        icon: 'info-circle',
+        theme: 'default',
+        order: 7,
+        action: () => {
+          console.log('关于功能待实现')
+        }
+      })
+    )
 
     // 添加更多示例按钮以测试滚动功能
-    group.add(registry.register({
-      id: 'logs',
-      label: '日志',
-      icon: 'file-code',
-      theme: 'default',
-      order: 8,
-      action: () => {
-        // 打开/聚焦独立的日志窗口（单例）
-        window.api?.ipc?.send('open-logs-window')
-      }
-  }))
-
+    group.add(
+      registry.register({
+        id: 'logs',
+        label: '日志',
+        icon: 'file-code',
+        theme: 'default',
+        order: 8,
+        action: () => {
+          // 打开/聚焦独立的日志窗口（单例）
+          window.api?.ipc?.send('open-logs-window')
+        }
+      })
+    )
     ;(app.config.globalProperties as any).$homeButtons = registry
     app.provide('homeButtons' as any, registry)
     ctx.provides.homeButtons = registry

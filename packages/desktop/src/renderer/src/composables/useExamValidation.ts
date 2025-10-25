@@ -113,7 +113,7 @@ export function useExamValidation(examConfig: ExamConfig) {
     // 验证每个考试信息
     examConfig.examInfos.forEach((examInfo, index) => {
       const examErrors = validateExamInfo(examInfo)
-      errors.push(...examErrors.map(error => `考试${index + 1}: ${error}`))
+      errors.push(...examErrors.map((error) => `考试${index + 1}: ${error}`))
     })
 
     // 验证时间冲突
@@ -126,7 +126,7 @@ export function useExamValidation(examConfig: ExamConfig) {
     return {
       isValid: errors.length === 0,
       errors,
-      warnings,
+      warnings
     }
   }
 
@@ -147,6 +147,6 @@ export function useExamValidation(examConfig: ExamConfig) {
     hasErrors,
     validate,
     validateExamInfo,
-    validateTimeConflicts,
+    validateTimeConflicts
   }
 }

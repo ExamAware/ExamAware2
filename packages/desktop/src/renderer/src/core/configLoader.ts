@@ -6,7 +6,7 @@ export type ConfigSource =
   | { type: 'file'; path: string }
   | { type: 'url'; url: string }
   | { type: 'editor'; data: string }
-  | { type: 'ipc'; }
+  | { type: 'ipc' }
   | { type: 'direct'; data: string }
 
 // 配置加载状态
@@ -45,7 +45,7 @@ export class ConfigLoader {
 
   // 通知状态变化
   private notifyStateChange() {
-    this.listeners.forEach(listener => listener({ ...this.state }))
+    this.listeners.forEach((listener) => listener({ ...this.state }))
   }
 
   // 获取当前状态
@@ -203,7 +203,8 @@ export class ConfigLoader {
       this.ipcRenderer.on('load-config', handleConfig)
 
       // 尝试主动获取配置
-      this.ipcRenderer.invoke('get-config')
+      this.ipcRenderer
+        .invoke('get-config')
         .then((data: string | null) => {
           if (resolved) return
           if (data) {

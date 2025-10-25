@@ -3,7 +3,9 @@ import type { DesktopAppOptions, AppContext, AppModule, DesktopAppInstance } fro
 import { DisposerGroup } from '../runtime/disposable'
 import AppRoot from '../App.vue'
 
-export async function createDesktopApp(options: DesktopAppOptions = {}): Promise<DesktopAppInstance> {
+export async function createDesktopApp(
+  options: DesktopAppOptions = {}
+): Promise<DesktopAppInstance> {
   const app = createApp(AppRoot)
   const ctx: AppContext = { provides: {} }
 
@@ -14,7 +16,9 @@ export async function createDesktopApp(options: DesktopAppOptions = {}): Promise
     const res = await fn()
     if (typeof res === 'function') group.add(res)
   }
-  ctx.provide = (name, value) => { ctx.provides[name as any] = value }
+  ctx.provide = (name, value) => {
+    ctx.provides[name as any] = value
+  }
   ctx.inject = (name) => ctx.provides[name as any] as any
   // event helper: supports DOM/EventTarget or Node-style emitter
   ctx.on = (target: any, event: string, listener: (...args: any[]) => any, options?: any) => {
@@ -26,14 +30,20 @@ export async function createDesktopApp(options: DesktopAppOptions = {}): Promise
     }
     if (typeof target.on === 'function') {
       target.on(event, listener)
-      group.add(() => target.off ? target.off(event, listener) : target.removeListener?.(event, listener))
+      group.add(() =>
+        target.off ? target.off(event, listener) : target.removeListener?.(event, listener)
+      )
       return
     }
   }
   ctx.piniaSubscribe = (store: any, cb: any, options?: any) => {
     if (!store || typeof store.$subscribe !== 'function') return
     const unsub = store.$subscribe(cb, options)
-    group.add(() => { try { unsub?.() } catch {} })
+    group.add(() => {
+      try {
+        unsub?.()
+      } catch {}
+    })
   }
 
   const modules: AppModule[] = options.modules || []

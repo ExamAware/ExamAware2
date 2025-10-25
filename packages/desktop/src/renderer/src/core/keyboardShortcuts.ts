@@ -76,8 +76,8 @@ export class KeyboardShortcutManager {
 
       // 在 Mac 上，Cmd 键作为主要修饰键
       const primaryModifierMatch = isMac
-        ? (shortcut.metaKey === event.metaKey || shortcut.ctrlKey === event.metaKey)
-        : (shortcut.ctrlKey === event.ctrlKey)
+        ? shortcut.metaKey === event.metaKey || shortcut.ctrlKey === event.metaKey
+        : shortcut.ctrlKey === event.ctrlKey
 
       if (keyMatch && primaryModifierMatch && shiftMatch && altMatch) {
         event.preventDefault()

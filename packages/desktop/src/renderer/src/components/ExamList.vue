@@ -1,12 +1,11 @@
 <template>
   <div class="exam-list">
-
     <div class="exam-list-content" v-if="examList.length > 0">
       <t-list :split="true">
         <t-list-item
           v-for="(exam, index) in examList"
           :key="index"
-          :class="{ 'active': index === activeIndex }"
+          :class="{ active: index === activeIndex }"
           @click="handleSelectExam(index)"
         >
           <t-list-item-meta>
@@ -40,15 +39,8 @@
               >
                 编辑
               </t-button>
-              <t-dropdown
-                :options="getDropdownOptions(index)"
-                @click="handleDropdownClick"
-              >
-                <t-button
-                  size="small"
-                  variant="text"
-                  :icon="renderMoreIcon"
-                />
+              <t-dropdown :options="getDropdownOptions(index)" @click="handleDropdownClick">
+                <t-button size="small" variant="text" :icon="renderMoreIcon" />
               </t-dropdown>
             </t-space>
           </template>
@@ -99,7 +91,7 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  activeIndex: null,
+  activeIndex: null
 })
 
 const emit = defineEmits<Emits>()
@@ -175,23 +167,23 @@ const getDropdownOptions = (index: number) => {
   return [
     {
       content: '复制',
-      value: `duplicate-${index}`,
+      value: `duplicate-${index}`
     },
     {
       content: '上移',
       value: `move-up-${index}`,
-      disabled: index === 0,
+      disabled: index === 0
     },
     {
       content: '下移',
       value: `move-down-${index}`,
-      disabled: index === props.examList.length - 1,
+      disabled: index === props.examList.length - 1
     },
     {
       content: '删除',
       value: `delete-${index}`,
-      theme: 'error',
-    },
+      theme: 'error'
+    }
   ]
 }
 

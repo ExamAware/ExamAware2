@@ -1,6 +1,9 @@
 <template>
   <div class="exam-room-container">
-    <ExamRoomNumber :room-number="ctx.effectiveRoomNumber.value" @click="ctx.handleRoomNumberClick()" />
+    <ExamRoomNumber
+      :room-number="ctx.effectiveRoomNumber.value"
+      @click="ctx.handleRoomNumberClick()"
+    />
   </div>
 </template>
 

@@ -7,13 +7,13 @@ export function createLogsWindow(): BrowserWindow {
       ...commonOptions(),
       width: 900,
       height: 640,
-      title: '日志',
+      title: '日志'
     }
 
     return {
       id: 'logs',
       route: 'logs',
-      options,
+      options
     }
   }) as unknown as BrowserWindow
 }

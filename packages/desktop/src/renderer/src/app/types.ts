@@ -18,7 +18,11 @@ export interface AppContext {
   addPage?: (meta: any) => Promise<void>
   // event & store helpers
   on?: (target: any, event: string, listener: (...args: any[]) => any, options?: any) => void
-  piniaSubscribe?: (store: { $subscribe: Function }, cb: (...args: any[]) => any, options?: any) => void
+  piniaSubscribe?: (
+    store: { $subscribe: Function },
+    cb: (...args: any[]) => any,
+    options?: any
+  ) => void
 }
 
 export interface AppModule {

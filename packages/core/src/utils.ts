@@ -103,6 +103,6 @@ export function isTimeRangeOverlap(
 export function getMinutesDifference(start: string | Date, end: string | Date): number {
   const startTime = typeof start === 'string' ? parseDateTime(start) : start
   const endTime = typeof end === 'string' ? parseDateTime(end) : end
-  
+
   return Math.round((endTime.getTime() - startTime.getTime()) / (1000 * 60))
 }

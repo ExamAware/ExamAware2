@@ -25,29 +25,26 @@ export class ExamDataProcessor {
   /**
    * 格式化考试数据用于表格显示
    */
-  static formatExamInfos(
-    config: ExamConfig | null,
-    currentTime: number
-  ): FormattedExamInfo[] {
+  static formatExamInfos(config: ExamConfig | null, currentTime: number): FormattedExamInfo[] {
     if (!config?.examInfos) return []
 
     // 使用排序后的配置确保考试按时间顺序显示
     const sortedConfig = getSortedExamConfig(config)
     let lastDisplayedDate = ''
 
-  return sortedConfig.examInfos.map((exam: ExamInfo, index: number) => {
+    return sortedConfig.examInfos.map((exam: ExamInfo, index: number) => {
       const startDate = parseDateTime(exam.start)
       const endDate = parseDateTime(exam.end)
       const now = currentTime
 
       // 判断考试状态
-  let status: 'pending' | 'inProgress' | 'completed' = 'pending'
-  let statusText: '未开始' | '进行中' | '已结束' = '未开始'
+      let status: 'pending' | 'inProgress' | 'completed' = 'pending'
+      let statusText: '未开始' | '进行中' | '已结束' = '未开始'
 
       if (now > endDate.getTime()) {
         status = 'completed'
         statusText = '已结束'
-  } else if (now >= startDate.getTime()) {
+      } else if (now >= startDate.getTime()) {
         status = 'inProgress'
         statusText = '进行中'
       }
@@ -72,7 +69,7 @@ export class ExamDataProcessor {
         timeRange: `${this.formatHourMinute(startDate)} ~ ${this.formatHourMinute(endDate)}`,
         status,
         statusText,
-        rawData: exam,
+        rawData: exam
       }
     })
   }
@@ -80,10 +77,7 @@ export class ExamDataProcessor {
   /**
    * 获取当前考试状态
    */
-  static getExamStatus(
-    exam: ExamInfo | null,
-    currentTime: number
-  ): ExamStatus {
+  static getExamStatus(exam: ExamInfo | null, currentTime: number): ExamStatus {
     if (!exam) {
       return {
         status: 'unknown',
@@ -99,7 +93,7 @@ export class ExamDataProcessor {
       const timeRemaining = startTime - now
       return {
         status: 'pending',
-  message: `未开始 · 开始时间 ${new Date(startTime).toLocaleString()}`,
+        message: `未开始 · 开始时间 ${new Date(startTime).toLocaleString()}`,
         timeRemaining
       }
     } else if (now >= startTime && now < endTime) {
@@ -125,10 +119,7 @@ export class ExamDataProcessor {
   /**
    * 计算剩余时间显示文本
    */
-  static getRemainingTimeText(
-    exam: ExamInfo | null,
-    currentTime: number
-  ): string {
+  static getRemainingTimeText(exam: ExamInfo | null, currentTime: number): string {
     if (!exam) return '00:00'
 
     const startTime = parseDateTime(exam.start).getTime()
@@ -234,10 +225,7 @@ export class ExamDataProcessor {
   /**
    * 智能选择当前考试索引
    */
-  static getCurrentExamIndex(
-    config: ExamConfig | null,
-    currentTime: number
-  ): number {
+  static getCurrentExamIndex(config: ExamConfig | null, currentTime: number): number {
     if (!config?.examInfos || config.examInfos.length === 0) return 0
 
     const sortedConfig = getSortedExamConfig(config)
@@ -300,7 +288,7 @@ export class ExamDataProcessor {
     }
 
     // 验证每场考试
-  config.examInfos.forEach((exam: ExamInfo, index: number) => {
+    config.examInfos.forEach((exam: ExamInfo, index: number) => {
       if (!exam.name || exam.name.trim() === '') {
         errors.push(`第${index + 1}场考试名称不能为空`)
       }

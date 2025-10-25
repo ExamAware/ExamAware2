@@ -23,7 +23,7 @@ export class ExamConfigManager {
     return {
       examName: '未命名考试',
       message: '考试信息',
-      examInfos: [],
+      examInfos: []
     }
   }
 
@@ -49,9 +49,7 @@ export class ExamConfigManager {
   addExamInfo(examInfo?: Partial<ExamInfo>): number {
     const now = new Date(getSyncedTime())
     const lastExam = this.config.examInfos[this.config.examInfos.length - 1]
-    const start = lastExam
-      ? new Date(new Date(lastExam.end).getTime() + 10 * 60000)
-      : now
+    const start = lastExam ? new Date(new Date(lastExam.end).getTime() + 10 * 60000) : now
     const end = new Date(start.getTime() + 60 * 60000)
 
     const newExamInfo: ExamInfo = {
@@ -60,7 +58,7 @@ export class ExamConfigManager {
       end: formatLocalDateTime(end),
       alertTime: 15,
       materials: [],
-      ...examInfo,
+      ...examInfo
     }
 
     this.config.examInfos.push(newExamInfo)
@@ -176,7 +174,7 @@ export class ExamConfigManager {
    * 通知所有监听器
    */
   private notifyListeners(): void {
-    this.listeners.forEach(listener => listener(this.config))
+    this.listeners.forEach((listener) => listener(this.config))
   }
 
   /**

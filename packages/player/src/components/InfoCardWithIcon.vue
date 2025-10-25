@@ -33,7 +33,7 @@ export interface InfoCardWithIconProps {
 
 withDefaults(defineProps<InfoCardWithIconProps>(), {
   showIcon: true,
-  customClass: '',
+  customClass: ''
 })
 
 defineEmits<{

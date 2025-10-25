@@ -3,8 +3,12 @@
     <div class="header">
       <div>操作记录</div>
       <div class="actions">
-        <t-button size="small" theme="default" variant="outline" :disabled="!canUndo" @click="undo">撤销</t-button>
-        <t-button size="small" theme="default" variant="outline" :disabled="!canRedo" @click="redo">重做</t-button>
+        <t-button size="small" theme="default" variant="outline" :disabled="!canUndo" @click="undo"
+          >撤销</t-button
+        >
+        <t-button size="small" theme="default" variant="outline" :disabled="!canRedo" @click="redo"
+          >重做</t-button
+        >
       </div>
     </div>
     <div class="list" role="list">
@@ -21,7 +25,6 @@
       </div>
     </div>
   </div>
-
 </template>
 
 <script setup lang="ts">
@@ -75,9 +78,25 @@ const fmt = (ts: number) => {
   padding: 6px 12px;
   cursor: pointer;
 }
-.item:hover { background: var(--td-bg-color-container-hover); }
-.item.active { background: var(--td-bg-color-container-active); }
-.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--td-brand-color); }
-.label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.time { opacity: 0.6; font-size: 12px; }
+.item:hover {
+  background: var(--td-bg-color-container-hover);
+}
+.item.active {
+  background: var(--td-bg-color-container-active);
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--td-brand-color);
+}
+.label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.time {
+  opacity: 0.6;
+  font-size: 12px;
+}
 </style>

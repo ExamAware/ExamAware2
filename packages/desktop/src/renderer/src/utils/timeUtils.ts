@@ -29,7 +29,7 @@ export function removeTimeSyncChangeListener(listener: TimeSyncChangeListener) {
 
 // 通知所有监听器时间同步发生了变更
 function notifyTimeSyncChange() {
-  timeSyncChangeListeners.forEach(listener => {
+  timeSyncChangeListeners.forEach((listener) => {
     try {
       listener()
     } catch (error) {
@@ -59,11 +59,10 @@ export async function getTimeSyncInfo() {
     const info = await ipcRenderer.invoke('time:get-sync-info')
 
     // 检查时间同步信息是否发生变化
-    const hasChanged = (
+    const hasChanged =
       lastSyncInfo.offset !== info.offset ||
       lastSyncInfo.manualOffset !== info.manualOffset ||
       lastSyncInfo.lastSyncTime !== info.lastSyncTime
-    )
 
     lastSyncInfo = info
 
@@ -89,11 +88,10 @@ export async function syncTime() {
     const result = await ipcRenderer.invoke('time:sync-now')
 
     // 检查时间同步信息是否发生变化
-    const hasChanged = (
+    const hasChanged =
       lastSyncInfo.offset !== result.offset ||
       lastSyncInfo.manualOffset !== result.manualOffset ||
       lastSyncInfo.lastSyncTime !== result.lastSyncTime
-    )
 
     lastSyncInfo = result
 

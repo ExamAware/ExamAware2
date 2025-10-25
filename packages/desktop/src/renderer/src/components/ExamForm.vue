@@ -8,74 +8,72 @@
         labelAlign="top"
         @submit.prevent="handleSubmit"
       >
-      <t-form-item label="考试名称" name="name">
-        <t-input
-          v-model="formData.name"
-          placeholder="请输入考试名称"
-          @input="handleFieldChange('name')"
-          @blur="flushAutoSave"
-          @compositionstart="onNameCompositionStart"
-          @compositionend="onNameCompositionEnd"
-        />
-      </t-form-item>
+        <t-form-item label="考试名称" name="name">
+          <t-input
+            v-model="formData.name"
+            placeholder="请输入考试名称"
+            @input="handleFieldChange('name')"
+            @blur="flushAutoSave"
+            @compositionstart="onNameCompositionStart"
+            @compositionend="onNameCompositionEnd"
+          />
+        </t-form-item>
 
-      <t-form-item label="开始时间" name="start">
-        <t-date-picker
-          v-model="startDateForPicker"
-          enable-time-picker
-          allow-input
-          clearable
-          placeholder="请选择开始时间"
-          @change="handleFieldChange('start')"
-          @blur="flushAutoSave"
-        />
-      </t-form-item>
+        <t-form-item label="开始时间" name="start">
+          <t-date-picker
+            v-model="startDateForPicker"
+            enable-time-picker
+            allow-input
+            clearable
+            placeholder="请选择开始时间"
+            @change="handleFieldChange('start')"
+            @blur="flushAutoSave"
+          />
+        </t-form-item>
 
-      <t-form-item label="结束时间" name="end">
-        <t-date-picker
-          v-model="endDateForPicker"
-          enable-time-picker
-          allow-input
-          clearable
-          placeholder="请选择结束时间"
-          @change="handleFieldChange('end')"
-          @blur="flushAutoSave"
-        />
-      </t-form-item>
+        <t-form-item label="结束时间" name="end">
+          <t-date-picker
+            v-model="endDateForPicker"
+            enable-time-picker
+            allow-input
+            clearable
+            placeholder="请选择结束时间"
+            @change="handleFieldChange('end')"
+            @blur="flushAutoSave"
+          />
+        </t-form-item>
 
-      <t-form-item label="考试结束提醒时间" name="alertTime">
-        <t-input-number
-          v-model="formData.alertTime"
-          suffix="分钟"
-          style="width: 200px"
-          :min="1"
-          :max="120"
-          placeholder="提醒时间"
-          @change="handleFieldChange('alertTime')"
-          @input="handleFieldChange('alertTime')"
-          @blur="flushAutoSave"
-        />
-      </t-form-item>
+        <t-form-item label="考试结束提醒时间" name="alertTime">
+          <t-input-number
+            v-model="formData.alertTime"
+            suffix="分钟"
+            style="width: 200px"
+            :min="1"
+            :max="120"
+            placeholder="提醒时间"
+            @change="handleFieldChange('alertTime')"
+            @input="handleFieldChange('alertTime')"
+            @blur="flushAutoSave"
+          />
+        </t-form-item>
 
-      <t-form-item label="考试材料">
-        <ExamMaterialsPanel
-          v-model="formData.materials"
-          @update:modelValue="handleMaterialsChange"
-          style="width: 100%"
-        />
-      </t-form-item>
+        <t-form-item label="考试材料">
+          <ExamMaterialsPanel
+            v-model="formData.materials"
+            @update:modelValue="handleMaterialsChange"
+            style="width: 100%"
+          />
+        </t-form-item>
 
-      <t-form-item v-if="showActions && (allowDelete || allowReset)">
-        <t-space>
-          <t-button variant="outline" @click="handleReset" v-if="allowReset">
-            重置
-          </t-button>
-          <t-button variant="outline" theme="danger" @click="handleDelete" v-if="allowDelete">
-            删除
-          </t-button>
-        </t-space>
-      </t-form-item>
-    </t-form>
+        <t-form-item v-if="showActions && (allowDelete || allowReset)">
+          <t-space>
+            <t-button variant="outline" @click="handleReset" v-if="allowReset"> 重置 </t-button>
+            <t-button variant="outline" theme="danger" @click="handleDelete" v-if="allowDelete">
+              删除
+            </t-button>
+          </t-space>
+        </t-form-item>
+      </t-form>
     </div>
   </div>
 </template>
@@ -108,7 +106,7 @@ const props = withDefaults(defineProps<Props>(), {
   showActions: false,
   allowDelete: false,
   allowReset: false,
-  autoSave: true,
+  autoSave: true
 })
 
 const emit = defineEmits<Emits>()
@@ -123,7 +121,7 @@ const formData = reactive<ExamInfo>({
   start: '',
   end: '',
   alertTime: 15,
-  materials: [],
+  materials: []
 })
 
 // 用于日期选择器的计算属性（转换格式）
@@ -172,11 +170,9 @@ const endDateForPicker = computed({
 const rules: Record<string, FormRule[]> = {
   name: [
     { required: true, message: '请输入考试名称' },
-    { min: 1, max: 50, message: '考试名称长度应在1-50字符之间' },
+    { min: 1, max: 50, message: '考试名称长度应在1-50字符之间' }
   ],
-  start: [
-    { required: true, message: '请选择开始时间' },
-  ],
+  start: [{ required: true, message: '请选择开始时间' }],
   end: [
     { required: true, message: '请选择结束时间' },
     {
@@ -193,8 +189,8 @@ const rules: Record<string, FormRule[]> = {
           return true // 解析错误时不显示验证错误
         }
       },
-      message: '结束时间必须晚于开始时间',
-    },
+      message: '结束时间必须晚于开始时间'
+    }
   ],
   alertTime: [
     { required: true, message: '请输入提醒时间' },
@@ -204,8 +200,8 @@ const rules: Record<string, FormRule[]> = {
         return num >= 1 && num <= 120
       },
       message: '提醒时间应在1-120分钟之间'
-    },
-  ],
+    }
+  ]
 }
 
 // 监听外部传入的值变化
@@ -327,7 +323,7 @@ defineExpose({
   validate,
   resetValidation,
   formData,
-  flushAutoSave,
+  flushAutoSave
 })
 
 onBeforeUnmount(() => {

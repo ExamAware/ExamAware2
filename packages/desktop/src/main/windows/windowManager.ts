@@ -42,7 +42,10 @@ export class WindowManager {
     }
   }
 
-  async open(factory: (ctx: CreateContext) => WindowFactoryResult, forceRecreate = false): Promise<BrowserWindow> {
+  async open(
+    factory: (ctx: CreateContext) => WindowFactoryResult,
+    forceRecreate = false
+  ): Promise<BrowserWindow> {
     const ctx: CreateContext = {
       isDev: is.dev,
       resolveRendererUrl: (route: string) => {
@@ -75,9 +78,9 @@ export class WindowManager {
       this.windows.delete(id)
     }
 
-  const win = new BrowserWindow(options)
-  // track window for disposal safety
-  this.ctx?.windows.track(win)
+    const win = new BrowserWindow(options)
+    // track window for disposal safety
+    this.ctx?.windows.track(win)
 
     // default: open external links in system browser
     if (externalOpenHandler) {
@@ -107,7 +110,9 @@ export class WindowManager {
 
     win.on('closed', () => {
       if (cleanup) {
-        try { cleanup() } catch {}
+        try {
+          cleanup()
+        } catch {}
       }
       this.windows.delete(id)
     })

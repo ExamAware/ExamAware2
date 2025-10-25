@@ -85,9 +85,13 @@ export function useTheme() {
   }
 
   // 监听主题模式变化
-  watch(themeMode, (newMode) => {
-    applyTheme(newMode)
-  }, { immediate: true })
+  watch(
+    themeMode,
+    (newMode) => {
+      applyTheme(newMode)
+    },
+    { immediate: true }
+  )
 
   // 组件挂载时初始化
   onMounted(() => {
@@ -101,6 +105,6 @@ export function useTheme() {
     isDark,
     setThemeMode,
     toggleTheme,
-    detectSystemTheme,
+    detectSystemTheme
   }
 }

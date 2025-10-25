@@ -11,11 +11,7 @@
     </div>
 
     <div class="materials-list" v-if="materials.length > 0">
-      <div
-        v-for="(material, index) in materials"
-        :key="index"
-        class="material-item"
-      >
+      <div v-for="(material, index) in materials" :key="index" class="material-item">
         <t-input
           v-model="material.name"
           placeholder="材料名称"
@@ -28,21 +24,16 @@
           placeholder="数量"
           @blur="updateMaterial"
           size="small"
-          style="width: 80px;"
+          style="width: 80px"
         />
         <t-input
           v-model="material.unit"
           placeholder="单位"
           @blur="updateMaterial"
           size="small"
-          style="width: 60px;"
+          style="width: 60px"
         />
-        <t-button
-          size="small"
-          theme="danger"
-          variant="text"
-          @click="removeMaterial(index)"
-        >
+        <t-button size="small" theme="danger" variant="text" @click="removeMaterial(index)">
           <t-icon name="delete" />
         </t-button>
       </div>
@@ -76,9 +67,13 @@ const emit = defineEmits<{
 const materials = ref<ExamMaterial[]>([])
 
 // 监听 props 变化
-watch(() => props.modelValue, (newValue) => {
-  materials.value = newValue ? [...newValue] : []
-}, { immediate: true, deep: true })
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    materials.value = newValue ? [...newValue] : []
+  },
+  { immediate: true, deep: true }
+)
 
 // 添加材料
 const addMaterial = () => {

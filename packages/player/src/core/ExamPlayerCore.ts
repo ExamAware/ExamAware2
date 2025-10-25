@@ -7,7 +7,12 @@ import type { TimeProvider, IExamConfigService } from './interfaces'
 import type { IReminderService } from './reminder'
 
 export class ExamPlayerCore {
-  readonly state = ref<PlayerState>({ currentExamIndex: 0, loading: false, loaded: false, error: null })
+  readonly state = ref<PlayerState>({
+    currentExamIndex: 0,
+    loading: false,
+    loaded: false,
+    error: null
+  })
   readonly examConfig = ref<ExamConfig | null>(null)
   readonly currentTime = ref<number>(0)
 
@@ -34,8 +39,10 @@ export class ExamPlayerCore {
     this.events = events
     this.configSvc = configSvc
     this.currentTime.value = this.timeProvider.getCurrentTime()
-  this.queue = opts?.schedulerFactory ? opts.schedulerFactory() : new ExamTaskQueue(this.timeProvider.getCurrentTime)
-  this.reminder = opts?.reminder
+    this.queue = opts?.schedulerFactory
+      ? opts.schedulerFactory()
+      : new ExamTaskQueue(this.timeProvider.getCurrentTime)
+    this.reminder = opts?.reminder
     this.examConfig.value = config
 
     // 定期推进 currentTime
@@ -46,23 +53,27 @@ export class ExamPlayerCore {
     })
 
     // 派发状态变化
-    watch(this.state, (_s) => {
-      const v = this.state.value
-      const clone = {
-        currentExamIndex: v.currentExamIndex,
-        loading: v.loading,
-        loaded: v.loaded,
-        error: v.error,
-        errorDetails: v.errorDetails
-          ? {
-              isValid: v.errorDetails.isValid,
-              errors: [...v.errorDetails.errors],
-              warnings: [...v.errorDetails.warnings]
-            }
-          : v.errorDetails
-      }
-      this.onStateChangeCbs.forEach((cb) => cb(clone))
-    }, { deep: true })
+    watch(
+      this.state,
+      (_s) => {
+        const v = this.state.value
+        const clone = {
+          currentExamIndex: v.currentExamIndex,
+          loading: v.loading,
+          loaded: v.loaded,
+          error: v.error,
+          errorDetails: v.errorDetails
+            ? {
+                isValid: v.errorDetails.isValid,
+                errors: [...v.errorDetails.errors],
+                warnings: [...v.errorDetails.warnings]
+              }
+            : v.errorDetails
+        }
+        this.onStateChangeCbs.forEach((cb) => cb(clone))
+      },
+      { deep: true }
+    )
   }
 
   // 计算属性（与原逻辑保持一致）
@@ -79,12 +90,22 @@ export class ExamPlayerCore {
     return this.configSvc.getSortedConfig(this.examConfig.value).examInfos
   })
 
-  readonly examStatus = computed(() => ExamDataProcessor.getExamStatus(this.currentExam.value, this.currentTime.value))
+  readonly examStatus = computed(() =>
+    ExamDataProcessor.getExamStatus(this.currentExam.value, this.currentTime.value)
+  )
   readonly currentExamName = computed(() => this.currentExam.value?.name || '暂无考试')
-  readonly currentExamTimeRange = computed(() => ExamDataProcessor.getExamTimeRange(this.currentExam.value))
-  readonly remainingTime = computed(() => ExamDataProcessor.getRemainingTimeText(this.currentExam.value, this.currentTime.value))
-  readonly formattedCurrentTime = computed(() => ExamDataProcessor.formatCurrentTime(this.currentTime.value))
-  readonly formattedExamInfos = computed(() => ExamDataProcessor.formatExamInfos(this.examConfig.value, this.currentTime.value))
+  readonly currentExamTimeRange = computed(() =>
+    ExamDataProcessor.getExamTimeRange(this.currentExam.value)
+  )
+  readonly remainingTime = computed(() =>
+    ExamDataProcessor.getRemainingTimeText(this.currentExam.value, this.currentTime.value)
+  )
+  readonly formattedCurrentTime = computed(() =>
+    ExamDataProcessor.formatCurrentTime(this.currentTime.value)
+  )
+  readonly formattedExamInfos = computed(() =>
+    ExamDataProcessor.formatExamInfos(this.examConfig.value, this.currentTime.value)
+  )
 
   start() {
     if (this.timeInterval) return
@@ -123,14 +144,22 @@ export class ExamPlayerCore {
     }
     if (!this.configSvc.validate(newConfig)) {
       this.state.value.error = '配置验证失败'
-      this.state.value.errorDetails = { isValid: false, errors: ['validateExamConfig 返回 false'], warnings: [] }
+      this.state.value.errorDetails = {
+        isValid: false,
+        errors: ['validateExamConfig 返回 false'],
+        warnings: []
+      }
       this.state.value.loaded = false
       this.queue.clear()
       return false
     }
     if (this.configSvc.hasOverlap(newConfig)) {
       this.state.value.error = '考试时间存在重叠'
-      this.state.value.errorDetails = { isValid: false, errors: ['hasExamTimeOverlap 返回 true'], warnings: [] }
+      this.state.value.errorDetails = {
+        isValid: false,
+        errors: ['hasExamTimeOverlap 返回 true'],
+        warnings: []
+      }
       this.state.value.loaded = false
       this.queue.clear()
       return false
@@ -169,7 +198,10 @@ export class ExamPlayerCore {
     const sorted = this.sortedExamInfos.value
     if (!sorted.length) return
 
-    let targetIndex = ExamDataProcessor.getCurrentExamIndex(this.examConfig.value, this.currentTime.value)
+    let targetIndex = ExamDataProcessor.getCurrentExamIndex(
+      this.examConfig.value,
+      this.currentTime.value
+    )
     const oldIndex = this.state.value.currentExamIndex
     const oldExam = sorted[oldIndex]
     if (oldExam?.end) {
@@ -189,7 +221,8 @@ export class ExamPlayerCore {
   }
 
   switchToExam(index: number): boolean {
-    if (!this.examConfig.value || index < 0 || index >= this.examConfig.value.examInfos.length) return false
+    if (!this.examConfig.value || index < 0 || index >= this.examConfig.value.examInfos.length)
+      return false
     const oldIndex = this.state.value.currentExamIndex
     this.state.value.currentExamIndex = index
     if (this.events.onExamSwitch && oldIndex !== index) {

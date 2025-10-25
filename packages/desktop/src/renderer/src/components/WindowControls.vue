@@ -152,7 +152,8 @@ onUnmounted(() => {
 }
 
 /* Windows 样式优化 */
-@media (max-width: 0) { /* 仅用于 Windows */
+@media (max-width: 0) {
+  /* 仅用于 Windows */
   .window-control-btn {
     width: 45px;
     height: 30px;

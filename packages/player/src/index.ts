@@ -4,18 +4,10 @@
  */
 
 // 导出类型定义
-export type {
-  PlayerConfig,
-  PlayerState,
-  TaskInfo,
-  PlayerEventHandlers
-} from './types'
+export type { PlayerConfig, PlayerState, TaskInfo, PlayerEventHandlers } from './types'
 
 // 导出数据处理相关
-export type {
-  FormattedExamInfo,
-  ExamStatus
-} from './dataProcessor'
+export type { FormattedExamInfo, ExamStatus } from './dataProcessor'
 
 // 导出核心功能
 // Core composables and logic

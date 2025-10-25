@@ -7,10 +7,16 @@ export class DisposerGroup {
   add(disposer?: Disposer | void | null) {
     if (!disposer) return
     if (this.disposed) {
-      try { disposer() } catch {}
+      try {
+        disposer()
+      } catch {}
       return
     }
-    this.disposers.push(() => { try { disposer() } catch {} })
+    this.disposers.push(() => {
+      try {
+        disposer()
+      } catch {}
+    })
   }
 
   disposeAll() {
@@ -18,7 +24,9 @@ export class DisposerGroup {
     this.disposed = true
     for (let i = this.disposers.length - 1; i >= 0; i--) {
       const d = this.disposers[i]
-      try { d() } catch {}
+      try {
+        d()
+      } catch {}
     }
     this.disposers = []
   }

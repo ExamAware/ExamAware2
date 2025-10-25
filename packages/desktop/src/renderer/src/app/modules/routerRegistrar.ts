@@ -6,7 +6,8 @@ import router from '@renderer/router'
 export const routerRegistrarModule: AppModule = {
   name: 'router-registrar',
   install(app: App, ctx) {
-    const pages: PagesRegistry = (ctx.provides.pages as PagesRegistry) || (app.config.globalProperties as any).$pages
+    const pages: PagesRegistry =
+      (ctx.provides.pages as PagesRegistry) || (app.config.globalProperties as any).$pages
     if (!pages) return
 
     // track added routes, map id -> routeName for removal
@@ -54,7 +55,9 @@ export const routerRegistrarModule: AppModule = {
     ;(ctx.provides as any).__routerRegistrar = { unsub, idToRoute }
   },
   uninstall(_app: App, ctx) {
-    const bag = (ctx.provides as any).__routerRegistrar as undefined | { unsub: () => void; idToRoute: Map<string, string> }
+    const bag = (ctx.provides as any).__routerRegistrar as
+      | undefined
+      | { unsub: () => void; idToRoute: Map<string, string> }
     if (bag?.unsub) bag.unsub()
     if (bag?.idToRoute) {
       // remove all tracked routes

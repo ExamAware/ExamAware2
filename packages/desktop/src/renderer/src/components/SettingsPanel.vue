@@ -13,13 +13,8 @@
 
         <!-- 自动保存设置 -->
         <t-form-item label="自动保存">
-          <t-switch
-            v-model="autoSave"
-            @change="handleAutoSaveChange"
-          />
-          <span class="setting-description">
-            编辑时自动保存考试信息
-          </span>
+          <t-switch v-model="autoSave" @change="handleAutoSaveChange" />
+          <span class="setting-description"> 编辑时自动保存考试信息 </span>
         </t-form-item>
 
         <!-- 提醒设置 -->
@@ -31,17 +26,12 @@
             :max="120"
             @change="handleDefaultAlertTimeChange"
           />
-          <span class="setting-description">
-            新建考试时的默认提醒时间
-          </span>
+          <span class="setting-description"> 新建考试时的默认提醒时间 </span>
         </t-form-item>
 
         <!-- 时间格式设置 -->
         <t-form-item label="时间格式">
-          <t-select
-            v-model="timeFormat"
-            @change="handleTimeFormatChange"
-          >
+          <t-select v-model="timeFormat" @change="handleTimeFormatChange">
             <t-option value="24h" label="24小时制" />
             <t-option value="12h" label="12小时制" />
           </t-select>
@@ -49,10 +39,7 @@
 
         <!-- 语言设置 -->
         <t-form-item label="语言">
-          <t-select
-            v-model="language"
-            @change="handleLanguageChange"
-          >
+          <t-select v-model="language" @change="handleLanguageChange">
             <t-option value="zh-CN" label="简体中文" />
             <t-option value="en-US" label="English" />
           </t-select>
@@ -61,25 +48,9 @@
         <!-- 数据管理 -->
         <t-form-item label="数据管理">
           <t-space direction="vertical" style="width: 100%">
-            <t-button
-              variant="outline"
-              @click="exportData"
-            >
-              导出数据
-            </t-button>
-            <t-button
-              variant="outline"
-              @click="importData"
-            >
-              导入数据
-            </t-button>
-            <t-button
-              variant="outline"
-              theme="danger"
-              @click="clearData"
-            >
-              清空数据
-            </t-button>
+            <t-button variant="outline" @click="exportData"> 导出数据 </t-button>
+            <t-button variant="outline" @click="importData"> 导入数据 </t-button>
+            <t-button variant="outline" theme="danger" @click="clearData"> 清空数据 </t-button>
           </t-space>
         </t-form-item>
       </t-form>

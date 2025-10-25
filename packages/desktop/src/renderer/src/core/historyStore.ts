@@ -96,7 +96,9 @@ export const historyStore = {
       applyFn.value(target.snapshot)
     } finally {
       // 稍后再允许 push，避免由 apply 引起的侦听器立刻 push
-      setTimeout(() => { isApplying.value = false }, 0)
+      setTimeout(() => {
+        isApplying.value = false
+      }, 0)
     }
   },
   redo() {
@@ -108,7 +110,9 @@ export const historyStore = {
       pointer.value = pointer.value + 1
       applyFn.value(target.snapshot)
     } finally {
-      setTimeout(() => { isApplying.value = false }, 0)
+      setTimeout(() => {
+        isApplying.value = false
+      }, 0)
     }
   },
   goto(index: number) {
@@ -120,7 +124,9 @@ export const historyStore = {
       pointer.value = index
       applyFn.value(target.snapshot)
     } finally {
-      setTimeout(() => { isApplying.value = false }, 0)
+      setTimeout(() => {
+        isApplying.value = false
+      }, 0)
     }
   }
 }

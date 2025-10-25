@@ -1,5 +1,9 @@
 import { ref, computed, onUnmounted } from 'vue'
-import { getConfigLoader, type ConfigSource, type ConfigLoadState } from '@renderer/core/configLoader'
+import {
+  getConfigLoader,
+  type ConfigSource,
+  type ConfigLoadState
+} from '@renderer/core/configLoader'
 import type { ExamConfig } from '@renderer/core/configTypes'
 
 /**

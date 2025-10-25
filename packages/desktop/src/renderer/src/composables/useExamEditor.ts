@@ -42,7 +42,11 @@ export function useExamEditor() {
   const computedWindowTitle = computed(() => {
     let title = 'ExamAware Editor'
     if (currentFilePath.value) {
-      const fileName = currentFilePath.value.split('/').pop()?.replace('.ea2', '').replace('.json', '')
+      const fileName = currentFilePath.value
+        .split('/')
+        .pop()
+        ?.replace('.ea2', '')
+        .replace('.json', '')
       title += ` - ${fileName}`
     } else if (examConfig.examName) {
       title += ` - ${examConfig.examName}`
@@ -103,7 +107,7 @@ export function useExamEditor() {
     historyStore.push('删除考试', examConfig)
   }
 
-  const updateExam = (index: number, examInfo: Partial<typeof examConfig.examInfos[0]>) => {
+  const updateExam = (index: number, examInfo: Partial<(typeof examConfig.examInfos)[0]>) => {
     configManager.updateExamInfo(index, examInfo)
     markFileAsModified()
     historyStore.pushDebounced(`updateExam:${index}`, 400, '编辑考试', examConfig)
@@ -200,7 +204,7 @@ export function useExamEditor() {
       const examName = examConfig.examInfos[0]?.name || 'exam'
       FileOperationManager.exportJsonFile(content, `${examName}.ea2`)
       MessageService.success('项目已导出')
-  historyStore.push('导出项目', examConfig)
+      historyStore.push('导出项目', examConfig)
     } catch (error) {
       MessageService.error('导出失败')
       console.error('导出失败:', error)
@@ -366,7 +370,7 @@ export function useExamEditor() {
       { key: 'z', ctrlKey: true, action: undoAction, description: '撤销' },
       { key: 'y', ctrlKey: true, action: redoAction, description: '重做' },
       { key: 'f', ctrlKey: true, action: findAction, description: '查找' },
-      { key: 'h', ctrlKey: true, action: replaceAction, description: '替换' },
+      { key: 'h', ctrlKey: true, action: replaceAction, description: '替换' }
     ]
 
     keyboardManager.registerAll(shortcuts)
@@ -474,6 +478,6 @@ export function useExamEditor() {
     openGithub,
 
     // 管理器实例（用于高级操作）
-    configManager,
+    configManager
   }
 }

@@ -2,10 +2,7 @@
   <div class="exam_info_editor">
     <t-form labelAlign="top">
       <t-form-item label="考试名称" name="examName">
-        <t-input
-          v-model="localProfile.examName"
-          @blur="handleUpdate"
-        />
+        <t-input v-model="localProfile.examName" @blur="handleUpdate" />
       </t-form-item>
       <t-form-item label="考试信息" name="message">
         <t-textarea
@@ -24,7 +21,7 @@ import { defineProps, defineEmits, watch, ref } from 'vue'
 import type { ExamConfig } from '@renderer/core/configTypes'
 
 const props = defineProps({
-  profile: Object as () => ExamConfig,
+  profile: Object as () => ExamConfig
 })
 
 const emit = defineEmits(['update:profile'])
@@ -36,7 +33,7 @@ watch(
   (newProfile) => {
     localProfile.value = { ...newProfile }
   },
-  { deep: true },
+  { deep: true }
 )
 
 // 处理更新

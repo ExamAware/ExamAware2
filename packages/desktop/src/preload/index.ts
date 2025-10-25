@@ -6,14 +6,16 @@ import { fileApi } from '../main/fileUtils'
 const api = {
   fileApi,
   readFile: (filePath: string) => ipcRenderer.invoke('read-file', filePath),
-  saveFile: (filePath: string, content: string) => ipcRenderer.invoke('save-file', filePath, content),
+  saveFile: (filePath: string, content: string) =>
+    ipcRenderer.invoke('save-file', filePath, content),
   saveFileDialog: () => ipcRenderer.invoke('save-file-dialog'),
   openFileDialog: () => ipcRenderer.invoke('open-file-dialog'),
   ipc: {
     send: (channel: string, ...args: any[]) => ipcRenderer.send(channel, ...args),
     invoke: (channel: string, ...args: any[]) => ipcRenderer.invoke(channel, ...args),
     on: (channel: string, listener: (...args: any[]) => void) => ipcRenderer.on(channel, listener),
-    off: (channel: string, listener: (...args: any[]) => void) => ipcRenderer.off(channel, listener),
+    off: (channel: string, listener: (...args: any[]) => void) =>
+      ipcRenderer.off(channel, listener),
     removeAllListeners: (channel: string) => ipcRenderer.removeAllListeners(channel)
   }
 }
@@ -40,7 +42,13 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('electronAPI', windowAPI)
     contextBridge.exposeInMainWorld('api', api)
     // 拦截渲染进程 console，转发到主进程
-    const levels: Array<'log'|'info'|'warn'|'error'|'debug'> = ['log','info','warn','error','debug']
+    const levels: Array<'log' | 'info' | 'warn' | 'error' | 'debug'> = [
+      'log',
+      'info',
+      'warn',
+      'error',
+      'debug'
+    ]
     const original: any = {}
     levels.forEach((lvl) => {
       original[lvl] = console[lvl]
@@ -50,7 +58,9 @@ if (process.contextIsolated) {
           const message = args.map((a) => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ')
           ipcRenderer.send('logs:renderer', { level: lvl, message })
         } catch {}
-        try { original[lvl].apply(console, args as any) } catch {}
+        try {
+          original[lvl].apply(console, args as any)
+        } catch {}
       }
     })
   } catch (error) {
@@ -64,7 +74,13 @@ if (process.contextIsolated) {
   // @ts-ignore (define in dts)
   window.api = api
   // 非隔离模式也拦截 console
-  const levels: Array<'log'|'info'|'warn'|'error'|'debug'> = ['log','info','warn','error','debug']
+  const levels: Array<'log' | 'info' | 'warn' | 'error' | 'debug'> = [
+    'log',
+    'info',
+    'warn',
+    'error',
+    'debug'
+  ]
   const original: any = {}
   levels.forEach((lvl) => {
     original[lvl] = console[lvl]
@@ -74,7 +90,9 @@ if (process.contextIsolated) {
         const message = args.map((a) => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ')
         ipcRenderer.send('logs:renderer', { level: lvl, message })
       } catch {}
-      try { original[lvl].apply(console, args as any) } catch {}
+      try {
+        original[lvl].apply(console, args as any)
+      } catch {}
     }
   })
 }
