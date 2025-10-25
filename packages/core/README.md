@@ -21,7 +21,7 @@ pnpm add @dsz-examaware/core
 ### 类型定义
 
 ```typescript
-import type { ExamConfig, ExamInfo, ExamMaterial } from '@dsz-examaware/core'
+import type { ExamConfig, ExamInfo, ExamMaterial } from '@dsz-examaware/core';
 
 const examConfig: ExamConfig = {
   examName: '期中考试',
@@ -38,7 +38,7 @@ const examConfig: ExamConfig = {
       ]
     }
   ]
-}
+};
 ```
 
 ### 配置解析和验证
@@ -49,19 +49,19 @@ import {
   validateExamConfig,
   hasExamTimeOverlap,
   getSortedExamConfig
-} from '@dsz-examaware/core'
+} from '@dsz-examaware/core';
 
 // 解析 JSON 配置
-const config = parseExamConfig(jsonString)
+const config = parseExamConfig(jsonString);
 
 // 验证配置
-const isValid = validateExamConfig(config)
+const isValid = validateExamConfig(config);
 
 // 检查时间冲突
-const hasConflict = hasExamTimeOverlap(config)
+const hasConflict = hasExamTimeOverlap(config);
 
 // 获取排序后的配置
-const sortedConfig = getSortedExamConfig(config)
+const sortedConfig = getSortedExamConfig(config);
 ```
 
 ### 时间工具
@@ -73,16 +73,16 @@ import {
   formatTimeRange,
   parseDateTime,
   isTimeRangeOverlap
-} from '@dsz-examaware/core'
+} from '@dsz-examaware/core';
 
 // 格式化时间
-const formatted = formatLocalDateTime(new Date())
+const formatted = formatLocalDateTime(new Date());
 
 // 解析时间字符串
-const date = parseDateTime('2024-01-15 09:00:00')
+const date = parseDateTime('2024-01-15 09:00:00');
 
 // 检查时间重叠
-const overlap = isTimeRangeOverlap(start1, end1, start2, end2)
+const overlap = isTimeRangeOverlap(start1, end1, start2, end2);
 ```
 
 ## API 文档

@@ -13,14 +13,14 @@
 </template>
 
 <script setup lang="ts">
-import { inject } from 'vue'
-import BaseCard from '../BaseCard.vue'
+import { inject } from 'vue';
+import BaseCard from '../BaseCard.vue';
 
 export interface ExamPlayerCtx {
-  formattedCurrentTime: any
-  timeSyncStatus?: any
+  formattedCurrentTime: any;
+  timeSyncStatus?: any;
 }
-const ctx = inject<ExamPlayerCtx>('ExamPlayerCtx')!
+const ctx = inject<ExamPlayerCtx>('ExamPlayerCtx')!;
 </script>
 
 <style scoped>

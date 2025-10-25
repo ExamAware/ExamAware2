@@ -23,26 +23,26 @@
 </template>
 
 <script setup lang="ts">
-import BaseCard from './BaseCard.vue'
-import ExamInfoItem from './ExamInfoItem.vue'
+import BaseCard from './BaseCard.vue';
+import ExamInfoItem from './ExamInfoItem.vue';
 
 export interface FormattedExamInfo {
-  index: number
-  name: string
-  date: string
-  timeRange: string
-  status: string
-  statusText: '已结束' | '进行中' | '未开始'
-  rawData: any
+  index: number;
+  name: string;
+  date: string;
+  timeRange: string;
+  status: string;
+  statusText: '已结束' | '进行中' | '未开始';
+  rawData: any;
 }
 
 export interface CurrentExamInfoProps {
-  examInfos?: FormattedExamInfo[]
+  examInfos?: FormattedExamInfo[];
 }
 
 const props = withDefaults(defineProps<CurrentExamInfoProps>(), {
   examInfos: () => []
-})
+});
 </script>
 
 <style scoped>

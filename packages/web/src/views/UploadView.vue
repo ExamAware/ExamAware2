@@ -15,33 +15,33 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
-const router = useRouter()
-const fileInput = ref<HTMLInputElement | null>(null)
+const router = useRouter();
+const fileInput = ref<HTMLInputElement | null>(null);
 
-const triggerFile = () => fileInput.value?.click()
+const triggerFile = () => fileInput.value?.click();
 
 const onFileChange = async (e: Event) => {
-  const input = e.target as HTMLInputElement
-  const file = input.files?.[0]
-  if (!file) return
+  const input = e.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
   try {
-    const text = await file.text()
-    const json = JSON.parse(text)
+    const text = await file.text();
+    const json = JSON.parse(text);
     if (!json.examName || !Array.isArray(json.examInfos)) {
-      throw new Error('档案结构无效')
+      throw new Error('档案结构无效');
     }
     // 将配置存入 sessionStorage，便于无全局状态下在路由间传递
-    sessionStorage.setItem('examaware:config', JSON.stringify(json))
-    router.push('/player')
+    sessionStorage.setItem('examaware:config', JSON.stringify(json));
+    router.push('/player');
   } catch (err) {
-    alert(`档案解析失败: ${(err as Error).message}`)
+    alert(`档案解析失败: ${(err as Error).message}`);
   } finally {
-    if (fileInput.value) fileInput.value.value = ''
+    if (fileInput.value) fileInput.value.value = '';
   }
-}
+};
 </script>
 
 <style scoped>

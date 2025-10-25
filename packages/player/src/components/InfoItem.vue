@@ -7,11 +7,11 @@
 
 <script setup lang="ts">
 export interface InfoItemProps {
-  label: string
-  value: string
+  label: string;
+  value: string;
 }
 
-defineProps<InfoItemProps>()
+defineProps<InfoItemProps>();
 </script>
 
 <style scoped>

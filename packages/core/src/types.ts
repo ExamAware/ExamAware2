@@ -3,11 +3,11 @@
  */
 export interface ExamMaterial {
   /** 材料名称，如"试卷"、"答题卡"、"草稿纸"等 */
-  name: string
+  name: string;
   /** 材料数量 */
-  quantity: number
+  quantity: number;
   /** 材料单位，如"张"、"份"、"本"等 */
-  unit: string
+  unit: string;
 }
 
 /**
@@ -15,15 +15,15 @@ export interface ExamMaterial {
  */
 export interface ExamInfo {
   /** 考试名称 */
-  name: string
+  name: string;
   /** 考试开始时间 */
-  start: string
+  start: string;
   /** 考试结束时间 */
-  end: string
+  end: string;
   /** 考试结束前几分钟提醒 */
-  alertTime: number
+  alertTime: number;
   /** 考试材料清单 */
-  materials?: ExamMaterial[]
+  materials?: ExamMaterial[];
 }
 
 /**
@@ -34,15 +34,15 @@ export interface ExamConfig {
   /**
    * The name of the exam.
    */
-  examName: string
+  examName: string;
 
   /**
    * A message related to the exam.
    */
-  message: string
+  message: string;
 
   /**
    * An array of information related to the exam.
    */
-  examInfos: ExamInfo[]
+  examInfos: ExamInfo[];
 }

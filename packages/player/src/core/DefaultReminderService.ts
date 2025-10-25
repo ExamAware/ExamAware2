@@ -1,8 +1,8 @@
-import { useReminderService } from '../reminderService'
-import type { IReminderService, ColorfulOptions, NormalOptions, CloseReason } from './reminder'
+import { useReminderService } from '../reminderService';
+import type { IReminderService, ColorfulOptions, NormalOptions, CloseReason } from './reminder';
 
 export function createDefaultReminderService(): IReminderService {
-  const svc = useReminderService()
+  const svc = useReminderService();
   return {
     // 彩色
     showColorfulAlert: (options?: ColorfulOptions) => svc.showColorfulAlert(options),
@@ -15,5 +15,5 @@ export function createDefaultReminderService(): IReminderService {
     clearAllNotices: () => svc.clearAllNotices(),
     currentNotice: svc.currentNotice as any,
     queueLength: svc.queueLength
-  }
+  };
 }

@@ -8,14 +8,14 @@
 </template>
 
 <script setup lang="ts">
-import { inject } from 'vue'
-import ExamRoomNumber from '../ExamRoomNumber.vue'
+import { inject } from 'vue';
+import ExamRoomNumber from '../ExamRoomNumber.vue';
 
 export interface ExamPlayerCtx {
-  effectiveRoomNumber: any
-  handleRoomNumberClick: () => void
+  effectiveRoomNumber: any;
+  handleRoomNumberClick: () => void;
 }
-const ctx = inject<ExamPlayerCtx>('ExamPlayerCtx')!
+const ctx = inject<ExamPlayerCtx>('ExamPlayerCtx')!;
 </script>
 
 <style scoped>

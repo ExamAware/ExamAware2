@@ -20,16 +20,16 @@
 </template>
 
 <script setup lang="ts">
-import { inject } from 'vue'
-import InfoCardWithIcon from '../InfoCardWithIcon.vue'
-import InfoItem from '../InfoItem.vue'
+import { inject } from 'vue';
+import InfoCardWithIcon from '../InfoCardWithIcon.vue';
+import InfoItem from '../InfoItem.vue';
 
 export interface ExamPlayerCtx {
-  currentExam: any
-  currentExamName: any
-  currentExamTimeRange: any
-  displayedRemainingTime: any
+  currentExam: any;
+  currentExamName: any;
+  currentExamTimeRange: any;
+  displayedRemainingTime: any;
 }
-const ctx = inject<ExamPlayerCtx>('ExamPlayerCtx')!
-defineEmits<{ (e: 'editClick'): void }>()
+const ctx = inject<ExamPlayerCtx>('ExamPlayerCtx')!;
+defineEmits<{ (e: 'editClick'): void }>();
 </script>

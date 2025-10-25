@@ -7,13 +7,13 @@
  * 格式: YYYY-MM-DD HH:mm:ss
  */
 export function formatLocalDateTime(date: Date): string {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  const hours = String(date.getHours()).padStart(2, '0')
-  const minutes = String(date.getMinutes()).padStart(2, '0')
-  const seconds = String(date.getSeconds()).padStart(2, '0')
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
 /**
@@ -27,7 +27,7 @@ export function formatDisplayTime(date: Date): string {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false
-  })
+  });
 }
 
 /**
@@ -36,17 +36,17 @@ export function formatDisplayTime(date: Date): string {
  */
 export function formatTimeRange(start: Date, end: Date): string {
   if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-    return '时间待设置'
+    return '时间待设置';
   }
 
-  const startStr = formatDisplayTime(start)
+  const startStr = formatDisplayTime(start);
   const endStr = end.toLocaleString('zh-CN', {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false
-  })
+  });
 
-  return `${startStr} - ${endStr}`
+  return `${startStr} - ${endStr}`;
 }
 
 /**
@@ -54,11 +54,11 @@ export function formatTimeRange(start: Date, end: Date): string {
  * 支持多种格式
  */
 export function parseDateTime(dateStr: string): Date {
-  if (!dateStr) return new Date(NaN)
+  if (!dateStr) return new Date(NaN);
 
   // 如果是标准的 ISO 字符串
   if (dateStr.includes('T') || dateStr.includes('Z')) {
-    return new Date(dateStr)
+    return new Date(dateStr);
   }
 
   // 如果是本地格式 YYYY-MM-DD HH:mm:ss
@@ -66,18 +66,18 @@ export function parseDateTime(dateStr: string): Date {
   if (dateStr.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)) {
     // 将空格替换为 T 以符合 ISO 格式，但不添加时区信息
     // 这样会被解析为本地时间
-    return new Date(dateStr.replace(' ', 'T'))
+    return new Date(dateStr.replace(' ', 'T'));
   }
 
   // 其他格式，直接尝试解析
-  return new Date(dateStr)
+  return new Date(dateStr);
 }
 
 /**
  * 获取当前本地时间字符串
  */
 export function getCurrentLocalDateTime(): string {
-  return formatLocalDateTime(new Date())
+  return formatLocalDateTime(new Date());
 }
 
 /**
@@ -89,20 +89,20 @@ export function isTimeRangeOverlap(
   start2: string | Date,
   end2: string | Date
 ): boolean {
-  const s1 = typeof start1 === 'string' ? parseDateTime(start1) : start1
-  const e1 = typeof end1 === 'string' ? parseDateTime(end1) : end1
-  const s2 = typeof start2 === 'string' ? parseDateTime(start2) : start2
-  const e2 = typeof end2 === 'string' ? parseDateTime(end2) : end2
+  const s1 = typeof start1 === 'string' ? parseDateTime(start1) : start1;
+  const e1 = typeof end1 === 'string' ? parseDateTime(end1) : end1;
+  const s2 = typeof start2 === 'string' ? parseDateTime(start2) : start2;
+  const e2 = typeof end2 === 'string' ? parseDateTime(end2) : end2;
 
-  return s1.getTime() < e2.getTime() && s2.getTime() < e1.getTime()
+  return s1.getTime() < e2.getTime() && s2.getTime() < e1.getTime();
 }
 
 /**
  * 计算两个时间点之间的分钟差
  */
 export function getMinutesDifference(start: string | Date, end: string | Date): number {
-  const startTime = typeof start === 'string' ? parseDateTime(start) : start
-  const endTime = typeof end === 'string' ? parseDateTime(end) : end
+  const startTime = typeof start === 'string' ? parseDateTime(start) : start;
+  const endTime = typeof end === 'string' ? parseDateTime(end) : end;
 
-  return Math.round((endTime.getTime() - startTime.getTime()) / (1000 * 60))
+  return Math.round((endTime.getTime() - startTime.getTime()) / (1000 * 60));
 }
