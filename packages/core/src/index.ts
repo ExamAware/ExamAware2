@@ -4,7 +4,7 @@
  */
 
 // 导出类型定义
-export type { ExamMaterial, ExamInfo, ExamConfig } from './types'
+export type { ExamMaterial, ExamInfo, ExamConfig } from './types';
 
 // 导出解析和验证功能
 export {
@@ -13,7 +13,7 @@ export {
   hasExamTimeOverlap,
   getSortedExamInfos,
   getSortedExamConfig
-} from './parser'
+} from './parser';
 
 // 导出工具函数
 export {
@@ -24,4 +24,4 @@ export {
   getCurrentLocalDateTime,
   isTimeRangeOverlap,
   getMinutesDifference
-} from './utils'
+} from './utils';

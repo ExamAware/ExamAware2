@@ -6,20 +6,20 @@
 
 <script setup lang="ts">
 export interface ExamRoomNumberProps {
-  roomNumber?: string
+  roomNumber?: string;
 }
 
 interface Emits {
-  (e: 'click'): void
+  (e: 'click'): void;
 }
 
-defineProps<ExamRoomNumberProps>()
-const emit = defineEmits<Emits>()
+defineProps<ExamRoomNumberProps>();
+const emit = defineEmits<Emits>();
 
 const handleClick = () => {
-  console.log('考场号被点击')
-  emit('click')
-}
+  console.log('考场号被点击');
+  emit('click');
+};
 </script>
 
 <style scoped>

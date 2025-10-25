@@ -10,15 +10,15 @@
 <script setup lang="ts">
 export interface BaseCardProps {
   /** 自定义CSS类 */
-  customClass?: string
+  customClass?: string;
   /** 自定义样式 */
-  customStyle?: Record<string, string>
+  customStyle?: Record<string, string>;
 }
 
 withDefaults(defineProps<BaseCardProps>(), {
   customClass: '',
   customStyle: () => ({})
-})
+});
 </script>
 
 <style scoped>

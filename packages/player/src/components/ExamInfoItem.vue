@@ -10,29 +10,29 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed } from 'vue';
 
 export interface ExamInfoItemProps {
-  date: string
-  subject: string
-  time: string
-  status: '已结束' | '进行中' | '未开始'
+  date: string;
+  subject: string;
+  time: string;
+  status: '已结束' | '进行中' | '未开始';
 }
 
-const props = defineProps<ExamInfoItemProps>()
+const props = defineProps<ExamInfoItemProps>();
 
 const statusClass = computed(() => {
   switch (props.status) {
     case '已结束':
-      return 'status-finished'
+      return 'status-finished';
     case '进行中':
-      return 'status-ongoing'
+      return 'status-ongoing';
     case '未开始':
-      return 'status-pending'
+      return 'status-pending';
     default:
-      return ''
+      return '';
   }
-})
+});
 </script>
 
 <style scoped>

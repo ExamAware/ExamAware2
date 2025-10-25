@@ -23,22 +23,22 @@
 </template>
 
 <script setup lang="ts">
-import BaseCard from './BaseCard.vue'
+import BaseCard from './BaseCard.vue';
 
 export interface InfoCardWithIconProps {
-  title: string
-  showIcon?: boolean
-  customClass?: string
+  title: string;
+  showIcon?: boolean;
+  customClass?: string;
 }
 
 withDefaults(defineProps<InfoCardWithIconProps>(), {
   showIcon: true,
   customClass: ''
-})
+});
 
 defineEmits<{
-  iconClick: []
-}>()
+  iconClick: [];
+}>();
 </script>
 
 <style scoped>

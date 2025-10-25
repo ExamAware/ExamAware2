@@ -1,4 +1,4 @@
-import { defineConfig } from 'tsup'
+import { defineConfig } from 'tsup';
 
 export default defineConfig({
   entry: ['src/index.ts'],
@@ -12,4 +12,4 @@ export default defineConfig({
   splitting: false,
   treeshake: true,
   external: ['vue', '@dsz-examaware/core']
-})
+});

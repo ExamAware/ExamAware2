@@ -16,87 +16,87 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue'
-import type { ExamConfig } from '@dsz-examaware/core'
-import { ExamPlayer, type PlayerConfig } from '@dsz-examaware/player'
-import { useRouter } from 'vue-router'
+import { computed, ref, onMounted, onUnmounted } from 'vue';
+import type { ExamConfig } from '@dsz-examaware/core';
+import { ExamPlayer, type PlayerConfig } from '@dsz-examaware/player';
+import { useRouter } from 'vue-router';
 
-const router = useRouter()
-const roomNumber = ref('01')
-const playerRef = ref<HTMLElement | null>(null)
+const router = useRouter();
+const roomNumber = ref('01');
+const playerRef = ref<HTMLElement | null>(null);
 
 const config = computed<ExamConfig | null>(() => {
-  const raw = sessionStorage.getItem('examaware:config')
-  if (!raw) return null
+  const raw = sessionStorage.getItem('examaware:config');
+  if (!raw) return null;
   try {
-    return JSON.parse(raw)
+    return JSON.parse(raw);
   } catch {
-    return null
+    return null;
   }
-})
+});
 
 const playerConfig = computed<PlayerConfig>(() => ({
   roomNumber: roomNumber.value,
   fullscreen: false,
   timeSync: true,
   refreshInterval: 1000
-}))
+}));
 
-const goHome = () => router.push('/')
+const goHome = () => router.push('/');
 
 // === 全屏相关（Web） ===
 const getDoc = () =>
   document as Document & {
-    webkitExitFullscreen?: () => Promise<void> | void
-    webkitFullscreenElement?: Element | null
-  }
+    webkitExitFullscreen?: () => Promise<void> | void;
+    webkitFullscreenElement?: Element | null;
+  };
 
 const requestFullscreen = async (el: HTMLElement) => {
-  const anyEl = el as any
+  const anyEl = el as any;
   try {
     if (anyEl.requestFullscreen) {
-      await anyEl.requestFullscreen()
-      return true
+      await anyEl.requestFullscreen();
+      return true;
     }
     if (anyEl.webkitRequestFullscreen) {
-      await anyEl.webkitRequestFullscreen()
-      return true
+      await anyEl.webkitRequestFullscreen();
+      return true;
     }
   } catch (e) {
     // ignore
   }
-  return false
-}
+  return false;
+};
 
 const exitFullscreen = async () => {
-  const anyDoc = getDoc() as any
+  const anyDoc = getDoc() as any;
   try {
     if (document.fullscreenElement && document.exitFullscreen) {
-      await document.exitFullscreen()
-      return true
+      await document.exitFullscreen();
+      return true;
     }
     if (anyDoc.webkitFullscreenElement && anyDoc.webkitExitFullscreen) {
-      await anyDoc.webkitExitFullscreen()
-      return true
+      await anyDoc.webkitExitFullscreen();
+      return true;
     }
   } catch (e) {
     // ignore
   }
-  return false
-}
+  return false;
+};
 
 const handleExit = async () => {
-  await exitFullscreen()
-}
+  await exitFullscreen();
+};
 
 onMounted(async () => {
-  const container = playerRef.value || document.documentElement
-  await requestFullscreen(container)
-})
+  const container = playerRef.value || document.documentElement;
+  await requestFullscreen(container);
+});
 
 onUnmounted(() => {
-  exitFullscreen()
-})
+  exitFullscreen();
+});
 </script>
 
 <style scoped>

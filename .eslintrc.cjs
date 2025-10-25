@@ -1,5 +1,5 @@
 /* eslint-env node */
-require('@rushstack/eslint-patch/modern-module-resolution')
+require('@rushstack/eslint-patch/modern-module-resolution');
 
 module.exports = {
   extends: [
@@ -14,4 +14,4 @@ module.exports = {
     'vue/require-default-prop': 'off',
     'vue/multi-word-component-names': 'off'
   }
-}
+};

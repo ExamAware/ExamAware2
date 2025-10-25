@@ -75,223 +75,223 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue'
-const emit = defineEmits<{ (e: 'exit'): void }>()
-import { LogoutIcon, SettingIcon } from 'tdesign-icons-vue-next'
+import { ref, onMounted, onUnmounted, watch } from 'vue';
+const emit = defineEmits<{ (e: 'exit'): void }>();
+import { LogoutIcon, SettingIcon } from 'tdesign-icons-vue-next';
 
-const uiScale = ref(getInitialScale())
-let animationId: number | null = null
-let currentScale = 1
+const uiScale = ref(getInitialScale());
+let animationId: number | null = null;
+let currentScale = 1;
 
 // 播放设置弹窗开关
-const showSettings = ref(false)
+const showSettings = ref(false);
 
 // 长按相关状态
-const isPressing = ref(false)
-const pressProgress = ref(0)
-const darknessProgress = ref(0) // 新增：单独控制变暗进度
-let longPressTimer: number | null = null
-let progressAnimationId: number | null = null // 改用 requestAnimationFrame
-let lightenAnimationId: number | null = null // 改用 requestAnimationFrame
+const isPressing = ref(false);
+const pressProgress = ref(0);
+const darknessProgress = ref(0); // 新增：单独控制变暗进度
+let longPressTimer: number | null = null;
+let progressAnimationId: number | null = null; // 改用 requestAnimationFrame
+let lightenAnimationId: number | null = null; // 改用 requestAnimationFrame
 
 function getInitialScale() {
   // 默认根据屏幕宽度自动设置初始缩放
-  const w = window.innerWidth
-  if (w >= 1920) return 1.2
-  if (w >= 1440) return 1.0
-  if (w >= 1024) return 0.85
-  return 0.7
+  const w = window.innerWidth;
+  if (w >= 1920) return 1.2;
+  if (w >= 1440) return 1.0;
+  if (w >= 1024) return 0.85;
+  return 0.7;
 }
 
 // 缓动函数 - 使用 ease-out-cubic
 const easeOutCubic = (t: number): number => {
-  return 1 - Math.pow(1 - t, 3)
-}
+  return 1 - Math.pow(1 - t, 3);
+};
 
 const setRootScale = (scale: number) => {
   // 停止自动缩放动画，允许手动缩放覆盖
-  const autoScaleAnimationId = (window as any).autoScaleAnimationId
+  const autoScaleAnimationId = (window as any).autoScaleAnimationId;
   if (autoScaleAnimationId) {
-    cancelAnimationFrame(autoScaleAnimationId)
-    ;(window as any).autoScaleAnimationId = null
+    cancelAnimationFrame(autoScaleAnimationId);
+    (window as any).autoScaleAnimationId = null;
   }
   // 设置到 documentElement
-  document.documentElement.style.setProperty('--ui-scale', String(scale))
+  document.documentElement.style.setProperty('--ui-scale', String(scale));
   // 同时设置到最近的 .exam-container（如果存在）
-  const container = document.querySelector('.exam-container') as HTMLElement | null
+  const container = document.querySelector('.exam-container') as HTMLElement | null;
   if (container) {
-    container.style.setProperty('--ui-scale', String(scale))
+    container.style.setProperty('--ui-scale', String(scale));
   }
-  console.log('Manual scale set to:', scale)
+  console.log('Manual scale set to:', scale);
   console.log(
     'CSS variable --ui-scale is now:',
     getComputedStyle(document.documentElement).getPropertyValue('--ui-scale')
-  )
-}
+  );
+};
 
 // 平滑动画到目标缩放值
 const animateToScale = (target: number) => {
   if (animationId) {
-    cancelAnimationFrame(animationId)
+    cancelAnimationFrame(animationId);
   }
 
-  const startScale = currentScale
-  const startTime = performance.now()
-  const duration = 400 // 动画持续时间400ms
+  const startScale = currentScale;
+  const startTime = performance.now();
+  const duration = 400; // 动画持续时间400ms
 
   const animate = (currentTime: number) => {
-    const elapsed = currentTime - startTime
-    const progress = Math.min(elapsed / duration, 1)
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
 
     // 应用缓动函数
-    const easedProgress = easeOutCubic(progress)
+    const easedProgress = easeOutCubic(progress);
 
     // 计算当前缩放值
-    currentScale = startScale + (target - startScale) * easedProgress
-    setRootScale(currentScale)
+    currentScale = startScale + (target - startScale) * easedProgress;
+    setRootScale(currentScale);
 
     if (progress < 1) {
-      animationId = requestAnimationFrame(animate)
+      animationId = requestAnimationFrame(animate);
     } else {
-      currentScale = target
-      animationId = null
+      currentScale = target;
+      animationId = null;
     }
-  }
+  };
 
-  animationId = requestAnimationFrame(animate)
-}
+  animationId = requestAnimationFrame(animate);
+};
 
 const onScaleChange = () => {
-  console.log('UI Scale input changed:', uiScale.value)
+  console.log('UI Scale input changed:', uiScale.value);
   // 实际的缩放由watch处理
-}
+};
 
 onMounted(() => {
-  currentScale = uiScale.value
-  setRootScale(uiScale.value)
-})
+  currentScale = uiScale.value;
+  setRootScale(uiScale.value);
+});
 
 // 监听uiScale变化
 watch(uiScale, (newValue) => {
-  console.log('uiScale watch triggered:', newValue)
+  console.log('uiScale watch triggered:', newValue);
   // 直接设置缩放值，不使用动画以避免拖动时的延迟
   if (animationId) {
-    cancelAnimationFrame(animationId)
-    animationId = null
+    cancelAnimationFrame(animationId);
+    animationId = null;
   }
-  currentScale = newValue
-  setRootScale(newValue)
-  console.log('CSS variable --ui-scale set to:', newValue)
-})
+  currentScale = newValue;
+  setRootScale(newValue);
+  console.log('CSS variable --ui-scale set to:', newValue);
+});
 
 onUnmounted(() => {
   // 清理定时器和动画帧
-  cancelLongPress()
+  cancelLongPress();
   if (lightenAnimationId) {
-    cancelAnimationFrame(lightenAnimationId)
-    lightenAnimationId = null
+    cancelAnimationFrame(lightenAnimationId);
+    lightenAnimationId = null;
   }
   if (animationId) {
-    cancelAnimationFrame(animationId)
-    animationId = null
+    cancelAnimationFrame(animationId);
+    animationId = null;
   }
-})
+});
 
 // 长按功能
 const startLongPress = (e: Event) => {
-  e.preventDefault()
-  console.log('开始长按退出')
+  e.preventDefault();
+  console.log('开始长按退出');
 
-  isPressing.value = true
-  pressProgress.value = 0
-  darknessProgress.value = 0
+  isPressing.value = true;
+  pressProgress.value = 0;
+  darknessProgress.value = 0;
 
-  const startTime = performance.now()
-  const duration = 2000
-  const darknessPhase = 600
+  const startTime = performance.now();
+  const duration = 2000;
+  const darknessPhase = 600;
 
   longPressTimer = window.setTimeout(() => {
-    handleExitPlayback()
-  }, duration)
+    handleExitPlayback();
+  }, duration);
 
   // 使用 requestAnimationFrame 替代 setInterval，避免与缩放动画冲突
   const updateProgress = (currentTime: number) => {
-    const elapsed = currentTime - startTime
-    pressProgress.value = Math.min(elapsed / duration, 1)
+    const elapsed = currentTime - startTime;
+    pressProgress.value = Math.min(elapsed / duration, 1);
 
     // 变暗进度：第一秒内从0到1，使用非线性动画
     if (elapsed <= darknessPhase) {
-      const linearProgress = elapsed / darknessPhase
+      const linearProgress = elapsed / darknessPhase;
       // 使用 ease-out-expo 缓动函数：非常快速开始，然后急剧减缓
-      darknessProgress.value = linearProgress === 1 ? 1 : 1 - Math.pow(2, -10 * linearProgress)
+      darknessProgress.value = linearProgress === 1 ? 1 : 1 - Math.pow(2, -10 * linearProgress);
     } else {
-      darknessProgress.value = 1
+      darknessProgress.value = 1;
     }
 
     if (pressProgress.value < 1) {
-      progressAnimationId = requestAnimationFrame(updateProgress)
+      progressAnimationId = requestAnimationFrame(updateProgress);
     } else {
-      progressAnimationId = null
+      progressAnimationId = null;
     }
-  }
+  };
 
-  progressAnimationId = requestAnimationFrame(updateProgress)
-}
+  progressAnimationId = requestAnimationFrame(updateProgress);
+};
 
 const cancelLongPress = () => {
   if (longPressTimer) {
-    clearTimeout(longPressTimer)
-    longPressTimer = null
+    clearTimeout(longPressTimer);
+    longPressTimer = null;
   }
 
   if (progressAnimationId) {
-    cancelAnimationFrame(progressAnimationId)
-    progressAnimationId = null
+    cancelAnimationFrame(progressAnimationId);
+    progressAnimationId = null;
   }
 
-  isPressing.value = false
-  pressProgress.value = 0
+  isPressing.value = false;
+  pressProgress.value = 0;
 
   // 启动变亮动画 - 使用 requestAnimationFrame
-  const startDarkness = darknessProgress.value
-  const startTime = performance.now()
-  const lightenDuration = 500 // 0.5秒变亮动画
+  const startDarkness = darknessProgress.value;
+  const startTime = performance.now();
+  const lightenDuration = 500; // 0.5秒变亮动画
 
   if (startDarkness > 0) {
     const updateLightness = (currentTime: number) => {
-      const elapsed = currentTime - startTime
-      const linearProgress = Math.min(elapsed / lightenDuration, 1)
+      const elapsed = currentTime - startTime;
+      const linearProgress = Math.min(elapsed / lightenDuration, 1);
 
       // 使用 ease-out-quart 缓动函数：快速开始，平滑结束
-      const easedProgress = 1 - Math.pow(1 - linearProgress, 4)
+      const easedProgress = 1 - Math.pow(1 - linearProgress, 4);
 
-      darknessProgress.value = startDarkness * (1 - easedProgress)
+      darknessProgress.value = startDarkness * (1 - easedProgress);
 
       if (linearProgress < 1) {
-        lightenAnimationId = requestAnimationFrame(updateLightness)
+        lightenAnimationId = requestAnimationFrame(updateLightness);
       } else {
-        darknessProgress.value = 0
-        lightenAnimationId = null
+        darknessProgress.value = 0;
+        lightenAnimationId = null;
       }
-    }
+    };
 
-    lightenAnimationId = requestAnimationFrame(updateLightness)
+    lightenAnimationId = requestAnimationFrame(updateLightness);
   } else {
-    darknessProgress.value = 0
+    darknessProgress.value = 0;
   }
 
-  console.log('取消长按退出')
-}
+  console.log('取消长按退出');
+};
 
 const handleExitPlayback = () => {
-  console.log('退出播放（触发 exit 事件）')
-  emit('exit')
-}
+  console.log('退出播放（触发 exit 事件）');
+  emit('exit');
+};
 
 const handlePlaybackSettings = () => {
-  console.log('打开播放设置弹窗')
-  showSettings.value = true
-}
+  console.log('打开播放设置弹窗');
+  showSettings.value = true;
+};
 </script>
 
 <style scoped>

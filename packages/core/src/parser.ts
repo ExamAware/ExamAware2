@@ -1,4 +1,4 @@
-import type { ExamConfig } from './types'
+import type { ExamConfig } from './types';
 
 /**
  * 解析考试配置的 JSON 字符串，并返回 `ExamConfig` 对象。
@@ -8,11 +8,11 @@ import type { ExamConfig } from './types'
  */
 export function parseExamConfig(jsonString: string): ExamConfig | null {
   try {
-    const data = JSON.parse(jsonString)
-    if (!data.examInfos) return null
-    return data as ExamConfig
+    const data = JSON.parse(jsonString);
+    if (!data.examInfos) return null;
+    return data as ExamConfig;
   } catch {
-    return null
+    return null;
   }
 }
 
@@ -23,8 +23,8 @@ export function parseExamConfig(jsonString: string): ExamConfig | null {
  * @returns 如果配置有效则返回 true，否则返回 false
  */
 export function validateExamConfig(config: ExamConfig): boolean {
-  if (!config.examName || !config.examInfos?.length) return false
-  return config.examInfos.every((info) => info.name && info.start && info.end)
+  if (!config.examName || !config.examInfos?.length) return false;
+  return config.examInfos.every((info) => info.name && info.start && info.end);
 }
 
 /**
@@ -36,13 +36,13 @@ export function validateExamConfig(config: ExamConfig): boolean {
 export function hasExamTimeOverlap(config: ExamConfig): boolean {
   const sortedExams = config.examInfos
     .slice()
-    .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
+    .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
   for (let i = 0; i < sortedExams.length - 1; i++) {
     if (new Date(sortedExams[i].end).getTime() > new Date(sortedExams[i + 1].start).getTime()) {
-      return true
+      return true;
     }
   }
-  return false
+  return false;
 }
 
 /**
@@ -54,7 +54,7 @@ export function hasExamTimeOverlap(config: ExamConfig): boolean {
 export function getSortedExamInfos(config: ExamConfig) {
   return config.examInfos
     .slice()
-    .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
+    .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
 }
 
 /**
@@ -67,5 +67,5 @@ export function getSortedExamConfig(config: ExamConfig): ExamConfig {
   return {
     ...config,
     examInfos: getSortedExamInfos(config)
-  }
+  };
 }

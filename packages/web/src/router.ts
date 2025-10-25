@@ -1,6 +1,6 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
-import UploadView from './views/UploadView.vue'
-import PlayerView from './views/PlayerView.vue'
+import { createRouter, createWebHashHistory } from 'vue-router';
+import UploadView from './views/UploadView.vue';
+import PlayerView from './views/PlayerView.vue';
 
 export const router = createRouter({
   history: createWebHashHistory(),
@@ -8,6 +8,6 @@ export const router = createRouter({
     { path: '/', name: 'upload', component: UploadView },
     { path: '/player', name: 'player', component: PlayerView }
   ]
-})
+});
 
-export default router
+export default router;
