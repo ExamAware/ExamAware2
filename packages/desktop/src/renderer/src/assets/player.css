@@ -1,0 +1,6 @@
+/* Dev placeholder for @dsz-examaware/player styles.
+   In production, the consumer imports @dsz-examaware/player/dist/player.css.
+   This placeholder prevents Vite import resolution errors during local development
+   when the player package hasn't been built yet. */
+
+/* You can add minimal resets or variables here if needed. */

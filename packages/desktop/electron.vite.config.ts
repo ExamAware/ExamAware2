@@ -48,10 +48,19 @@ export default defineConfig(({ mode }) => {
         sourcemap: !isProduction
       },
       resolve: {
-        alias: {
-          '@renderer': resolve('src/renderer/src'),
-          '@': resolve('src/renderer/src')
-        }
+        alias: [
+          // 仅在开发模式使用本地源码与占位样式，生产保持包与真实 dist
+          ...(!isProduction
+            ? [
+                { find: '@dsz-examaware/player/dist/player.css', replacement: resolve('src/renderer/src/assets/player.css') },
+                { find: '@dsz-examaware/player', replacement: resolve(__dirname, '../player/src') },
+                // 让 player 源码内对 core 的依赖也指向本地源码
+                { find: '@dsz-examaware/core', replacement: resolve(__dirname, '../core/src') },
+              ]
+            : []),
+          { find: '@renderer', replacement: resolve('src/renderer/src') },
+          { find: '@', replacement: resolve('src/renderer/src') },
+        ]
       },
       assetsInclude: ['**/*.ttf', '**/*.woff', '**/*.woff2', '**/*.otf'],
       plugins: [
