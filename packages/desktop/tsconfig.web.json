@@ -15,6 +15,18 @@
     "paths": {
       "@renderer/*": [
         "src/renderer/src/*"
+      ],
+      "@dsz-examaware/player": [
+        "../player/src/index.ts"
+      ],
+      "@dsz-examaware/player/*": [
+        "../player/src/*"
+      ],
+      "@dsz-examaware/core": [
+        "../core/src/index.ts"
+      ],
+      "@dsz-examaware/core/*": [
+        "../core/src/*"
       ]
     }
   }
