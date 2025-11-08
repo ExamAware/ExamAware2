@@ -69,5 +69,6 @@ declare module 'vue' {
     TTextarea: typeof import('tdesign-vue-next')['Textarea']
     ValidationPanel: typeof import('./src/components/ValidationPanel.vue')['default']
     WindowControls: typeof import('./src/components/WindowControls.vue')['default']
+    WindowFrame: typeof import('./src/components/WindowFrame.vue')['default']
   }
 }

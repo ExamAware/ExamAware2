@@ -1,37 +1,45 @@
 <template>
-  <div class="custom-title-bar">
-    <t-button @click="minimizeWindow">_</t-button>
-    <t-button @click="maximizeWindow">[]</t-button>
-    <t-button @click="closeWindow">X</t-button>
-  </div>
+  <header v-if="platform !== 'linux'" class="ea-titlebar" @dblclick="toggleMaximize">
+    <div class="ea-titlebar__side left" :class="platform">
+      <slot name="left">
+        <span class="ea-titlebar__title" v-if="title">{{ title }}</span>
+      </slot>
+    </div>
+    <div class="ea-titlebar__spacer" />
+    <div class="ea-titlebar__side right" :class="platform">
+      <slot name="right" />
+      <!-- 不再自绘窗口控制按钮，使用系统自带的 overlay 控件 -->
+    </div>
+  </header>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { Button as TButton } from 'tdesign-vue-next'
+import { useWindowControls } from '@renderer/composables/useWindowControls'
 
-const ipcRenderer = window.api.ipc
+defineProps<{ title?: string }>()
 
-const minimizeWindow = () => {
-  ipcRenderer.send('minimize-window')
-}
-
-const maximizeWindow = () => {
-  ipcRenderer.send('maximize-window')
-}
-
-const closeWindow = () => {
-  ipcRenderer.send('close-window')
-}
+const { platform, toggleMaximize } = useWindowControls()
 </script>
 
 <style scoped>
-.custom-title-bar {
+.ea-titlebar {
+  -webkit-app-region: drag;
+  height: 36px;
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  padding: 0 8px;
+  gap: 8px;
+  background: var(--td-bg-color-container);
+  border-bottom: 1px solid var(--td-border-level-1-color);
 }
+.ea-titlebar__side {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ea-titlebar__spacer { flex: 1; }
+.ea-titlebar .no-drag { -webkit-app-region: no-drag; }
+.ea-titlebar__title { color: var(--td-text-color-primary); font-weight: 400; font-size: 14px; }
 
-.custom-title-bar t-button {
-  margin-left: 10px;
-}
+.ea-titlebar__side.left.darwin { padding-left: 70px; }
 </style>

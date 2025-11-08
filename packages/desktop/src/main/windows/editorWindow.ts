@@ -9,13 +9,15 @@ export function createEditorWindow(filePath?: string): BrowserWindow {
       height: 700
     }
 
-    if (process.platform === 'linux') {
-      winOptions.titleBarStyle = 'default'
-    } else {
-      winOptions.frame = false
+    if (process.platform !== 'linux') {
       winOptions.titleBarStyle = 'hidden'
+      ;(winOptions as any).titleBarOverlay = {
+        color: 'rgba(0,0,0,0)',
+        height: 35,
+        symbolColor: '#fff'
+      }
+      // macOS 交通灯位置可选
       if (process.platform === 'darwin') {
-        winOptions.titleBarStyle = 'hiddenInset'
         ;(winOptions as any).trafficLightPosition = { x: 10, y: 10 }
       }
     }

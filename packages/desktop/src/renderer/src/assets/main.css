@@ -49,14 +49,12 @@ body,
   background-color: var(--ea-scrollbar-thumb-hover);
 }
 
-/* Firefox */
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--ea-scrollbar-thumb-hover) transparent;
 }
 
 .root {
-  /* 使用 flex 来实现 */
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -112,9 +110,14 @@ body,
 
 .ea_app,
 .mainpage {
-  background: var(--td-bg-color-page) !important; /* TDesign 背景色 */
   width: 100%;
   height: 100%;
+  background: var(--td-bg-color-page) !important;
+}
+
+[data-tray-popover] .ea_app,
+[data-tray-popover] .mainpage {
+  background: color-mix(in srgb, var(--td-bg-color-page) 40%, transparent) !important;
 }
 
 h1,

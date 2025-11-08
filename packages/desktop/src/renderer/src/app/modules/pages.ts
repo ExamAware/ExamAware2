@@ -104,6 +104,7 @@ export const pagesModule: AppModule = {
             icon: 'time',
             order: 3,
             group: 'sidebar' as const,
+            visible: false,
             routeName: 'ntpsettings',
             component: () => import('@renderer/views/home/ntpSettingsPage.vue')
           }
@@ -140,6 +141,7 @@ export const pagesModule: AppModule = {
         icon: 'time',
         order: 3,
         group: 'sidebar',
+        visible: false,
         routeName: 'ntpsettings',
         component: () => import('@renderer/views/home/ntpSettingsPage.vue')
       })

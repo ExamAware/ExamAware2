@@ -1,10 +1,16 @@
-import { ipcMain, dialog, BrowserWindow } from 'electron'
+import { ipcMain, dialog, BrowserWindow, app } from 'electron'
+import * as fs from 'fs'
+import * as path from 'path'
 import { addLog, getLogs, clearLogs } from '../logging/logStore'
 import type { MainContext } from '../runtime/context'
 import { createEditorWindow } from '../windows/editorWindow'
 import { createPlayerWindow } from '../windows/playerWindow'
 import { fileApi } from '../fileUtils'
 import { createLogsWindow } from '../windows/logsWindow'
+import { getAllConfig, getConfig as cfgGet, setConfig as cfgSet, patchConfig as cfgPatch } from '../configStore'
+import { applyTimeConfig } from '../ntpService/timeService'
+import { createSettingsWindow } from '../windows/settingsWindow'
+import { createMainWindow } from '../windows/mainWindow'
 
 // 存储当前加载的配置数据
 let currentConfigData: string | null = null
@@ -202,6 +208,188 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
       })
     )
 
+  // ===== 配置存储 IPC =====
+  if (ctx) {
+    ctx.ipc.handle('config:all', () => getAllConfig())
+    ctx.ipc.handle('config:get', (_e, key?: string, def?: any) => cfgGet(key, def))
+    ctx.ipc.handle('config:set', (_e, key: string, value: any) => {
+      cfgSet(key, value)
+      // 将 time.* 的变更同步到时间同步服务
+      if (key && key.startsWith('time.')) {
+        const field = key.slice(5)
+        applyTimeConfig({ [field]: value } as any)
+      }
+      return true
+    })
+    ctx.ipc.handle('config:patch', (_e, partial: any) => {
+      cfgPatch(partial)
+      if (partial && typeof partial === 'object') {
+        // 支持 { time: { ... } } 或 扁平键的场景（前者为主）
+        if (partial.time && typeof partial.time === 'object') {
+          applyTimeConfig(partial.time)
+        } else {
+          const t: any = {}
+          Object.keys(partial).forEach((k) => {
+            if (k.startsWith && k.startsWith('time.')) {
+              t[k.slice(5)] = (partial as any)[k]
+            }
+          })
+          if (Object.keys(t).length) applyTimeConfig(t)
+        }
+      }
+      return true
+    })
+  } else {
+    group.add(handle('config:all', () => getAllConfig()))
+    group.add(handle('config:get', (_e, key?: string, def?: any) => cfgGet(key, def)))
+    group.add(
+      handle('config:set', (_e, key: string, value: any) => {
+        cfgSet(key, value)
+        if (key && key.startsWith('time.')) {
+          const field = key.slice(5)
+          applyTimeConfig({ [field]: value } as any)
+        }
+        return true
+      })
+    )
+    group.add(
+      handle('config:patch', (_e, partial: any) => {
+        cfgPatch(partial)
+        if (partial && typeof partial === 'object') {
+          if (partial.time && typeof partial.time === 'object') {
+            applyTimeConfig(partial.time)
+          } else {
+            const t: any = {}
+            Object.keys(partial).forEach((k) => {
+              if (k.startsWith && k.startsWith('time.')) t[k.slice(5)] = (partial as any)[k]
+            })
+            if (Object.keys(t).length) applyTimeConfig(t)
+          }
+        }
+        return true
+      })
+    )
+  }
+
+  // ===== 自启动（开机启动） =====
+  const getAutoStart = () => {
+    try {
+      // macOS / Windows：内置 API
+      if (process.platform === 'darwin' || process.platform === 'win32') {
+        const s = app.getLoginItemSettings()
+        return !!s.openAtLogin
+      }
+      // Linux：通过 ~/.config/autostart/*.desktop 判断
+      if (process.platform === 'linux') {
+        const desktopPath = path.join(app.getPath('home'), '.config', 'autostart')
+        const file = path.join(desktopPath, `${sanitizeDesktopFileName(app.getName())}.desktop`)
+        return fs.existsSync(file)
+      }
+    } catch (e) {
+      console.error('autostart:get failed', e)
+    }
+    return false
+  }
+  const setAutoStart = (enable: boolean) => {
+    try {
+      if (process.platform === 'darwin' || process.platform === 'win32') {
+        app.setLoginItemSettings({ openAtLogin: enable })
+        return true
+      }
+      if (process.platform === 'linux') {
+        const desktopDir = path.join(app.getPath('home'), '.config', 'autostart')
+        const file = path.join(desktopDir, `${sanitizeDesktopFileName(app.getName())}.desktop`)
+        if (!enable) {
+          try { fs.unlinkSync(file) } catch {}
+          return true
+        }
+        fs.mkdirSync(desktopDir, { recursive: true })
+        const execPath = process.env.APPIMAGE || process.execPath
+        const content = buildDesktopEntry({
+          name: app.getName(),
+          comment: 'Start this application on login',
+          exec: execPath + ' --autostart',
+          icon: getLinuxIconPathSafe()
+        })
+        fs.writeFileSync(file, content, 'utf-8')
+        return true
+      }
+    } catch (e) {
+      console.error('autostart:set failed', e)
+      return false
+    }
+    return false
+  }
+
+  function sanitizeDesktopFileName(name: string) {
+    return name.replace(/\s+/g, '-')
+  }
+
+  function buildDesktopEntry(opts: { name: string; comment?: string; exec: string; icon?: string }) {
+    // 注意：Exec 需转义空格
+    const execEscaped = opts.exec.replace(/ /g, '\\\ ')
+    const iconLine = opts.icon ? `Icon=${opts.icon}\n` : ''
+    return [
+      '[Desktop Entry]',
+      'Type=Application',
+      `Name=${opts.name}`,
+      `Comment=${opts.comment || ''}`,
+      `Exec=${execEscaped}`,
+      'Terminal=false',
+      'X-GNOME-Autostart-enabled=true',
+      iconLine.trimEnd(),
+      'Categories=Utility;'
+    ].filter(Boolean).join('\n') + '\n'
+  }
+
+  function getLinuxIconPathSafe(): string | undefined {
+    try {
+      // 尝试使用打包资源图标
+      const possible = [
+        path.join(process.resourcesPath || '', 'icon.png'),
+        path.join(__dirname, '../../resources/icon.png')
+      ]
+      for (const p of possible) {
+        if (p && fs.existsSync(p)) return p
+      }
+    } catch {}
+    return undefined
+  }
+
+  if (ctx) {
+    ctx.ipc.handle('autostart:get', () => getAutoStart())
+    ctx.ipc.handle('autostart:set', (_e, enable: boolean) => setAutoStart(enable))
+  } else {
+    group.add(handle('autostart:get', () => getAutoStart()))
+    group.add(handle('autostart:set', (_e, enable: boolean) => setAutoStart(enable)))
+  }
+
+  // 打开设置窗口（单例）
+  if (ctx)
+    ctx.ipc.on('open-settings-window', () => {
+      createSettingsWindow()
+    })
+  else
+    group.add(
+      on('open-settings-window', () => {
+        createSettingsWindow()
+      })
+    )
+
+  // UI：从托盘自绘菜单触发
+  const doOpenMain = () => createMainWindow()
+  const doQuit = () => {
+    ;(app as any).isQuitting = true
+    app.quit()
+  }
+  if (ctx) {
+    ctx.ipc.on('ui:open-main', doOpenMain)
+    ctx.ipc.on('ui:app-quit', doQuit)
+  } else {
+    group.add(on('ui:open-main', doOpenMain))
+    group.add(on('ui:app-quit', doQuit))
+  }
+
   // 窗口控制处理程序
   if (ctx)
     ctx.ipc.on('window-minimize', (event) => {
@@ -310,7 +498,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
       const result = await dialog.showOpenDialog({
         properties: ['openFile'],
         filters: [
-          { name: 'ExamAware 档案文件', extensions: ['exam.json'] },
+          { name: 'ExamAware 档案文件', extensions: ['ea2'] },
           { name: 'JSON 文件', extensions: ['json'] },
           { name: '所有文件', extensions: ['*'] }
         ]
@@ -327,7 +515,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
         const result = await dialog.showOpenDialog({
           properties: ['openFile'],
           filters: [
-            { name: 'ExamAware 档案文件', extensions: ['exam.json'] },
+            { name: 'ExamAware 档案文件', extensions: ['ea2'] },
             { name: 'JSON 文件', extensions: ['json'] },
             { name: '所有文件', extensions: ['*'] }
           ]
@@ -390,7 +578,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
     ctx.ipc.handle('save-file-dialog', async () => {
       const result = await dialog.showSaveDialog({
         filters: [
-          { name: 'ExamAware 档案文件', extensions: ['exam.json'] },
+          { name: 'ExamAware 档案文件', extensions: ['ea2'] },
           { name: 'JSON 文件', extensions: ['json'] },
           { name: '所有文件', extensions: ['*'] }
         ],
@@ -407,7 +595,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
       handle('save-file-dialog', async () => {
         const result = await dialog.showSaveDialog({
           filters: [
-            { name: 'ExamAware 档案文件', extensions: ['exam.json'] },
+            { name: 'ExamAware 档案文件', extensions: ['ea2'] },
             { name: 'JSON 文件', extensions: ['json'] },
             { name: '所有文件', extensions: ['*'] }
           ],
@@ -426,7 +614,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
       const result = await dialog.showOpenDialog({
         properties: ['openFile'],
         filters: [
-          { name: 'ExamAware 档案文件', extensions: ['exam.json'] },
+          { name: 'ExamAware 档案文件', extensions: ['ea2'] },
           { name: 'JSON 文件', extensions: ['json'] },
           { name: '所有文件', extensions: ['*'] }
         ]
@@ -443,7 +631,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
         const result = await dialog.showOpenDialog({
           properties: ['openFile'],
           filters: [
-            { name: 'ExamAware 档案文件', extensions: ['exam.json'] },
+            { name: 'ExamAware 档案文件', extensions: ['ea2'] },
             { name: 'JSON 文件', extensions: ['json'] },
             { name: '所有文件', extensions: ['*'] }
           ]

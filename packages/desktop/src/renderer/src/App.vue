@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterView } from 'vue-router'
+import WindowFrame from '@renderer/components/WindowFrame.vue'
 </script>
 
 <template>
   <t-config-provider>
     <div class="ea_app">
-      <RouterView />
+      <WindowFrame>
+        <RouterView />
+      </WindowFrame>
     </div>
   </t-config-provider>
+
 </template>
