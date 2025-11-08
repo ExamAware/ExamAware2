@@ -133,8 +133,9 @@ export const homeButtonsModule: AppModule = {
         icon: 'setting',
         theme: 'default',
         order: 5,
-        action: () => {
-          console.log('设置功能待实现')
+        action: async () => {
+          // 作为独立窗口（单例）弹出
+          window.api?.ipc?.send('open-settings-window')
         }
       })
     )

@@ -16,7 +16,7 @@ files:
   - '!build/*'
   - '!out/*'
 fileAssociations:
-  - ext: exam.json
+  - ext: ea2
     name: ExamAware 档案文件
     description: ExamAware 考试档案文件
     mimeType: application/json

@@ -89,12 +89,26 @@ export async function syncTimeWithNTP(
     timeSyncInfo.serverAddress = ntpServer || DEFAULT_NTP_SERVER
 
     const socket = dgram.createSocket('udp4')
+    let closed = false
+    const safeClose = () => {
+      if (closed) return
+      closed = true
+      try {
+        socket.close()
+      } catch (e) {
+        // 忽略“Not running”等关闭异常，避免主进程崩溃
+        // 记录一次错误信息便于追踪
+        try {
+          console.error('[NTP] socket.close error:', (e as any)?.message || e)
+        } catch {}
+      }
+    }
     const ntpPacket = createNTPPacket()
     const originateTime = Date.now()
 
     // 超时处理
     const timeoutId = setTimeout(() => {
-      socket.close()
+      safeClose()
       timeSyncInfo.syncStatus = 'error'
       timeSyncInfo.errorMessage = '与 NTP 服务器通信超时'
       reject(new Error('与 NTP 服务器通信超时'))
@@ -103,7 +117,7 @@ export async function syncTimeWithNTP(
     // 错误处理
     socket.on('error', (err) => {
       clearTimeout(timeoutId)
-      socket.close()
+      safeClose()
       timeSyncInfo.syncStatus = 'error'
       timeSyncInfo.errorMessage = `NTP 同步错误: ${err.message}`
       reject(err)
@@ -124,10 +138,10 @@ export async function syncTimeWithNTP(
         timeSyncInfo.syncStatus = 'success'
         timeSyncInfo.errorMessage = undefined
 
-        socket.close()
+        safeClose()
         resolve({ ...timeSyncInfo })
-      } catch (err) {
-        socket.close()
+      } catch {
+        safeClose()
         timeSyncInfo.syncStatus = 'error'
         timeSyncInfo.errorMessage = '解析 NTP 响应失败'
         reject(new Error('解析 NTP 响应失败'))
@@ -138,7 +152,7 @@ export async function syncTimeWithNTP(
     socket.send(ntpPacket, 0, NTP_PACKET_SIZE, NTP_PORT, timeSyncInfo.serverAddress, (err) => {
       if (err) {
         clearTimeout(timeoutId)
-        socket.close()
+        safeClose()
         timeSyncInfo.syncStatus = 'error'
         timeSyncInfo.errorMessage = `发送 NTP 请求失败: ${err.message}`
         reject(err)

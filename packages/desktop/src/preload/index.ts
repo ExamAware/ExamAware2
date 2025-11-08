@@ -10,6 +10,23 @@ const api = {
     ipcRenderer.invoke('save-file', filePath, content),
   saveFileDialog: () => ipcRenderer.invoke('save-file-dialog'),
   openFileDialog: () => ipcRenderer.invoke('open-file-dialog'),
+  config: {
+    all: () => ipcRenderer.invoke('config:all'),
+    get: (key?: string, def?: any) => ipcRenderer.invoke('config:get', key, def),
+    set: (key: string, value: any) => ipcRenderer.invoke('config:set', key, value),
+    patch: (partial: any) => ipcRenderer.invoke('config:patch', partial),
+    onChanged: (listener: (config: any) => void) => {
+      const wrapped = (_e: any, cfg: any) => listener(cfg)
+      ipcRenderer.on('config:changed', wrapped)
+      return () => ipcRenderer.off('config:changed', wrapped)
+    }
+  },
+  system: {
+    autostart: {
+      get: () => ipcRenderer.invoke('autostart:get') as Promise<boolean>,
+      set: (enable: boolean) => ipcRenderer.invoke('autostart:set', enable) as Promise<boolean>
+    }
+  },
   ipc: {
     send: (channel: string, ...args: any[]) => ipcRenderer.send(channel, ...args),
     invoke: (channel: string, ...args: any[]) => ipcRenderer.invoke(channel, ...args),

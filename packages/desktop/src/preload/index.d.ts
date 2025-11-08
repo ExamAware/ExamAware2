@@ -18,6 +18,19 @@ declare global {
       saveFile: (filePath: string, content: string) => Promise<boolean>
       saveFileDialog: () => Promise<string | undefined>
       openFileDialog: () => Promise<string | undefined>
+      config: {
+        all: () => Promise<any>
+        get: (key?: string, def?: any) => Promise<any>
+        set: (key: string, value: any) => Promise<boolean>
+        patch: (partial: any) => Promise<boolean>
+        onChanged: (listener: (config: any) => void) => () => void
+      }
+      system: {
+        autostart: {
+          get: () => Promise<boolean>
+          set: (enable: boolean) => Promise<boolean>
+        }
+      }
       ipc: {
         send: (channel: string, ...args: any[]) => void
         invoke: (channel: string, ...args: any[]) => Promise<any>
