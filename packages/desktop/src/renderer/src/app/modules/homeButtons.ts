@@ -161,7 +161,7 @@ export const homeButtonsModule: AppModule = {
         theme: 'default',
         order: 7,
         action: () => {
-          console.log('关于功能待实现')
+          window.api?.ipc?.send('open-settings-window', 'about')
         }
       })
     )
