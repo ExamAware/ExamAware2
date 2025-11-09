@@ -1,7 +1,8 @@
 import { BrowserWindow } from 'electron'
 import { windowManager } from './windowManager'
+import { buildTitleBarOverlay, applyTitleBarOverlay, attachTitleBarOverlayLifecycle } from './titleBarOverlay'
 
-export function createSettingsWindow(): BrowserWindow {
+export function createSettingsWindow(page?: string): BrowserWindow {
   return windowManager.open(({ commonOptions }) => {
     const options: Electron.BrowserWindowConstructorOptions = {
       ...commonOptions(),
@@ -10,7 +11,7 @@ export function createSettingsWindow(): BrowserWindow {
       ...(process.platform !== 'linux'
         ? {
             titleBarStyle: 'hidden' as const,
-            titleBarOverlay: { color: 'rgba(0,0,0,0)', height: 35, symbolColor: '#fff' }
+            titleBarOverlay: buildTitleBarOverlay()
           }
         : {}),
       title: '应用设置'
@@ -18,8 +19,12 @@ export function createSettingsWindow(): BrowserWindow {
 
     return {
       id: 'settings',
-      route: 'settings',
-      options
+      route: page ? `settings/${page}` : 'settings',
+      options,
+      setup(win) {
+        applyTitleBarOverlay(win)
+        attachTitleBarOverlayLifecycle(win)
+      }
     }
   }) as unknown as BrowserWindow
 }

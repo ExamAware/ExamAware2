@@ -1,7 +1,8 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, globalShortcut, Menu } from 'electron'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { createMainWindow } from './windows/mainWindow'
 import { createEditorWindow } from './windows/editorWindow'
+import { createSettingsWindow } from './windows/settingsWindow'
 import { windowManager } from './windows/windowManager'
 import { registerIpcHandlers } from './ipcHandlers'
 import { registerTimeSyncHandlers } from './ipcHandlers/timeServiceHandler'
@@ -18,7 +19,11 @@ try {
   if (process.platform === 'darwin' && (app as any).setAboutPanelOptions) {
     ;(app as any).setAboutPanelOptions({
       applicationName: 'ExamAware',
-      applicationVersion: app.getVersion()
+      applicationVersion: app.getVersion(),
+      copyright: `© ${(new Date()).getFullYear()} ExamAware Contributors`,
+      authors: ['ExamAware Team'],
+      website: 'https://github.com/ExamAware2/ExamAware2',
+      license: 'GPLv3'
     })
   }
 } catch {}
@@ -36,6 +41,18 @@ app.whenReady().then(async () => {
   })
 
   const disposeIpc = registerIpcHandlers(_mainCtx)
+  // macOS 常用快捷键：Command+逗号 打开设置（聚焦“关于”页可由二级逻辑决定，这里默认普通设置首页）
+  try {
+    globalShortcut.register('CommandOrControl+,', () => {
+      try {
+        createSettingsWindow()
+      } catch (e) {
+        console.error('open settings via shortcut failed', e)
+      }
+    })
+  } catch (e) {
+    console.error('register shortcut failed', e)
+  }
   const disposeTimeIpc = registerTimeSyncHandlers()
 
   // 初始化时间同步服务
@@ -76,6 +93,56 @@ app.whenReady().then(async () => {
     try { console.debug('[app] activate: window count =', BrowserWindow.getAllWindows().length) } catch {}
     if (BrowserWindow.getAllWindows().length === 0) createMainWindow()
   })
+
+  // 设置应用菜单（macOS）：About/Preferences 等，与设置页联动
+  if (process.platform === 'darwin') {
+    const template: Electron.MenuItemConstructorOptions[] = [
+      {
+        label: app.getName(),
+        submenu: [
+          {
+            label: `关于 ${app.getName()}`,
+            accelerator: undefined,
+            click: () => {
+              try {
+                createSettingsWindow('about')
+              } catch (e) {
+                console.error('open about failed', e)
+              }
+            }
+          },
+          { type: 'separator' },
+          {
+            label: '偏好设置…',
+            accelerator: 'CommandOrControl+,',
+            click: () => {
+              try {
+                createSettingsWindow()
+              } catch (e) {
+                console.error('open preferences failed', e)
+              }
+            }
+          },
+          { type: 'separator' },
+          { role: 'services' },
+          { type: 'separator' },
+          { role: 'hide' },
+          { role: 'hideOthers' },
+          { role: 'unhide' },
+          { type: 'separator' },
+          { role: 'quit' }
+        ]
+      },
+      { role: 'editMenu' as any },
+      { role: 'windowMenu' as any }
+    ]
+    try {
+      const menu = Menu.buildFromTemplate(template)
+      Menu.setApplicationMenu(menu)
+    } catch (e) {
+      console.error('set application menu failed', e)
+    }
+  }
 
   // optional: clean up on quit
   app.on('before-quit', () => {

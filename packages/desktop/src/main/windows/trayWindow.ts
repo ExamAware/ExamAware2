@@ -39,12 +39,34 @@ export async function createOrGetTrayWindow(): Promise<BrowserWindow> {
           if (!Number.isFinite(v) || v < 0) v = 0
           return v
         }
-  const shouldAutoHide = () => !!getConfig('tray.autoHideOnBlur', true)
+        const shouldAutoHide = () => !!getConfig('tray.autoHideOnBlur', true)
+        const focusSnapshot = (label: string) => {
+          try {
+            const focused = BrowserWindow.getFocusedWindow()
+            return {
+              label,
+              focusedId: focused?.id,
+              focusedTitle: focused?.getTitle?.(),
+              trayVisible: _win.isVisible(),
+              trayFocused: _win.isFocused(),
+              trayAlwaysOnTop: _win.isAlwaysOnTop()
+            }
+          } catch (error) {
+            return { label, error: String(error) }
+          }
+        }
+        log('config snapshot', {
+          autoHideOnBlur: shouldAutoHide(),
+          protectionMs: getProtectionMs(),
+          focusable: _win.isFocusable(),
+          alwaysOnTop: _win.isAlwaysOnTop(),
+          bounds: _win.getBounds()
+        })
 
         if (process.platform === 'darwin') {
           try {
             // 让托盘弹窗位于所有普通窗口之上（更像系统菜单）
-            _win.setAlwaysOnTop(true, 'pop-up-menu')
+            _win.setAlwaysOnTop(true)
             _win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
             _win.setFullScreenable(false)
             log('applied macOS top-level styles')
@@ -70,15 +92,15 @@ export async function createOrGetTrayWindow(): Promise<BrowserWindow> {
         }
         _win.on('show', () => {
           lastShowTime = Date.now()
-          log('show event; lastShowTime=', lastShowTime)
+          log('show event; lastShowTime=', lastShowTime, focusSnapshot('show'))
         })
-        _win.on('hide', () => log('hide event'))
-        _win.on('focus', () => log('focus event'))
+        _win.on('hide', () => log('hide event', focusSnapshot('hide')))
+        _win.on('focus', () => log('focus event', focusSnapshot('focus')))
         _win.on('blur', () => {
           const now = Date.now()
           const protection = getProtectionMs()
-            const delta = now - lastShowTime
-          log('blur event; deltaSinceShow=', delta, 'protectionMs=', protection, 'autoHideEnabled=', shouldAutoHide())
+          const delta = now - lastShowTime
+          log('blur event; deltaSinceShow=', delta, 'protectionMs=', protection, 'autoHideEnabled=', shouldAutoHide(), focusSnapshot('blur'))
           if (!shouldAutoHide()) return
           if (delta < protection) {
             log('blur ignored due to protection period')
@@ -94,7 +116,7 @@ export async function createOrGetTrayWindow(): Promise<BrowserWindow> {
             log('auto hide error', e)
           }
         })
-        _win.on('close', () => log('close event'))
+        _win.on('close', () => log('close event', focusSnapshot('close')))
         _win.on('closed', () => log('closed event'))
       }
     }

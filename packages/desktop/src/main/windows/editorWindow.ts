@@ -1,5 +1,6 @@
 import { BrowserWindow } from 'electron'
 import { windowManager } from './windowManager'
+import { buildTitleBarOverlay, applyTitleBarOverlay, attachTitleBarOverlayLifecycle } from './titleBarOverlay'
 
 export function createEditorWindow(filePath?: string): BrowserWindow {
   return windowManager.open(({ commonOptions }) => {
@@ -12,9 +13,7 @@ export function createEditorWindow(filePath?: string): BrowserWindow {
     if (process.platform !== 'linux') {
       winOptions.titleBarStyle = 'hidden'
       ;(winOptions as any).titleBarOverlay = {
-        color: 'rgba(0,0,0,0)',
-        height: 35,
-        symbolColor: '#fff'
+        ...buildTitleBarOverlay()
       }
       // macOS 交通灯位置可选
       if (process.platform === 'darwin') {
@@ -27,6 +26,8 @@ export function createEditorWindow(filePath?: string): BrowserWindow {
       route: 'editor',
       options: winOptions,
       setup(win) {
+        applyTitleBarOverlay(win)
+        attachTitleBarOverlayLifecycle(win)
         win.on('ready-to-show', () => {
           if (filePath) {
             win.webContents.send('open-file-at-startup', filePath)

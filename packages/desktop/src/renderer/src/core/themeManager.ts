@@ -4,6 +4,18 @@ let currentMode: ThemeMode = 'auto'
 let mediaQuery: MediaQueryList | null = null
 let mediaListener: ((e: MediaQueryListEvent) => void) | null = null
 
+function syncTitlebarOverlay(mode: 'light' | 'dark') {
+  try {
+    if (typeof window === 'undefined') return
+    const api = window.electronAPI
+    if (!api || api.platform !== 'win32') return
+    if (typeof api.setTitlebarTheme !== 'function') return
+    api.setTitlebarTheme(mode)
+  } catch (error) {
+    console.debug('[theme] sync titlebar overlay failed', error)
+  }
+}
+
 function setDomTheme(mode: 'light' | 'dark') {
   const doc = document.documentElement
   if (mode === 'dark') {
@@ -13,6 +25,7 @@ function setDomTheme(mode: 'light' | 'dark') {
     doc.classList.remove('dark')
     doc.setAttribute('theme-mode', 'light')
   }
+  syncTitlebarOverlay(mode)
 }
 
 function teardownAutoListener() {
