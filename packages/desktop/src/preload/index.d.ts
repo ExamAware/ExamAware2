@@ -11,6 +11,7 @@ declare global {
       setupListeners: () => void
       platform: string
       onOpenFileAtStartup?: (callback: (filePath: string) => void) => void
+  setTitlebarTheme?: (theme: 'light' | 'dark') => void
     }
     api: {
       fileApi: any
@@ -30,6 +31,9 @@ declare global {
           get: () => Promise<boolean>
           set: (enable: boolean) => Promise<boolean>
         }
+      }
+      app: {
+        getVersion: () => Promise<string>
       }
       ipc: {
         send: (channel: string, ...args: any[]) => void

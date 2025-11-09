@@ -11,6 +11,7 @@ import { getAllConfig, getConfig as cfgGet, setConfig as cfgSet, patchConfig as 
 import { applyTimeConfig } from '../ntpService/timeService'
 import { createSettingsWindow } from '../windows/settingsWindow'
 import { createMainWindow } from '../windows/mainWindow'
+import { applyTitleBarOverlay, OverlayTheme } from '../windows/titleBarOverlay'
 
 // 存储当前加载的配置数据
 let currentConfigData: string | null = null
@@ -158,6 +159,10 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
 
   if (ctx) ctx.ipc.on('logs:clear', () => clearLogs())
   else group.add(on('logs:clear', () => clearLogs()))
+
+  // 应用信息
+  if (ctx) ctx.ipc.handle('app:get-version', () => app.getVersion())
+  else group.add(handle('app:get-version', () => app.getVersion()))
 
   // Handle set config data (called from playerWindow)
   if (ctx)
@@ -366,13 +371,13 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
 
   // 打开设置窗口（单例）
   if (ctx)
-    ctx.ipc.on('open-settings-window', () => {
-      createSettingsWindow()
+    ctx.ipc.on('open-settings-window', (_e, page?: string) => {
+      createSettingsWindow(page)
     })
   else
     group.add(
-      on('open-settings-window', () => {
-        createSettingsWindow()
+      on('open-settings-window', (_e, page?: string) => {
+        createSettingsWindow(page)
       })
     )
 
@@ -463,6 +468,19 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
         return window ? window.isMaximized() : false
       })
     )
+
+  // 更新窗口标题栏主题（Windows overlay 控制按钮）
+  const onTitlebarTheme = (event: Electron.IpcMainEvent, theme: OverlayTheme) => {
+    const window = BrowserWindow.fromWebContents(event.sender)
+    if (!window) return
+    applyTitleBarOverlay(window, theme)
+  }
+
+  if (ctx) {
+    ctx.ipc.on('window-titlebar-theme', onTitlebarTheme)
+  } else {
+    group.add(on('window-titlebar-theme', onTitlebarTheme))
+  }
 
   // 监听窗口状态变化事件
   const setupWindowStateListeners = (window: BrowserWindow) => {

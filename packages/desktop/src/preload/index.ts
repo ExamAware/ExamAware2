@@ -21,6 +21,9 @@ const api = {
       return () => ipcRenderer.off('config:changed', wrapped)
     }
   },
+  app: {
+    getVersion: () => ipcRenderer.invoke('app:get-version') as Promise<string>
+  },
   system: {
     autostart: {
       get: () => ipcRenderer.invoke('autostart:get') as Promise<boolean>,
@@ -47,7 +50,8 @@ const windowAPI = {
   platform: process.platform, // 在 preload 中可以安全访问 process
   onOpenFileAtStartup: (callback: (filePath: string) => void) => {
     ipcRenderer.on('open-file-at-startup', (_event, filePath) => callback(filePath))
-  }
+  },
+  setTitlebarTheme: (theme: 'light' | 'dark') => ipcRenderer.send('window-titlebar-theme', theme)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
