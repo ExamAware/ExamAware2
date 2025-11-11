@@ -1,6 +1,10 @@
 import { app, BrowserWindow } from 'electron'
 import { windowManager } from './windowManager'
-import { buildTitleBarOverlay, applyTitleBarOverlay, attachTitleBarOverlayLifecycle } from './titleBarOverlay'
+import {
+  buildTitleBarOverlay,
+  applyTitleBarOverlay,
+  attachTitleBarOverlayLifecycle
+} from './titleBarOverlay'
 
 export function createMainWindow(): BrowserWindow {
   return windowManager.open(({ commonOptions }) => ({
@@ -55,8 +59,8 @@ export function createMainWindow(): BrowserWindow {
       win.on('blur', () => log('event: blur'))
       win.on('minimize', () => log('event: minimize'))
       win.on('restore', () => log('event: restore'))
-  win.on('move', () => log('event: move', win.getBounds()))
-  win.on('resize', () => log('event: resize', win.getBounds()))
+      win.on('move', () => log('event: move', win.getBounds()))
+      win.on('resize', () => log('event: resize', win.getBounds()))
       // 关闭窗口时仅隐藏，不退出程序（用户从托盘退出）
       win.on('close', (e) => {
         // 当明确退出（例如 托盘“退出”或 Cmd+Q）时放行
