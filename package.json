@@ -3,9 +3,9 @@
   "private": true,
   "description": "ExamAware 知试",
   "scripts": {
-  "dev:prebuild": "pnpm core:build && pnpm player:build",
-  "dev:watch": "pnpm -r --parallel --filter @dsz-examaware/core --filter @dsz-examaware/player dev",
-  "dev": "pnpm --filter @dsz-examaware/desktop dev",
+    "dev:prebuild": "pnpm core:build && pnpm player:build",
+    "dev:watch": "pnpm -r --parallel --filter @dsz-examaware/core --filter @dsz-examaware/player dev",
+    "dev": "pnpm --filter @dsz-examaware/desktop dev",
     "desktop:dev": "pnpm --filter @dsz-examaware/desktop dev",
     "build": "pnpm --filter @dsz-examaware/desktop build",
     "preview": "pnpm --filter @dsz-examaware/desktop preview",
@@ -25,13 +25,21 @@
     "desktop:dist": "pnpm --filter @dsz-examaware/desktop dist",
     "lint": "pnpm -r lint",
     "clean": "pnpm -r clean",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@types/node": "^22.18.10",
+    "@commitlint/cli": "^19.5.0",
+    "@commitlint/config-conventional": "^19.5.0",
     "eslint": "^9.37.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.10",
     "prettier": "^3.6.2",
     "typescript": "~5.7.3"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,vue,json,yaml,yml,md,css,scss,less,html,mcconfig}": "prettier --write"
   },
   "packageManager": "pnpm@10.18.2",
   "author": "hello8693 <hello8693@hello8693.xyz>",
