@@ -20,7 +20,7 @@ asarUnpack:
 win:
   executableName: examaware2-desktop
 nsis:
-  artifactName: ${name}-${version}-setup.${ext}
+  artifactName: examaware2-desktop-${version}-setup.${ext}
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
