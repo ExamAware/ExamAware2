@@ -30,7 +30,7 @@ export default defineConfig({
   renderer: {
     root: 'src/renderer',
     build: {
-      outDir: '../../dist/renderer'
+      outDir: 'dist/renderer'
     },
     resolve: {
       alias: {
