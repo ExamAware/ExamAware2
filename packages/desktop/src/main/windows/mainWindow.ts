@@ -39,17 +39,23 @@ export function createMainWindow(): BrowserWindow {
       applyTitleBarOverlay(win)
       attachTitleBarOverlayLifecycle(win)
       if (process.platform === 'darwin') {
-        const ensureDockVisible = () => {
-          try {
-            const dock = app.dock
-            if (dock && typeof dock.show === 'function') {
+        const ensureDockVisible = (() => {
+          let lastInvoke = 0
+          return () => {
+            try {
+              const dock = app.dock
+              if (!dock || typeof dock.show !== 'function') return
+              const now = Date.now()
+              // 避免频繁调用导致窗口聚焦/失焦循环
+              if (now - lastInvoke < 1500) return
+              lastInvoke = now
               dock.show()
-            }
-          } catch {}
-        }
+            } catch {}
+          }
+        })()
         ensureDockVisible()
         win.on('show', ensureDockVisible)
-        win.on('focus', ensureDockVisible)
+        win.on('restore', ensureDockVisible)
       }
       win.setAspectRatio(720 / 480)
       win.setMinimumSize(720, 480)

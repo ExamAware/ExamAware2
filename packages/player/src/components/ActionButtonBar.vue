@@ -46,42 +46,66 @@
         <div class="button-text">呼叫巡考</div>
       </button> -->
     </div>
-    <!-- UI缩放选项 -->
-    <div class="ui-scale-bar">
-      <label for="ui-scale" class="ui-scale-label">UI缩放：</label>
-      <input
-        id="ui-scale"
-        type="range"
-        min="0.5"
-        max="2"
-        step="0.01"
-        v-model.number="uiScale"
-        @input="onScaleChange"
-      />
-      <span class="ui-scale-value">{{ uiScale.toFixed(2) }}x</span>
-    </div>
   </div>
 
   <!-- 播放设置弹窗（空内容） -->
   <t-dialog
-    v-model:visible="showSettings"
+    :visible="showSettings"
     header="播放设置"
-    :footer="false"
-    :closeOnOverlayClick="true"
-    :closeOnEscKeydown="true"
+    :confirm-btn="{ content: '完成', theme: 'primary' }"
+    :cancel-btn="null"
+    :close-on-overlay-click="true"
+    :close-on-esc-keydown="true"
+    @update:visible="handleSettingsVisibleChange"
+    @confirm="handleSettingsConfirm"
+    @close="handleSettingsClosed"
   >
-    <!-- 预留：后续填充具体设置项 -->
+    <div class="settings-body">
+      <t-space direction="vertical" :size="16" style="width: 100%">
+        <div class="settings-group">
+          <div class="settings-label">界面缩放</div>
+          <div class="settings-control">
+            <t-slider
+              v-model:value="tempScale"
+              :min="0.5"
+              :max="2"
+              :step="0.01"
+              :input-number-props="{ theme: 'column', suffix: 'x', format: formatScale }"
+            />
+            <div class="settings-hint">拖动或输入数值调整播放器界面大小</div>
+          </div>
+        </div>
+      </t-space>
+    </div>
   </t-dialog>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue';
-const emit = defineEmits<{ (e: 'exit'): void }>();
+const props = withDefaults(defineProps<{ initialScale?: number }>(), { initialScale: undefined });
+const emit = defineEmits<{ (e: 'exit'): void; (e: 'scaleChange', scale: number): void }>();
 import { LogoutIcon, SettingIcon } from 'tdesign-icons-vue-next';
+import {
+  Dialog as TDialog,
+  Slider as TSlider,
+  InputNumber as TInputNumber,
+  Space as TSpace
+} from 'tdesign-vue-next';
 
-const uiScale = ref(getInitialScale());
-let animationId: number | null = null;
-let currentScale = 1;
+const clampScale = (value: unknown) => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return 1;
+  return Math.min(2, Math.max(0.5, num));
+};
+
+const providedInitial =
+  props.initialScale !== undefined && props.initialScale !== null
+    ? clampScale(props.initialScale)
+    : undefined;
+
+const uiScale = ref(providedInitial ?? getInitialScale());
+const tempScale = ref(uiScale.value);
+let currentScale = uiScale.value;
 
 // 播放设置弹窗开关
 const showSettings = ref(false);
@@ -102,11 +126,6 @@ function getInitialScale() {
   if (w >= 1024) return 0.85;
   return 0.7;
 }
-
-// 缓动函数 - 使用 ease-out-cubic
-const easeOutCubic = (t: number): number => {
-  return 1 - Math.pow(1 - t, 3);
-};
 
 const setRootScale = (scale: number) => {
   // 停止自动缩放动画，允许手动缩放覆盖
@@ -129,59 +148,50 @@ const setRootScale = (scale: number) => {
   );
 };
 
-// 平滑动画到目标缩放值
-const animateToScale = (target: number) => {
-  if (animationId) {
-    cancelAnimationFrame(animationId);
-  }
-
-  const startScale = currentScale;
-  const startTime = performance.now();
-  const duration = 400; // 动画持续时间400ms
-
-  const animate = (currentTime: number) => {
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-
-    // 应用缓动函数
-    const easedProgress = easeOutCubic(progress);
-
-    // 计算当前缩放值
-    currentScale = startScale + (target - startScale) * easedProgress;
-    setRootScale(currentScale);
-
-    if (progress < 1) {
-      animationId = requestAnimationFrame(animate);
-    } else {
-      currentScale = target;
-      animationId = null;
-    }
-  };
-
-  animationId = requestAnimationFrame(animate);
-};
-
-const onScaleChange = () => {
-  console.log('UI Scale input changed:', uiScale.value);
-  // 实际的缩放由watch处理
-};
-
 onMounted(() => {
   currentScale = uiScale.value;
   setRootScale(uiScale.value);
 });
 
-// 监听uiScale变化
-watch(uiScale, (newValue) => {
-  console.log('uiScale watch triggered:', newValue);
-  // 直接设置缩放值，不使用动画以避免拖动时的延迟
-  if (animationId) {
-    cancelAnimationFrame(animationId);
-    animationId = null;
+watch(
+  () => props.initialScale,
+  (value) => {
+    if (value === undefined || value === null) return;
+    const safe = clampScale(value);
+    currentScale = safe;
+    uiScale.value = safe;
+    tempScale.value = safe;
   }
-  currentScale = newValue;
-  setRootScale(newValue);
-  console.log('CSS variable --ui-scale set to:', newValue);
+);
+
+watch(uiScale, (newValue, oldValue) => {
+  const safe = clampScale(newValue);
+  if (safe !== newValue) {
+    uiScale.value = safe;
+    return;
+  }
+  if (safe === oldValue) {
+    // 仍然确保最新缩放应用
+    currentScale = safe;
+    setRootScale(safe);
+    return;
+  }
+  console.log('uiScale watch triggered:', safe);
+  currentScale = safe;
+  setRootScale(safe);
+  emit('scaleChange', safe);
+  console.log('CSS variable --ui-scale set to:', safe);
+});
+
+watch(tempScale, (value) => {
+  const safe = clampScale(value);
+  if (safe !== value) {
+    tempScale.value = safe;
+    return;
+  }
+  if (uiScale.value !== safe) {
+    uiScale.value = safe;
+  }
 });
 
 onUnmounted(() => {
@@ -190,10 +200,6 @@ onUnmounted(() => {
   if (lightenAnimationId) {
     cancelAnimationFrame(lightenAnimationId);
     lightenAnimationId = null;
-  }
-  if (animationId) {
-    cancelAnimationFrame(animationId);
-    animationId = null;
   }
 });
 
@@ -290,7 +296,35 @@ const handleExitPlayback = () => {
 
 const handlePlaybackSettings = () => {
   console.log('打开播放设置弹窗');
+  tempScale.value = uiScale.value;
   showSettings.value = true;
+};
+
+const handleSettingsConfirm = () => {
+  const safe = clampScale(tempScale.value);
+  tempScale.value = safe;
+  uiScale.value = safe;
+  showSettings.value = false;
+};
+
+const handleSettingsVisibleChange = (visible: boolean) => {
+  showSettings.value = visible;
+  if (!visible) {
+    tempScale.value = uiScale.value;
+  }
+};
+
+const handleSettingsClosed = () => {
+  // 关闭时重置临时缩放值，避免下次打开残留中间值
+  tempScale.value = uiScale.value;
+};
+
+const formatScale = (value: number | string) => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) {
+    return `${clampScale(uiScale.value).toFixed(2)}x`;
+  }
+  return `${clampScale(num).toFixed(2)}x`;
 };
 </script>
 
@@ -432,78 +466,29 @@ const handlePlaybackSettings = () => {
   height: calc(var(--ui-scale, 1) * 30px);
 }
 
-.ui-scale-bar {
-  position: fixed; /* 绝对定位 */
-  bottom: 2rem; /* 距离底部20px */
-  right: 2rem; /* 距离右边20px */
-  z-index: 60; /* 确保在遮罩之上 */
-  margin-top: 0; /* 重置margin */
+.settings-body {
+  padding: 12px 0;
+}
+
+.settings-group {
   display: flex;
-  align-items: center;
-  gap: 0.5rem; /* 固定大小，不受缩放影响 */
-  background: rgba(4, 14, 21, 0.9); /* 添加半透明背景 */
-  padding: 0.5rem 1rem; /* 添加内边距 */
-  border-radius: 8px; /* 添加圆角 */
-  border: 1px solid rgba(255, 255, 255, 0.1); /* 添加边框 */
+  flex-direction: column;
+  gap: 8px;
 }
 
-/* Range input 样式 */
-.ui-scale-bar input[type='range'] {
-  width: 120px;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
-  outline: none;
-  cursor: pointer;
-  -webkit-appearance: none;
-  appearance: none;
-  position: relative;
-  z-index: 70; /* 确保滑块在最上层 */
-  pointer-events: auto; /* 确保可以接收事件 */
+.settings-label {
+  font-size: 14px;
+  color: var(--td-text-color-primary, rgba(255, 255, 255, 0.9));
 }
 
-.ui-scale-bar input[type='range']::-webkit-slider-thumb {
-  width: 16px;
-  height: 16px;
-  background: #ffffff;
-  border-radius: 50%;
-  cursor: pointer;
-  -webkit-appearance: none;
-  appearance: none;
-  border: 2px solid #0052d9;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+.settings-control {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.ui-scale-bar input[type='range']::-webkit-slider-thumb:hover {
-  background: #f0f0f0;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-}
-
-.ui-scale-bar input[type='range']::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  background: #ffffff;
-  border-radius: 50%;
-  cursor: pointer;
-  border: 2px solid #0052d9;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.ui-scale-bar input[type='range']::-moz-range-track {
-  width: 100%;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
-}
-
-.ui-scale-label {
-  color: #fff;
-  font-size: 0.875rem; /* 固定大小，不受缩放影响 */
-}
-.ui-scale-value {
-  color: #fff;
-  font-size: 0.875rem; /* 固定大小，不受缩放影响 */
-  min-width: 2.5em;
-  text-align: right;
+.settings-hint {
+  font-size: 12px;
+  color: var(--td-text-color-placeholder, rgba(255, 255, 255, 0.45));
 }
 </style>

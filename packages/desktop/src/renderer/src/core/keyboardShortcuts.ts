@@ -65,21 +65,19 @@ export class KeyboardShortcutManager {
       return
     }
 
-    const isMac = window.electronAPI?.platform === 'darwin'
-
     for (const shortcut of this.shortcuts) {
       const keyMatch = shortcut.key.toLowerCase() === event.key.toLowerCase()
-      const ctrlMatch = shortcut.ctrlKey === event.ctrlKey
-      const metaMatch = shortcut.metaKey === event.metaKey
-      const shiftMatch = shortcut.shiftKey === event.shiftKey
-      const altMatch = shortcut.altKey === event.altKey
+      const matchModifier = (expected: boolean | undefined, actual: boolean) => {
+        const expectedFlag = expected ?? false
+        return expectedFlag === actual
+      }
 
-      // 在 Mac 上，Cmd 键作为主要修饰键
-      const primaryModifierMatch = isMac
-        ? shortcut.metaKey === event.metaKey || shortcut.ctrlKey === event.metaKey
-        : shortcut.ctrlKey === event.ctrlKey
+      const ctrlMatch = matchModifier(shortcut.ctrlKey, event.ctrlKey)
+      const metaMatch = matchModifier(shortcut.metaKey, event.metaKey)
+      const shiftMatch = matchModifier(shortcut.shiftKey, event.shiftKey)
+      const altMatch = matchModifier(shortcut.altKey, event.altKey)
 
-      if (keyMatch && primaryModifierMatch && shiftMatch && altMatch) {
+      if (keyMatch && ctrlMatch && metaMatch && shiftMatch && altMatch) {
         event.preventDefault()
         shortcut.action()
         break

@@ -68,9 +68,24 @@ export class WindowManager {
 
     const existing = this.windows.get(id)
     if (existing && !existing.win.isDestroyed() && !forceRecreate) {
-      existing.win.show()
-      existing.win.focus()
-      return existing.win
+      const { win } = existing
+      try {
+        let didRevive = false
+        if (win.isMinimized()) {
+          win.restore()
+          didRevive = true
+        }
+        if (!win.isVisible()) {
+          win.show()
+          didRevive = true
+        }
+        if (didRevive && !win.isFocused()) {
+          win.focus()
+        }
+      } catch (error) {
+        console.error('[windowManager] failed to revive existing window', error)
+      }
+      return win
     }
 
     if (existing && !existing.win.isDestroyed()) {

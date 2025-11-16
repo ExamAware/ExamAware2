@@ -42,7 +42,8 @@ export function useLayoutManager() {
     onSaveAs?: () => void
     onImport?: () => void
     onExport?: () => void
-    onClose?: () => void
+    onCloseWindow?: () => void
+    onCloseProject?: () => void
     onRestoreSession?: () => void
     onUndo?: () => void
     onRedo?: () => void
@@ -84,7 +85,8 @@ export function useLayoutManager() {
       onSaveAs?: () => void
       onImport?: () => void
       onExport?: () => void
-      onClose?: () => void
+      onCloseWindow?: () => void
+      onCloseProject?: () => void
       onRestoreSession?: () => void
       onUndo?: () => void
       onRedo?: () => void

@@ -11,7 +11,7 @@ declare global {
       setupListeners: () => void
       platform: string
       onOpenFileAtStartup?: (callback: (filePath: string) => void) => void
-  setTitlebarTheme?: (theme: 'light' | 'dark') => void
+      setTitlebarTheme?: (theme: 'light' | 'dark') => void
     }
     api: {
       fileApi: any
@@ -25,6 +25,9 @@ declare global {
         set: (key: string, value: any) => Promise<boolean>
         patch: (partial: any) => Promise<boolean>
         onChanged: (listener: (config: any) => void) => () => void
+      }
+      player: {
+        openFromEditor: (data: string) => Promise<string | void>
       }
       system: {
         autostart: {

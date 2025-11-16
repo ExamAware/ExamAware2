@@ -4,7 +4,6 @@ import type { MenuOptions } from '@imengyu/vue3-context-menu'
 import { reactive, onMounted, ref, computed, watch } from 'vue'
 import AboutDialog from '@renderer/components/AboutDialog.vue'
 import ExamForm from '@renderer/components/ExamForm.vue'
-import WindowControls from '@renderer/components/WindowControls.vue'
 import { useExamEditor } from '@renderer/composables/useExamEditor'
 import { useLayoutManager } from '@renderer/composables/useLayoutManager'
 import { useExamValidation } from '@renderer/composables/useExamValidation'
@@ -14,6 +13,7 @@ import type { ExamInfo } from '@renderer/core/configTypes'
 // 平台检测 - 通过 electronAPI 获取
 const windowAPI = (window as any).electronAPI
 const isMacOS = windowAPI?.platform === 'darwin'
+const isWindows = windowAPI?.platform === 'win32'
 console.log('platform: ' + windowAPI?.platform)
 
 // 配置 CodeLayout 的默认设置
@@ -49,10 +49,9 @@ const {
   newProject,
   saveProject,
   saveProjectAs,
-  exportProject,
-  importProject,
   openProject,
   closeProject,
+  closeEditorWindow,
   restoreLastSession,
   undoAction,
   redoAction,
@@ -63,7 +62,8 @@ const {
   replaceAction,
   openAboutDialog,
   closeAboutDialog,
-  openGithub
+  openGithub,
+  startPresentation
 } = useExamEditor()
 
 // 使用布局管理器
@@ -270,13 +270,12 @@ const prevExam = () => {
 // 初始化布局与菜单
 onMounted(async () => {
   const menuResult = await setupLayout(addExam, {
-    onNew: newProject,
-    onOpen: openProject,
-    onSave: saveProject,
-    onSaveAs: saveProjectAs,
-    onImport: importProject,
-    onExport: exportProject,
-    onClose: closeProject,
+    onNew: () => newProject(),
+    onOpen: () => void openProject(),
+    onSave: () => void saveProject(),
+    onSaveAs: () => void saveProjectAs(),
+    onCloseWindow: () => void closeEditorWindow(),
+    onCloseProject: () => closeProject(),
     onRestoreSession: restoreLastSession,
     onUndo: undoAction,
     onRedo: redoAction,
@@ -288,7 +287,7 @@ onMounted(async () => {
     onAbout: openAboutDialog,
     onGithub: openGithub,
     onPresentation: () => {
-      console.log('开始全屏放映')
+      void startPresentation()
     },
     onAddExam: addExam,
     onDeleteExam: deleteCurrentExam,
@@ -377,30 +376,8 @@ onMounted(async () => {
       </div>
     </template>
     <template #titleBarRight>
-      <WindowControls />
+      <div class="title-bar-system-spacer" :class="{ windows: isWindows }" aria-hidden="true" />
     </template>
-    <!-- <template #titleBarRight>
-      <div class="window-controls">
-        <t-button
-          variant="text"
-          size="small"
-          class="window-control-btn minimize-btn"
-          @click="minimizeWindow"
-          title="最小化"
-        >
-          <t-icon name="minus" />
-        </t-button>
-        <t-button
-          variant="text"
-          size="small"
-          class="window-control-btn close-btn"
-          @click="closeWindow"
-          title="关闭"
-        >
-          <t-icon name="close" />
-        </t-button>
-      </div>
-    </template> -->
     <template #centerArea>
       <div class="editor-center-wrap">
         <div v-if="!hasExams || openTabUids.size === 0" class="empty-state">
@@ -553,47 +530,14 @@ onMounted(async () => {
   flex: 1;
 }
 
-/* 窗口控制按钮样式 */
-.window-controls {
-  display: flex;
-  align-items: center;
-  gap: 0;
+.title-bar-system-spacer {
+  width: 0;
   height: 100%;
+  -webkit-app-region: drag;
+  pointer-events: none;
 }
 
-.window-control-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 46px;
-  height: 32px;
-  border-radius: 0;
-  transition: background-color 0.2s ease;
-  margin: 0;
-  padding: 0;
-}
-
-.window-control-btn:hover {
-  background-color: var(--td-bg-color-container-hover);
-}
-
-.minimize-btn:hover {
-  background-color: var(--td-bg-color-container-hover);
-}
-
-.close-btn:hover {
-  background-color: #e81123;
-  color: var(--td-text-color-anti);
-}
-
-.close-btn:hover .t-icon {
-  color: var(--td-text-color-anti);
-}
-
-/* macOS 样式 */
-@media (prefers-color-scheme: dark) {
-  .close-btn:hover {
-    background-color: #e81123;
-  }
+.title-bar-system-spacer.windows {
+  width: 150px;
 }
 </style>

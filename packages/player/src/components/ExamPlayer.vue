@@ -36,7 +36,12 @@
     </div>
 
     <!-- 底部按钮栏 -->
-    <ActionButtonBar v-if="showActionBar" @exit="emit('exit')" />
+    <ActionButtonBar
+      v-if="showActionBar"
+      :initial-scale="props.uiScale"
+      @exit="emit('exit')"
+      @scale-change="emit('scaleChange', $event)"
+    />
 
     <!-- 彩色提醒：用于考试开始/即将结束/考试结束，淡入动画 -->
     <transition name="fade-soft">
@@ -134,6 +139,8 @@ interface Props {
   examConfig: ExamConfig | null;
   /** 播放器配置 */
   config?: PlayerConfig;
+  /** 初始界面缩放倍数 */
+  uiScale?: number;
   /** 时间提供者 */
   timeProvider?: TimeProvider;
   /** 时间同步状态描述 */
@@ -162,6 +169,7 @@ interface Emits {
   (e: 'roomNumberChange', roomNumber: string): void;
   (e: 'update:roomNumber', roomNumber: string): void;
   (e: 'exit'): void;
+  (e: 'scaleChange', scale: number): void;
   (e: 'examStart', exam: any): void;
   (e: 'examEnd', exam: any): void;
   (e: 'examAlert', exam: any, alertTime: number): void;
@@ -171,6 +179,7 @@ interface Emits {
 
 const props = withDefaults(defineProps<Props>(), {
   config: () => ({ roomNumber: '01' }),
+  uiScale: undefined,
   timeProvider: () => ({ getCurrentTime: () => Date.now() }),
   timeSyncStatus: '电脑时间',
   roomNumber: '01',
