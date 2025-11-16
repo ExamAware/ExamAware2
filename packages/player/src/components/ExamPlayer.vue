@@ -149,6 +149,8 @@ interface Props {
   roomNumber?: string;
   /** 是否显示操作栏 */
   showActionBar?: boolean;
+  /** 是否启用大时钟样式 */
+  largeClock?: boolean;
   /** 是否允许编辑考场号 */
   allowEditRoomNumber?: boolean;
   /** 事件处理器 */
@@ -184,6 +186,7 @@ const props = withDefaults(defineProps<Props>(), {
   timeSyncStatus: '电脑时间',
   roomNumber: '01',
   showActionBar: true,
+  largeClock: false,
   allowEditRoomNumber: true,
   eventHandlers: () => ({}),
   cards: () => ({})
@@ -675,6 +678,7 @@ const ctxForCards = {
   ),
   displayFormattedExamInfos,
   effectiveRoomNumber,
+  largeClockEnabled: computed(() => !!props.largeClock),
   handleRoomNumberClick
 };
 provide('ExamPlayerCtx', ctxForCards);
