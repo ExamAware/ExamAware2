@@ -3,6 +3,17 @@ name: Build and Release
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      upload_to_release:
+        description: 'Upload artifacts to release'
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -73,7 +84,7 @@ jobs:
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') || (github.event_name == 'workflow_dispatch' && github.event.inputs.upload_to_release == 'true')
         with:
           files: packages/desktop/out/*
         env:
