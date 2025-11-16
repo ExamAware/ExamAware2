@@ -22,10 +22,15 @@ const router = createRouter({
         { path: 'ntpsettings', name: 'ntpsettings', component: ntpSettingsPage }
       ]
     },
-    { path: '/editor', name: 'editor', component: EditorView },
+    { path: '/editor', name: 'editor', component: EditorView, meta: { hideTitlebar: true } },
     { path: '/settings/:page?', name: 'settings', component: SettingsShell },
     // 播放器独立窗口路由（由主进程以 #/playerview 打开）
-  { path: '/playerview', name: 'playerview', component: PlayerView, meta: { hideTitlebar: true } },
+    {
+      path: '/playerview',
+      name: 'playerview',
+      component: PlayerView,
+      meta: { hideTitlebar: true }
+    },
     // 独立日志窗口可直接使用 #/logs 打开
     { path: '/logs', name: 'logs', component: LogsView },
     // 托盘弹出菜单（自绘），隐藏标题栏

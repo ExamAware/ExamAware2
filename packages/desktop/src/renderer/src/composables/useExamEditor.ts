@@ -25,6 +25,140 @@ export function useExamEditor() {
   // 键盘快捷键管理器
   const keyboardManager = new KeyboardShortcutManager()
 
+  const platform = window.electronAPI?.platform || 'unknown'
+  const isMac = platform === 'darwin'
+
+  const getEditableElement = () => {
+    const active = document.activeElement as HTMLElement | null
+    if (!active) return null
+    if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement) return active
+    if (active.isContentEditable) return active
+    return null
+  }
+
+  const ensureEditableContext = () => {
+    const editable = getEditableElement()
+    if (!editable) {
+      MessageService.info('请先选中可编辑区域后再使用该操作')
+      return null
+    }
+    return editable
+  }
+
+  const performClipboardCommand = async (command: 'cut' | 'copy' | 'paste') => {
+    const editable = ensureEditableContext()
+    if (!editable) return
+
+    let executed = false
+    try {
+      executed = document.execCommand(command)
+    } catch (error) {
+      console.warn(`document.execCommand(${command}) 失败`, error)
+    }
+
+    if (!executed && command === 'paste' && navigator.clipboard?.readText) {
+      try {
+        const text = await navigator.clipboard.readText()
+        if (text !== undefined) {
+          if (editable instanceof HTMLInputElement || editable instanceof HTMLTextAreaElement) {
+            const start = editable.selectionStart ?? editable.value.length
+            const end = editable.selectionEnd ?? start
+            const value = editable.value
+            editable.value = value.slice(0, start) + text + value.slice(end)
+            const newPos = start + text.length
+            editable.selectionStart = editable.selectionEnd = newPos
+            editable.dispatchEvent(new Event('input', { bubbles: true }))
+            executed = true
+          } else if (editable.isContentEditable) {
+            document.execCommand('insertText', false, text)
+            executed = true
+          }
+        }
+      } catch (error) {
+        console.warn('读取剪贴板失败', error)
+      }
+    }
+
+    if (!executed && command !== 'copy') {
+      MessageService.warning(`未能完成${command === 'cut' ? '剪切' : '粘贴'}操作`)
+    }
+  }
+
+  const findInEditable = () => {
+    const editable = ensureEditableContext()
+    if (!editable) return
+
+    const query = window.prompt('查找内容：')
+    if (!query) return
+
+    if (editable instanceof HTMLInputElement || editable instanceof HTMLTextAreaElement) {
+      const value = editable.value
+      const searchStart = editable.selectionEnd ?? 0
+      const index = value.indexOf(query, searchStart)
+      if (index >= 0) {
+        editable.focus()
+        editable.selectionStart = index
+        editable.selectionEnd = index + query.length
+        editable.scrollLeft = 0
+      } else {
+        MessageService.info('未找到匹配内容')
+      }
+    } else if (editable.isContentEditable) {
+      const browserFind = (window as any).find as ((text: string) => boolean) | undefined
+      const found = browserFind ? browserFind(query) : false
+      if (!found) {
+        MessageService.info('未找到匹配内容')
+      }
+    }
+  }
+
+  const replaceInEditable = () => {
+    const editable = ensureEditableContext()
+    if (!editable) return
+
+    const searchValue = window.prompt('替换内容：')
+    if (!searchValue) return
+    const replaceValue = window.prompt('替换为：', '') ?? ''
+
+    if (editable instanceof HTMLInputElement || editable instanceof HTMLTextAreaElement) {
+      const value = editable.value
+      const searchStart = editable.selectionStart ?? 0
+      const index = value.indexOf(searchValue, searchStart)
+      if (index >= 0) {
+        editable.focus()
+        editable.selectionStart = index
+        editable.selectionEnd = index + searchValue.length
+        editable.value =
+          value.slice(0, index) + replaceValue + value.slice(index + searchValue.length)
+        const newPos = index + replaceValue.length
+        editable.selectionStart = editable.selectionEnd = newPos
+        editable.dispatchEvent(new Event('input', { bubbles: true }))
+      } else {
+        MessageService.info('未找到可替换内容')
+      }
+    } else if (editable.isContentEditable) {
+      const selection = window.getSelection()
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0)
+        if (range.toString() === searchValue) {
+          range.deleteContents()
+          range.insertNode(document.createTextNode(replaceValue))
+          selection.removeAllRanges()
+        } else {
+          const browserFind = (window as any).find as ((text: string) => boolean) | undefined
+          if (!browserFind || !browserFind(searchValue)) {
+            MessageService.info('未找到可替换内容')
+          }
+        }
+      } else {
+        const browserFind = (window as any).find as ((text: string) => boolean) | undefined
+        if (!browserFind || !browserFind(searchValue)) {
+          MessageService.info('未找到可替换内容')
+        }
+      }
+    }
+  }
+
   // 响应式配置
   const examConfig = reactive<ExamConfig>(configManager.getConfig())
 
@@ -280,6 +414,21 @@ export function useExamEditor() {
     console.log('项目已关闭')
     historyStore.init(examConfig, '关闭项目')
   }
+
+  const closeEditorWindow = async () => {
+    historyStore.flushAllDebounced()
+    if (isFileModified.value && !isNewFile.value) {
+      const shouldSave = confirm('当前文件已修改，是否在关闭窗口前保存？')
+      if (shouldSave) {
+        const success = await saveProject()
+        if (!success) {
+          MessageService.warning('窗口关闭已取消')
+          return
+        }
+      }
+    }
+    window.electronAPI?.close?.()
+  }
   const undoAction = () => {
     // 撤销到上一历史
     historyStore.undo()
@@ -291,28 +440,23 @@ export function useExamEditor() {
   }
 
   const cutAction = () => {
-    console.log('剪切操作')
-    // TODO: 实现剪切功能
+    void performClipboardCommand('cut')
   }
 
   const copyAction = () => {
-    console.log('复制操作')
-    // TODO: 实现复制功能
+    void performClipboardCommand('copy')
   }
 
   const pasteAction = () => {
-    console.log('粘贴操作')
-    // TODO: 实现粘贴功能
+    void performClipboardCommand('paste')
   }
 
   const findAction = () => {
-    console.log('查找操作')
-    // TODO: 实现查找功能
+    findInEditable()
   }
 
   const replaceAction = () => {
-    console.log('替换操作')
-    // TODO: 实现替换功能
+    replaceInEditable()
   }
 
   const openAboutDialog = () => {
@@ -325,6 +469,40 @@ export function useExamEditor() {
 
   const openGithub = () => {
     window.open('https://github.com/ExamAware/')
+  }
+
+  const startPresentation = async () => {
+    historyStore.flushAllDebounced()
+
+    if (!hasExams.value || examConfig.examInfos.length === 0) {
+      MessageService.warning('当前项目没有考试，无法开始放映')
+      return
+    }
+
+    try {
+      const content = configManager.exportToJson()
+
+      if (currentFilePath.value && !isFileModified.value) {
+        window.api?.ipc?.send?.('open-player-window', currentFilePath.value)
+        MessageService.success('放映窗口已启动')
+        return
+      }
+
+      const openFromEditor =
+        window.api?.player?.openFromEditor ??
+        ((data: string) => window.api?.ipc?.invoke?.('player:open-from-editor', data))
+
+      if (!openFromEditor) {
+        MessageService.error('当前环境不支持直接放映，请导出后在放映器中打开')
+        return
+      }
+
+      await openFromEditor(content)
+      MessageService.success('放映窗口已启动')
+    } catch (error) {
+      MessageService.error('放映启动失败')
+      console.error('放映启动失败:', error)
+    }
   }
 
   // 恢复上次会话
@@ -361,17 +539,54 @@ export function useExamEditor() {
     // configManager.loadFromLocalStorage()
 
     // 初始化键盘快捷键
-    const shortcuts: KeyboardShortcut[] = [
-      { key: 'n', ctrlKey: true, action: newProject, description: '新建项目' },
-      { key: 'o', ctrlKey: true, action: openProject, description: '打开项目' },
-      { key: 's', ctrlKey: true, action: saveProject, description: '保存项目' },
-      { key: 's', ctrlKey: true, shiftKey: true, action: saveProjectAs, description: '另存为' },
-      { key: 'w', ctrlKey: true, action: closeProject, description: '关闭项目' },
-      { key: 'z', ctrlKey: true, action: undoAction, description: '撤销' },
-      { key: 'y', ctrlKey: true, action: redoAction, description: '重做' },
-      { key: 'f', ctrlKey: true, action: findAction, description: '查找' },
-      { key: 'h', ctrlKey: true, action: replaceAction, description: '替换' }
-    ]
+    keyboardManager.clear()
+    const shortcuts: KeyboardShortcut[] = []
+
+    const wrapAction = (fn: () => void | Promise<void>) => () => {
+      try {
+        const result = fn()
+        if (result && typeof (result as Promise<void>).then === 'function') {
+          void (result as Promise<void>)
+        }
+      } catch (error) {
+        console.error('快捷键执行失败', error)
+      }
+    }
+
+    const addPrimaryShortcut = (
+      key: string,
+      action: () => void | Promise<void>,
+      description: string,
+      options: { shift?: boolean; alt?: boolean; macKey?: string } = {}
+    ) => {
+      const record: KeyboardShortcut = {
+        key: (isMac && options.macKey) || key,
+        action: wrapAction(action),
+        description,
+        shiftKey: options.shift ?? false,
+        altKey: options.alt ?? false,
+        ctrlKey: isMac ? false : true,
+        metaKey: isMac ? true : false
+      }
+      shortcuts.push(record)
+    }
+
+    addPrimaryShortcut('n', newProject, '新建项目')
+    addPrimaryShortcut('o', openProject, '打开项目')
+    addPrimaryShortcut('s', () => saveProject().then(() => undefined), '保存项目')
+    addPrimaryShortcut('s', () => saveProjectAs().then(() => undefined), '另存为', { shift: true })
+    addPrimaryShortcut('w', closeEditorWindow, '关闭窗口')
+    addPrimaryShortcut('z', undoAction, '撤销')
+
+    if (isMac) {
+      addPrimaryShortcut('z', redoAction, '重做', { shift: true })
+    } else {
+      addPrimaryShortcut('y', redoAction, '重做')
+      addPrimaryShortcut('z', redoAction, '重做', { shift: true })
+    }
+
+    addPrimaryShortcut('f', findAction, '查找')
+    addPrimaryShortcut('h', replaceAction, '替换')
 
     keyboardManager.registerAll(shortcuts)
     keyboardManager.startListening()
@@ -465,6 +680,7 @@ export function useExamEditor() {
     importProject,
     openProject,
     closeProject,
+    closeEditorWindow,
     restoreLastSession,
     undoAction,
     redoAction,
@@ -476,6 +692,7 @@ export function useExamEditor() {
     openAboutDialog,
     closeAboutDialog,
     openGithub,
+    startPresentation,
 
     // 管理器实例（用于高级操作）
     configManager

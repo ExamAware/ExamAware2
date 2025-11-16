@@ -9,10 +9,12 @@
       v-model:roomNumber="roomNumber"
       :allow-edit-room-number="true"
       :show-action-bar="true"
+      :ui-scale="scaleSeed"
       @exit="handleExit"
       @edit-click="handleEditClick"
       @room-number-click="handleRoomNumberClick"
       @room-number-change="handleRoomNumberChange"
+      @scale-change="handleScaleChange"
       @exam-start="handleExamStart"
       @exam-end="handleExamEnd"
       @exam-alert="handleExamAlert"
@@ -26,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { NotifyPlugin, DialogPlugin } from 'tdesign-vue-next'
 import { ExamPlayer, type PlayerConfig } from '@dsz-examaware/player'
 // 导入 player 包的样式
@@ -34,12 +36,35 @@ import '@dsz-examaware/player/dist/player.css'
 import { useConfigLoader } from '@renderer/composables/useConfigLoader'
 import { ElectronTimeProvider } from '@renderer/adapters/ElectronTimeProvider'
 import { RecentFileManager } from '@renderer/core/recentFileManager'
+import { applyThemeMode, getThemeMode, type ThemeMode } from '@renderer/core/themeManager'
+import { useSettingsStore } from '@renderer/core/settingsStore'
 // 键盘相关逻辑已经内置在 ExamPlayer 中
 
 const ipcRenderer = window.api.ipc
 
+const settingsStore = useSettingsStore()
+
+const clampScale = (value: number | string) => {
+  const num = Number(value)
+  if (!Number.isFinite(num)) {
+    return 1
+  }
+  return Math.min(2, Math.max(0.5, num))
+}
+
+const defaultRoomSetting = computed(() => {
+  const raw = settingsStore.get<string>('player.defaultRoom', '01')
+  if (!raw) return '01'
+  const trimmed = raw.trim()
+  return trimmed.length ? trimmed : '01'
+})
+
+const defaultScaleSetting = computed(() =>
+  clampScale(settingsStore.get<number>('player.defaultScale', 1))
+)
+
 // 考场号相关状态
-const roomNumber = ref('01') // 默认考场号
+const roomNumber = ref(defaultRoomSetting.value)
 
 // 使用配置加载器
 const {
@@ -57,6 +82,23 @@ const timeProvider = new ElectronTimeProvider(ipcRenderer)
 // 播放器逻辑已由 ExamPlayer 组件内部处理
 
 // 播放器配置
+const manualRoomOverride = ref(false)
+const manualScaleOverride = ref(false)
+
+const scaleSeed = ref(defaultScaleSetting.value)
+
+watch(defaultRoomSetting, (value) => {
+  if (!manualRoomOverride.value) {
+    roomNumber.value = value
+  }
+})
+
+watch(defaultScaleSetting, (value) => {
+  if (!manualScaleOverride.value) {
+    scaleSeed.value = value
+  }
+})
+
 const playerConfig = computed<PlayerConfig>(() => ({
   roomNumber: roomNumber.value,
   fullscreen: true,
@@ -68,6 +110,9 @@ const playerConfig = computed<PlayerConfig>(() => ({
 const timeSyncStatusText = computed(() => {
   return timeProvider.getTimeSyncStatusText()
 })
+
+const previousThemeMode = ref<ThemeMode>(getThemeMode())
+let didForceTheme = false
 
 // === 事件处理器 ===
 
@@ -93,12 +138,19 @@ const handleRoomNumberClick = () => {
 // 接收 ExamPlayer 的房间号变更
 const handleRoomNumberChange = (val: string) => {
   roomNumber.value = val
+  manualRoomOverride.value = true
   NotifyPlugin.success({
     title: '设置成功',
     content: `考场号已设置为：${roomNumber.value}`,
     placement: 'bottom-right',
     closeBtn: true
   })
+}
+
+const handleScaleChange = (scale: number) => {
+  const safe = clampScale(scale)
+  manualScaleOverride.value = true
+  scaleSeed.value = safe
 }
 
 // 考试开始事件
@@ -174,6 +226,11 @@ const handleExit = () => {
 // === 初始化和清理 ===
 
 onMounted(async () => {
+  previousThemeMode.value = getThemeMode()
+  applyThemeMode('dark')
+  didForceTheme = true
+  document.documentElement.setAttribute('data-player-force-dark', 'true')
+
   console.log('PlayerViewNew mounted, starting initialization...')
 
   // 检查 IPC 是否可用
@@ -249,6 +306,10 @@ onUnmounted(() => {
 
   // 清理资源
   timeProvider.destroy()
+  document.documentElement.removeAttribute('data-player-force-dark')
+  if (didForceTheme && getThemeMode() === 'dark') {
+    applyThemeMode(previousThemeMode.value)
+  }
 })
 
 // 暴露调试接口
@@ -259,6 +320,9 @@ if (typeof window !== 'undefined') {
     },
     get roomNumber() {
       return roomNumber.value
+    },
+    get uiScale() {
+      return scaleSeed.value
     },
     get timeProvider() {
       return timeProvider
@@ -289,6 +353,12 @@ if (typeof window !== 'undefined') {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  background-color: #05070d;
+  color: var(--td-text-color-anti);
+}
+
+:global(:root[data-player-force-dark]) {
+  background-color: #05070d !important;
 }
 
 /* 虚拟键盘样式 */

@@ -23,7 +23,8 @@ export class SettingsRegistry {
     const full: RegisteredSettingsPage = { order: 0, ...meta, path }
     this.pages.set(meta.id, full)
     this.notify()
-    return () => { // 反注册
+    return () => {
+      // 反注册
       if (this.pages.has(meta.id)) {
         this.pages.delete(meta.id)
         this.notify()
@@ -51,7 +52,9 @@ export class SettingsRegistry {
 
   private notify() {
     this.listeners.forEach((l) => {
-      try { l() } catch {}
+      try {
+        l()
+      } catch {}
     })
   }
 }
@@ -68,13 +71,11 @@ export const settingsModule: AppModule = {
       if (ctx.disposable) await ctx.disposable(() => disposer)
       return { path, dispose: disposer }
     }
-
     ;(app.config.globalProperties as any).$settings = registry
     ctx.provides.settings = registry
     if (ctx.provide) ctx.provide('settings', registry)
 
     if ((ctx as any).addSettingsPage) {
-
       ;(ctx as any).addSettingsPage({
         id: 'basic',
         label: '基本',
@@ -90,10 +91,17 @@ export const settingsModule: AppModule = {
         component: () => import('@renderer/views/settings/AppearanceSettings.vue')
       })
       ;(ctx as any).addSettingsPage({
+        id: 'player',
+        label: '播放器',
+        icon: 'play-circle',
+        order: 2,
+        component: () => import('@renderer/views/settings/PlayerSettings.vue')
+      })
+      ;(ctx as any).addSettingsPage({
         id: 'time',
         label: '时间同步',
         icon: 'time',
-        order: 2,
+        order: 3,
         component: () => import('@renderer/views/settings/TimeSettings.vue')
       })
       ;(ctx as any).addSettingsPage({
@@ -119,10 +127,17 @@ export const settingsModule: AppModule = {
         component: () => import('@renderer/views/settings/AppearanceSettings.vue')
       })
       registry.register({
+        id: 'player',
+        label: '播放器',
+        icon: 'play-circle',
+        order: 2,
+        component: () => import('@renderer/views/settings/PlayerSettings.vue')
+      })
+      registry.register({
         id: 'time',
         label: '时间同步',
         icon: 'time',
-        order: 2,
+        order: 3,
         component: () => import('@renderer/views/settings/TimeSettings.vue')
       })
       registry.register({

@@ -1,4 +1,4 @@
-import { app } from 'electron'
+import { app, BrowserWindow } from 'electron'
 import {
   syncTimeWithNTP,
   getTimeSyncInfo,
@@ -36,6 +36,8 @@ const DEFAULT_CONFIG: TimeSyncConfig = {
 let timeSyncConfig: TimeSyncConfig = { ...DEFAULT_CONFIG }
 let syncIntervalId: NodeJS.Timeout | null = null
 let autoIncTimer: NodeJS.Timeout | null = null
+let initialized = false
+let pendingReadyHook = false
 
 // 配置文件路径
 const getConfigFilePath = (): string => {
@@ -49,7 +51,8 @@ export function loadTimeSyncConfig(): TimeSyncConfig {
     const cfg = (getConfig('time') || {}) as Partial<TimeSyncConfig>
     if (cfg && Object.keys(cfg).length > 0) {
       timeSyncConfig = { ...DEFAULT_CONFIG, ...cfg }
-      if (timeSyncConfig.manualOffsetSeconds !== 0) setManualOffset(timeSyncConfig.manualOffsetSeconds)
+      if (timeSyncConfig.manualOffsetSeconds !== 0)
+        setManualOffset(timeSyncConfig.manualOffsetSeconds)
       // 应用一次自动增量（如果需要）
       applyAutoIncrementIfNeeded()
       return timeSyncConfig
@@ -101,6 +104,7 @@ export function applyTimeConfig(partial: Partial<TimeSyncConfig>): TimeSyncConfi
       applyAutoIncrementIfNeeded()
       scheduleNextAutoIncrement()
     }
+    emitTimeSyncChanged()
   } catch (e) {
     console.error('应用时间同步配置失败:', e)
   }
@@ -127,6 +131,8 @@ export function saveTimeSyncConfig(config: Partial<TimeSyncConfig>): TimeSyncCon
       restartAutoSync()
     }
 
+    emitTimeSyncChanged()
+
     return timeSyncConfig
   } catch (error) {
     console.error('保存时间同步配置失败:', error)
@@ -139,6 +145,7 @@ export async function performTimeSync(): Promise<any> {
   try {
     const result = await syncTimeWithNTP(timeSyncConfig.ntpServer)
     console.log('时间同步成功:', result)
+    emitTimeSyncChanged()
     return result
   } catch (error) {
     console.error('时间同步失败:', error)
@@ -167,6 +174,7 @@ function restartAutoSync(): void {
   } else {
     // 如果禁用了自动同步，重置偏移量
     disableTimeSync()
+    emitTimeSyncChanged()
   }
 }
 
@@ -175,6 +183,28 @@ export function initializeTimeSync(): void {
   loadTimeSyncConfig()
   restartAutoSync()
   scheduleNextAutoIncrement()
+  emitTimeSyncChanged()
+  initialized = true
+  pendingReadyHook = false
+}
+
+export function ensureTimeSyncInitialized(): void {
+  if (initialized) return
+  if (app.isReady()) {
+    initializeTimeSync()
+    return
+  }
+  if (pendingReadyHook) return
+  pendingReadyHook = true
+  app.once('ready', () => {
+    try {
+      initializeTimeSync()
+    } catch (error) {
+      console.error('初始化时间同步服务失败:', error)
+      initialized = false
+      pendingReadyHook = false
+    }
+  })
 }
 
 function getTodayStr() {
@@ -208,7 +238,9 @@ function applyAutoIncrementIfNeeded() {
   if (!last) {
     // 首次开启时，记录当日为基线，不进行增量
     timeSyncConfig.lastIncrementDate = today
-    try { setConfig('time.lastIncrementDate', today) } catch {}
+    try {
+      setConfig('time.lastIncrementDate', today)
+    } catch {}
     return
   }
 
@@ -221,6 +253,7 @@ function applyAutoIncrementIfNeeded() {
       setManualOffset(nextVal)
       setConfig('time.manualOffsetSeconds', nextVal)
       setConfig('time.lastIncrementDate', today)
+      emitTimeSyncChanged()
     } catch (e) {
       console.error('写入自动增量配置失败:', e)
     }
@@ -238,7 +271,9 @@ function scheduleNextAutoIncrement() {
   next.setHours(24, 0, 10, 0) // 明天 00:00:10，给 10s 缓冲
   const delay = Math.max(10_000, next.getTime() - now.getTime())
   autoIncTimer = setTimeout(() => {
-    try { applyAutoIncrementIfNeeded() } catch {}
+    try {
+      applyAutoIncrementIfNeeded()
+    } catch {}
     // 递归安排下一次
     scheduleNextAutoIncrement()
   }, delay)
@@ -246,3 +281,20 @@ function scheduleNextAutoIncrement() {
 
 // 获取当前校准时间
 export { getSyncedTime, getTimeSyncInfo }
+
+export function isTimeSyncInitialized(): boolean {
+  return initialized
+}
+
+function emitTimeSyncChanged() {
+  const info = getTimeSyncInfo()
+  try {
+    const windows = BrowserWindow.getAllWindows()
+    if (!windows.length) return
+    windows.forEach((win) => {
+      try {
+        win.webContents.send('time:sync-changed', info)
+      } catch {}
+    })
+  } catch {}
+}

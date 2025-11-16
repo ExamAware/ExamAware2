@@ -30,6 +30,9 @@ const api = {
       set: (enable: boolean) => ipcRenderer.invoke('autostart:set', enable) as Promise<boolean>
     }
   },
+  player: {
+    openFromEditor: (data: string) => ipcRenderer.invoke('player:open-from-editor', data)
+  },
   ipc: {
     send: (channel: string, ...args: any[]) => ipcRenderer.send(channel, ...args),
     invoke: (channel: string, ...args: any[]) => ipcRenderer.invoke(channel, ...args),

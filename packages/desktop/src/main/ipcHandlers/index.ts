@@ -7,7 +7,12 @@ import { createEditorWindow } from '../windows/editorWindow'
 import { createPlayerWindow } from '../windows/playerWindow'
 import { fileApi } from '../fileUtils'
 import { createLogsWindow } from '../windows/logsWindow'
-import { getAllConfig, getConfig as cfgGet, setConfig as cfgSet, patchConfig as cfgPatch } from '../configStore'
+import {
+  getAllConfig,
+  getConfig as cfgGet,
+  setConfig as cfgSet,
+  patchConfig as cfgPatch
+} from '../configStore'
 import { applyTimeConfig } from '../ntpService/timeService'
 import { createSettingsWindow } from '../windows/settingsWindow'
 import { createMainWindow } from '../windows/mainWindow'
@@ -65,6 +70,26 @@ function handle(channel: string, listener: Parameters<typeof ipcMain.handle>[1])
 
 export function registerIpcHandlers(ctx?: MainContext): () => void {
   const group = createDisposerGroup()
+  const createTempPlayerConfig = async (data: string) => {
+    const tempDir = path.join(app.getPath('temp'), 'examaware-player')
+    await fs.promises.mkdir(tempDir, { recursive: true })
+    const tempFile = path.join(
+      tempDir,
+      `editor-${Date.now()}-${Math.random().toString(16).slice(2)}.ea2`
+    )
+    await fs.promises.writeFile(tempFile, data, 'utf-8')
+    return tempFile
+  }
+
+  const openPlayerFromEditor = async (data: string) => {
+    if (typeof data !== 'string' || !data.trim()) {
+      throw new Error('无效的考试配置数据')
+    }
+    const filePath = await createTempPlayerConfig(data)
+    createPlayerWindow(filePath)
+    return filePath
+  }
+
   // 拦截主进程 console 输出
   const originalConsole: Partial<Record<'log' | 'info' | 'warn' | 'error' | 'debug', any>> = {}
   ;(['log', 'info', 'warn', 'error', 'debug'] as const).forEach((level) => {
@@ -201,6 +226,13 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
       })
     )
 
+  if (ctx)
+    ctx.ipc.handle('player:open-from-editor', (_event, data: string) => openPlayerFromEditor(data))
+  else
+    group.add(
+      handle('player:open-from-editor', (_event, data: string) => openPlayerFromEditor(data))
+    )
+
   // 打开日志窗口
   if (ctx)
     ctx.ipc.on('open-logs-window', () => {
@@ -305,7 +337,9 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
         const desktopDir = path.join(app.getPath('home'), '.config', 'autostart')
         const file = path.join(desktopDir, `${sanitizeDesktopFileName(app.getName())}.desktop`)
         if (!enable) {
-          try { fs.unlinkSync(file) } catch {}
+          try {
+            fs.unlinkSync(file)
+          } catch {}
           return true
         }
         fs.mkdirSync(desktopDir, { recursive: true })
@@ -330,21 +364,30 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
     return name.replace(/\s+/g, '-')
   }
 
-  function buildDesktopEntry(opts: { name: string; comment?: string; exec: string; icon?: string }) {
+  function buildDesktopEntry(opts: {
+    name: string
+    comment?: string
+    exec: string
+    icon?: string
+  }) {
     // 注意：Exec 需转义空格
     const execEscaped = opts.exec.replace(/ /g, '\\\ ')
     const iconLine = opts.icon ? `Icon=${opts.icon}\n` : ''
-    return [
-      '[Desktop Entry]',
-      'Type=Application',
-      `Name=${opts.name}`,
-      `Comment=${opts.comment || ''}`,
-      `Exec=${execEscaped}`,
-      'Terminal=false',
-      'X-GNOME-Autostart-enabled=true',
-      iconLine.trimEnd(),
-      'Categories=Utility;'
-    ].filter(Boolean).join('\n') + '\n'
+    return (
+      [
+        '[Desktop Entry]',
+        'Type=Application',
+        `Name=${opts.name}`,
+        `Comment=${opts.comment || ''}`,
+        `Exec=${execEscaped}`,
+        'Terminal=false',
+        'X-GNOME-Autostart-enabled=true',
+        iconLine.trimEnd(),
+        'Categories=Utility;'
+      ]
+        .filter(Boolean)
+        .join('\n') + '\n'
+    )
   }
 
   function getLinuxIconPathSafe(): string | undefined {
