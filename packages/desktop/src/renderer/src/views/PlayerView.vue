@@ -10,6 +10,7 @@
       :allow-edit-room-number="true"
       :show-action-bar="true"
       :ui-scale="scaleSeed"
+      :large-clock="largeClockEnabled"
       @exit="handleExit"
       @edit-click="handleEditClick"
       @room-number-click="handleRoomNumberClick"
@@ -61,6 +62,9 @@ const defaultRoomSetting = computed(() => {
 
 const defaultScaleSetting = computed(() =>
   clampScale(settingsStore.get<number>('player.defaultScale', 1))
+)
+const largeClockEnabled = computed(() =>
+  Boolean(settingsStore.get<boolean>('player.largeClock', false))
 )
 
 // 考场号相关状态

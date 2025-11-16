@@ -57,13 +57,25 @@
 
         <br />
         <t-divider />
+
+        <div class="settings-item">
+          <div class="settings-item-icon">
+            <TIcon name="time" size="22px" />
+          </div>
+          <div class="settings-item-main">
+            <div class="settings-item-title">大时钟模式</div>
+            <div class="settings-item-desc">开启后隐藏时钟右侧提示文字，仅保留更大的时间显示。</div>
+          </div>
+          <div class="settings-item-action">
+            <t-switch v-model="largeClockEnabled" size="large" />
+          </div>
+        </div>
       </t-card>
     </t-space>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { Icon as TIcon } from 'tdesign-icons-vue-next'
 import { useSettingsGroup } from '@renderer/core/useSetting'
 
@@ -91,6 +103,11 @@ const defaultScale = settings.ref<number>('defaultScale', 1, {
   mapOut: clampScale
 })
 
+const largeClockEnabled = settings.ref<boolean>('largeClock', false, {
+  mapIn: (value) => Boolean(value),
+  mapOut: (value) => Boolean(value)
+})
+
 const scaleMarks = {
   0.5: '50%',
   1: '100%',
@@ -98,15 +115,8 @@ const scaleMarks = {
   2: '200%'
 }
 
-const scalePercent = computed(() => Math.round(defaultScale.value * 100))
-
 const normalizeRoom = () => {
   defaultRoom.value = sanitizeRoom(defaultRoom.value)
-}
-
-const resetDefaults = () => {
-  defaultRoom.value = '01'
-  defaultScale.value = 1
 }
 </script>
 
