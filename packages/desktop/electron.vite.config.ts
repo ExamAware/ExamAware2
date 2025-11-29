@@ -13,7 +13,11 @@ export default defineConfig(({ mode }) => {
 
   return {
     main: {
-      // plugins: [externalizeDepsPlugin()],
+      plugins: [
+        externalizeDepsPlugin({
+          exclude: ['@dsz-examaware/core', '@dsz-examaware/player']
+        })
+      ],
       build: {
         outDir: 'dist/main',
         lib: {
@@ -27,7 +31,11 @@ export default defineConfig(({ mode }) => {
       }
     },
     preload: {
-      // plugins: [externalizeDepsPlugin()],
+      plugins: [
+        externalizeDepsPlugin({
+          exclude: ['@dsz-examaware/core', '@dsz-examaware/player']
+        })
+      ],
       build: {
         outDir: 'dist/preload',
         lib: {
@@ -43,13 +51,13 @@ export default defineConfig(({ mode }) => {
     renderer: {
       root: 'src/renderer',
       build: {
-        outDir: resolve(__dirname, 'dist/renderer'),
+        outDir: 'dist/renderer',
         minify: isProduction,
         sourcemap: !isProduction
       },
       resolve: {
+        preserveSymlinks: true,
         alias: [
-          // 仅在开发模式使用本地源码与占位样式，生产保持包与真实 dist
           ...(!isProduction
             ? [
                 {
@@ -57,7 +65,6 @@ export default defineConfig(({ mode }) => {
                   replacement: resolve('src/renderer/src/assets/player.css')
                 },
                 { find: '@dsz-examaware/player', replacement: resolve(__dirname, '../player/src') },
-                // 让 player 源码内对 core 的依赖也指向本地源码
                 { find: '@dsz-examaware/core', replacement: resolve(__dirname, '../core/src') }
               ]
             : []),
