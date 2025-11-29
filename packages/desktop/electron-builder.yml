@@ -41,9 +41,9 @@ nsis:
   perMachine: true
   allowElevation: true
   allowToChangeInstallationDirectory: true
-  installerIcon: build/icon.png
-  uninstallerIcon: build/icon.png
-  installerHeaderIcon: build/icon.png
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+  installerHeaderIcon: build/icon.ico
   runAfterFinish: true
   menuCategory: false
   include: build/installer.nsh
