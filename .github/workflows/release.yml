@@ -28,8 +28,8 @@ jobs:
         include:
           - os: windows-latest
             build_script: desktop:build:win
-          - os: macos-latest
-            build_script: desktop:build:mac
+          # - os: macos-latest
+          #   build_script: desktop:build:mac
           - os: ubuntu-latest
             build_script: desktop:build:linux
 
