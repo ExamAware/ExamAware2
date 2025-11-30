@@ -8,7 +8,6 @@
     <div class="ea-titlebar__spacer" />
     <div class="ea-titlebar__side right" :class="platform">
       <slot name="right" />
-      <!-- 不再自绘窗口控制按钮，使用系统自带的 overlay 控件 -->
     </div>
   </header>
 </template>
@@ -37,9 +36,19 @@ const { platform, toggleMaximize } = useWindowControls()
   align-items: center;
   gap: 6px;
 }
-.ea-titlebar__spacer { flex: 1; }
-.ea-titlebar .no-drag { -webkit-app-region: no-drag; }
-.ea-titlebar__title { color: var(--td-text-color-primary); font-weight: 400; font-size: 14px; }
+.ea-titlebar__spacer {
+  flex: 1;
+}
+.ea-titlebar .no-drag {
+  -webkit-app-region: no-drag;
+}
+.ea-titlebar__title {
+  color: var(--td-text-color-primary);
+  font-weight: 400;
+  font-size: 14px;
+}
 
-.ea-titlebar__side.left.darwin { padding-left: 70px; }
+.ea-titlebar__side.left.darwin {
+  padding-left: 70px;
+}
 </style>
