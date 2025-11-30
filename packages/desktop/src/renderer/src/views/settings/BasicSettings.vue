@@ -22,7 +22,7 @@
           </div>
         </div>
 
-  <t-divider />
+        <t-divider />
 
         <div class="settings-item">
           <div class="settings-item-icon">
@@ -47,7 +47,9 @@
           </div>
           <div class="settings-item-main">
             <div class="settings-item-title">托盘弹窗失焦自动隐藏</div>
-            <div class="settings-item-desc">启用后，托盘弹窗窗口在失去焦点时自动隐藏（显示后有保护期防止秒关）。默认开启。</div>
+            <div class="settings-item-desc">
+              启用后，托盘弹窗窗口在失去焦点时自动隐藏（显示后有保护期防止秒关）。默认开启。
+            </div>
           </div>
           <div class="settings-item-action">
             <t-switch
@@ -66,10 +68,18 @@
           </div>
           <div class="settings-item-main">
             <div class="settings-item-title">失焦保护期</div>
-            <div class="settings-item-desc">窗口显示后在此毫秒数内的失焦不会自动隐藏，避免快速点击或系统激活导致闪退。</div>
+            <div class="settings-item-desc">
+              窗口显示后在此毫秒数内的失焦不会自动隐藏，避免快速点击或系统激活导致闪退。
+            </div>
           </div>
-          <div class="settings-item-action" style="display:flex; align-items:center; gap:8px;">
-            <t-input-number v-model="trayProtectionMs" :min="0" :step="50" suffix="毫秒" style="width: 180px"/>
+          <div class="settings-item-action" style="display: flex; align-items: center; gap: 8px">
+            <t-input-number
+              v-model="trayProtectionMs"
+              :min="0"
+              :step="50"
+              suffix="毫秒"
+              style="width: 180px"
+            />
           </div>
         </div>
       </t-card>
@@ -79,9 +89,8 @@
 
 <script setup lang="ts">
 import { onMounted, watch } from 'vue'
-import { useSettingRef } from '@renderer/core/useSetting'
-import { Icon as TIcon } from 'tdesign-icons-vue-next';
-
+import { useSettingRef } from '@renderer/composables/useSetting'
+import { Icon as TIcon } from 'tdesign-icons-vue-next'
 
 const autoStart = useSettingRef<boolean>('behavior.autoStart', false)
 
@@ -119,5 +128,4 @@ const trayAutoHide = useSettingRef<boolean>('tray.autoHideOnBlur', true)
 const trayProtectionMs = useSettingRef<number>('tray.autoHideProtectionMs', 400)
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

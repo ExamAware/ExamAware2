@@ -1,6 +1,6 @@
 import type { App } from 'vue'
 import type { AppModule } from '../types'
-import { useSettingsStore } from '@renderer/core/settingsStore'
+import { useSettingsStore } from 'packages/desktop/src/renderer/src/stores/settingsStore'
 import { applyThemeMode } from '@renderer/core/themeManager'
 
 export const themeSyncModule: AppModule = {
