@@ -61,6 +61,10 @@ mac:
       arch:
         - x64
         - arm64
+    - target: dmg
+      arch:
+        - x64
+        - arm64
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
     - NSCameraUsageDescription: 'ExamAware needs access to your camera for exam monitoring and verification purposes.'
@@ -79,6 +83,7 @@ dmg:
   artifactName: ${productName}-${version}-${arch}.${ext}
   title: '${productName} ${version}'
   icon: build/icon.png
+  background: build/dmg-background.png
   window:
     width: 540
     height: 380
