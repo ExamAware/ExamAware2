@@ -9,6 +9,7 @@ const __dirname = path.dirname(__filename)
 const workspaceRoot = path.resolve(__dirname, '..', '..')
 const desktopRoot = path.resolve(__dirname, '..')
 const nodeModulesRoot = path.join(desktopRoot, 'node_modules')
+const outputDir = path.join(desktopRoot, 'out')
 
 const packagesToMirror = [
   {
@@ -56,6 +57,8 @@ async function copyPackage(pkg) {
 }
 
 async function main() {
+  await fs.rm(outputDir, { recursive: true, force: true })
+
   for (const pkg of packagesToMirror) {
     await copyPackage(pkg)
   }
