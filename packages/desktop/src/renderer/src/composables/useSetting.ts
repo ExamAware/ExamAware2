@@ -1,5 +1,5 @@
 import { computed } from 'vue'
-import { useSettingsStore } from './settingsStore'
+import { useSettingsStore } from '../stores/settingsStore'
 
 export interface UseSettingOptions<T = any> {
   debounce?: number

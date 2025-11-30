@@ -3,7 +3,6 @@
     <h2>外观</h2>
     <t-space direction="vertical" size="small" style="width: 100%">
       <t-card title="主题模式" :bordered="true">
-
         <div class="settings-item">
           <div class="settings-item-icon">
             <t-icon name="palette" size="22px" />
@@ -23,16 +22,14 @@
       </t-card>
     </t-space>
   </div>
-
 </template>
 
 <script setup lang="ts">
-import { useSettingRef } from '@renderer/core/useSetting'
+import { useSettingRef } from '@renderer/composables/useSetting'
 
 type ThemeMode = 'light' | 'dark' | 'auto'
 
 const theme = useSettingRef<ThemeMode>('appearance.theme', 'auto')
-
 </script>
 
 <style scoped>

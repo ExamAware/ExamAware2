@@ -26,8 +26,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch, inject, getCurrentInstance, provide } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useSettingsApi } from '@renderer/core/settingsStore'
-import { useSettingRef, useSettingsGroup, useSettingToggle } from '@renderer/core/useSetting'
+import { useSettingsApi } from '@renderer/stores/settingsStore'
+import { useSettingRef, useSettingsGroup, useSettingToggle } from '@renderer/composables/useSetting'
 
 // 获取注册表（通过 provide/inject 或全局）
 const registry =
@@ -171,7 +171,6 @@ onMounted(() => {
   gap: 8px;
 }
 
-
 /* 浮入动画：淡入 + 轻微位移 */
 .settings-fade-slide-enter-from {
   opacity: 0;
@@ -182,10 +181,14 @@ onMounted(() => {
   transform: translateY(-6px);
 }
 .settings-fade-slide-enter-active {
-  transition: opacity 160ms cubic-bezier(0.2, 0.8, 0.2, 1), transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition:
+    opacity 160ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .settings-fade-slide-leave-active {
-  transition: opacity 140ms cubic-bezier(0.2, 0.8, 0.2, 1), transform 140ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition:
+    opacity 140ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 140ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {

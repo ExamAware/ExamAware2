@@ -77,7 +77,7 @@
 
 <script setup lang="ts">
 import { Icon as TIcon } from 'tdesign-icons-vue-next'
-import { useSettingsGroup } from '@renderer/core/useSetting'
+import { useSettingsGroup } from '@renderer/composables/useSetting'
 
 const settings = useSettingsGroup('player')
 

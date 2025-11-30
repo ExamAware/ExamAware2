@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useTimeSync } from '@renderer/utils/timeUtils'
-import { useSettingRef } from '@renderer/core/useSetting'
+import { useSettingRef } from '@renderer/composables/useSetting'
 import { NotifyPlugin } from 'tdesign-vue-next'
 
 const { syncInfo, syncStatus, isLoading, currentTime, loadSyncInfo, performSync } = useTimeSync()
@@ -28,7 +28,8 @@ const syncTimeNow = async () => {
   }
 }
 
-const formatDate = (timestamp: number) => (timestamp > 0 ? new Date(timestamp).toLocaleString() : '时间未同步')
+const formatDate = (timestamp: number) =>
+  timestamp > 0 ? new Date(timestamp).toLocaleString() : '时间未同步'
 
 onMounted(() => {
   // 初始加载一次状态
@@ -71,10 +72,20 @@ onMounted(() => {
           <t-input-number v-model="manualOffsetSeconds" step="0.5" suffix="秒" />
         </t-form-item>
 
-        <t-form-item label="自动时间偏移" name="autoIncrement" help="若启用，每天自动以设定的增量值调整时间偏移量（增量可为正或负，单位：秒）。">
-          <div style="display:flex; align-items:center; gap:12px;">
+        <t-form-item
+          label="自动时间偏移"
+          name="autoIncrement"
+          help="若启用，每天自动以设定的增量值调整时间偏移量（增量可为正或负，单位：秒）。"
+        >
+          <div style="display: flex; align-items: center; gap: 12px">
             <t-input-number v-model="autoIncrementSeconds" step="0.5" suffix="秒" />
-            <t-switch v-model="autoIncrementEnabled" :label="[{ value: true, label: '开' }, { value: false, label: '关' }]" />
+            <t-switch
+              v-model="autoIncrementEnabled"
+              :label="[
+                { value: true, label: '开' },
+                { value: false, label: '关' }
+              ]"
+            />
           </div>
         </t-form-item>
 

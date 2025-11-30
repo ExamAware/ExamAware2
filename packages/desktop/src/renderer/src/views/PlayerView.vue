@@ -38,7 +38,7 @@ import { useConfigLoader } from '@renderer/composables/useConfigLoader'
 import { ElectronTimeProvider } from '@renderer/adapters/ElectronTimeProvider'
 import { RecentFileManager } from '@renderer/core/recentFileManager'
 import { applyThemeMode, getThemeMode, type ThemeMode } from '@renderer/core/themeManager'
-import { useSettingsStore } from '@renderer/core/settingsStore'
+import { useSettingsStore } from '@renderer/stores/settingsStore'
 // 键盘相关逻辑已经内置在 ExamPlayer 中
 
 const ipcRenderer = window.api.ipc
