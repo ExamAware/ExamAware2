@@ -1,4 +1,11 @@
-import { ipcMain, dialog, BrowserWindow, app } from 'electron'
+import {
+  ipcMain,
+  dialog,
+  BrowserWindow,
+  app,
+  type MessageBoxOptions,
+  type WebContents
+} from 'electron'
 import * as fs from 'fs'
 import * as path from 'path'
 import { addLog, getLogs, clearLogs } from '../logging/logStore'
@@ -88,6 +95,14 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
     const filePath = await createTempPlayerConfig(data)
     createPlayerWindow(filePath)
     return filePath
+  }
+
+  const showMessageBox = (event: { sender: WebContents }, options: MessageBoxOptions) => {
+    const window = BrowserWindow.fromWebContents(event.sender)
+    if (window) {
+      return dialog.showMessageBox(window, options)
+    }
+    return dialog.showMessageBox(options)
   }
 
   // 拦截主进程 console 输出
@@ -307,6 +322,17 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
       })
     )
   }
+
+  if (ctx)
+    ctx.ipc.handle('dialog:show-message-box', (event, options: MessageBoxOptions) =>
+      showMessageBox(event, options)
+    )
+  else
+    group.add(
+      handle('dialog:show-message-box', (event, options: MessageBoxOptions) =>
+        showMessageBox(event, options)
+      )
+    )
 
   // ===== 自启动（开机启动） =====
   const getAutoStart = () => {

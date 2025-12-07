@@ -418,13 +418,44 @@ export function useExamEditor() {
   const closeEditorWindow = async () => {
     historyStore.flushAllDebounced()
     if (isFileModified.value && !isNewFile.value) {
-      const shouldSave = confirm('当前文件已修改，是否在关闭窗口前保存？')
-      if (shouldSave) {
+      let choice: 'save' | 'discard' | 'cancel' = 'discard'
+
+      if (window.api?.dialog?.showMessageBox) {
+        try {
+          const { response } = await window.api.dialog.showMessageBox({
+            type: 'warning',
+            buttons: ['保存', '不保存', '取消'],
+            defaultId: 0,
+            cancelId: 2,
+            noLink: true,
+            title: '未保存的更改',
+            message: '当前文件已修改，是否在关闭窗口前保存？',
+            detail: '选择“不保存”将丢弃当前更改，此操作不可撤销。'
+          })
+          choice = response === 0 ? 'save' : response === 1 ? 'discard' : 'cancel'
+        } catch (error) {
+          console.error('显示保存确认对话框失败:', error)
+          const shouldSave = window.confirm(
+            '当前文件已修改，是否在关闭窗口前保存？\n点击“确定”保存，点击“取消”放弃更改并退出。'
+          )
+          choice = shouldSave ? 'save' : 'discard'
+        }
+      } else {
+        const shouldSave = window.confirm(
+          '当前文件已修改，是否在关闭窗口前保存？\n点击“确定”保存，点击“取消”放弃更改并退出。'
+        )
+        choice = shouldSave ? 'save' : 'discard'
+      }
+
+      if (choice === 'save') {
         const success = await saveProject()
         if (!success) {
           MessageService.warning('窗口关闭已取消')
           return
         }
+      } else if (choice === 'cancel') {
+        MessageService.info('窗口关闭已取消')
+        return
       }
     }
     window.electronAPI?.close?.()
