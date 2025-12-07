@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Hello World 插件配置",
+  "type": "object",
+  "properties": {
+    "message": {
+      "type": "string",
+      "title": "问候语",
+      "default": "Hello from ExamAware Plugin"
+    }
+  },
+  "additionalProperties": false
+}

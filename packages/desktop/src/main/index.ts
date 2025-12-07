@@ -1,4 +1,5 @@
 import { app, BrowserWindow, globalShortcut, Menu } from 'electron'
+import path from 'path'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { createMainWindow } from './windows/mainWindow'
 import { createEditorWindow } from './windows/editorWindow'
@@ -9,6 +10,9 @@ import { registerTimeSyncHandlers } from './ipcHandlers/timeServiceHandler'
 import { initializeTimeSync } from './ntpService/timeService'
 import { createMainContext } from './runtime/context'
 import { ensureAppTray, shouldSuppressActivate, isTrayPopoverVisible } from './tray'
+import { PluginHost, createFilePreferenceStore } from './plugin'
+
+let pluginHost: PluginHost | null = null
 
 // Ensure a friendly app name in development and across platforms (especially macOS About menu)
 try {
@@ -20,7 +24,7 @@ try {
     ;(app as any).setAboutPanelOptions({
       applicationName: 'ExamAware',
       applicationVersion: app.getVersion(),
-      copyright: `© ${(new Date()).getFullYear()} ExamAware Contributors`,
+      copyright: `© ${new Date().getFullYear()} ExamAware Contributors`,
       authors: ['ExamAware Team'],
       website: 'https://github.com/ExamAware2/ExamAware2',
       license: 'GPLv3'
@@ -61,6 +65,28 @@ app.whenReady().then(async () => {
   // 始终注册托盘
   ensureAppTray()
 
+  try {
+    const userPluginDir = path.join(app.getPath('userData'), 'plugins')
+    const pluginDirectories = [userPluginDir, path.join(app.getAppPath(), 'plugins')]
+    const preferenceStore = createFilePreferenceStore(path.join(userPluginDir, 'plugins.json'))
+    pluginHost = new PluginHost({
+      ctx: _mainCtx,
+      pluginDirectories,
+      preferences: preferenceStore,
+      logger: {
+        info: (...args: any[]) => console.log('[PluginHost]', ...args),
+        warn: (...args: any[]) => console.warn('[PluginHost]', ...args),
+        error: (...args: any[]) => console.error('[PluginHost]', ...args),
+        debug: (...args: any[]) => console.debug?.('[PluginHost]', ...args)
+      }
+    })
+    pluginHost.setupIpcChannels()
+    await pluginHost.scan()
+    await pluginHost.loadAll()
+  } catch (error) {
+    console.error('Failed to initialize plugin host', error)
+  }
+
   const isAutoStart = (() => {
     try {
       if (process.platform === 'darwin' || process.platform === 'win32') {
@@ -87,10 +113,19 @@ app.whenReady().then(async () => {
     const suppressed = shouldSuppressActivate()
     const trayVisible = isTrayPopoverVisible()
     if (suppressed || trayVisible) {
-      try { console.debug('[app] activate suppressed. suppressed =', suppressed, 'trayVisible =', trayVisible) } catch {}
+      try {
+        console.debug(
+          '[app] activate suppressed. suppressed =',
+          suppressed,
+          'trayVisible =',
+          trayVisible
+        )
+      } catch {}
       return
     }
-    try { console.debug('[app] activate: window count =', BrowserWindow.getAllWindows().length) } catch {}
+    try {
+      console.debug('[app] activate: window count =', BrowserWindow.getAllWindows().length)
+    } catch {}
     if (BrowserWindow.getAllWindows().length === 0) createMainWindow()
   })
 
@@ -155,6 +190,9 @@ app.whenReady().then(async () => {
     } catch {}
     try {
       disposeMainCtx()
+    } catch {}
+    try {
+      pluginHost?.shutdown?.()
     } catch {}
   })
 })

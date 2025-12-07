@@ -42,6 +42,22 @@ const api = {
   player: {
     openFromEditor: (data: string) => ipcRenderer.invoke('player:open-from-editor', data)
   },
+  plugins: {
+    list: () => ipcRenderer.invoke('plugin:list'),
+    toggle: (name: string, enabled: boolean) => ipcRenderer.invoke('plugin:toggle', name, enabled),
+    reload: (name: string) => ipcRenderer.invoke('plugin:reload', name),
+    services: () => ipcRenderer.invoke('plugin:services'),
+    service: (name: string) => ipcRenderer.invoke('plugin:service', name),
+    getConfig: (name: string) => ipcRenderer.invoke('plugin:get-config', name),
+    setConfig: (name: string, config: Record<string, any>) =>
+      ipcRenderer.invoke('plugin:set-config', name, config),
+    onState: (listener: (payload: any) => void) => {
+      const wrapped = (_event: Electron.IpcRendererEvent, payload: any) => listener(payload)
+      ipcRenderer.on('plugin:state', wrapped)
+      return () => ipcRenderer.off('plugin:state', wrapped)
+    },
+    rendererEntry: (name: string) => ipcRenderer.invoke('plugin:renderer-entry', name)
+  },
   ipc: {
     send: (channel: string, ...args: any[]) => ipcRenderer.send(channel, ...args),
     invoke: (channel: string, ...args: any[]) => ipcRenderer.invoke(channel, ...args),

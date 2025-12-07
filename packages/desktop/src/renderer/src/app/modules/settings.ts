@@ -105,6 +105,13 @@ export const settingsModule: AppModule = {
         component: () => import('@renderer/views/settings/TimeSettings.vue')
       })
       ;(ctx as any).addSettingsPage({
+        id: 'plugins',
+        label: '插件',
+        icon: 'component',
+        order: 4,
+        component: () => import('@renderer/views/settings/PluginSettings.vue')
+      })
+      ;(ctx as any).addSettingsPage({
         id: 'about',
         label: '关于',
         icon: 'info-circle',
@@ -139,6 +146,13 @@ export const settingsModule: AppModule = {
         icon: 'time',
         order: 3,
         component: () => import('@renderer/views/settings/TimeSettings.vue')
+      })
+      registry.register({
+        id: 'plugins',
+        label: '插件',
+        icon: 'component',
+        order: 4,
+        component: () => import('@renderer/views/settings/PluginSettings.vue')
       })
       registry.register({
         id: 'about',
