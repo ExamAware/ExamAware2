@@ -1,4 +1,5 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
+import type { MessageBoxOptions, MessageBoxReturnValue } from 'electron'
 
 declare global {
   interface Window {
@@ -25,6 +26,9 @@ declare global {
         set: (key: string, value: any) => Promise<boolean>
         patch: (partial: any) => Promise<boolean>
         onChanged: (listener: (config: any) => void) => () => void
+      }
+      dialog: {
+        showMessageBox: (options: MessageBoxOptions) => Promise<MessageBoxReturnValue>
       }
       player: {
         openFromEditor: (data: string) => Promise<string | void>

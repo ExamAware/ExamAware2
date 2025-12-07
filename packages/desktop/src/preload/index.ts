@@ -1,4 +1,9 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import {
+  contextBridge,
+  ipcRenderer,
+  type MessageBoxOptions,
+  type MessageBoxReturnValue
+} from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { fileApi } from '../main/fileUtils'
 
@@ -29,6 +34,10 @@ const api = {
       get: () => ipcRenderer.invoke('autostart:get') as Promise<boolean>,
       set: (enable: boolean) => ipcRenderer.invoke('autostart:set', enable) as Promise<boolean>
     }
+  },
+  dialog: {
+    showMessageBox: (options: MessageBoxOptions) =>
+      ipcRenderer.invoke('dialog:show-message-box', options) as Promise<MessageBoxReturnValue>
   },
   player: {
     openFromEditor: (data: string) => ipcRenderer.invoke('player:open-from-editor', data)
