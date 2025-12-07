@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import type { DesktopAppOptions, AppContext, AppModule, DesktopAppInstance } from './types'
 import { DisposerGroup } from '../runtime/disposable'
+import { initDesktopApi } from '../runtime/desktopApi'
 import AppRoot from '../App.vue'
 
 export async function createDesktopApp(
@@ -18,8 +19,10 @@ export async function createDesktopApp(
   }
   ctx.provide = (name, value) => {
     ctx.provides[name as any] = value
+    app.provide(name as any, value)
   }
-  ctx.inject = (name) => ctx.provides[name as any] as any
+  ctx.inject = (name) =>
+    (ctx.provides[name as any] as any) ?? (app._context.provides[name as any] as any)
   // event helper: supports DOM/EventTarget or Node-style emitter
   ctx.on = (target: any, event: string, listener: (...args: any[]) => any, options?: any) => {
     if (!target) return
@@ -51,6 +54,8 @@ export async function createDesktopApp(
     // eslint-disable-next-line no-await-in-loop
     await m.install(app, ctx)
   }
+
+  initDesktopApi(ctx, app)
 
   const destroy = async () => {
     for (let i = modules.length - 1; i >= 0; i--) {

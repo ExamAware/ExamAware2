@@ -1,6 +1,7 @@
 import type { App } from 'vue'
 import type { Router } from 'vue-router'
 import type { Pinia } from 'pinia'
+import type { DesktopAPI } from '../runtime/desktopApi'
 
 export type ThemeMode = 'light' | 'dark' | 'auto'
 
@@ -23,6 +24,7 @@ export interface AppContext {
     cb: (...args: any[]) => any,
     options?: any
   ) => void
+  desktopApi?: DesktopAPI
 }
 
 export interface AppModule {
