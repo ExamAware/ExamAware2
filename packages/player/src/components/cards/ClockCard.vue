@@ -1,7 +1,11 @@
 <template>
   <BaseCard :custom-class="customCardClass">
     <div class="clock-content" :class="{ 'large-mode': isLargeClock }">
-      <div class="time-display" :class="{ 'time-display-large': isLargeClock }">
+      <div
+        class="time-display"
+        :class="{ 'time-display-large': isLargeClock }"
+        :style="timeDisplayStyle"
+      >
         {{ ctx.formattedCurrentTime.value }}
       </div>
       <div v-if="!isLargeClock" class="time-note">
@@ -22,6 +26,7 @@ export interface ExamPlayerCtx {
   formattedCurrentTime: any;
   timeSyncStatus?: any;
   largeClockEnabled?: any;
+  largeClockScale?: any;
 }
 const ctx = inject<ExamPlayerCtx>('ExamPlayerCtx')!;
 
@@ -29,6 +34,9 @@ const isLargeClock = computed(() => Boolean(ctx.largeClockEnabled?.value));
 const customCardClass = computed(() =>
   isLargeClock.value ? 'clock-card clock-card-large' : 'clock-card'
 );
+const timeDisplayStyle = computed(() => ({
+  '--clock-scale': ctx.largeClockScale?.value ?? 1
+}));
 </script>
 
 <style scoped>
@@ -56,7 +64,7 @@ const customCardClass = computed(() =>
 
 .clock-card-large .time-display,
 .time-display-large {
-  font-size: calc(var(--ui-scale, 1) * 8rem);
+  font-size: calc(var(--ui-scale, 1) * var(--clock-scale, var(--large-clock-scale, 1)) * 8rem);
 }
 
 .time-note {

@@ -10,12 +10,17 @@
       :allow-edit-room-number="true"
       :show-action-bar="true"
       :ui-scale="scaleSeed"
+      :ui-density="uiDensitySetting"
       :large-clock="largeClockEnabled"
+      :large-clock-scale="largeClockScaleSetting"
       @exit="handleExit"
       @edit-click="handleEditClick"
       @room-number-click="handleRoomNumberClick"
       @room-number-change="handleRoomNumberChange"
       @scale-change="handleScaleChange"
+      @density-change="handleDensitySettingChange"
+      @large-clock-toggle="handleLargeClockToggle"
+      @large-clock-scale-change="handleLargeClockScaleChange"
       @exam-start="handleExamStart"
       @exam-end="handleExamEnd"
       @exam-alert="handleExamAlert"
@@ -39,19 +44,25 @@ import { ElectronTimeProvider } from '@renderer/adapters/ElectronTimeProvider'
 import { RecentFileManager } from '@renderer/core/recentFileManager'
 import { applyThemeMode, getThemeMode, type ThemeMode } from '@renderer/core/themeManager'
 import { useSettingsStore } from '@renderer/stores/settingsStore'
+import {
+  usePlaybackSettings,
+  clampUiScale,
+  clampLargeClockScale,
+  normalizeDensity
+} from '@renderer/composables/usePlaybackSettings'
+import type { UIDensity } from '@renderer/composables/usePlaybackSettings'
 // 键盘相关逻辑已经内置在 ExamPlayer 中
 
 const ipcRenderer = window.api.ipc
 
 const settingsStore = useSettingsStore()
 
-const clampScale = (value: number | string) => {
-  const num = Number(value)
-  if (!Number.isFinite(num)) {
-    return 1
-  }
-  return Math.min(2, Math.max(0.5, num))
-}
+const {
+  uiScale: uiScaleSetting,
+  uiDensity: uiDensitySetting,
+  largeClockEnabled: largeClockEnabledSetting,
+  largeClockScale: largeClockScaleSetting
+} = usePlaybackSettings()
 
 const defaultRoomSetting = computed(() => {
   const raw = settingsStore.get<string>('player.defaultRoom', '01')
@@ -59,13 +70,7 @@ const defaultRoomSetting = computed(() => {
   const trimmed = raw.trim()
   return trimmed.length ? trimmed : '01'
 })
-
-const defaultScaleSetting = computed(() =>
-  clampScale(settingsStore.get<number>('player.defaultScale', 1))
-)
-const largeClockEnabled = computed(() =>
-  Boolean(settingsStore.get<boolean>('player.largeClock', false))
-)
+const largeClockEnabled = largeClockEnabledSetting
 
 // 考场号相关状态
 const roomNumber = ref(defaultRoomSetting.value)
@@ -87,19 +92,12 @@ const timeProvider = new ElectronTimeProvider(ipcRenderer)
 
 // 播放器配置
 const manualRoomOverride = ref(false)
-const manualScaleOverride = ref(false)
 
-const scaleSeed = ref(defaultScaleSetting.value)
+const scaleSeed = uiScaleSetting
 
 watch(defaultRoomSetting, (value) => {
   if (!manualRoomOverride.value) {
     roomNumber.value = value
-  }
-})
-
-watch(defaultScaleSetting, (value) => {
-  if (!manualScaleOverride.value) {
-    scaleSeed.value = value
   }
 })
 
@@ -152,9 +150,19 @@ const handleRoomNumberChange = (val: string) => {
 }
 
 const handleScaleChange = (scale: number) => {
-  const safe = clampScale(scale)
-  manualScaleOverride.value = true
-  scaleSeed.value = safe
+  uiScaleSetting.value = clampUiScale(scale)
+}
+
+const handleDensitySettingChange = (density: UIDensity) => {
+  uiDensitySetting.value = normalizeDensity(density)
+}
+
+const handleLargeClockToggle = (enabled: boolean) => {
+  largeClockEnabledSetting.value = Boolean(enabled)
+}
+
+const handleLargeClockScaleChange = (scale: number) => {
+  largeClockScaleSetting.value = clampLargeClockScale(scale)
 }
 
 // 考试开始事件

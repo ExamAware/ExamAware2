@@ -9,7 +9,7 @@ import {
 import type { PlayerConfig, PlayerEventHandlers } from './types';
 import { ExamPlayerCore } from './core/ExamPlayerCore';
 import type { TimeProvider } from './core/interfaces';
-import { ExamDataProcessor } from './dataProcessor';
+import { ExamDataProcessor } from './utils/dataProcessor';
 
 export type { TimeProvider };
 

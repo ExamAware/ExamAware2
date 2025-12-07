@@ -1,7 +1,7 @@
 import { ref, computed, readonly, watch } from 'vue';
 import type { ExamConfig } from '@dsz-examaware/core';
-import { ExamTaskQueue } from '../taskQueue';
-import { ExamDataProcessor } from '../dataProcessor';
+import { ExamTaskQueue } from '../utils/taskQueue';
+import { ExamDataProcessor } from '../utils/dataProcessor';
 import type { PlayerConfig, PlayerEventHandlers, PlayerState } from '../types';
 import type { TimeProvider, IExamConfigService } from './interfaces';
 import type { IReminderService } from './reminder';

@@ -31,7 +31,7 @@ withDefaults(defineProps<BaseCardProps>(), {
 }
 
 .card-content {
-  padding: calc(var(--ui-scale, 1) * 2rem);
+  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
   position: relative;
   z-index: 1;
 }

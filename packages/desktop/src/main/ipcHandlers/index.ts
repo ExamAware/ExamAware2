@@ -486,6 +486,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
     ctx.ipc.on('window-close', (event) => {
       const window = BrowserWindow.fromWebContents(event.sender)
       if (window) {
+        ;(window as any).__ea_force_close__ = true
         window.close()
       }
     })
@@ -494,6 +495,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
       on('window-close', (event) => {
         const window = BrowserWindow.fromWebContents(event.sender)
         if (window) {
+          ;(window as any).__ea_force_close__ = true
           window.close()
         }
       })

@@ -39,8 +39,17 @@
     <ActionButtonBar
       v-if="showActionBar"
       :initial-scale="props.uiScale"
+      :initial-density="densityState"
+      :initial-large-clock-enabled="largeClockState"
+      :initial-large-clock-scale="largeClockScaleState"
+      :extra-tools="toolbarTools"
       @exit="emit('exit')"
       @scale-change="emit('scaleChange', $event)"
+      @density-change="handleDensityChange"
+      @large-clock-toggle="handleLargeClockToggle"
+      @clock-scale-change="handleLargeClockScaleChange"
+      @dev-reminder-test="handleDevReminderTest"
+      @dev-reminder-hide="handleDevReminderHide"
     />
 
     <!-- 彩色提醒：用于考试开始/即将结束/考试结束，淡入动画 -->
@@ -87,7 +96,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted, watch, provide } from 'vue';
+import { computed, ref, onMounted, onUnmounted, watch, watchEffect, provide } from 'vue';
 // 为避免 SFC 类型解析跨包问题，这里使用本地最小类型定义
 type ExamConfig = {
   examName: string;
@@ -107,9 +116,10 @@ import ExamInfoCard from './cards/ExamInfoCard.vue';
 import ExamRoomCard from './cards/ExamRoomCard.vue';
 import CurrentListCard from './cards/CurrentListCard.vue';
 import ActionButtonBar from './ActionButtonBar.vue';
+import { providePlayerToolbar } from '../composables/usePlayerToolbar';
 // 本地引入 TDesign 组件，确保不依赖宿主全局注册
 import { Dialog as TDialog, Input as TInput, Button as TButton } from 'tdesign-vue-next';
-import { useReminderService, ReminderUtils } from '../reminderService';
+import { useReminderService, ReminderUtils } from '../utils/reminderService';
 
 // 轻量 Markdown 渲染器：使用浏览器原生实现，避免引入重依赖
 // 支持少量常见标记：# 标题、**加粗**、*斜体*、`行内代码`、换行
@@ -133,7 +143,13 @@ const renderMarkdownLight = (md: string): string => {
 // 根容器，用于就近设置 CSS 变量，避免继承/作用域导致的失效
 const rootRef = ref<HTMLElement | null>(null);
 
+// 工具栏注册器（供外部动态扩展按钮）
+const toolbarRegistry = providePlayerToolbar();
+const toolbarTools = toolbarRegistry.tools;
+
 // Props 定义
+type UIDensity = 'comfortable' | 'cozy' | 'compact';
+
 interface Props {
   /** 考试配置 */
   examConfig: ExamConfig | null;
@@ -141,6 +157,8 @@ interface Props {
   config?: PlayerConfig;
   /** 初始界面缩放倍数 */
   uiScale?: number;
+  /** UI 密度 */
+  uiDensity?: UIDensity;
   /** 时间提供者 */
   timeProvider?: TimeProvider;
   /** 时间同步状态描述 */
@@ -151,6 +169,8 @@ interface Props {
   showActionBar?: boolean;
   /** 是否启用大时钟样式 */
   largeClock?: boolean;
+  /** 大时钟字号缩放 */
+  largeClockScale?: number;
   /** 是否允许编辑考场号 */
   allowEditRoomNumber?: boolean;
   /** 事件处理器 */
@@ -170,8 +190,12 @@ interface Emits {
   (e: 'roomNumberClick'): void;
   (e: 'roomNumberChange', roomNumber: string): void;
   (e: 'update:roomNumber', roomNumber: string): void;
+  (e: 'update:largeClock', enabled: boolean): void;
   (e: 'exit'): void;
   (e: 'scaleChange', scale: number): void;
+  (e: 'largeClockToggle', enabled: boolean): void;
+  (e: 'largeClockScaleChange', scale: number): void;
+  (e: 'densityChange', density: UIDensity): void;
   (e: 'examStart', exam: any): void;
   (e: 'examEnd', exam: any): void;
   (e: 'examAlert', exam: any, alertTime: number): void;
@@ -182,6 +206,7 @@ interface Emits {
 const props = withDefaults(defineProps<Props>(), {
   config: () => ({ roomNumber: '01' }),
   uiScale: undefined,
+  largeClockScale: undefined,
   timeProvider: () => ({ getCurrentTime: () => Date.now() }),
   timeSyncStatus: '电脑时间',
   roomNumber: '01',
@@ -189,10 +214,12 @@ const props = withDefaults(defineProps<Props>(), {
   largeClock: false,
   allowEditRoomNumber: true,
   eventHandlers: () => ({}),
-  cards: () => ({})
+  cards: () => ({}),
+  uiDensity: 'comfortable'
 });
 
 const emit = defineEmits<Emits>();
+const reminder = useReminderService();
 
 // 显式注册局部组件（<t-dialog> / <t-input>）
 // 在 <script setup> 中，import 即可自动可用，但为兼容性，保留命名引用
@@ -231,6 +258,40 @@ const mergedEventHandlers: PlayerEventHandlers = {
   }
 };
 
+const densityState = ref<UIDensity>(props.uiDensity ?? 'comfortable');
+const densityFactorMap: Record<UIDensity, number> = {
+  comfortable: 1,
+  cozy: 0.85,
+  compact: 0.7
+};
+const densityFactor = computed(() => densityFactorMap[densityState.value] ?? 1);
+
+const clampLargeClockScale = (value: unknown) => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return 1;
+  return Math.min(1.8, Math.max(0.5, num));
+};
+
+const largeClockState = ref<boolean>(Boolean(props.largeClock));
+const resolveInitialLargeClockScale = () => {
+  if (props.largeClockScale !== undefined && props.largeClockScale !== null) {
+    return clampLargeClockScale(props.largeClockScale);
+  }
+  return 1;
+};
+const largeClockScaleState = ref<number>(resolveInitialLargeClockScale());
+
+watch(
+  () => props.largeClockScale,
+  (value) => {
+    if (value === undefined || value === null) return;
+    const safe = clampLargeClockScale(value);
+    if (safe !== largeClockScaleState.value) {
+      largeClockScaleState.value = safe;
+    }
+  }
+);
+
 // 使用播放器逻辑 - 初始化时传入配置
 const examPlayer = useExamPlayer(
   props.examConfig, // 直接传入考试配置
@@ -248,6 +309,59 @@ watch(
   },
   { immediate: false, deep: true }
 );
+
+watch(
+  () => props.uiDensity,
+  (val) => {
+    if (!val) return;
+    densityState.value = val;
+  }
+);
+
+watch(
+  () => props.largeClock,
+  (next) => {
+    largeClockState.value = Boolean(next);
+  }
+);
+
+const setLargeClockScaleVar = (scale: number) => {
+  const safe = clampLargeClockScale(scale);
+  if (typeof document !== 'undefined') {
+    document.documentElement.style.setProperty('--large-clock-scale', String(safe));
+  }
+  const root = rootRef.value;
+  if (root) {
+    root.style.setProperty('--large-clock-scale', String(safe));
+  }
+};
+
+watch(
+  largeClockScaleState,
+  (value) => {
+    const safe = clampLargeClockScale(value);
+    setLargeClockScaleVar(safe);
+    emit('largeClockScaleChange', safe);
+  },
+  { immediate: true }
+);
+
+watchEffect(() => {
+  if (typeof window === 'undefined') return;
+  const factor = densityFactor.value;
+  document.documentElement.style.setProperty('--density-scale', String(factor));
+  const root = rootRef.value;
+  if (root) {
+    root.style.setProperty('--density-scale', String(factor));
+    root.dataset.density = densityState.value;
+  }
+});
+
+watchEffect(() => {
+  const root = rootRef.value;
+  if (!root) return;
+  root.dataset.largeClock = largeClockState.value ? 'true' : 'false';
+});
 
 watch(
   () => props.config,
@@ -286,8 +400,47 @@ const {
   updateConfig
 } = examPlayer;
 
+const handleDensityChange = (next: UIDensity) => {
+  densityState.value = next;
+  emit('densityChange', next);
+};
+
+const handleLargeClockToggle = (enabled: boolean) => {
+  largeClockState.value = enabled;
+  emit('update:largeClock', enabled);
+  emit('largeClockToggle', enabled);
+};
+
+const handleLargeClockScaleChange = (scale: number) => {
+  largeClockScaleState.value = scale;
+};
+
+type DevReminderPreset = 'start' | 'warning' | 'end';
+type DevReminderPayload = { title: string; themeBaseColor: string };
+
+const devReminderPresets: Record<DevReminderPreset, DevReminderPayload> = {
+  start: { title: '考试开始', themeBaseColor: '#2ecc71' },
+  warning: { title: '考试即将结束', themeBaseColor: '#f1c40f' },
+  end: { title: '考试结束', themeBaseColor: '#ff3b30' }
+};
+
+const resolveDevReminderPayload = (payload: DevReminderPreset | DevReminderPayload) => {
+  if (typeof payload === 'string') {
+    return devReminderPresets[payload] ?? devReminderPresets.start;
+  }
+  return payload;
+};
+
+const handleDevReminderTest = (payload: DevReminderPreset | DevReminderPayload) => {
+  const resolved = resolveDevReminderPayload(payload);
+  reminder.showColorfulAlert(resolved);
+};
+
+const handleDevReminderHide = () => {
+  reminder.hideColorfulAlert();
+};
+
 // === 提醒服务 ===
-const reminder = useReminderService();
 // colorful 提醒派生
 const colorfulVisible = reminder.isColorfulVisible;
 const colorfulTitle = computed(() => reminder._colorfulReminder.value?.title || '提示');
@@ -320,7 +473,12 @@ defineExpose({
   // 普通提醒
   notify: reminder.notify,
   closeCurrentNotice: reminder.closeCurrentNotice,
-  clearAllNotices: reminder.clearAllNotices
+  clearAllNotices: reminder.clearAllNotices,
+  toolbar: {
+    register: toolbarRegistry.register,
+    unregister: toolbarRegistry.unregister,
+    clear: toolbarRegistry.clear
+  }
 });
 
 // 与考试事件联动：当 onExamAlert 触发时，自动弹出“即将结束”提醒
@@ -678,7 +836,9 @@ const ctxForCards = {
   ),
   displayFormattedExamInfos,
   effectiveRoomNumber,
-  largeClockEnabled: computed(() => !!props.largeClock),
+  uiDensity: densityState,
+  largeClockEnabled: computed(() => largeClockState.value),
+  largeClockScale: largeClockScaleState,
   handleRoomNumberClick
 };
 provide('ExamPlayerCtx', ctxForCards);
@@ -704,6 +864,8 @@ const resolvedCards = computed(() => ({
   background: #02080d;
   /* 提供本地默认变量，防止未继承导致的变量缺失 */
   --ui-scale: 1;
+  --density-scale: 1;
+  --large-clock-scale: 1;
 }
 
 .background-ellipse {
@@ -724,14 +886,14 @@ const resolvedCards = computed(() => ({
 }
 
 .exam-room-container {
-  margin-bottom: calc(var(--ui-scale, 1) * 2rem);
+  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
   display: flex;
   justify-content: flex-end; /* 右对齐 */
 }
 
 .logo-container {
   position: relative;
-  margin-bottom: calc(var(--ui-scale, 1) * 40px * 100vh / 1080px);
+  margin-bottom: calc((40px * 100vh / 1080px) * var(--ui-scale, 1) * var(--density-scale, 1));
   z-index: 20;
 }
 
@@ -743,14 +905,14 @@ const resolvedCards = computed(() => ({
 }
 
 .title-section {
-  margin-bottom: calc(var(--ui-scale, 1) * 3rem);
+  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 3rem);
 }
 
 .main-title {
   color: #ffffff;
   font-weight: 700;
   line-height: 1.2;
-  margin-bottom: calc(var(--ui-scale, 1) * 1rem);
+  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1rem);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -764,13 +926,13 @@ const resolvedCards = computed(() => ({
 }
 
 .clock-card {
-  margin-bottom: calc(var(--ui-scale, 1) * 2rem);
+  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
 }
 
 .clock-content {
   display: flex;
   align-items: center;
-  gap: calc(var(--ui-scale, 1) * 2rem);
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
 }
 
 .time-display {
@@ -791,7 +953,7 @@ const resolvedCards = computed(() => ({
 }
 
 .exam-info-card {
-  margin-bottom: calc(var(--ui-scale, 1) * 2rem);
+  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
 }
 
 .content-wrapper {
@@ -799,28 +961,30 @@ const resolvedCards = computed(() => ({
   z-index: 10;
   height: 100vh;
   display: flex;
-  padding: calc(var(--ui-scale, 1) * 2rem) calc(var(--ui-scale, 1) * 2rem)
-    calc(var(--ui-scale, 1) * 8rem) calc(var(--ui-scale, 1) * 2rem);
-  gap: calc(var(--ui-scale, 1) * 100px);
+  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 8rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
+  gap: calc(100px * var(--ui-scale, 1) * var(--density-scale, 1));
 }
 
 .left-column {
   width: 50%;
   min-width: 0; /* 允许收缩 */
-  padding-top: calc(var(--ui-scale, 1) * 40px * 100vh / 1080px);
+  padding-top: calc((40px * 100vh / 1080px) * var(--ui-scale, 1) * var(--density-scale, 1));
   overflow: hidden; /* 防止内容溢出 */
 }
 
 .right-column {
   width: 50%;
   min-width: 0; /* 允许收缩 */
-  padding-top: calc(var(--ui-scale, 1) * 40px * 100vh / 1080px);
+  padding-top: calc((40px * 100vh / 1080px) * var(--ui-scale, 1) * var(--density-scale, 1));
   overflow: hidden; /* 防止内容溢出 */
 }
 
 /* 统一卡片间距（适配可插拔卡片） */
 .card-item {
-  margin-bottom: calc(var(--ui-scale, 1) * 2rem);
+  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
 }
 .card-item:last-child {
   margin-bottom: 0;

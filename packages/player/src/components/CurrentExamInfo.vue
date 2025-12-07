@@ -47,7 +47,7 @@ const props = withDefaults(defineProps<CurrentExamInfoProps>(), {
 
 <style scoped>
 .card-header {
-  margin-bottom: calc(var(--ui-scale, 1) * 1.5rem);
+  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.5rem);
 }
 
 .card-title {
@@ -61,14 +61,14 @@ const props = withDefaults(defineProps<CurrentExamInfoProps>(), {
 .exam-info-list {
   display: flex;
   flex-direction: column;
-  gap: calc(var(--ui-scale, 1) * 0.5rem);
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.75rem);
 }
 
 .empty-state {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: calc(var(--ui-scale, 1) * 2rem) 0;
+  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem) 0;
 }
 
 .empty-text {

@@ -1,4 +1,4 @@
-import { useReminderService } from '../reminderService';
+import { useReminderService } from '../utils/reminderService';
 import type { IReminderService, ColorfulOptions, NormalOptions, CloseReason } from './reminder';
 
 export function createDefaultReminderService(): IReminderService {
