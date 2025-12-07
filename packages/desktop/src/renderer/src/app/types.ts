@@ -2,6 +2,7 @@ import type { App } from 'vue'
 import type { Router } from 'vue-router'
 import type { Pinia } from 'pinia'
 import type { DesktopAPI } from '../runtime/desktopApi'
+import type { SettingsPageMeta } from './modules/settings'
 
 export type ThemeMode = 'light' | 'dark' | 'auto'
 
@@ -17,6 +18,7 @@ export interface AppContext {
   // optional sugar helpers
   addHomeButton?: (meta: any) => Promise<void>
   addPage?: (meta: any) => Promise<void>
+  addSettingsPage?: (meta: SettingsPageMeta) => Promise<{ path: string; dispose: () => void }>
   // event & store helpers
   on?: (target: any, event: string, listener: (...args: any[]) => any, options?: any) => void
   piniaSubscribe?: (

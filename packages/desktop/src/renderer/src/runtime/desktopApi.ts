@@ -12,6 +12,9 @@ import {
   normalizeDensity,
   type PlaybackSettingsRefs
 } from '../composables/usePlaybackSettings'
+import { createDesktopPluginHost } from './desktopPluginHost'
+import type { PluginListItem, ServiceProviderRecord } from '../../../main/plugin/types'
+import type { SettingsPageMeta } from '../app/modules/settings'
 
 const DESKTOP_API_KEY = Symbol('DesktopAPI')
 
@@ -40,6 +43,31 @@ export interface PluginRegistry {
   list(): string[]
   dispose(name: string): void
   register(plugin: DesktopPlugin): Promise<DisposableHandle>
+  installed: Ref<PluginListItem[]>
+  serviceProviders: Ref<ServiceProviderRecord[]>
+  loading: Ref<boolean>
+  error: Ref<string | null>
+  refresh(): Promise<void>
+  toggle(name: string, enabled: boolean): Promise<void>
+  reload(name: string): Promise<void>
+  getConfig<T = Record<string, any>>(name: string): Promise<T | undefined>
+  setConfig<T = Record<string, any>>(name: string, config: T): Promise<T | undefined>
+  onStateChanged(cb: (items: PluginListItem[]) => void): () => void
+}
+
+export interface UiSettingsAPI {
+  registerPage(meta: SettingsPageMeta): Promise<DisposableHandle>
+}
+
+export interface UiAPI {
+  settings: UiSettingsAPI
+}
+
+export interface DesktopServicesAPI {
+  providers: Ref<ServiceProviderRecord[]>
+  has(name: string): boolean
+  ownerOf(name: string): string | undefined
+  inject<T = unknown>(name: string): Promise<T | undefined>
 }
 
 export interface DesktopAPI {
@@ -47,6 +75,8 @@ export interface DesktopAPI {
   settings: SettingsGateway
   playback: PlaybackAPI
   plugins: PluginRegistry
+  services: DesktopServicesAPI
+  ui: UiAPI
   useDisposer(disposer: () => void): void
   createDisposerGroup(): DisposerGroup
 }
@@ -62,6 +92,7 @@ export function initDesktopApi(ctx: AppContext, app?: App): DesktopAPI {
   const settingsGateway = createSettingsGateway()
   const playback = createPlaybackApi()
   const pluginRegistry = createPluginRegistry(ctx)
+  const pluginHost = createDesktopPluginHost(ctx)
 
   const api: DesktopAPI = {
     ctx,
@@ -72,8 +103,26 @@ export function initDesktopApi(ctx: AppContext, app?: App): DesktopAPI {
       dispose: pluginRegistry.dispose,
       register(plugin) {
         return pluginRegistry.register(plugin, api)
-      }
+      },
+      installed: pluginHost.installed,
+      serviceProviders: pluginHost.providers,
+      loading: pluginHost.loading,
+      error: pluginHost.error,
+      refresh: () => pluginHost.refresh(),
+      toggle: (name: string, enabled: boolean) => pluginHost.toggle(name, enabled),
+      reload: (name: string) => pluginHost.reload(name),
+      getConfig: <T = Record<string, any>>(name: string) => pluginHost.getConfig<T>(name),
+      setConfig: <T = Record<string, any>>(name: string, config: T) =>
+        pluginHost.setConfig<T>(name, config),
+      onStateChanged: (cb: (items: PluginListItem[]) => void) => pluginHost.onStateChanged(cb)
     },
+    services: {
+      providers: pluginHost.providers,
+      has: (name: string) => pluginHost.providers.value.some((svc) => svc.name === name),
+      ownerOf: (name: string) => pluginHost.providers.value.find((svc) => svc.name === name)?.owner,
+      inject: <T = unknown>(name: string) => pluginHost.getServiceValue<T>(name)
+    },
+    ui: createUiApi(ctx),
     useDisposer(disposer: () => void) {
       ctx.effect?.(disposer)
     },
@@ -87,6 +136,7 @@ export function initDesktopApi(ctx: AppContext, app?: App): DesktopAPI {
   ctx.desktopApi = api
   ctx.provide?.(DESKTOP_API_KEY, api)
   app?.provide(DESKTOP_API_KEY, api)
+  pluginHost.attachDesktopApi?.(api)
   ctx.effect?.(() => pluginRegistry.disposeAll())
 
   return api
@@ -162,6 +212,22 @@ function createPluginRegistry(ctx: AppContext) {
     },
     disposeAll() {
       Array.from(disposers.keys()).forEach(dispose)
+    }
+  }
+}
+
+function createUiApi(ctx: AppContext): UiAPI {
+  return {
+    settings: {
+      async registerPage(meta: SettingsPageMeta): Promise<DisposableHandle> {
+        if (!ctx.addSettingsPage) {
+          throw new Error('settings 模块尚未初始化，无法注册页面')
+        }
+        const handle = await ctx.addSettingsPage(meta)
+        return {
+          dispose: () => handle.dispose()
+        }
+      }
     }
   }
 }

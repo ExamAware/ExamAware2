@@ -1,5 +1,6 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 import type { MessageBoxOptions, MessageBoxReturnValue } from 'electron'
+import type { PluginListItem, ServiceProviderRecord } from '../main/plugin/types'
 
 declare global {
   interface Window {
@@ -32,6 +33,19 @@ declare global {
       }
       player: {
         openFromEditor: (data: string) => Promise<string | void>
+      }
+      plugins: {
+        list: () => Promise<PluginListItem[]>
+        toggle: (name: string, enabled: boolean) => Promise<PluginListItem[]>
+        reload: (name: string) => Promise<PluginListItem[]>
+        services: () => Promise<ServiceProviderRecord[]>
+        service: <T = unknown>(name: string) => Promise<T | undefined>
+        getConfig: <T = Record<string, any>>(name: string) => Promise<T | undefined>
+        setConfig: <T = Record<string, any>>(name: string, config: T) => Promise<T | undefined>
+        onState: (
+          listener: (payload: { list: PluginListItem[]; services: ServiceProviderRecord[] }) => void
+        ) => () => void
+        rendererEntry: (name: string) => Promise<string | undefined>
       }
       system: {
         autostart: {
