@@ -45,24 +45,23 @@ import { RecentFileManager } from '@renderer/core/recentFileManager'
 import { applyThemeMode, getThemeMode, type ThemeMode } from '@renderer/core/themeManager'
 import { useSettingsStore } from '@renderer/stores/settingsStore'
 import {
-  usePlaybackSettings,
   clampUiScale,
   clampLargeClockScale,
   normalizeDensity
 } from '@renderer/composables/usePlaybackSettings'
-import type { UIDensity } from '@renderer/composables/usePlaybackSettings'
+import { useDesktopApi, type UIDensity } from '@renderer/runtime/desktopApi'
 // 键盘相关逻辑已经内置在 ExamPlayer 中
 
 const ipcRenderer = window.api.ipc
 
 const settingsStore = useSettingsStore()
-
+const desktopApi = useDesktopApi()
 const {
   uiScale: uiScaleSetting,
   uiDensity: uiDensitySetting,
   largeClockEnabled: largeClockEnabledSetting,
   largeClockScale: largeClockScaleSetting
-} = usePlaybackSettings()
+} = desktopApi.playback
 
 const defaultRoomSetting = computed(() => {
   const raw = settingsStore.get<string>('player.defaultRoom', '01')
