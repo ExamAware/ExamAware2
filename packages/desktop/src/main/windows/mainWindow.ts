@@ -35,6 +35,7 @@ export function createMainWindow(): BrowserWindow {
           console.debug('[mainWindow]', ...args)
         } catch {}
       }
+      const FORCE_CLOSE_FLAG = '__ea_force_close__'
       log('setup start; isDestroyed?', win.isDestroyed())
       applyTitleBarOverlay(win)
       attachTitleBarOverlayLifecycle(win)
@@ -71,7 +72,16 @@ export function createMainWindow(): BrowserWindow {
       win.on('close', (e) => {
         // 当明确退出（例如 托盘“退出”或 Cmd+Q）时放行
         if ((app as any).isQuitting) return
+        if ((win as any)[FORCE_CLOSE_FLAG]) {
+          delete (win as any)[FORCE_CLOSE_FLAG]
+          return
+        }
         if (process.platform === 'darwin') {
+          e.preventDefault()
+          log('event: close intercepted -> request renderer confirmation')
+          if (!win.isDestroyed()) {
+            win.webContents.send('editor:request-close')
+          }
           return
         }
         e.preventDefault()

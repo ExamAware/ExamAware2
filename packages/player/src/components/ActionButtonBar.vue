@@ -6,9 +6,20 @@
     :style="{ '--darkness': darknessProgress }"
   ></div>
 
-  <div class="action-button-bar">
+  <div
+    class="action-button-bar"
+    :class="{
+      collapsed: isCollapsed,
+      'settings-open': showSettings,
+      'manual-collapsed': manualCollapsed
+    }"
+    @mouseenter="handleUserActivity"
+    @mousemove="handleUserActivity"
+    @mouseleave="scheduleCollapse"
+    @touchstart.passive="handleUserActivity"
+  >
     <div class="button-container">
-      <!-- 退出播放按钮 - 长按3秒退出 -->
+      <!-- 退出播放按钮 - 长按退出 -->
       <button
         class="action-button exit-button"
         :class="{ pressing: isPressing }"
@@ -31,66 +42,115 @@
       </button>
 
       <!-- 播放设置按钮 -->
-      <button class="action-button" @click="handlePlaybackSettings">
+      <button class="action-button" type="button" @click="handlePlaybackSettings">
         <div class="button-icon">
           <SettingIcon />
         </div>
         <div class="button-text">播放设置</div>
       </button>
 
-      <!-- 呼叫巡考按钮 - 默认隐藏，留给后面集控使用 -->
-      <!-- <button class="action-button" @click="handleCallInspector" style="display: none;">
+      <!-- 额外工具 -->
+      <template v-for="tool in sortedExtraTools" :key="tool.id">
+        <component
+          v-if="tool.component"
+          :is="tool.component"
+          class="action-button custom-tool"
+          v-bind="tool.componentProps ?? {}"
+        />
+        <button
+          v-else
+          class="action-button extra-tool"
+          :class="tool.className"
+          type="button"
+          :title="tool.tooltip || tool.label"
+          :disabled="tool.disabled"
+          @click="handleToolClick(tool, $event)"
+        >
+          <div class="button-icon">
+            <component v-if="tool.icon" :is="tool.icon" />
+          </div>
+          <div class="button-text">{{ tool.label }}</div>
+        </button>
+      </template>
+
+      <!-- 折叠开关 -->
+      <button
+        class="action-button collapse-toggle"
+        type="button"
+        :aria-pressed="manualCollapsed"
+        :aria-label="manualCollapsed ? '展开工具栏' : '收起工具栏'"
+        :title="manualCollapsed ? '展开工具栏' : '收起工具栏'"
+        @click.stop="toggleManualCollapse"
+      >
         <div class="button-icon">
-          <call-icon />
+          <ChevronRightIcon v-if="isCollapsed" />
+          <ChevronLeftIcon v-else />
         </div>
-        <div class="button-text">呼叫巡考</div>
-      </button> -->
+        <div class="button-text">{{ manualCollapsed ? '展开' : '收起' }}</div>
+      </button>
     </div>
   </div>
 
-  <!-- 播放设置弹窗（空内容） -->
-  <t-dialog
+  <PlaybackSettingsDrawer
     :visible="showSettings"
-    header="播放设置"
-    :confirm-btn="{ content: '完成', theme: 'primary' }"
-    :cancel-btn="null"
-    :close-on-overlay-click="true"
-    :close-on-esc-keydown="true"
+    :scale="tempScale"
+    :density="tempDensity"
+    :large-clock-enabled="tempLargeClockEnabled"
+    :large-clock-scale="tempLargeClockScale"
+    :density-options="densityOptions"
+    :format-scale="formatScale"
+    :is-dev-mode="isDevMode"
     @update:visible="handleSettingsVisibleChange"
-    @confirm="handleSettingsConfirm"
+    @update:scale="handleTempScaleUpdate"
+    @update:density="handleTempDensityUpdate"
+    @update:largeClockEnabled="handleTempLargeClockEnabledUpdate"
+    @update:largeClockScale="handleTempLargeClockScaleUpdate"
     @close="handleSettingsClosed"
-  >
-    <div class="settings-body">
-      <t-space direction="vertical" :size="16" style="width: 100%">
-        <div class="settings-group">
-          <div class="settings-label">界面缩放</div>
-          <div class="settings-control">
-            <t-slider
-              v-model:value="tempScale"
-              :min="0.5"
-              :max="2"
-              :step="0.01"
-              :input-number-props="{ theme: 'column', suffix: 'x', format: formatScale }"
-            />
-            <div class="settings-hint">拖动或输入数值调整播放器界面大小</div>
-          </div>
-        </div>
-      </t-space>
-    </div>
-  </t-dialog>
+    @confirm="handleSettingsConfirm"
+    @dev-reminder-test="triggerDevReminderTest"
+    @dev-reminder-hide="triggerDevReminderHide"
+  />
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue';
-const props = withDefaults(defineProps<{ initialScale?: number }>(), { initialScale: undefined });
-const emit = defineEmits<{ (e: 'exit'): void; (e: 'scaleChange', scale: number): void }>();
-import { LogoutIcon, SettingIcon } from 'tdesign-icons-vue-next';
-import {
-  Dialog as TDialog,
-  Slider as TSlider,
-  InputNumber as TInputNumber,
-  Space as TSpace
-} from 'tdesign-vue-next';
+import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
+import type { PlayerToolbarItem } from '../types';
+import type {
+  UIDensity,
+  DensityOption,
+  DevReminderPreset,
+  DevReminderPayload
+} from '../types/toolbar';
+import { defaultDensityOptions } from '../types/toolbar';
+import PlaybackSettingsDrawer from './PlaybackSettingsDrawer.vue';
+const props = withDefaults(
+  defineProps<{
+    initialScale?: number;
+    initialDensity?: UIDensity;
+    initialLargeClockScale?: number;
+    initialLargeClockEnabled?: boolean;
+    extraTools?: readonly PlayerToolbarItem[];
+  }>(),
+  {
+    initialScale: undefined,
+    initialDensity: 'comfortable',
+    initialLargeClockScale: 1,
+    initialLargeClockEnabled: false,
+    extraTools: () => []
+  }
+);
+const emit = defineEmits<{
+  (e: 'exit'): void;
+  (e: 'scaleChange', scale: number): void;
+  (e: 'densityChange', density: UIDensity): void;
+  (e: 'clockScaleChange', scale: number): void;
+  (e: 'largeClockToggle', enabled: boolean): void;
+  (e: 'devReminderTest', preset: DevReminderPreset | DevReminderPayload): void;
+  (e: 'devReminderHide'): void;
+}>();
+import { LogoutIcon, SettingIcon, ChevronLeftIcon, ChevronRightIcon } from 'tdesign-icons-vue-next';
+
+const isDevMode = Boolean(import.meta.env?.DEV ?? false);
 
 const clampScale = (value: unknown) => {
   const num = Number(value);
@@ -98,17 +158,137 @@ const clampScale = (value: unknown) => {
   return Math.min(2, Math.max(0.5, num));
 };
 
-const providedInitial =
+const clampClockScale = (value: unknown) => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return 1;
+  return Math.min(2, Math.max(0.5, num));
+};
+
+const normalizeDensity = (value: unknown): UIDensity => {
+  if (value === 'comfortable' || value === 'cozy' || value === 'compact') {
+    return value as UIDensity;
+  }
+  return 'comfortable';
+};
+
+const densityOptions: DensityOption[] = defaultDensityOptions;
+
+const densityFactorMap: Record<UIDensity, number> = {
+  comfortable: 1,
+  cozy: 0.85,
+  compact: 0.7
+};
+
+const providedInitialScale =
   props.initialScale !== undefined && props.initialScale !== null
     ? clampScale(props.initialScale)
     : undefined;
 
-const uiScale = ref(providedInitial ?? getInitialScale());
+const providedInitialDensity = normalizeDensity(props.initialDensity);
+
+const uiScale = ref(providedInitialScale ?? getInitialScale());
 const tempScale = ref(uiScale.value);
 let currentScale = uiScale.value;
 
+const density = ref<UIDensity>(providedInitialDensity);
+const tempDensity = ref<UIDensity>(density.value);
+const largeClockScale = ref<number>(
+  props.initialLargeClockScale !== undefined && props.initialLargeClockScale !== null
+    ? clampClockScale(props.initialLargeClockScale)
+    : 1
+);
+const tempLargeClockScale = ref<number>(largeClockScale.value);
+const largeClockEnabled = ref<boolean>(Boolean(props.initialLargeClockEnabled));
+const tempLargeClockEnabled = ref<boolean>(largeClockEnabled.value);
+
+const handleTempScaleUpdate = (value: number) => {
+  tempScale.value = value;
+};
+
+const handleTempDensityUpdate = (value: UIDensity) => {
+  tempDensity.value = value;
+};
+
+const handleTempLargeClockEnabledUpdate = (value: boolean) => {
+  tempLargeClockEnabled.value = value;
+};
+
+const handleTempLargeClockScaleUpdate = (value: number) => {
+  tempLargeClockScale.value = value;
+};
+
 // 播放设置弹窗开关
 const showSettings = ref(false);
+const autoCollapsed = ref(false);
+const manualCollapsed = ref(false);
+const isCollapsed = computed(() => manualCollapsed.value || autoCollapsed.value);
+
+const sortedExtraTools = computed(() => {
+  const list = Array.isArray(props.extraTools) ? [...props.extraTools] : [];
+  return list.sort((a, b) => (a.order ?? 100) - (b.order ?? 100));
+});
+
+const COLLAPSE_DELAY = 4000;
+let collapseTimer: number | null = null;
+let lastActivityAt = 0;
+const activityEvents = ['mousemove', 'mousedown', 'keydown', 'wheel', 'touchstart'];
+
+const cancelCollapseTimer = () => {
+  if (collapseTimer !== null) {
+    window.clearTimeout(collapseTimer);
+    collapseTimer = null;
+  }
+};
+
+const scheduleCollapse = () => {
+  if (showSettings.value || isPressing.value || manualCollapsed.value) return;
+  cancelCollapseTimer();
+  collapseTimer = window.setTimeout(() => {
+    if (!showSettings.value && !isPressing.value && !manualCollapsed.value) {
+      autoCollapsed.value = true;
+    }
+  }, COLLAPSE_DELAY);
+};
+
+const markActivity = () => {
+  lastActivityAt = Date.now();
+};
+
+const handleUserActivity = () => {
+  const now = Date.now();
+  if (now - lastActivityAt < 100) {
+    return;
+  }
+  markActivity();
+  if (manualCollapsed.value) {
+    return;
+  }
+  if (autoCollapsed.value) {
+    autoCollapsed.value = false;
+  }
+  scheduleCollapse();
+};
+
+const handleGlobalActivity = () => {
+  handleUserActivity();
+};
+
+const toggleManualCollapse = () => {
+  if (manualCollapsed.value) {
+    manualCollapsed.value = false;
+    autoCollapsed.value = false;
+    handleUserActivity();
+    return;
+  }
+  if (autoCollapsed.value) {
+    autoCollapsed.value = false;
+    handleUserActivity();
+    return;
+  }
+  manualCollapsed.value = true;
+  autoCollapsed.value = false;
+  cancelCollapseTimer();
+};
 
 // 长按相关状态
 const isPressing = ref(false);
@@ -120,6 +300,9 @@ let lightenAnimationId: number | null = null; // 改用 requestAnimationFrame
 
 function getInitialScale() {
   // 默认根据屏幕宽度自动设置初始缩放
+  if (typeof window === 'undefined') {
+    return 1;
+  }
   const w = window.innerWidth;
   if (w >= 1920) return 1.2;
   if (w >= 1440) return 1.0;
@@ -148,9 +331,54 @@ const setRootScale = (scale: number) => {
   );
 };
 
+const setRootDensity = (value: UIDensity) => {
+  if (typeof window === 'undefined') return;
+  const factor = densityFactorMap[value] ?? 1;
+  document.documentElement.style.setProperty('--density-scale', String(factor));
+  const container = document.querySelector('.exam-container') as HTMLElement | null;
+  if (container) {
+    container.style.setProperty('--density-scale', String(factor));
+    container.dataset.density = value;
+  }
+};
+
+const setLargeClockScale = (value: number) => {
+  if (typeof window === 'undefined') return;
+  const target = String(value);
+  document.documentElement.style.setProperty('--large-clock-scale', target);
+  const container = document.querySelector('.exam-container') as HTMLElement | null;
+  if (container) {
+    container.style.setProperty('--large-clock-scale', target);
+  }
+};
+
+const devReminderPresets: Record<DevReminderPreset, DevReminderPayload> = {
+  start: { title: '考试开始（测试）', themeBaseColor: '#2ecc71' },
+  warning: { title: '考试即将结束（测试）', themeBaseColor: '#f1c40f' },
+  end: { title: '考试结束（测试）', themeBaseColor: '#ff3b30' }
+};
+
+const triggerDevReminderTest = (preset: DevReminderPreset) => {
+  if (!isDevMode) return;
+  const payload = devReminderPresets[preset];
+  emit('devReminderTest', payload ?? devReminderPresets.start);
+};
+
+const triggerDevReminderHide = () => {
+  if (!isDevMode) return;
+  emit('devReminderHide');
+};
+
 onMounted(() => {
   currentScale = uiScale.value;
   setRootScale(uiScale.value);
+  setRootDensity(density.value);
+  setLargeClockScale(largeClockScale.value);
+  markActivity();
+  scheduleCollapse();
+  activityEvents.forEach((eventName) => {
+    window.addEventListener(eventName, handleGlobalActivity, { passive: true });
+  });
 });
 
 watch(
@@ -161,6 +389,35 @@ watch(
     currentScale = safe;
     uiScale.value = safe;
     tempScale.value = safe;
+  }
+);
+
+watch(
+  () => props.initialDensity,
+  (value) => {
+    if (value === undefined || value === null) return;
+    const safe = normalizeDensity(value);
+    density.value = safe;
+    tempDensity.value = safe;
+  }
+);
+
+watch(
+  () => props.initialLargeClockScale,
+  (value) => {
+    if (value === undefined || value === null) return;
+    const safe = clampClockScale(value);
+    largeClockScale.value = safe;
+    tempLargeClockScale.value = safe;
+  }
+);
+
+watch(
+  () => props.initialLargeClockEnabled,
+  (value) => {
+    if (typeof value !== 'boolean') return;
+    largeClockEnabled.value = value;
+    tempLargeClockEnabled.value = value;
   }
 );
 
@@ -194,6 +451,68 @@ watch(tempScale, (value) => {
   }
 });
 
+watch(
+  density,
+  (newValue, oldValue) => {
+    const safe = normalizeDensity(newValue);
+    if (safe !== newValue) {
+      density.value = safe;
+      return;
+    }
+    setRootDensity(safe);
+    if (safe !== oldValue) {
+      emit('densityChange', safe);
+    }
+  },
+  { immediate: true }
+);
+
+watch(tempDensity, (value) => {
+  const safe = normalizeDensity(value);
+  if (density.value !== safe) {
+    density.value = safe;
+  }
+});
+
+watch(
+  largeClockScale,
+  (newValue, oldValue) => {
+    const safe = clampClockScale(newValue);
+    if (safe !== newValue) {
+      largeClockScale.value = safe;
+      return;
+    }
+    setLargeClockScale(safe);
+    if (safe !== oldValue) {
+      emit('clockScaleChange', safe);
+    }
+  },
+  { immediate: true }
+);
+
+watch(tempLargeClockScale, (value) => {
+  const safe = clampClockScale(value);
+  if (largeClockScale.value !== safe) {
+    largeClockScale.value = safe;
+  }
+});
+
+watch(
+  largeClockEnabled,
+  (enabled, previous) => {
+    if (enabled === previous) return;
+    emit('largeClockToggle', enabled);
+  },
+  { immediate: true }
+);
+
+watch(tempLargeClockEnabled, (value) => {
+  const flag = Boolean(value);
+  if (largeClockEnabled.value !== flag) {
+    largeClockEnabled.value = flag;
+  }
+});
+
 onUnmounted(() => {
   // 清理定时器和动画帧
   cancelLongPress();
@@ -201,10 +520,15 @@ onUnmounted(() => {
     cancelAnimationFrame(lightenAnimationId);
     lightenAnimationId = null;
   }
+  cancelCollapseTimer();
+  activityEvents.forEach((eventName) => {
+    window.removeEventListener(eventName, handleGlobalActivity);
+  });
 });
 
 // 长按功能
 const startLongPress = (e: Event) => {
+  handleUserActivity();
   e.preventDefault();
   console.log('开始长按退出');
 
@@ -245,6 +569,7 @@ const startLongPress = (e: Event) => {
 };
 
 const cancelLongPress = () => {
+  handleUserActivity();
   if (longPressTimer) {
     clearTimeout(longPressTimer);
     longPressTimer = null;
@@ -290,33 +615,70 @@ const cancelLongPress = () => {
 };
 
 const handleExitPlayback = () => {
+  handleUserActivity();
   console.log('退出播放（触发 exit 事件）');
   emit('exit');
 };
 
+const handleToolClick = async (tool: PlayerToolbarItem, event: MouseEvent) => {
+  if (tool.disabled) {
+    event.preventDefault();
+    return;
+  }
+  handleUserActivity();
+  try {
+    await tool.onClick?.(event);
+  } catch (error) {
+    console.error('执行工具栏按钮失败:', error);
+  }
+};
+
 const handlePlaybackSettings = () => {
+  handleUserActivity();
   console.log('打开播放设置弹窗');
   tempScale.value = uiScale.value;
+  tempDensity.value = density.value;
+  tempLargeClockScale.value = largeClockScale.value;
+  tempLargeClockEnabled.value = largeClockEnabled.value;
   showSettings.value = true;
 };
 
 const handleSettingsConfirm = () => {
+  handleUserActivity();
   const safe = clampScale(tempScale.value);
   tempScale.value = safe;
   uiScale.value = safe;
+  density.value = normalizeDensity(tempDensity.value);
+  largeClockScale.value = clampClockScale(tempLargeClockScale.value);
+  largeClockEnabled.value = Boolean(tempLargeClockEnabled.value);
   showSettings.value = false;
 };
 
 const handleSettingsVisibleChange = (visible: boolean) => {
+  if (visible) {
+    handleUserActivity();
+    autoCollapsed.value = false;
+    manualCollapsed.value = false;
+    cancelCollapseTimer();
+  } else {
+    scheduleCollapse();
+  }
   showSettings.value = visible;
   if (!visible) {
     tempScale.value = uiScale.value;
+    tempDensity.value = density.value;
+    tempLargeClockScale.value = largeClockScale.value;
+    tempLargeClockEnabled.value = largeClockEnabled.value;
   }
 };
 
 const handleSettingsClosed = () => {
   // 关闭时重置临时缩放值，避免下次打开残留中间值
   tempScale.value = uiScale.value;
+  tempDensity.value = density.value;
+  tempLargeClockScale.value = largeClockScale.value;
+  tempLargeClockEnabled.value = largeClockEnabled.value;
+  scheduleCollapse();
 };
 
 const formatScale = (value: number | string) => {
@@ -348,22 +710,33 @@ const formatScale = (value: number | string) => {
   left: 0;
   right: 0;
   z-index: 50;
-  padding: calc(var(--ui-scale, 1) * 1rem) calc(var(--ui-scale, 1) * 2rem)
-    calc(var(--ui-scale, 1) * 2rem) calc(var(--ui-scale, 1) * 2rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.75rem);
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
 }
 
 .button-container {
   display: flex;
-  gap: calc(var(--ui-scale, 1) * 1.25rem);
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.25rem);
   align-items: center;
   justify-content: flex-start;
+  flex: 1 1 auto;
+  transition: gap 0.2s ease;
 }
 
 .action-button {
-  width: calc(var(--ui-scale, 1) * 5rem);
-  height: calc(var(--ui-scale, 1) * 5rem);
-  border-radius: calc(var(--ui-scale, 1) * 15px);
-  border: calc(var(--ui-scale, 1) * 2px) solid rgba(255, 255, 255, 0.16);
+  width: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 5rem);
+  height: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 5rem);
+  border-radius: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 15px);
+  border: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2px) solid rgba(255, 255, 255, 0.16);
   background: #040e15;
   display: flex;
   flex-direction: column;
@@ -371,10 +744,15 @@ const formatScale = (value: number | string) => {
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  gap: calc(var(--ui-scale, 1) * 0.25rem);
-  padding: calc(var(--ui-scale, 1) * 0.5rem);
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.25rem);
+  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.5rem);
   position: relative;
   overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.action-button.extra-tool {
+  min-width: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 4.25rem);
 }
 
 .action-button:hover {
@@ -396,11 +774,11 @@ const formatScale = (value: number | string) => {
 
 .progress-border {
   position: absolute;
-  top: calc(var(--ui-scale, 1) * -3px);
-  left: calc(var(--ui-scale, 1) * -3px);
-  right: calc(var(--ui-scale, 1) * -3px);
-  bottom: calc(var(--ui-scale, 1) * -3px);
-  border-radius: calc(var(--ui-scale, 1) * 18px);
+  top: calc(var(--ui-scale, 1) * var(--density-scale, 1) * -3px);
+  left: calc(var(--ui-scale, 1) * var(--density-scale, 1) * -3px);
+  right: calc(var(--ui-scale, 1) * var(--density-scale, 1) * -3px);
+  bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * -3px);
+  border-radius: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 18px);
   pointer-events: none;
   z-index: 1;
 }
@@ -412,8 +790,8 @@ const formatScale = (value: number | string) => {
   left: 0;
   right: 0;
   bottom: 0;
-  border-radius: calc(var(--ui-scale, 1) * 18px);
-  padding: calc(var(--ui-scale, 1) * 3px);
+  border-radius: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 18px);
+  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 3px);
   background: conic-gradient(
     from 0deg,
     #ff5757 0deg,
@@ -448,47 +826,168 @@ const formatScale = (value: number | string) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: calc(var(--ui-scale, 1) * 30px);
+  font-size: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 30px);
 }
 
 .button-text {
   color: rgba(255, 255, 255, 0.85);
   font-family: 'MiSans', sans-serif;
-  font-size: calc(var(--ui-scale, 1) * 0.875rem);
+  font-size: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.875rem);
   font-weight: 500;
   text-align: center;
   line-height: 1;
   white-space: nowrap;
+  transition: opacity 0.15s ease;
 }
 
 .icon-svg {
-  width: calc(var(--ui-scale, 1) * 30px);
-  height: calc(var(--ui-scale, 1) * 30px);
+  width: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 30px);
+  height: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 30px);
+}
+
+.action-button.collapse-toggle {
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.35rem);
+}
+
+.action-button.collapse-toggle .button-icon {
+  font-size: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 26px);
+}
+
+.action-button-bar.collapsed {
+  opacity: 0.92;
+  transform: translateY(calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.5rem));
+  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.75rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.25rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.75rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.25rem);
+}
+
+.action-button-bar.collapsed .button-container {
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.75rem);
+}
+
+.action-button-bar.collapsed .action-button {
+  width: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 3.2rem);
+  height: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 3.2rem);
+  border-radius: 999px;
+  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.25rem);
+  gap: 0;
+}
+
+.action-button-bar.collapsed .progress-border {
+  top: calc(var(--ui-scale, 1) * var(--density-scale, 1) * -2px);
+  left: calc(var(--ui-scale, 1) * var(--density-scale, 1) * -2px);
+  right: calc(var(--ui-scale, 1) * var(--density-scale, 1) * -2px);
+  bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * -2px);
+  border-radius: 999px;
+}
+
+.action-button-bar.collapsed .progress-border::before {
+  border-radius: 999px;
+}
+
+.action-button-bar.collapsed .button-text {
+  opacity: 0;
+  pointer-events: none;
+  display: none;
+}
+
+.action-button-bar.collapsed .button-icon {
+  font-size: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 24px);
+}
+
+.action-button-bar.collapsed .action-button.collapse-toggle {
+  width: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2.8rem);
+  height: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2.8rem);
+}
+
+.action-button-bar.manual-collapsed {
+  opacity: 0.88;
+}
+
+.action-button-bar.manual-collapsed .action-button.collapse-toggle {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.action-button-bar.settings-open {
+  transform: none;
+  opacity: 1;
 }
 
 .settings-body {
-  padding: 12px 0;
+  padding: calc(var(--ui-scale, 1) * 12px) 0;
 }
 
 .settings-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: calc(var(--ui-scale, 1) * 8px);
 }
 
 .settings-label {
-  font-size: 14px;
+  font-size: calc(var(--ui-scale, 1) * 14px);
   color: var(--td-text-color-primary, rgba(255, 255, 255, 0.9));
 }
 
 .settings-control {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: calc(var(--ui-scale, 1) * 8px);
+}
+
+.switch-label {
+  font-size: calc(var(--ui-scale, 1) * 13px);
+  color: var(--td-text-color-secondary, rgba(255, 255, 255, 0.7));
 }
 
 .settings-hint {
-  font-size: 12px;
+  font-size: calc(var(--ui-scale, 1) * 12px);
   color: var(--td-text-color-placeholder, rgba(255, 255, 255, 0.45));
+}
+
+.density-options {
+  gap: calc(var(--ui-scale, 1) * 12px);
+}
+
+.density-option-label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: calc(var(--ui-scale, 1) * 2px);
+}
+
+.density-option-title {
+  font-size: calc(var(--ui-scale, 1) * 14px);
+  font-weight: 600;
+  color: var(--td-text-color-primary, rgba(255, 255, 255, 0.95));
+}
+
+.density-option-description {
+  font-size: calc(var(--ui-scale, 1) * 12px);
+  color: var(--td-text-color-secondary, rgba(255, 255, 255, 0.65));
+}
+
+.density-options :deep(.t-radio-button-group) {
+  width: 100%;
+  display: flex;
+  gap: calc(var(--ui-scale, 1) * 8px);
+}
+
+.density-options :deep(.t-radio-button) {
+  flex: 1;
+}
+
+.density-options :deep(.t-radio-button__content) {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.dev-reminder-tools .settings-label {
+  color: #ff9f43;
+}
+
+.dev-reminder-tools :deep(.t-button) {
+  border-color: rgba(255, 255, 255, 0.3);
 }
 </style>

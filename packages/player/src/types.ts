@@ -1,3 +1,5 @@
+import type { Component } from 'vue';
+
 // Player包的核心类型定义
 
 export interface PlayerConfig {
@@ -52,4 +54,44 @@ export interface PlayerEventHandlers {
   onExamSwitch?: (fromExam: any, toExam: any) => void;
   /** 错误事件 */
   onError?: (error: string) => void;
+}
+
+/**
+ * 播放器工具栏按钮定义
+ */
+export interface PlayerToolbarItem {
+  /** 唯一标识 */
+  id: string;
+  /** 展示文本 */
+  label: string;
+  /** 图标组件（可选） */
+  icon?: Component;
+  /** 自定义渲染组件（可选，优先级高于 icon + label 模式） */
+  component?: Component;
+  /** 传入自定义组件的属性 */
+  componentProps?: Record<string, any>;
+  /** 按钮顺序，值越小越靠前，默认 100 */
+  order?: number;
+  /** 鼠标悬停提示 */
+  tooltip?: string;
+  /** 附加 class 名，便于定制样式 */
+  className?: string;
+  /** 是否禁用 */
+  disabled?: boolean;
+  /** 点击回调 */
+  onClick?: (event: MouseEvent) => void | Promise<void>;
+}
+
+/**
+ * 播放器工具栏注册器接口
+ */
+export interface PlayerToolbarRegistry {
+  /** 当前注册的工具项（已排序） */
+  readonly tools: import('vue').ShallowRef<readonly PlayerToolbarItem[]>;
+  /** 注册工具项，返回销毁函数 */
+  register(item: PlayerToolbarItem): () => void;
+  /** 移除工具项 */
+  unregister(id: string): void;
+  /** 清空所有工具项 */
+  clear(): void;
 }

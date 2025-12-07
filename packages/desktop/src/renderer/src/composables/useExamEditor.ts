@@ -460,6 +460,23 @@ export function useExamEditor() {
     }
     window.electronAPI?.close?.()
   }
+
+  let removeRequestCloseListener: (() => void) | null = null
+
+  onMounted(() => {
+    const handler = () => {
+      void closeEditorWindow()
+    }
+    if (window.api?.ipc?.on && window.api?.ipc?.off) {
+      window.api.ipc.on('editor:request-close', handler)
+      removeRequestCloseListener = () => window.api?.ipc?.off?.('editor:request-close', handler)
+    }
+  })
+
+  onUnmounted(() => {
+    removeRequestCloseListener?.()
+    removeRequestCloseListener = null
+  })
   const undoAction = () => {
     // 撤销到上一历史
     historyStore.undo()

@@ -23,8 +23,37 @@ export function parseExamConfig(jsonString: string): ExamConfig | null {
  * @returns 如果配置有效则返回 true，否则返回 false
  */
 export function validateExamConfig(config: ExamConfig): boolean {
-  if (!config.examName || !config.examInfos?.length) return false;
-  return config.examInfos.every((info) => info.name && info.start && info.end);
+  if (!config || typeof config !== 'object') {
+    return false;
+  }
+
+  const { examName, message, examInfos } = config as Partial<ExamConfig>;
+
+  if (examName != null && typeof examName !== 'string') {
+    return false;
+  }
+
+  if (message != null && typeof message !== 'string') {
+    return false;
+  }
+
+  if (!Array.isArray(examInfos)) {
+    return false;
+  }
+
+  if (examInfos.length === 0) {
+    return true;
+  }
+
+  return examInfos.every((info) => {
+    if (!info || typeof info !== 'object') return false;
+    const { name, start, end, alertTime } = info as ExamConfig['examInfos'][number];
+    if (typeof name !== 'string' || !name.trim()) return false;
+    if (typeof start !== 'string' || !start.trim()) return false;
+    if (typeof end !== 'string' || !end.trim()) return false;
+    if (typeof alertTime !== 'number' || !Number.isFinite(alertTime)) return false;
+    return true;
+  });
 }
 
 /**

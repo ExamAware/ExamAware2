@@ -37,50 +37,55 @@ const statusClass = computed(() => {
 
 <style scoped>
 .exam-info-item {
-  display: flex;
-  align-items: center;
-  padding: calc(var(--ui-scale, 1) * 0.25rem) 0;
-  gap: calc(var(--ui-scale, 1) * 1rem);
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) max-content max-content;
+  align-items: baseline;
+  column-gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1rem);
+  row-gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.25rem);
+  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.5rem) 0;
 }
 
 .exam-date {
   color: rgba(255, 255, 255, 0.8);
   font-family: 'MiSans', sans-serif;
-  font-size: calc(var(--ui-scale, 1) * 1.4rem);
-  font-weight: 500;
-  min-width: calc(var(--ui-scale, 1) * 80px);
+  font-size: calc(var(--ui-scale, 1) * 1.6rem);
+  font-weight: 600;
+  min-width: calc(var(--ui-scale, 1) * 88px);
+  justify-self: start;
 }
 
 .exam-details {
-  display: flex;
-  align-items: center;
-  gap: calc(var(--ui-scale, 1) * 1rem);
-  flex: 1;
+  display: contents;
 }
 
 .exam-subject {
   color: #ffffff;
   font-family: 'MiSans', sans-serif;
-  font-size: calc(var(--ui-scale, 1) * 1.4rem);
-  font-weight: 500;
-  min-width: calc(var(--ui-scale, 1) * 50px);
+  font-size: calc(var(--ui-scale, 1) * 1.65rem);
+  font-weight: 600;
+  min-width: 0;
+  line-height: 1.2;
 }
 
 .exam-time {
-  color: #ffffff;
+  color: rgba(255, 255, 255, 0.85);
   font-family: 'MiSans', sans-serif;
-  font-size: calc(var(--ui-scale, 1) * 1.4rem);
+  font-size: calc(var(--ui-scale, 1) * 1.5rem);
   font-weight: 500;
   min-width: calc(var(--ui-scale, 1) * 120px);
+  line-height: 1.2;
 }
 
 .exam-status {
-  padding: calc(var(--ui-scale, 1) * 0.2rem) calc(var(--ui-scale, 1) * 0.8rem);
-  border-radius: calc(var(--ui-scale, 1) * 5px);
+  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.35rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1rem);
+  border-radius: calc(var(--ui-scale, 1) * 6px);
   font-family: 'MiSans', sans-serif;
-  font-size: calc(var(--ui-scale, 1) * 0.875rem);
-  font-weight: 500;
+  font-size: calc(var(--ui-scale, 1) * 1rem);
+  font-weight: 600;
   white-space: nowrap;
+  justify-self: end;
+  line-height: 1.2;
 }
 
 .status-finished {
