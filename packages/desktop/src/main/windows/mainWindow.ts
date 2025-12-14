@@ -58,6 +58,19 @@ export function createMainWindow(): BrowserWindow {
         win.on('show', ensureDockVisible)
         win.on('restore', ensureDockVisible)
       }
+      const isEditorRouteActive = () => {
+        try {
+          const url = win.webContents.getURL() || ''
+          const hashIndex = url.indexOf('#')
+          if (hashIndex === -1) return false
+          const hash = url.slice(hashIndex + 1)
+          const route = hash.startsWith('/') ? hash.slice(1) : hash
+          return route.startsWith('editor')
+        } catch {
+          return false
+        }
+      }
+
       win.setAspectRatio(720 / 480)
       win.setMinimumSize(720, 480)
       win.on('show', () => log('event: show'))
@@ -76,7 +89,9 @@ export function createMainWindow(): BrowserWindow {
           delete (win as any)[FORCE_CLOSE_FLAG]
           return
         }
-        if (process.platform === 'darwin') {
+        const shouldConfirmWithEditor = process.platform === 'darwin' && isEditorRouteActive()
+
+        if (shouldConfirmWithEditor) {
           e.preventDefault()
           log('event: close intercepted -> request renderer confirmation')
           if (!win.isDestroyed()) {

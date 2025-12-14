@@ -152,16 +152,23 @@ import { LogoutIcon, SettingIcon, ChevronLeftIcon, ChevronRightIcon } from 'tdes
 
 const isDevMode = Boolean(import.meta.env?.DEV ?? false);
 
+const roundToStep = (value: number, step: number) => {
+  if (!Number.isFinite(value) || step <= 0) return value;
+  return Math.round(value / step) * step;
+};
+
 const clampScale = (value: unknown) => {
   const num = Number(value);
   if (!Number.isFinite(num)) return 1;
-  return Math.min(2, Math.max(0.5, num));
+  const clamped = Math.min(2, Math.max(0.5, num));
+  return Number(roundToStep(clamped, 0.01).toFixed(2));
 };
 
 const clampClockScale = (value: unknown) => {
   const num = Number(value);
   if (!Number.isFinite(num)) return 1;
-  return Math.min(2, Math.max(0.5, num));
+  const clamped = Math.min(1.8, Math.max(0.5, num));
+  return Number(roundToStep(clamped, 0.05).toFixed(2));
 };
 
 const normalizeDensity = (value: unknown): UIDensity => {
@@ -683,10 +690,8 @@ const handleSettingsClosed = () => {
 
 const formatScale = (value: number | string) => {
   const num = Number(value);
-  if (!Number.isFinite(num)) {
-    return `${clampScale(uiScale.value).toFixed(2)}x`;
-  }
-  return `${clampScale(num).toFixed(2)}x`;
+  const safe = Number.isFinite(num) ? clampScale(num) : clampScale(uiScale.value);
+  return `${safe.toFixed(2)}x`;
 };
 </script>
 

@@ -1,4 +1,4 @@
-import type { App, Component } from 'vue'
+import { markRaw, type App, type Component } from 'vue'
 import type { AppModule } from '../types'
 
 export interface SettingsPageMeta {
@@ -20,7 +20,9 @@ export class SettingsRegistry {
 
   register(meta: SettingsPageMeta) {
     const path = `/settings/${meta.id}`
-    const full: RegisteredSettingsPage = { order: 0, ...meta, path }
+    const component =
+      typeof meta.component === 'function' ? meta.component : markRaw(meta.component)
+    const full: RegisteredSettingsPage = { order: 0, ...meta, component, path }
     this.pages.set(meta.id, full)
     this.notify()
     return () => {

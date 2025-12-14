@@ -7,7 +7,11 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "baseUrl": ".",
-    "types": []
+    "types": [],
+    "allowImportingTsExtensions": true,
+    "paths": {
+      "@examaware/desktop-plugin-types": ["../../src/main/plugin/types.ts"]
+    }
   },
   "include": ["src/**/*.ts"]
 }

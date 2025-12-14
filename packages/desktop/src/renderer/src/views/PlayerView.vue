@@ -149,19 +149,27 @@ const handleRoomNumberChange = (val: string) => {
 }
 
 const handleScaleChange = (scale: number) => {
-  uiScaleSetting.value = clampUiScale(scale)
+  const safe = clampUiScale(scale)
+  if (Object.is(uiScaleSetting.value, safe)) return
+  uiScaleSetting.value = safe
 }
 
 const handleDensitySettingChange = (density: UIDensity) => {
-  uiDensitySetting.value = normalizeDensity(density)
+  const normalized = normalizeDensity(density)
+  if (uiDensitySetting.value === normalized) return
+  uiDensitySetting.value = normalized
 }
 
 const handleLargeClockToggle = (enabled: boolean) => {
-  largeClockEnabledSetting.value = Boolean(enabled)
+  const flag = Boolean(enabled)
+  if (largeClockEnabledSetting.value === flag) return
+  largeClockEnabledSetting.value = flag
 }
 
 const handleLargeClockScaleChange = (scale: number) => {
-  largeClockScaleSetting.value = clampLargeClockScale(scale)
+  const safe = clampLargeClockScale(scale)
+  if (Object.is(largeClockScaleSetting.value, safe)) return
+  largeClockScaleSetting.value = safe
 }
 
 // 考试开始事件

@@ -181,7 +181,6 @@ export const homeButtonsModule: AppModule = {
       })
     )
     ;(app.config.globalProperties as any).$homeButtons = registry
-    app.provide('homeButtons' as any, registry)
     ctx.provides.homeButtons = registry
     if (ctx.provide) ctx.provide('homeButtons', registry)
     ctx.provides.homeButtonsGroup = group

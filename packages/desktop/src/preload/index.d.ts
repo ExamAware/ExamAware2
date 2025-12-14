@@ -39,12 +39,17 @@ declare global {
         toggle: (name: string, enabled: boolean) => Promise<PluginListItem[]>
         reload: (name: string) => Promise<PluginListItem[]>
         services: () => Promise<ServiceProviderRecord[]>
-        service: <T = unknown>(name: string) => Promise<T | undefined>
+        service: <T = unknown>(name: string, owner?: string) => Promise<T | undefined>
         getConfig: <T = Record<string, any>>(name: string) => Promise<T | undefined>
         setConfig: <T = Record<string, any>>(name: string, config: T) => Promise<T | undefined>
+        patchConfig: <T = Record<string, any>>(
+          name: string,
+          partial: Partial<T>
+        ) => Promise<T | undefined>
         onState: (
           listener: (payload: { list: PluginListItem[]; services: ServiceProviderRecord[] }) => void
         ) => () => void
+        onConfig: (name: string, listener: (config: Record<string, any>) => void) => () => void
         rendererEntry: (name: string) => Promise<string | undefined>
       }
       system: {

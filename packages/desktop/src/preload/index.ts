@@ -47,14 +47,27 @@ const api = {
     toggle: (name: string, enabled: boolean) => ipcRenderer.invoke('plugin:toggle', name, enabled),
     reload: (name: string) => ipcRenderer.invoke('plugin:reload', name),
     services: () => ipcRenderer.invoke('plugin:services'),
-    service: (name: string) => ipcRenderer.invoke('plugin:service', name),
+    service: (name: string, owner?: string) => ipcRenderer.invoke('plugin:service', name, owner),
     getConfig: (name: string) => ipcRenderer.invoke('plugin:get-config', name),
     setConfig: (name: string, config: Record<string, any>) =>
       ipcRenderer.invoke('plugin:set-config', name, config),
+    patchConfig: (name: string, partial: Record<string, any>) =>
+      ipcRenderer.invoke('plugin:patch-config', name, partial),
     onState: (listener: (payload: any) => void) => {
       const wrapped = (_event: Electron.IpcRendererEvent, payload: any) => listener(payload)
       ipcRenderer.on('plugin:state', wrapped)
       return () => ipcRenderer.off('plugin:state', wrapped)
+    },
+    onConfig: (name: string, listener: (config: Record<string, any>) => void) => {
+      const wrapped = (
+        _event: Electron.IpcRendererEvent,
+        payload: { name: string; config: Record<string, any> }
+      ) => {
+        if (!payload || payload.name !== name) return
+        listener(payload.config ?? {})
+      }
+      ipcRenderer.on('plugin:config', wrapped)
+      return () => ipcRenderer.off('plugin:config', wrapped)
     },
     rendererEntry: (name: string) => ipcRenderer.invoke('plugin:renderer-entry', name)
   },

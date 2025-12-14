@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { type CodeLayoutConfig, defaultCodeLayoutConfig } from 'vue-code-layout'
 import type { MenuOptions } from '@imengyu/vue3-context-menu'
-import { reactive, onMounted, ref, computed, watch } from 'vue'
+import { reactive, onMounted, onBeforeUnmount, ref, computed, watch } from 'vue'
 import AboutDialog from '@renderer/components/AboutDialog.vue'
 import ExamForm from '@renderer/components/ExamForm.vue'
 import { useExamEditor } from '@renderer/composables/useExamEditor'
@@ -9,6 +9,8 @@ import { useLayoutManager } from '@renderer/composables/useLayoutManager'
 import { useExamValidation } from '@renderer/composables/useExamValidation'
 import { getSyncedTime } from '@renderer/utils/timeUtils'
 import type { ExamInfo } from '@renderer/core/configTypes'
+import { useEditorPluginStore } from '@renderer/stores/editorPluginStore'
+import { setEditorRuntime } from '@renderer/core/editorBridge'
 
 // 平台检测 - 通过 electronAPI 获取
 const windowAPI = (window as any).electronAPI
@@ -67,7 +69,17 @@ const {
 } = useExamEditor()
 
 // 使用布局管理器
-const { codeLayout, setupLayout, getPanelComponent } = useLayoutManager()
+const {
+  codeLayout,
+  setupLayout,
+  getPanelComponent,
+  layoutManager: getLayoutManager,
+  menuManager: getMenuManager
+} = useLayoutManager()
+
+const pluginStore = useEditorPluginStore()
+const pluginCenterView = computed(() => pluginStore.centerView)
+const closePluginCenterView = (id?: string) => pluginStore.clearCenterView(id)
 
 // 多标签（TDesign Tabs）状态
 const activeTabUid = ref<string | null>(null)
@@ -297,6 +309,11 @@ onMounted(async () => {
 
   menuData.value = menuResult.menuConfig
 
+  setEditorRuntime({
+    layoutManager: getLayoutManager(),
+    menuManager: getMenuManager()
+  })
+
   // 初始激活标签
   if (typeof currentExamIndex.value === 'number' && currentExamIndex.value >= 0) {
     ensureActiveTab(currentExamIndex.value)
@@ -310,6 +327,10 @@ onMounted(async () => {
   setTimeout(() => {
     console.log('CodeLayout ref:', codeLayout.value)
   }, 100)
+})
+
+onBeforeUnmount(() => {
+  setEditorRuntime(null)
 })
 </script>
 
@@ -380,61 +401,84 @@ onMounted(async () => {
     </template>
     <template #centerArea>
       <div class="editor-center-wrap">
-        <div v-if="!hasExams || openTabUids.size === 0" class="empty-state">
-          <t-empty description="请从左侧的考试列表中选择一个考试进行编辑">
-            <template #image>
-              <t-icon name="calendar" size="64px" />
-            </template>
-            <t-button theme="primary" @click="addExam">添加第一个考试</t-button>
-          </t-empty>
-        </div>
-        <div v-else class="editor-tabs">
-          <t-tabs
-            v-model:value="activeTabUid"
-            theme="card"
-            size="medium"
-            :style="{ height: '100%', display: 'flex', flexDirection: 'column' }"
-            scroll-position="center"
-            @change="
-              (val: any) => {
-                const idx = findExamIndexByUid(val)
-                if (idx >= 0) switchToExam(idx)
-              }
-            "
-            :addable="true"
-            @add="handleTabAdd"
-            @remove="handleTabRemove"
-          >
-            <t-tab-panel
-              v-for="exam in openExams"
-              :key="getExamUid(exam)"
-              :value="getExamUid(exam)"
-              :label="
-                (() => {
-                  const uid = getExamUid(exam)
-                  const i = findExamIndexByUid(uid)
-                  return exam.name || `考试 ${i + 1}`
-                })()
-              "
-              :removable="true"
-            >
-              <div class="editor-tab-panel">
-                <ExamForm
-                  :model-value="exam as any"
-                  :auto-save="true"
-                  @update:modelValue="
-                    (val: any) => {
-                      const uid = getExamUid(exam)
-                      const idx = findExamIndexByUid(uid)
-                      if (idx >= 0) updateExam(idx, val)
-                    }
-                  "
-                  @save="handleExamSave"
-                />
+        <div v-if="pluginCenterView" class="plugin-center-view">
+          <div class="plugin-center-header">
+            <div>
+              <div class="plugin-center-title">{{ pluginCenterView.title }}</div>
+              <div v-if="pluginCenterView.description" class="plugin-center-desc">
+                {{ pluginCenterView.description }}
               </div>
-            </t-tab-panel>
-          </t-tabs>
+            </div>
+            <t-button
+              v-if="pluginCenterView.allowClose"
+              variant="text"
+              size="small"
+              @click="closePluginCenterView(pluginCenterView.id)"
+            >
+              关闭
+            </t-button>
+          </div>
+          <div class="plugin-center-body">
+            <component :is="pluginCenterView.renderer" />
+          </div>
         </div>
+        <template v-else>
+          <div v-if="!hasExams || openTabUids.size === 0" class="empty-state">
+            <t-empty description="请从左侧的考试列表中选择一个考试进行编辑">
+              <template #image>
+                <t-icon name="calendar" size="64px" />
+              </template>
+              <t-button theme="primary" @click="addExam">添加第一个考试</t-button>
+            </t-empty>
+          </div>
+          <div v-else class="editor-tabs">
+            <t-tabs
+              v-model:value="activeTabUid"
+              theme="card"
+              size="medium"
+              :style="{ height: '100%', display: 'flex', flexDirection: 'column' }"
+              scroll-position="center"
+              @change="
+                (val: any) => {
+                  const idx = findExamIndexByUid(val)
+                  if (idx >= 0) switchToExam(idx)
+                }
+              "
+              :addable="true"
+              @add="handleTabAdd"
+              @remove="handleTabRemove"
+            >
+              <t-tab-panel
+                v-for="exam in openExams"
+                :key="getExamUid(exam)"
+                :value="getExamUid(exam)"
+                :label="
+                  (() => {
+                    const uid = getExamUid(exam)
+                    const i = findExamIndexByUid(uid)
+                    return exam.name || `考试 ${i + 1}`
+                  })()
+                "
+                :removable="true"
+              >
+                <div class="editor-tab-panel">
+                  <ExamForm
+                    :model-value="exam as any"
+                    :auto-save="true"
+                    @update:modelValue="
+                      (val: any) => {
+                        const uid = getExamUid(exam)
+                        const idx = findExamIndexByUid(uid)
+                        if (idx >= 0) updateExam(idx, val)
+                      }
+                    "
+                    @save="handleExamSave"
+                  />
+                </div>
+              </t-tab-panel>
+            </t-tabs>
+          </div>
+        </template>
       </div>
     </template>
   </CodeLayout>
@@ -499,6 +543,42 @@ onMounted(async () => {
   flex-direction: column;
   height: 100%;
   min-height: 0;
+}
+
+.plugin-center-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.plugin-center-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.plugin-center-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.plugin-center-desc {
+  font-size: 13px;
+  color: var(--td-text-color-secondary);
+  margin-top: 4px;
+}
+
+.plugin-center-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border: 1px solid var(--td-border-level-1-color);
+  border-radius: 8px;
+  padding: 12px;
+  background-color: var(--td-bg-color-container);
 }
 
 .editor-tab-panel {

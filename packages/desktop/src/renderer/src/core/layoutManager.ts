@@ -6,7 +6,8 @@ import {
   AddIcon,
   BugIcon,
   CheckCircleIcon,
-  HistoryIcon
+  HistoryIcon,
+  ApiIcon
 } from 'tdesign-icons-vue-next'
 
 /**
@@ -110,6 +111,26 @@ export class LayoutManager {
       startOpen: true,
       iconSmall: () => h(InfoCircleIcon),
       iconLarge: () => h(InfoCircleIcon, { size: '16pt' })
+    })
+
+    const groupPlugins = this.codeLayout.addGroup(
+      {
+        title: '插件',
+        tooltip: 'Plugins',
+        name: 'plugins',
+        badge: '',
+        iconLarge: () => h(ApiIcon, { size: '16pt' })
+      },
+      'primarySideBar'
+    )
+    groupPlugins.addPanel({
+      title: '插件扩展',
+      tooltip: '插件注册的扩展面板',
+      name: 'plugins.workspace',
+      noHide: false,
+      startOpen: true,
+      iconSmall: () => h(ApiIcon),
+      iconLarge: () => h(ApiIcon, { size: '16pt' })
     })
   }
 

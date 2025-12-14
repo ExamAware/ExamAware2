@@ -1,5 +1,5 @@
-import type { MainContext } from '../runtime/context'
 import type { Disposer } from '../runtime/disposable'
+import type { ServiceProvideOptions, ServiceWatcherMeta } from '../../shared/services/registry'
 
 /**
  * 插件状态枚举
@@ -141,16 +141,6 @@ export interface PluginListItem {
 }
 
 /**
- * 服务提供者记录
- * Service provider record
- */
-export interface ServiceProviderRecord {
-  name: string
-  owner: string
-  value: unknown
-}
-
-/**
  * 插件依赖图节点
  * Plugin dependency graph node
  */
@@ -208,6 +198,7 @@ export interface PluginRuntimeContext {
   app: 'main' | 'renderer'
   logger: PluginLogger
   config: Record<string, any>
+  settings: PluginSettingsAPI
   effect: (fn: () => void | Disposer | Promise<void | Disposer>) => void
   services: ServiceAPI
   /**
@@ -221,6 +212,7 @@ export interface PluginRuntimeContext {
       channel: string,
       handler: (event: Electron.IpcMainInvokeEvent, ...args: any[]) => any
     ) => Disposer
+    invokeRenderer?: (channel: string, payload?: any) => void
   }
   /**
    * renderer 进程可选能力：向外暴露 Desktop API（避免循环依赖，保持为 unknown）
@@ -233,8 +225,33 @@ export interface PluginRuntimeContext {
  * Service API interface
  */
 export interface ServiceAPI {
-  provide: (name: string, value: unknown) => Disposer
-  inject: <T = unknown>(name: string) => T
-  injectAsync?: <T = unknown>(name: string) => Promise<T>
-  has: (name: string) => boolean
+  provide: (name: string, value: unknown, options?: ServiceProvideOptions) => Disposer
+  inject: <T = unknown>(name: string, owner?: string) => T
+  injectAsync?: <T = unknown>(name: string, owner?: string) => Promise<T>
+  when?: <T = unknown>(
+    name: string,
+    cb: (svc: T, owner: string, meta: ServiceWatcherMeta) => void | (() => void)
+  ) => Disposer
+  has: (name: string, owner?: string) => boolean
 }
+
+export interface PluginSettingsAPI {
+  /**
+   * 返回当前完整配置的浅拷贝
+   */
+  all: () => Record<string, any>
+  /**
+   * 支持 key path（a.b.c），未填写 key 时返回全量配置
+   */
+  get: <T = unknown>(key?: string, def?: T) => T
+  set: <T = unknown>(key: string, value: T) => Promise<void>
+  patch: (partial: Record<string, any>) => Promise<void>
+  reset: () => Promise<void>
+  onChange: (listener: (config: Record<string, any>) => void) => Disposer
+}
+
+export type {
+  ServiceProviderRecord,
+  ServiceProvideOptions,
+  ServiceWatcherMeta
+} from '../../shared/services/registry'
