@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch, inject, getCurrentInstance, provide } from 'vue'
+import { onMounted, onUnmounted, ref, watch, inject, getCurrentInstance, provide } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useSettingsApi } from '@renderer/stores/settingsStore'
 import { useSettingRef, useSettingsGroup, useSettingToggle } from '@renderer/composables/useSetting'
@@ -36,7 +36,16 @@ const registry =
 const router = useRouter()
 const route = useRoute()
 
-const pages = computed(() => registry?.list?.() ?? [])
+const pages = ref(registry?.list?.() ?? [])
+let stopRegistryWatch: (() => void) | undefined
+if (registry?.subscribe) {
+  stopRegistryWatch = registry.subscribe(() => {
+    pages.value = registry.list?.() ?? []
+  })
+}
+onUnmounted(() => {
+  stopRegistryWatch?.()
+})
 const active = ref<string | null>(null)
 
 // 暴露设置 API 给子页面

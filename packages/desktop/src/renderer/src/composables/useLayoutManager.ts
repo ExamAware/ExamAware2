@@ -7,6 +7,7 @@ import SideExamInfoPanel from '@renderer/components/SideExamInfoPanel.vue'
 import SettingsPanel from '@renderer/components/SettingsPanel.vue'
 import ValidationPanel from '@renderer/components/ValidationPanel.vue'
 import OperationHistoryPanel from '@renderer/components/OperationHistoryPanel.vue'
+import PluginPanelHost from '@renderer/components/PluginPanelHost.vue'
 
 /**
  * 布局管理组合式函数
@@ -20,7 +21,8 @@ export function useLayoutManager() {
     'explorer.examinfo': SideExamInfoPanel,
     'history.operations': OperationHistoryPanel,
     'settings.general': SettingsPanel,
-    'bottom.validation': ValidationPanel
+    'bottom.validation': ValidationPanel,
+    'plugins.workspace': PluginPanelHost
   }
 
   let layoutManager: LayoutManager | null = null

@@ -8,6 +8,18 @@ export interface SettingsRecord {
 export const useSettingsStore = defineStore('settings', () => {
   const data = ref<SettingsRecord>({})
 
+  const lookup = (key: string): { exists: boolean; value: any } => {
+    const segs = key.split('.')
+    let cur: any = data.value
+    for (const s of segs) {
+      if (cur == null || typeof cur !== 'object' || !(s in cur)) {
+        return { exists: false, value: undefined }
+      }
+      cur = cur[s]
+    }
+    return { exists: true, value: cur }
+  }
+
   // 从主进程加载配置
   async function init() {
     try {
@@ -35,6 +47,10 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   const set = (key: string, value: any) => {
+    const current = lookup(key)
+    if (current.exists && Object.is(current.value, value)) {
+      return
+    }
     // 乐观更新本地
     const segs = key.split('.')
     let cur: any = data.value

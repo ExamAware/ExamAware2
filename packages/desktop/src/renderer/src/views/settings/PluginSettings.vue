@@ -83,11 +83,14 @@
             <div class="chip-group">
               <t-tag
                 v-for="svc in providedServices"
-                :key="svc"
+                :key="svc.name"
                 size="small"
                 variant="light-outline"
+                class="service-chip"
               >
-                {{ svc }}
+                <span>{{ svc.name }}</span>
+                <span class="svc-meta">/{{ svc.scope ?? 'main' }}</span>
+                <span v-if="svc.isDefault" class="svc-meta svc-default">默认</span>
               </t-tag>
               <span v-if="!providedServices.length" class="muted">无</span>
             </div>
@@ -162,9 +165,7 @@ const current = computed<PluginListItem | undefined>(() => {
 
 const providedServices = computed(() => {
   if (!current.value) return []
-  return manager.serviceProviders.value
-    .filter((svc) => svc.owner === current.value?.name)
-    .map((svc) => svc.name)
+  return manager.serviceProviders.value.filter((svc) => svc.owner === current.value?.name)
 })
 
 watch(
@@ -328,5 +329,18 @@ onMounted(() => {
 }
 .muted {
   color: var(--td-text-color-placeholder);
+}
+.service-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.svc-meta {
+  font-size: 11px;
+  color: var(--td-text-color-placeholder);
+}
+.svc-default {
+  color: var(--td-brand-color);
+  font-weight: 600;
 }
 </style>

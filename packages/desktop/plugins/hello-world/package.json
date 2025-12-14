@@ -5,14 +5,18 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "dev": "vite --config vite.config.ts",
-    "build": "vite build"
+    "dev": "run-p dev:renderer dev:main",
+    "dev:renderer": "vite build --watch --mode development --config vite.config.ts",
+    "dev:main": "vite build --watch --mode development --config vite.main.config.ts",
+    "build": "pnpm run build:renderer && pnpm run build:main",
+    "build:renderer": "vite build --config vite.config.ts",
+    "build:main": "vite build --config vite.main.config.ts"
   },
   "examaware": {
     "displayName": "Hello World 插件",
     "description": "向日志输出问候语并提供 hello.message 服务",
     "targets": {
-      "main": "./main.cjs",
+      "main": "./dist/main/index.cjs",
       "renderer": "./dist/renderer/index.mjs"
     },
     "services": {
@@ -30,6 +34,7 @@
     "vue": "^3.5.19"
   },
   "devDependencies": {
+    "npm-run-all2": "^7.0.2",
     "typescript": "~5.7.3",
     "vite": "^6.3.5"
   }

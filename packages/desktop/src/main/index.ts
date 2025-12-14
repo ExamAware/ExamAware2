@@ -1,4 +1,4 @@
-import { app, BrowserWindow, globalShortcut, Menu } from 'electron'
+import { app, BrowserWindow, globalShortcut, Menu, protocol } from 'electron'
 import path from 'path'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { createMainWindow } from './windows/mainWindow'
@@ -11,6 +11,20 @@ import { initializeTimeSync } from './ntpService/timeService'
 import { createMainContext } from './runtime/context'
 import { ensureAppTray, shouldSuppressActivate, isTrayPopoverVisible } from './tray'
 import { PluginHost, createFilePreferenceStore } from './plugin'
+
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'plugin',
+    privileges: {
+      standard: true,
+      secure: true,
+      supportFetchAPI: true,
+      corsEnabled: true,
+      stream: true,
+      bypassCSP: true
+    }
+  }
+])
 
 let pluginHost: PluginHost | null = null
 
@@ -39,6 +53,7 @@ app.whenReady().then(async () => {
   const { ctx: _mainCtx, dispose: disposeMainCtx } = createMainContext()
   windowManager.setContext(_mainCtx)
   electronApp.setAppUserModelId('org.examaware')
+  ensurePluginProtocol()
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
@@ -196,6 +211,41 @@ app.whenReady().then(async () => {
     } catch {}
   })
 })
+
+let pluginProtocolRegistered = false
+
+function ensurePluginProtocol() {
+  if (pluginProtocolRegistered) return
+  try {
+    protocol.registerFileProtocol('plugin', (request, callback) => {
+      try {
+        if (!pluginHost) {
+          callback({ error: -6 })
+          return
+        }
+        const url = new URL(request.url)
+        const name = url.searchParams.get('name')
+        const relativePath = url.searchParams.get('path') ?? ''
+        if (!name) {
+          callback({ error: -6 })
+          return
+        }
+        const filePath = pluginHost.resolveAssetPath(name, relativePath)
+        if (!filePath) {
+          callback({ error: -6 })
+          return
+        }
+        callback({ path: filePath })
+      } catch (error) {
+        console.error('[plugin://] resolve failed', error)
+        callback({ error: -6 })
+      }
+    })
+    pluginProtocolRegistered = true
+  } catch (error) {
+    console.error('Failed to register plugin:// protocol', error)
+  }
+}
 
 // 处理打开文件的请求（macOS）
 app.on('open-file', (event, path) => {

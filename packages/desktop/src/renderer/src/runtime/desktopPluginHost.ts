@@ -10,6 +10,42 @@ import type { AppContext } from '../app/types'
 import { DisposerGroup } from './disposable'
 import type { DesktopAPI } from './desktopApi'
 
+type AnyRecord = Record<string, any>
+
+function cloneConfig<T>(value: T): T {
+  if (value == null || typeof value !== 'object') return value
+  if (Array.isArray(value)) return value.map((item) => cloneConfig(item)) as unknown as T
+  const next: AnyRecord = {}
+  for (const key of Object.keys(value as AnyRecord)) {
+    next[key] = cloneConfig((value as AnyRecord)[key])
+  }
+  return next as T
+}
+
+function buildPatchFromPath(path: string, value: any) {
+  const segments = path.split('.')
+  const root: AnyRecord = {}
+  let cursor = root
+  for (let i = 0; i < segments.length - 1; i++) {
+    const seg = segments[i]
+    cursor[seg] = cursor[seg] ?? {}
+    cursor = cursor[seg]
+  }
+  cursor[segments[segments.length - 1]] = value
+  return root
+}
+
+function readFromPath(obj: AnyRecord, path?: string) {
+  if (!path) return obj
+  const segments = path.split('.')
+  let cursor: any = obj
+  for (const seg of segments) {
+    if (cursor == null) return undefined
+    cursor = cursor[seg]
+  }
+  return cursor
+}
+
 interface PluginStatePayload {
   list: PluginListItem[]
   services: ServiceProviderRecord[]
@@ -32,8 +68,10 @@ export interface RendererPluginHost {
   reload(name: string): Promise<void>
   getConfig<T = Record<string, any>>(name: string): Promise<T | undefined>
   setConfig<T = Record<string, any>>(name: string, config: T): Promise<T | undefined>
+  patchConfig<T = Record<string, any>>(name: string, partial: Partial<T>): Promise<T | undefined>
   onStateChanged(cb: (items: PluginListItem[]) => void): () => void
-  getServiceValue<T = unknown>(name: string): Promise<T | undefined>
+  getServiceValue<T = unknown>(name: string, owner?: string): Promise<T | undefined>
+  onConfig(name: string, listener: (config: Record<string, any>) => void): () => void
   attachDesktopApi(api: DesktopAPI): void
 }
 
@@ -191,13 +229,22 @@ export function createDesktopPluginHost(ctx: AppContext): RendererPluginHost {
   const getConfig = <T = Record<string, any>>(name: string) => bridge.getConfig<T>(name)
   const setConfig = <T = Record<string, any>>(name: string, config: T) =>
     bridge.setConfig<T>(name, config)
+  const patchConfig = async <T = Record<string, any>>(name: string, partial: Partial<T>) => {
+    if (typeof bridge.patchConfig !== 'function') return undefined
+    return bridge.patchConfig<T>(name, partial as T)
+  }
 
   const onStateChanged = (cb: (items: PluginListItem[]) => void) => {
     listeners.add(cb)
     return () => listeners.delete(cb)
   }
 
-  const getServiceValue = <T = unknown>(name: string) => bridge.service<T>(name)
+  const getServiceValue = <T = unknown>(name: string, owner?: string) =>
+    bridge.service<T>(name, owner)
+  const onConfigChanged = (name: string, listener: (config: Record<string, any>) => void) => {
+    if (typeof bridge.onConfig !== 'function') return () => {}
+    return bridge.onConfig(name, listener)
+  }
 
   const attachDesktopApi = (api: DesktopAPI) => {
     desktopApiRef = api
@@ -227,8 +274,10 @@ export function createDesktopPluginHost(ctx: AppContext): RendererPluginHost {
     reload,
     getConfig,
     setConfig,
+    patchConfig,
     onStateChanged,
     getServiceValue,
+    onConfig: onConfigChanged,
     attachDesktopApi
   }
 }
@@ -263,6 +312,79 @@ function createRendererRuntimeContext(
     error: (...args: any[]) => console.error(`[RendererPlugin:${plugin.name}]`, ...args)
   }
 
+  let currentConfig = cloneConfig(config ?? {})
+  const configListeners = new Set<(cfg: Record<string, any>) => void>()
+
+  const notifyConfigListeners = () => {
+    const snapshot = cloneConfig(currentConfig)
+    configListeners.forEach((listener) => {
+      try {
+        listener(snapshot)
+      } catch (err) {
+        logger.warn('settings listener failed', err)
+      }
+    })
+  }
+
+  const setLocalConfig = (next?: Record<string, any>) => {
+    currentConfig = cloneConfig(next ?? {})
+    notifyConfigListeners()
+  }
+
+  const stopConfigSubscription = bridge.onConfig?.(plugin.name, (next) => {
+    setLocalConfig(next ?? currentConfig)
+  })
+  if (stopConfigSubscription) {
+    group.add(() => stopConfigSubscription())
+  }
+
+  const settings = {
+    all: () => cloneConfig(currentConfig),
+    get: <T = unknown>(key?: string, def?: T) => {
+      if (!key) return cloneConfig(currentConfig) as T
+      const value = readFromPath(currentConfig, key)
+      return (value === undefined ? def : value) as T
+    },
+    set: async (key: string, value: any) => {
+      const patch = buildPatchFromPath(key, value)
+      const next = await bridge.patchConfig?.(plugin.name, patch)
+      if (typeof next !== 'undefined') {
+        setLocalConfig(next as Record<string, any>)
+        return
+      }
+      const refreshed = await bridge.getConfig?.(plugin.name)
+      setLocalConfig((refreshed as Record<string, any>) ?? currentConfig)
+    },
+    patch: async (partial: Record<string, any>) => {
+      const next = await bridge.patchConfig?.(plugin.name, partial)
+      if (typeof next !== 'undefined') {
+        setLocalConfig(next as Record<string, any>)
+      }
+    },
+    reset: async () => {
+      const next = await bridge.setConfig?.(plugin.name, {})
+      if (typeof next !== 'undefined') {
+        setLocalConfig(next as Record<string, any>)
+      } else {
+        setLocalConfig({})
+      }
+    },
+    onChange: (listener: (cfg: Record<string, any>) => void) => {
+      configListeners.add(listener)
+      try {
+        listener(cloneConfig(currentConfig))
+      } catch (err) {
+        logger.warn('settings listener failed', err)
+      }
+      const disposer = () => {
+        configListeners.delete(listener)
+      }
+      group.add(disposer)
+      return disposer
+    }
+  }
+  group.add(() => configListeners.clear())
+
   const effect = (fn: () => void | (() => void) | Promise<void | (() => void)>) => {
     try {
       const result = fn()
@@ -283,7 +405,8 @@ function createRendererRuntimeContext(
   const runtimeCtx: PluginRuntimeContext = {
     app: 'renderer',
     logger,
-    config,
+    config: cloneConfig(currentConfig),
+    settings,
     effect,
     services: {
       provide: () => {
@@ -292,14 +415,17 @@ function createRendererRuntimeContext(
       inject: () => {
         throw new Error('renderer 插件请改用 ctx.services.injectAsync(name) 获取服务')
       },
-      injectAsync: <T = unknown>(name: string) =>
-        bridge.service<T>(name).then((value) => {
+      injectAsync: <T = unknown>(name: string, owner?: string) =>
+        bridge.service<T>(name, owner).then((value) => {
           if (typeof value === 'undefined') {
-            throw new Error(`服务 ${name} 不存在，无法在 renderer 插件中注入`)
+            throw new Error(
+              `服务 ${name}${owner ? `@${owner}` : ''} 不存在，无法在 renderer 插件中注入`
+            )
           }
           return value
         }),
-      has: (name: string) => providers.value.some((svc) => svc.name === name)
+      has: (name: string, owner?: string) =>
+        providers.value.some((svc) => svc.name === name && (!owner || svc.owner === owner))
     }
   }
 
