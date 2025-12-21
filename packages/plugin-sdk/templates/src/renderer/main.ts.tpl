@@ -1,5 +1,5 @@
 import { defineComponent, h } from 'vue'
-import type { PluginRuntimeContext } from '@examaware/plugin-sdk'
+import type { PluginRuntimeContext } from '@dsz-examaware/plugin-sdk'
 import PluginSettingsPage from './components/PluginSettingsPage.vue'
 
 const SETTINGS_PAGE_ID = '{{SETTINGS_PAGE_ID}}'

@@ -19,7 +19,7 @@
   },
   "examaware": {
     "displayName": "ExamAware Plugin",
-    "description": "Generated with @examaware/plugin-sdk",
+    "description": "Generated with @dsz-examaware/plugin-sdk",
     "targets": {
       "main": "./dist/main/index.cjs",
       "renderer": "./dist/renderer/index.mjs"
@@ -34,7 +34,7 @@
     }
   },
   "dependencies": {
-    "@examaware/plugin-sdk": "{{PLUGIN_SDK_VERSION}}",
+    "@dsz-examaware/plugin-sdk": "{{PLUGIN_SDK_VERSION}}",
     "vue": "{{VUE_VERSION}}"
   },
   "devDependencies": {
