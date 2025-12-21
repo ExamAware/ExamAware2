@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { PluginRuntimeContext } from '@examaware/plugin-sdk'
+import type { PluginRuntimeContext } from '@dsz-examaware/plugin-sdk'
 
 const props = defineProps<{ ctx: PluginRuntimeContext }>()
 const settings = props.ctx.settings

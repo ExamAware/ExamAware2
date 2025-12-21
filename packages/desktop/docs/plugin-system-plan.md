@@ -19,7 +19,7 @@
 
 ```jsonc
 {
-  "name": "@examaware/plugin-example",
+  "name": "@dsz-examaware/plugin-example",
   "version": "1.0.0",
   "main": "dist/node.cjs",
   "module": "dist/node.mjs",
@@ -30,7 +30,7 @@
       "main": "src/main.ts",
       "renderer": "src/renderer.ts"
     },
-    "dependencies": ["@examaware/plugin-time-sync"],
+    "dependencies": ["@dsz-examaware/plugin-time-sync"],
     "services": {
       "provide": ["reminder"],
       "inject": ["ntp"]
@@ -95,11 +95,11 @@ interface PluginContext {
 
 ### 4. 插件包的构建 & 开发
 
-- 提供 `@examaware/plugin-sdk`：导出 `defineExamAwarePlugin()` helper、类型声明、`PluginContext` 接口、热重载 helper。
+- 提供 `@dsz-examaware/plugin-sdk`：导出 `defineExamAwarePlugin()` helper、类型声明、`PluginContext` 接口、热重载 helper。
 - CLI：`pnpm create examaware-plugin`
   - 基于 Vite library 模式，默认输出 `dist/main.js`、`dist/renderer.js`。
   - Dev 命令 `pnpm dev --watch --target=renderer`：通过 WebSocket 通知桌面端热重载。
-- 插件可以依赖 `@dsz-examaware/player` 类型、`@examaware/core` 工具。
+- 插件可以依赖 `@dsz-examaware/player` 类型、`@dsz-examaware/core` 工具。
 
 ### 5. 插件管理 UI（设置页）
 
@@ -113,7 +113,7 @@ interface PluginContext {
 ### 6. 安全与隔离
 
 - 插件 bundle 在受限上下文运行，默认禁止 Node 原生模块；主进程入口可 opt-in 访问 `electron` API，但必须通过显式白名单。
-- 通过 `import { safeRequire } from '@examaware/plugin-sdk' }` 受控加载依赖。
+- 通过 `import { safeRequire } from '@dsz-examaware/plugin-sdk' }` 受控加载依赖。
 - 插件访问文件系统需通过 `ctx.services.provide('fs-permissions', ...)` 或主程序暴露的 service。
 
 ## Roadmap & TODO
@@ -124,7 +124,7 @@ interface PluginContext {
 | Phase 1   | 插件宿主核心     | `plugin-manager`（主进程）+ `renderer` registry，解析 manifest、拓扑排序、加载 & disposer。 | ⏳ 进行中 |
 | Phase 2   | Desktop API 扩展 | 补齐 `ctx.services`、`ctx.effect`、`ui/editor` 扩展点，与现有 `desktopApi.plugins` 打通。   | ⏳ 进行中 |
 | Phase 3   | 插件管理 UI      | 设置页卡片、启用/禁用/日志区域、依赖错误提示。                                              | ⏳ 计划中 |
-| Phase 4   | 开发者工具       | `@examaware/plugin-sdk`、脚手架、Vite 模板、热重载通道。                                    | ⏳ 计划中 |
+| Phase 4   | 开发者工具       | `@dsz-examaware/plugin-sdk`、脚手架、Vite 模板、热重载通道。                                | ⏳ 计划中 |
 | Phase 4.5 | 插件 SDK & DI    | 参考 Microsoft.Extensions.Hosting，提供 HostBuilder、ServiceCollection、脚手架。            | ⏳ 进行中 |
 | Phase 5   | 样例插件 & 文档  | 官方示例：主题切换、考场提醒；对外发布开发指南。                                            | ⏳ 计划中 |
 
@@ -137,7 +137,7 @@ interface PluginContext {
 - [x] `desktopApi.editor.*`：允许 renderer 插件注册面板、接管 Editor 中央视图并注入脚本。
 - [x] CLI：`packages/plugin-sdk/bin/create-examaware-plugin.mjs` 输出 TS + Vite 架构，默认同时构建 main/renderer 并演示 Vue SFC 设置页。
 - [ ] 文档：开发指南、API 参考、热重载说明（当前文档已追踪阶段性进展，仍需完善开发者指南）。
-- [x] `@examaware/plugin-sdk`：导出 `defineExamAwarePlugin()`、`createPluginHostBuilder()`、`ServiceCollection` 等工具，提供 npm 发布物与类型声明。
+- [x] `@dsz-examaware/plugin-sdk`：导出 `defineExamAwarePlugin()`、`createPluginHostBuilder()`、`ServiceCollection` 等工具，提供 npm 发布物与类型声明。
 - [x] 插件脚手架：支持一键初始化（`pnpm create examaware-plugin`），默认引入 SDK 并示范 DI。
 - [x] Hosting API 对齐：在 `packages/desktop/src/main/plugin/hosting/` 内实现与 `Microsoft.Extensions.Hosting` 相仿的 Builder / Host / Lifetime，并统一被 SDK 复用。
 - [x] CLI 模板解耦：模板已存放于 `packages/plugin-sdk/templates/`，覆盖 package/tsconfig/vite/SFC，CLI 渲染时按需生成。
@@ -167,7 +167,7 @@ interface PluginContext {
 - **HostedService 生命周期**：对齐 `IHostedService`，在 `Host.start()` -> `HostedService.start()` -> `Host.stop()` -> `HostedService.stop()` 顺序执行，并保留 `HostApplicationLifetime` 钩子位（预留 `onStarted/onStopping`）。
 - **Middleware 管线**：保留 `use()` 能力，但实现形态调整为 `HostPipeline`，其签名与 Kestrel 中 `IApplicationBuilder` 类似，方便扩展。
 - **配置上下文**：`HostBuilderContext` 暴露 `environmentName`、`properties`（`Map`），供 CLI / 插件读取环境；未来扩展 `configureHostConfiguration()`、`configureAppConfiguration()`。
-- **导出策略**：`@examaware/plugin-sdk` 通过 `exports['.']` 暴露 `defineExamAwarePlugin`、`createHostBuilder`、`ServiceCollection` 等，示例插件改用新的别名，文档同步更新。
+- **导出策略**：`@dsz-examaware/plugin-sdk` 通过 `exports['.']` 暴露 `defineExamAwarePlugin`、`createHostBuilder`、`ServiceCollection` 等，示例插件改用新的别名，文档同步更新。
 
 ### 里程碑
 
@@ -184,7 +184,7 @@ interface PluginContext {
 - Hosting / DI 内核全部托管在 `packages/desktop/src/main/plugin/hosting/`，SDK 层仅做 re-export，`HostApplicationLifetime`、`ServiceCollection`、`ExamAwareHostBuilder` 保持与 Desktop 相同实现。
 - `create-examaware-plugin` CLI 现已使用模板目录输出 TS + Vite 架构，包含 `vite.config.ts`（renderer + Vue SFC）、`vite.main.config.ts`、`tsconfig.node.json`、`env.d.ts` 与默认设置页组件。
 - 模板默认拉取 `@vitejs/plugin-vue`、`vue-tsc`、`@types/node` 等依赖，脚本提供 `dev`（双进程 watch）、`build:types`（`vue-tsc --emitDeclarationOnly`）与 `lint`（`vue-tsc --noEmit`）。
-- 示例插件 `@examaware/plugin-hello-world` 已对齐该结构，沿用 Vite 构建 main/renderer、启用 Vue SFC，并通过 `build:types` 产出声明文件以匹配 manifest `types` 字段。
+- 示例插件 `@dsz-examaware/plugin-hello-world` 已对齐该结构，沿用 Vite 构建 main/renderer、启用 Vue SFC，并通过 `build:types` 产出声明文件以匹配 manifest `types` 字段。
 
 ## Phase 1 详细方案：插件宿主核心
 
@@ -376,5 +376,5 @@ interface EditorMenuItem {
 - PluginHost 已支持服务快照广播与 renderer 入口 URL 提供，并通过 `plugin:renderer-entry` IPC 暴露。
 - renderer 侧 `desktopPluginHost` 可动态导入插件 bundle，自动维护 disposer，并为 `ctx.desktopApi` 注入 `ui.settings.registerPage` 等扩展点。
 - `desktopApi` 暴露 `plugins`、`services`、`ui` 三个维度 API，确保 renderer 插件与宿主共享依赖与销毁机制。
-- 内置示例插件 `@examaware/plugin-hello-world` 新增 Vite + TS renderer 入口，演示如何向设置页注册自定义 Tab 并实现交互组件。
+- 内置示例插件 `@dsz-examaware/plugin-hello-world` 新增 Vite + TS renderer 入口，演示如何向设置页注册自定义 Tab 并实现交互组件。
 - 新增 `ctx.settings`（主/渲染进程一致）与 `ctx.services.when`，可读写命名空间配置并订阅变更；`desktopApi.plugins` 也支持 `patchConfig`、`onConfigChanged` 等桥接能力，示例插件已展示配置同步流程。

@@ -33,7 +33,7 @@ pnpm pack
 ## 基础用法
 
 ```ts
-import { defineExamAwarePlugin } from '@examaware/plugin-sdk';
+import { defineExamAwarePlugin } from '@dsz-examaware/plugin-sdk';
 
 export default defineExamAwarePlugin((builder) => {
   builder.configureServices((services, ctx) => {

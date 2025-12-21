@@ -1,5 +1,5 @@
-import { defineExamAwarePlugin } from '@examaware/plugin-sdk'
-import type { HostedService } from '@examaware/plugin-sdk'
+import { defineExamAwarePlugin } from '@dsz-examaware/plugin-sdk'
+import type { HostedService } from '@dsz-examaware/plugin-sdk'
 
 interface HelloMessage {
   text: string
