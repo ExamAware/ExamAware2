@@ -75,7 +75,7 @@
 
       <!-- 折叠开关 -->
       <button
-        class="action-button collapse-toggle"
+        class="action-button"
         type="button"
         :aria-pressed="manualCollapsed"
         :aria-label="manualCollapsed ? '展开工具栏' : '收起工具栏'"
@@ -97,6 +97,7 @@
     :density="tempDensity"
     :large-clock-enabled="tempLargeClockEnabled"
     :large-clock-scale="tempLargeClockScale"
+    :exam-info-large-font="tempExamInfoLargeFont"
     :density-options="densityOptions"
     :format-scale="formatScale"
     :is-dev-mode="isDevMode"
@@ -105,6 +106,7 @@
     @update:density="handleTempDensityUpdate"
     @update:largeClockEnabled="handleTempLargeClockEnabledUpdate"
     @update:largeClockScale="handleTempLargeClockScaleUpdate"
+    @update:examInfoLargeFont="handleTempExamInfoLargeFontUpdate"
     @close="handleSettingsClosed"
     @confirm="handleSettingsConfirm"
     @dev-reminder-test="triggerDevReminderTest"
@@ -129,6 +131,7 @@ const props = withDefaults(
     initialDensity?: UIDensity;
     initialLargeClockScale?: number;
     initialLargeClockEnabled?: boolean;
+    initialExamInfoLargeFont?: boolean;
     extraTools?: readonly PlayerToolbarItem[];
   }>(),
   {
@@ -136,6 +139,7 @@ const props = withDefaults(
     initialDensity: 'comfortable',
     initialLargeClockScale: 1,
     initialLargeClockEnabled: false,
+    initialExamInfoLargeFont: false,
     extraTools: () => []
   }
 );
@@ -145,6 +149,7 @@ const emit = defineEmits<{
   (e: 'densityChange', density: UIDensity): void;
   (e: 'clockScaleChange', scale: number): void;
   (e: 'largeClockToggle', enabled: boolean): void;
+  (e: 'examInfoLargeFontToggle', enabled: boolean): void;
   (e: 'devReminderTest', preset: DevReminderPreset | DevReminderPayload): void;
   (e: 'devReminderHide'): void;
 }>();
@@ -208,6 +213,9 @@ const tempLargeClockScale = ref<number>(largeClockScale.value);
 const largeClockEnabled = ref<boolean>(Boolean(props.initialLargeClockEnabled));
 const tempLargeClockEnabled = ref<boolean>(largeClockEnabled.value);
 
+const examInfoLargeFont = ref<boolean>(Boolean(props.initialExamInfoLargeFont));
+const tempExamInfoLargeFont = ref<boolean>(examInfoLargeFont.value);
+
 const handleTempScaleUpdate = (value: number) => {
   tempScale.value = value;
 };
@@ -222,6 +230,10 @@ const handleTempLargeClockEnabledUpdate = (value: boolean) => {
 
 const handleTempLargeClockScaleUpdate = (value: number) => {
   tempLargeClockScale.value = value;
+};
+
+const handleTempExamInfoLargeFontUpdate = (value: boolean) => {
+  tempExamInfoLargeFont.value = value;
 };
 
 // 播放设置弹窗开关
@@ -428,6 +440,15 @@ watch(
   }
 );
 
+watch(
+  () => props.initialExamInfoLargeFont,
+  (value) => {
+    if (typeof value !== 'boolean') return;
+    examInfoLargeFont.value = value;
+    tempExamInfoLargeFont.value = value;
+  }
+);
+
 watch(uiScale, (newValue, oldValue) => {
   const safe = clampScale(newValue);
   if (safe !== newValue) {
@@ -517,6 +538,22 @@ watch(tempLargeClockEnabled, (value) => {
   const flag = Boolean(value);
   if (largeClockEnabled.value !== flag) {
     largeClockEnabled.value = flag;
+  }
+});
+
+watch(
+  examInfoLargeFont,
+  (enabled, previous) => {
+    if (enabled === previous) return;
+    emit('examInfoLargeFontToggle', enabled);
+  },
+  { immediate: true }
+);
+
+watch(tempExamInfoLargeFont, (value) => {
+  const flag = Boolean(value);
+  if (examInfoLargeFont.value !== flag) {
+    examInfoLargeFont.value = flag;
   }
 });
 
@@ -647,6 +684,7 @@ const handlePlaybackSettings = () => {
   tempDensity.value = density.value;
   tempLargeClockScale.value = largeClockScale.value;
   tempLargeClockEnabled.value = largeClockEnabled.value;
+  tempExamInfoLargeFont.value = examInfoLargeFont.value;
   showSettings.value = true;
 };
 
@@ -658,6 +696,7 @@ const handleSettingsConfirm = () => {
   density.value = normalizeDensity(tempDensity.value);
   largeClockScale.value = clampClockScale(tempLargeClockScale.value);
   largeClockEnabled.value = Boolean(tempLargeClockEnabled.value);
+  examInfoLargeFont.value = Boolean(tempExamInfoLargeFont.value);
   showSettings.value = false;
 };
 
@@ -676,6 +715,7 @@ const handleSettingsVisibleChange = (visible: boolean) => {
     tempDensity.value = density.value;
     tempLargeClockScale.value = largeClockScale.value;
     tempLargeClockEnabled.value = largeClockEnabled.value;
+    tempExamInfoLargeFont.value = examInfoLargeFont.value;
   }
 };
 
@@ -685,6 +725,7 @@ const handleSettingsClosed = () => {
   tempDensity.value = density.value;
   tempLargeClockScale.value = largeClockScale.value;
   tempLargeClockEnabled.value = largeClockEnabled.value;
+  tempExamInfoLargeFont.value = examInfoLargeFont.value;
   scheduleCollapse();
 };
 
@@ -850,17 +891,8 @@ const formatScale = (value: number | string) => {
   height: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 30px);
 }
 
-.action-button.collapse-toggle {
-  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.35rem);
-}
-
-.action-button.collapse-toggle .button-icon {
-  font-size: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 26px);
-}
-
 .action-button-bar.collapsed {
   opacity: 0.92;
-  transform: translateY(calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.5rem));
   padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.75rem)
     calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.25rem)
     calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.75rem)
@@ -901,17 +933,8 @@ const formatScale = (value: number | string) => {
   font-size: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 24px);
 }
 
-.action-button-bar.collapsed .action-button.collapse-toggle {
-  width: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2.8rem);
-  height: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2.8rem);
-}
-
 .action-button-bar.manual-collapsed {
   opacity: 0.88;
-}
-
-.action-button-bar.manual-collapsed .action-button.collapse-toggle {
-  border-color: rgba(255, 255, 255, 0.35);
 }
 
 .action-button-bar.settings-open {

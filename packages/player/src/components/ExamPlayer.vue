@@ -24,7 +24,7 @@
 
         <div class="card-item"><component :is="resolvedCards.clock" /></div>
         <div class="card-item">
-          <component :is="resolvedCards.examInfo" @editClick="$emit('editClick')" />
+          <component :is="resolvedCards.examInfo" />
         </div>
       </div>
 
@@ -42,12 +42,14 @@
       :initial-density="densityState"
       :initial-large-clock-enabled="largeClockState"
       :initial-large-clock-scale="largeClockScaleState"
+      :initial-exam-info-large-font="examInfoLargeFontState"
       :extra-tools="toolbarTools"
       @exit="emit('exit')"
       @scale-change="emit('scaleChange', $event)"
       @density-change="handleDensityChange"
       @large-clock-toggle="handleLargeClockToggle"
       @clock-scale-change="handleLargeClockScaleChange"
+      @exam-info-large-font-toggle="handleExamInfoLargeFontToggle"
       @dev-reminder-test="handleDevReminderTest"
       @dev-reminder-hide="handleDevReminderHide"
     />
@@ -159,6 +161,8 @@ interface Props {
   uiScale?: number;
   /** UI 密度 */
   uiDensity?: UIDensity;
+  /** 本场考试信息是否使用大字体 */
+  examInfoLargeFont?: boolean;
   /** 时间提供者 */
   timeProvider?: TimeProvider;
   /** 时间同步状态描述 */
@@ -186,15 +190,16 @@ interface Props {
 
 // Events 定义
 interface Emits {
-  (e: 'editClick'): void;
   (e: 'roomNumberClick'): void;
   (e: 'roomNumberChange', roomNumber: string): void;
   (e: 'update:roomNumber', roomNumber: string): void;
   (e: 'update:largeClock', enabled: boolean): void;
+  (e: 'update:examInfoLargeFont', enabled: boolean): void;
   (e: 'exit'): void;
   (e: 'scaleChange', scale: number): void;
   (e: 'largeClockToggle', enabled: boolean): void;
   (e: 'largeClockScaleChange', scale: number): void;
+  (e: 'examInfoLargeFontToggle', enabled: boolean): void;
   (e: 'densityChange', density: UIDensity): void;
   (e: 'examStart', exam: any): void;
   (e: 'examEnd', exam: any): void;
@@ -207,6 +212,7 @@ const props = withDefaults(defineProps<Props>(), {
   config: () => ({ roomNumber: '01' }),
   uiScale: undefined,
   largeClockScale: undefined,
+  examInfoLargeFont: false,
   timeProvider: () => ({ getCurrentTime: () => Date.now() }),
   timeSyncStatus: '电脑时间',
   roomNumber: '01',
@@ -280,6 +286,8 @@ const resolveInitialLargeClockScale = () => {
   return 1;
 };
 const largeClockScaleState = ref<number>(resolveInitialLargeClockScale());
+
+const examInfoLargeFontState = ref<boolean>(Boolean(props.examInfoLargeFont));
 
 watch(
   () => props.largeClockScale,
@@ -415,6 +423,22 @@ const handleLargeClockScaleChange = (scale: number) => {
   largeClockScaleState.value = scale;
 };
 
+const handleExamInfoLargeFontToggle = (enabled: boolean) => {
+  const flag = Boolean(enabled);
+  examInfoLargeFontState.value = flag;
+  emit('update:examInfoLargeFont', flag);
+  emit('examInfoLargeFontToggle', flag);
+};
+
+watch(
+  () => props.examInfoLargeFont,
+  (next) => {
+    if (typeof next !== 'boolean') return;
+    if (examInfoLargeFontState.value === next) return;
+    examInfoLargeFontState.value = next;
+  }
+);
+
 type DevReminderPreset = 'start' | 'warning' | 'end';
 type DevReminderPayload = { title: string; themeBaseColor: string };
 
@@ -482,23 +506,27 @@ defineExpose({
 });
 
 // 与考试事件联动：当 onExamAlert 触发时，自动弹出“即将结束”提醒
-// 注意：这里通过 mergedEventHandlers 上报事件，但在本组件内也监听 examPlayer 的 eventHandlers
-// 我们在 mergedEventHandlers 中已 emit('examAlert'...)，此处再监听 props.eventHandlers 的回调即可。
-// 为避免重复，这里本地监听 examAlert 事件：在 props.eventHandlers.onExamAlert 外，我们也用 watch examStatus。
+// 使用配置中的 alertTime（分钟）阈值，避免依赖剩余时间字符串。
 let hasShownEndingForExamId: string | null = null;
 watch(
-  () => remainingTime.value,
-  (txt) => {
-    // 简单启发：当剩余时间文本中出现 “分钟” 且小于等于 10 分钟时触发一次。
-    if (!txt || !currentExam.value) return;
-    const m = txt.match(/(\d+)\s*分钟/i);
-    if (m) {
-      const minutes = parseInt(m[1]);
-      const examId = currentExam.value?.id || currentExam.value?.name;
-      if (minutes <= 10 && examId && hasShownEndingForExamId !== examId) {
-        hasShownEndingForExamId = examId;
-        reminder.showColorfulAlert({ title: '考试即将结束', themeBaseColor: '#f1c40f' });
-      }
+  () => examStatus.value?.timeRemaining,
+  (remainingMs) => {
+    if (!currentExam.value) return;
+    if (typeof remainingMs !== 'number') return;
+
+    const alertMinutes = Number(currentExam.value.alertTime);
+    if (!Number.isFinite(alertMinutes) || alertMinutes <= 0) return; // 未配置则不触发
+
+    const examId = currentExam.value?.id || currentExam.value?.name;
+    const minutesLeft = remainingMs / (1000 * 60);
+    if (
+      examStatus.value?.status === 'inProgress' &&
+      minutesLeft <= alertMinutes &&
+      examId &&
+      hasShownEndingForExamId !== examId
+    ) {
+      hasShownEndingForExamId = examId;
+      reminder.showColorfulAlert({ title: '考试即将结束', themeBaseColor: '#f1c40f' });
     }
   }
 );
@@ -839,6 +867,7 @@ const ctxForCards = {
   uiDensity: densityState,
   largeClockEnabled: computed(() => largeClockState.value),
   largeClockScale: largeClockScaleState,
+  examInfoLargeFont: computed(() => examInfoLargeFontState.value),
   handleRoomNumberClick
 };
 provide('ExamPlayerCtx', ctxForCards);

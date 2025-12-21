@@ -17,6 +17,9 @@ pnpm dlx create-examaware-plugin examaware-plugin-demo
 cd examaware-plugin-demo
 pnpm install
 pnpm build
+
+# 打包发布 .ea2x
+pnpm pack
 ```
 
 生成的模板默认包含：
@@ -25,6 +28,7 @@ pnpm build
 - `src/renderer.ts`：渲染进程设置页示例
 - `tsup.config.ts`：构建 main / renderer Bundle
 - `examaware` 清单：自动指向 `dist/main/index.cjs` 与 `dist/renderer/index.mjs`
+- `pnpm pack`：输出 `dist/<name>-<version>.ea2x` 可分发插件包
 
 ## 基础用法
 

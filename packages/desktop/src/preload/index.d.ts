@@ -38,6 +38,7 @@ declare global {
         list: () => Promise<PluginListItem[]>
         toggle: (name: string, enabled: boolean) => Promise<PluginListItem[]>
         reload: (name: string) => Promise<PluginListItem[]>
+        uninstall: (name: string) => Promise<PluginListItem[]>
         services: () => Promise<ServiceProviderRecord[]>
         service: <T = unknown>(name: string, owner?: string) => Promise<T | undefined>
         getConfig: <T = Record<string, any>>(name: string) => Promise<T | undefined>
@@ -51,6 +52,7 @@ declare global {
         ) => () => void
         onConfig: (name: string, listener: (config: Record<string, any>) => void) => () => void
         rendererEntry: (name: string) => Promise<string | undefined>
+        readme: (name: string) => Promise<string | undefined>
       }
       system: {
         autostart: {
@@ -60,6 +62,11 @@ declare global {
       }
       app: {
         getVersion: () => Promise<string>
+      }
+      deeplink: {
+        onOpen: (
+          listener: (payload: import('../shared/types/deepLink').DeepLinkPayload) => void
+        ) => () => void
       }
       ipc: {
         send: (channel: string, ...args: any[]) => void

@@ -37,6 +37,56 @@
           </t-select>
         </t-form-item>
 
+        <!-- 播放设置 -->
+        <t-form-item label="界面缩放">
+          <div class="slider-row">
+            <t-slider
+              v-model:value="uiScaleSetting"
+              :min="0.5"
+              :max="2"
+              :step="0.01"
+              :input-number-props="{ theme: 'column', suffix: 'x', format: formatScale }"
+            />
+          </div>
+          <span class="setting-description"> 调整播放器整体缩放，等同于播放界面右下角设置 </span>
+        </t-form-item>
+
+        <t-form-item label="界面密度">
+          <t-radio-group v-model="uiDensitySetting">
+            <t-radio v-for="option in densityOptions" :key="option.value" :value="option.value">
+              <div class="density-option-label">
+                <span class="density-option-title">{{ option.label }}</span>
+                <span class="density-option-description">{{ option.description }}</span>
+              </div>
+            </t-radio>
+          </t-radio-group>
+          <span class="setting-description"> 控制卡片留白与信息排布紧凑度 </span>
+        </t-form-item>
+
+        <t-form-item label="大时钟模式">
+          <t-switch v-model="largeClockEnabledSetting" />
+          <span class="setting-description"> 开启后主时钟切换为大字号样式 </span>
+        </t-form-item>
+
+        <t-form-item label="大时钟字号">
+          <div class="slider-row">
+            <t-slider
+              v-model:value="largeClockScaleSetting"
+              :min="0.5"
+              :max="1.8"
+              :step="0.05"
+              :disabled="!largeClockEnabledSetting"
+              :input-number-props="{ theme: 'column', suffix: 'x', format: formatScale }"
+            />
+          </div>
+          <span class="setting-description"> 仅在大时钟模式下生效，用于单独放大时间字号 </span>
+        </t-form-item>
+
+        <t-form-item label="本场信息大字体">
+          <t-switch v-model="examInfoLargeFontSetting" />
+          <span class="setting-description"> 放大“当前考试信息”卡片内容字体，远距更清晰 </span>
+        </t-form-item>
+
         <!-- 语言设置 -->
         <t-form-item label="语言">
           <t-select v-model="language" @change="handleLanguageChange">
@@ -72,12 +122,35 @@
 import { ref, onMounted } from 'vue'
 import { useTheme, type ThemeMode } from '@renderer/composables/useTheme'
 import { FileOperationManager } from '@renderer/core/fileOperations'
+import { useDesktopApi } from '@renderer/runtime/desktopApi'
+import { clampUiScale } from '@renderer/composables/usePlaybackSettings'
 
 interface Props {
   configManager?: any
 }
 
 const props = defineProps<Props>()
+
+const desktopApi = useDesktopApi()
+const {
+  uiScale: uiScaleSetting,
+  uiDensity: uiDensitySetting,
+  largeClockEnabled: largeClockEnabledSetting,
+  largeClockScale: largeClockScaleSetting,
+  examInfoLargeFont: examInfoLargeFontSetting
+} = desktopApi.playback
+
+const densityOptions = [
+  { value: 'comfortable', label: '舒适', description: '标准间距与字号' },
+  { value: 'cozy', label: '适中', description: '减少约15%的留白' },
+  { value: 'compact', label: '紧凑', description: '减少约30%的留白' }
+]
+
+const formatScale = (value: number | string) => {
+  const num = Number(value)
+  const safe = Number.isFinite(num) ? clampUiScale(num) : clampUiScale(uiScaleSetting.value)
+  return `${safe.toFixed(2)}x`
+}
 
 // 主题管理
 const { themeMode, setThemeMode } = useTheme()
@@ -188,5 +261,35 @@ onMounted(() => {
   font-size: 12px;
   color: var(--td-text-color-secondary);
   margin-left: 8px;
+}
+
+.slider-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.slider-row :deep(.t-slider) {
+  flex: 1 1 auto;
+}
+
+.slider-row :deep(.t-slider__input) {
+  width: 120px;
+  margin-left: 4px;
+}
+
+.density-option-label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.density-option-title {
+  font-weight: 600;
+}
+
+.density-option-description {
+  color: var(--td-text-color-secondary);
 }
 </style>

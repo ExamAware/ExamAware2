@@ -15,7 +15,8 @@
     "./cli": "./bin/create-examaware-plugin.mjs"
   },
   "bin": {
-    "create-examaware-plugin": "./bin/create-examaware-plugin.mjs"
+    "create-examaware-plugin": "./bin/create-examaware-plugin.mjs",
+    "pack-examaware-plugin": "./bin/pack-examaware-plugin.mjs"
   },
   "files": [
     "dist",
@@ -38,7 +39,9 @@
   ],
   "author": "ExamAware",
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "archiver": "^7.0.1"
+  },
   "devDependencies": {
     "typescript": "~5.7.3",
     "vite": "^6.3.5"

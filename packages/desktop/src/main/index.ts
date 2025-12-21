@@ -1,4 +1,5 @@
 import { app, BrowserWindow, globalShortcut, Menu, protocol } from 'electron'
+import fs from 'fs'
 import path from 'path'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { createMainWindow } from './windows/mainWindow'
@@ -11,6 +12,8 @@ import { initializeTimeSync } from './ntpService/timeService'
 import { createMainContext } from './runtime/context'
 import { ensureAppTray, shouldSuppressActivate, isTrayPopoverVisible } from './tray'
 import { PluginHost, createFilePreferenceStore } from './plugin'
+import { deepLinkManager, type DeepLinkService } from './runtime/deepLink'
+import type { DeepLinkPayload } from '../shared/types/deepLink'
 
 protocol.registerSchemesAsPrivileged([
   {
@@ -22,6 +25,15 @@ protocol.registerSchemesAsPrivileged([
       corsEnabled: true,
       stream: true,
       bypassCSP: true
+    }
+  },
+  {
+    scheme: 'examaware',
+    privileges: {
+      standard: true,
+      secure: true,
+      supportFetchAPI: false,
+      corsEnabled: true
     }
   }
 ])
@@ -49,11 +61,71 @@ try {
 // 用于存储启动时的文件路径
 let fileToOpen: string | null = null
 
+const ensureTempDir = async (dir: string) => {
+  await fs.promises.mkdir(dir, { recursive: true })
+  return dir
+}
+
+const createTempConfigFromBase64 = async (b64: string, prefix: string) => {
+  const decoded = Buffer.from(b64, 'base64').toString('utf-8')
+  const tempDir = path.join(app.getPath('temp'), 'examaware-deeplink')
+  await ensureTempDir(tempDir)
+  const file = path.join(tempDir, `${prefix}-${Date.now()}.json`)
+  await fs.promises.writeFile(file, decoded, 'utf-8')
+  return file
+}
+
+// 捕获通过自定义协议传入的初始参数
+const initialDeepLink = process.argv.find((arg) => arg.startsWith('examaware://')) || null
+if (initialDeepLink) {
+  deepLinkManager.enqueue(initialDeepLink)
+}
+
+// 支持通过环境变量传入 base64 配置，便于调试：EXAMAWARE_DEEPLINK_PLAYER / EXAMAWARE_DEEPLINK_EDITOR
+const envPlayerData = process.env.EXAMAWARE_DEEPLINK_PLAYER
+const envEditorData = process.env.EXAMAWARE_DEEPLINK_EDITOR
+if (envPlayerData) {
+  createTempConfigFromBase64(envPlayerData, 'player').then((file) => {
+    deepLinkManager.enqueue(`examaware://player?file=${encodeURIComponent(file)}`)
+  })
+}
+if (envEditorData) {
+  createTempConfigFromBase64(envEditorData, 'editor').then((file) => {
+    deepLinkManager.enqueue(`examaware://editor?file=${encodeURIComponent(file)}`)
+  })
+}
+
+// 单实例锁，确保协议调用复用已有实例
+const gotLock = app.requestSingleInstanceLock()
+if (!gotLock) {
+  app.quit()
+  process.exit(0)
+}
+
+app.on('second-instance', (_event, argv) => {
+  const deepLinkArg = argv.find((arg) => arg.startsWith('examaware://'))
+  if (deepLinkArg) {
+    deepLinkManager.enqueue(deepLinkArg)
+  }
+  try {
+    const main = windowManager.get('main') ?? createMainWindow()
+    if (main) {
+      if (main.isMinimized()) main.restore()
+      if (!main.isVisible()) main.show()
+      main.focus()
+    }
+  } catch (error) {
+    console.error('[deeplink] failed to revive main window on second-instance', error)
+  }
+})
+
 app.whenReady().then(async () => {
   const { ctx: _mainCtx, dispose: disposeMainCtx } = createMainContext()
   windowManager.setContext(_mainCtx)
   electronApp.setAppUserModelId('org.examaware')
   ensurePluginProtocol()
+  ensureExamawareProtocol()
+  registerDeepLinkCoreHandlers()
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
@@ -94,6 +166,17 @@ app.whenReady().then(async () => {
         error: (...args: any[]) => console.error('[PluginHost]', ...args),
         debug: (...args: any[]) => console.debug?.('[PluginHost]', ...args)
       }
+    })
+    // 提前暴露 deeplink 服务，供插件在 main 入口注入使用
+    const deeplinkService: DeepLinkService = {
+      scheme: 'examaware',
+      registerHandler: (name, handler) => deepLinkManager.registerHandler(name, handler),
+      dispatch: (url: string) => deepLinkManager.dispatch(url)
+    }
+    pluginHost.provideService('deeplink', deeplinkService, {
+      default: true,
+      scope: 'main',
+      owner: 'core'
     })
     pluginHost.setupIpcChannels()
     await pluginHost.scan()
@@ -214,6 +297,100 @@ app.whenReady().then(async () => {
 
 let pluginProtocolRegistered = false
 
+function ensureExamawareProtocol() {
+  try {
+    // Windows 开发环境需要带上可执行路径；生产环境直接注册即可
+    if (process.platform === 'win32' && process.defaultApp && process.argv.length >= 2) {
+      app.setAsDefaultProtocolClient('examaware', process.execPath, [path.resolve(process.argv[1])])
+    } else {
+      app.setAsDefaultProtocolClient('examaware')
+    }
+  } catch (error) {
+    console.error('Failed to register examaware:// protocol', error)
+  }
+}
+
+function focusMainWindowFromDeepLink() {
+  const main = windowManager.get('main') ?? createMainWindow()
+  if (main) {
+    if (main.isMinimized()) main.restore()
+    if (!main.isVisible()) main.show()
+    main.focus()
+  }
+  return main
+}
+
+function broadcastDeepLink(payload: DeepLinkPayload) {
+  BrowserWindow.getAllWindows().forEach((win) => {
+    try {
+      win.webContents.send('deeplink:open', payload)
+    } catch (error) {
+      console.warn('[deeplink] broadcast failed', error)
+    }
+  })
+}
+
+function registerDeepLinkCoreHandlers() {
+  // 聚焦主窗口并广播给所有渲染进程；返回 true 表示已处理
+  deepLinkManager.registerHandler('core:focus-and-broadcast', (payload) => {
+    focusMainWindowFromDeepLink()
+    broadcastDeepLink(payload)
+    return true
+  })
+
+  // examaware://settings?page=xxx
+  deepLinkManager.registerHandler('core:settings', (payload) => {
+    if (payload.host !== 'settings') return false
+    const page =
+      payload.query.page || payload.query.tab || payload.pathname.replace('/', '') || undefined
+    createSettingsWindow(page)
+    return true
+  })
+
+  // examaware://editor?file=/abs/path OR examaware://editor?data=<b64>
+  deepLinkManager.registerHandler('core:editor', async (payload) => {
+    if (payload.host !== 'editor') return false
+    const file = payload.query.file
+    const data = payload.query.data
+    let target: string | undefined
+    if (file) {
+      target = file
+    } else if (data) {
+      try {
+        target = await createTempConfigFromBase64(data, 'editor')
+      } catch (error) {
+        console.error('[deeplink] failed to create temp editor file', error)
+        return false
+      }
+    }
+    createEditorWindow(target)
+    return true
+  })
+
+  // examaware://player?file=/abs/path OR examaware://player?data=<b64 json>
+  deepLinkManager.registerHandler('core:player', async (payload) => {
+    if (payload.host !== 'player') return false
+    const file = payload.query.file
+    const data = payload.query.data
+    let target: string | undefined
+    if (file) {
+      target = file
+    } else if (data) {
+      try {
+        target = await createTempConfigFromBase64(data, 'player')
+      } catch (error) {
+        console.error('[deeplink] failed to create temp player file', error)
+        return false
+      }
+    }
+    if (!target) return false
+    createPlayerWindow(target)
+    return true
+  })
+  // App ready 后处理任何在启动前缓存的深链
+  deepLinkManager.flushQueue()
+}
+
 function ensurePluginProtocol() {
   if (pluginProtocolRegistered) return
   try {
@@ -248,6 +425,12 @@ function ensurePluginProtocol() {
 }
 
 // 处理打开文件的请求（macOS）
+app.on('open-url', (event, url) => {
+  event.preventDefault()
+  deepLinkManager.enqueue(url)
+})
+
+// 处理打开文件的请求（macOS 文件关联）
 app.on('open-file', (event, path) => {
   event.preventDefault()
   if (path.endsWith('.ea2') || path.endsWith('.json')) {

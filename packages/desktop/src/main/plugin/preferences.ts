@@ -131,6 +131,16 @@ export class FilePluginPreferenceStore implements PluginPreferenceStore {
     this.data.config[name] = config as Record<string, any>
     await this.persist()
   }
+
+  /**
+   * 移除插件配置与启用状态（用于卸载插件后清理残留）
+   */
+  async remove(name: string) {
+    this.ensureLoadedSync()
+    delete this.data.enabled[name]
+    delete this.data.config[name]
+    await this.persist()
+  }
 }
 
 /**

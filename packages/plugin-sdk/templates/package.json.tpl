@@ -14,6 +14,7 @@
     "build:renderer": "vite build --config vite.config.ts",
     "build:main": "vite build --config vite.main.config.ts",
     "build:types": "vue-tsc --declaration --emitDeclarationOnly --outDir dist",
+    "pack": "pnpm run build && pack-examaware-plugin",
     "lint": "vue-tsc --noEmit"
   },
   "examaware": {

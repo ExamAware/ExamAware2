@@ -1,171 +1,220 @@
 <template>
   <div class="settings-page plugin-settings">
     <h2>插件</h2>
-    <p class="page-desc">管理已安装插件，查看依赖与日志，并调整插件配置。</p>
+    <p class="page-desc">插件可以实现很多好玩的东西。</p>
 
-    <t-row :gutter="16" class="plugin-layout">
-      <t-col :xs="12" :md="6">
-        <t-card title="插件列表" :loading="manager.loading.value">
-          <div v-if="!plugins.length && !manager.loading.value" class="empty">暂无插件</div>
-          <div v-else class="plugin-list">
-            <div
-              v-for="plugin in plugins"
-              :key="plugin.name"
-              class="plugin-item"
-              :class="{ active: plugin.name === selectedName }"
-              @click="select(plugin.name)"
-            >
-              <div class="plugin-item-main">
-                <div class="plugin-name">{{ plugin.displayName || plugin.name }}</div>
-                <div class="plugin-desc">{{ plugin.description || '未提供描述' }}</div>
-                <div class="plugin-meta">
-                  <t-tag size="small" variant="light">v{{ plugin.version }}</t-tag>
-                  <t-tag v-if="plugin.status === 'active'" theme="success" variant="light"
-                    >已激活</t-tag
-                  >
-                  <t-tag v-else-if="plugin.status === 'loading'" theme="warning" variant="light"
-                    >加载中</t-tag
-                  >
-                  <t-tag v-else-if="plugin.status === 'error'" theme="danger" variant="light"
-                    >异常</t-tag
-                  >
-                  <t-tag v-else-if="plugin.status === 'disabled'" variant="light">已禁用</t-tag>
-                </div>
-              </div>
-              <t-switch
-                :value="plugin.enabled"
-                size="small"
-                @click.stop
-                @change="(val) => handleToggle(plugin, val)"
-              />
-            </div>
-          </div>
-        </t-card>
-      </t-col>
-
-      <t-col :xs="12" :md="6">
-        <t-card v-if="current" title="插件详情" class="plugin-detail">
-          <div class="detail-section">
-            <div class="label">名称</div>
-            <div>{{ current.displayName || current.name }}</div>
-          </div>
-          <div class="detail-section">
-            <div class="label">描述</div>
-            <div>{{ current.description || '暂无描述' }}</div>
-          </div>
-          <div class="detail-section">
-            <div class="label">状态</div>
-            <div>
-              <t-tag v-if="current.status === 'active'" theme="success" variant="light"
-                >运行中</t-tag
-              >
-              <t-tag v-else-if="current.status === 'loading'" theme="warning" variant="light"
-                >加载中</t-tag
-              >
-              <t-tag v-else-if="current.status === 'disabled'" variant="light">已禁用</t-tag>
-              <t-tag v-else-if="current.status === 'error'" theme="danger" variant="light">
-                {{ current.error?.message || '异常' }}
-              </t-tag>
-              <t-tag v-else variant="outline">{{ current.status }}</t-tag>
-            </div>
-          </div>
-          <div class="detail-section">
-            <div class="label">依赖服务</div>
-            <div class="chip-group">
-              <t-tag v-for="svc in current.injects" :key="svc" size="small" variant="outline">
-                {{ svc }}
-              </t-tag>
-              <span v-if="!current.injects.length" class="muted">无</span>
-            </div>
-          </div>
-          <div class="detail-section">
-            <div class="label">提供服务</div>
-            <div class="chip-group">
-              <t-tag
-                v-for="svc in providedServices"
-                :key="svc.name"
-                size="small"
-                variant="light-outline"
-                class="service-chip"
-              >
-                <span>{{ svc.name }}</span>
-                <span class="svc-meta">/{{ svc.scope ?? 'main' }}</span>
-                <span v-if="svc.isDefault" class="svc-meta svc-default">默认</span>
-              </t-tag>
-              <span v-if="!providedServices.length" class="muted">无</span>
-            </div>
-          </div>
-          <div class="detail-actions">
-            <t-button
-              size="small"
-              variant="outline"
-              @click="() => current && handleReload(current)"
-              :disabled="manager.loading.value"
-              >重载插件</t-button
-            >
-            <t-button
-              size="small"
-              variant="outline"
-              theme="primary"
-              @click="() => manager.refresh()"
-              :loading="manager.loading.value"
-              >刷新状态</t-button
-            >
-          </div>
-        </t-card>
-        <t-card v-else title="插件详情">
-          <div class="empty">请选择一个插件查看详情</div>
-        </t-card>
-      </t-col>
-    </t-row>
-
-    <t-card v-if="current" title="配置 (JSON)">
-      <t-textarea
-        v-model="configText"
-        :autosize="{ minRows: 6, maxRows: 12 }"
-        placeholder="请输入 JSON 配置"
-      />
-      <div class="config-actions">
-        <t-space>
+    <t-card class="plugin-table-card" title="插件列表" :loading="manager.loading.value">
+      <div class="table-toolbar">
+        <t-space size="small">
           <t-button
-            size="small"
             variant="outline"
-            @click="() => current && loadConfig(current.name)"
+            size="small"
+            @click="manager.refresh"
+            :loading="manager.loading.value"
           >
-            重置
-          </t-button>
-          <t-button size="small" theme="primary" :loading="saving" @click="saveConfig">
-            保存配置
+            刷新
           </t-button>
         </t-space>
-        <span v-if="configError" class="error">{{ configError }}</span>
       </div>
+
+      <t-table
+        row-key="name"
+        :data="plugins"
+        :columns="columns"
+        size="medium"
+        table-layout="auto"
+        :hover="true"
+        :stripe="true"
+        :row-class-name="rowClassName"
+        :pagination="false"
+        bordered
+        @row-click="onRowClick"
+      >
+        <template #empty>
+          <div class="empty">暂无插件</div>
+        </template>
+
+        <template #name="{ row }">
+          <div class="plugin-name-col">
+            <span class="plugin-name">{{ row.displayName || row.name }}</span>
+          </div>
+        </template>
+
+        <template #description="{ row }">
+          <div class="plugin-desc">{{ row.description || '未提供描述' }}</div>
+        </template>
+
+        <template #version="{ row }">
+          <span>v{{ row.version }}</span>
+        </template>
+
+        <template #operations="{ row }">
+          <t-space size="small">
+            <t-tooltip content="查看详情">
+              <t-button shape="circle" variant="text" @click.stop="openDetail(row)">
+                <InfoCircleIcon />
+              </t-button>
+            </t-tooltip>
+            <t-tooltip content="重载插件">
+              <t-button shape="circle" variant="text" @click.stop="handleReload(row)">
+                <RefreshIcon />
+              </t-button>
+            </t-tooltip>
+            <t-tooltip :content="row.enabled ? '禁用插件' : '启用插件'">
+              <t-button shape="circle" variant="text" @click.stop="handleToggle(row, !row.enabled)">
+                <PoweroffIcon v-if="row.enabled" />
+                <PlayCircleIcon v-else />
+              </t-button>
+            </t-tooltip>
+            <t-tooltip content="卸载插件">
+              <t-button
+                shape="circle"
+                variant="text"
+                theme="danger"
+                @click.stop="confirmUninstall(row)"
+              >
+                <DeleteIcon />
+              </t-button>
+            </t-tooltip>
+          </t-space>
+        </template>
+      </t-table>
     </t-card>
+
+    <t-drawer v-model:visible="detailVisible" :header="detailTitle" size="70%" :footer="false">
+      <div v-if="detailTarget" class="drawer-body">
+        <div class="drawer-meta">
+          <t-tag
+            size="small"
+            theme="success"
+            variant="light"
+            v-if="detailTarget.status === 'active'"
+            >运行中</t-tag
+          >
+          <t-tag
+            size="small"
+            theme="warning"
+            variant="light"
+            v-else-if="detailTarget.status === 'loading'"
+            >加载中</t-tag
+          >
+          <t-tag size="small" variant="outline" v-else-if="detailTarget.status === 'disabled'"
+            >已禁用</t-tag
+          >
+          <t-tag
+            size="small"
+            theme="danger"
+            variant="light"
+            v-else-if="detailTarget.status === 'error'"
+          >
+            {{ detailTarget.error?.message || '异常' }}
+          </t-tag>
+          <t-tag size="small" variant="outline" v-else>{{ detailTarget.status }}</t-tag>
+          <t-tag size="small" variant="light">v{{ detailTarget.version }}</t-tag>
+          <t-tag
+            v-if="detailTarget.hasRendererEntry"
+            size="small"
+            variant="outline"
+            theme="primary"
+          >
+            渲染入口
+          </t-tag>
+        </div>
+
+        <div class="drawer-section">
+          <div class="section-title">依赖服务</div>
+          <div class="chip-group">
+            <t-tag v-for="svc in detailTarget.injects" :key="svc" size="small" variant="outline">
+              {{ svc }}
+            </t-tag>
+            <span v-if="!detailTarget.injects.length" class="muted">无</span>
+          </div>
+        </div>
+
+        <div class="drawer-section">
+          <div class="section-title">提供服务</div>
+          <div class="chip-group">
+            <t-tag
+              v-for="svc in detailProvidedServices"
+              :key="svc.name"
+              size="small"
+              variant="light-outline"
+              class="service-chip"
+            >
+              <span>{{ svc.name }}</span>
+              <span class="svc-meta">/{{ svc.scope ?? 'main' }}</span>
+              <span v-if="svc.isDefault" class="svc-meta svc-default">默认</span>
+            </t-tag>
+            <span v-if="!detailProvidedServices.length" class="muted">无</span>
+          </div>
+        </div>
+
+        <div class="drawer-section readme-block">
+          <div class="section-title">README</div>
+          <t-skeleton
+            v-if="readmeLoading"
+            :row-col="[{ width: '100%' }, { width: '95%' }, { width: '98%' }]"
+          />
+          <div v-else class="markdown-body" v-html="readmeHtml"></div>
+          <div v-if="readmeError" class="error">{{ readmeError }}</div>
+        </div>
+      </div>
+    </t-drawer>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import MarkdownIt from 'markdown-it'
+import markdownItKatex from 'markdown-it-katex'
+import { DialogPlugin, MessagePlugin } from 'tdesign-vue-next'
+import {
+  DeleteIcon,
+  InfoCircleIcon,
+  PlayCircleIcon,
+  PoweroffIcon,
+  RefreshIcon
+} from 'tdesign-icons-vue-next'
 import { useDesktopApi } from '@renderer/runtime/desktopApi'
-import type { PluginListItem } from '../../../../main/plugin/types'
+import type { PluginListItem, ServiceProviderRecord } from '../../../../main/plugin/types'
+import 'katex/dist/katex.min.css'
 
 const desktopApi = useDesktopApi()
 const manager = desktopApi.plugins
 const plugins = manager.installed
 const selectedName = ref<string | null>(null)
-const configText = ref('')
-const configError = ref<string | null>(null)
-const saving = ref(false)
 
-const current = computed<PluginListItem | undefined>(() => {
-  if (!plugins.value.length) return undefined
-  const target = plugins.value.find((p) => p.name === selectedName.value)
-  return target ?? plugins.value[0]
+const detailVisible = ref(false)
+const detailTarget = ref<PluginListItem | null>(null)
+const detailTitle = computed(
+  () => detailTarget.value?.displayName || detailTarget.value?.name || '插件详情'
+)
+const readmeHtml = ref('<p class="muted">暂无 README</p>')
+const readmeError = ref<string | null>(null)
+const readmeLoading = ref(false)
+
+const md = new MarkdownIt({ html: true, linkify: true, typographer: true }).use(markdownItKatex)
+
+const columns = [
+  { colKey: 'name', title: '名称', width: 200 },
+  { colKey: 'description', title: '简介' },
+  { colKey: 'version', title: '版本', width: 120 },
+  { colKey: 'operations', title: '操作', width: 220, align: 'center' }
+]
+
+const providerMap = computed(() => {
+  const map = new Map<string, ServiceProviderRecord[]>()
+  manager.serviceProviders.value.forEach((svc) => {
+    const list = map.get(svc.owner) ?? []
+    list.push(svc)
+    map.set(svc.owner, list)
+  })
+  return map
 })
 
-const providedServices = computed(() => {
-  if (!current.value) return []
-  return manager.serviceProviders.value.filter((svc) => svc.owner === current.value?.name)
+const detailProvidedServices = computed(() => {
+  if (!detailTarget.value) return []
+  return providerMap.value.get(detailTarget.value.name) ?? []
 })
 
 watch(
@@ -182,60 +231,76 @@ watch(
   { immediate: true }
 )
 
-watch(
-  current,
-  (plugin) => {
-    if (plugin) {
-      loadConfig(plugin.name)
-    } else {
-      configText.value = ''
-    }
-  },
-  { immediate: true }
-)
-
-async function loadConfig(name: string) {
-  try {
-    const cfg = await manager.getConfig(name)
-    configText.value = cfg ? JSON.stringify(cfg, null, 2) : '{\n  \n}'
-    configError.value = null
-  } catch (error) {
-    configError.value = (error as Error).message
-  }
+function onRowClick({ row }: { row: PluginListItem }) {
+  selectedName.value = row.name
 }
 
-async function select(name: string) {
-  selectedName.value = name
+function rowClassName({ row }: { row: PluginListItem }) {
+  return row.name === selectedName.value ? 'is-selected-row' : ''
+}
+
+function providedFor(name: string) {
+  return providerMap.value.get(name) ?? []
 }
 
 async function handleToggle(plugin: PluginListItem, enabled: boolean) {
   try {
     await manager.toggle(plugin.name, enabled)
+    MessagePlugin.success(enabled ? '已启用插件' : '已禁用插件')
   } catch (error) {
-    configError.value = (error as Error).message
+    const msg = (error as Error).message
+    MessagePlugin.error(msg)
   }
 }
 
 async function handleReload(plugin: PluginListItem) {
   try {
     await manager.reload(plugin.name)
+    MessagePlugin.success('已重载插件')
   } catch (error) {
-    configError.value = (error as Error).message
+    const msg = (error as Error).message
+    MessagePlugin.error(msg)
   }
 }
 
-async function saveConfig() {
-  if (!current.value) return
+async function confirmUninstall(plugin: PluginListItem) {
+  const dialog = DialogPlugin.confirm({
+    theme: 'danger',
+    header: `卸载 ${plugin.displayName || plugin.name}`,
+    body: '确认卸载后将删除本地插件文件和配置。',
+    onConfirm: async () => {
+      try {
+        await manager.uninstall(plugin.name)
+        MessagePlugin.success('插件已卸载')
+        if (selectedName.value === plugin.name) {
+          selectedName.value = plugins.value.find((p) => p.name !== plugin.name)?.name ?? null
+        }
+      } catch (error) {
+        const msg = (error as Error).message
+        MessagePlugin.error(msg)
+      } finally {
+        dialog.destroy?.()
+      }
+    },
+    onClose: () => dialog.destroy?.(),
+    onCancel: () => dialog.destroy?.()
+  })
+}
+
+async function openDetail(plugin: PluginListItem) {
+  detailTarget.value = plugin
+  detailVisible.value = true
+  readmeLoading.value = true
+  readmeError.value = null
   try {
-    const payload = configText.value.trim() ? JSON.parse(configText.value) : {}
-    saving.value = true
-    await manager.setConfig(current.value.name, payload)
-    await manager.refresh()
-    configError.value = null
+    const content = await manager.getReadme(plugin.name)
+    readmeHtml.value = content ? md.render(content) : '<p class="muted">暂无 README</p>'
   } catch (error) {
-    configError.value = (error as Error).message
+    const msg = (error as Error).message
+    readmeError.value = msg
+    readmeHtml.value = '<p class="muted">README 读取失败</p>'
   } finally {
-    saving.value = false
+    readmeLoading.value = false
   }
 }
 
@@ -250,78 +315,51 @@ onMounted(() => {
   flex-direction: column;
   gap: 16px;
 }
+.plugin-table-card {
+  width: 100%;
+}
+.table-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
 .page-desc {
   margin: 0 0 12px;
   color: var(--td-text-color-secondary);
 }
-.plugin-layout {
-  width: 100%;
-}
-.plugin-list {
+.plugin-cell {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
-.plugin-item {
-  border: 1px solid var(--td-border-level-1-color);
-  border-radius: 8px;
-  padding: 10px;
+.plugin-name-col {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.plugin-title {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  transition: border-color 0.2s ease;
-}
-.plugin-item.active {
-  border-color: var(--td-brand-color);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--td-brand-color) 40%, transparent);
-}
-.plugin-item-main {
-  flex: 1;
-  min-width: 0;
-  margin-right: 12px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 .plugin-name {
   font-weight: 600;
+  font-size: 14px;
 }
 .plugin-desc {
-  font-size: 12px;
   color: var(--td-text-color-secondary);
-  margin-top: 4px;
 }
 .plugin-meta {
   display: flex;
   gap: 6px;
-  margin-top: 6px;
-}
-.detail-section {
-  margin-bottom: 12px;
-}
-.detail-section .label {
-  font-size: 12px;
-  color: var(--td-text-color-secondary);
-}
-.chip-group {
-  display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 6px;
-}
-.detail-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 12px;
 }
 .empty {
-  padding: 8px 0;
+  padding: 10px 0;
   color: var(--td-text-color-secondary);
   text-align: center;
-}
-.config-actions {
-  margin-top: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }
 .error {
   color: var(--td-color-error);
@@ -342,5 +380,68 @@ onMounted(() => {
 .svc-default {
   color: var(--td-brand-color);
   font-weight: 600;
+}
+.is-selected-row td {
+  background-color: color-mix(in srgb, var(--td-brand-color) 6%, transparent);
+}
+.drawer-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.drawer-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.drawer-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.section-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.readme-block {
+  border-top: 1px solid var(--td-border-level-1-color);
+  padding-top: 8px;
+}
+.markdown-body :global(code) {
+  background: var(--td-bg-color-component);
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+.markdown-body {
+  line-height: 1.6;
+}
+.markdown-body :global(pre) {
+  background: var(--td-bg-color-component);
+  padding: 8px;
+  border-radius: 6px;
+  overflow: auto;
+}
+.markdown-body :global(table) {
+  border-collapse: collapse;
+  width: 100%;
+}
+.markdown-body :global(th),
+.markdown-body :global(td) {
+  border: 1px solid var(--td-border-level-1-color);
+  padding: 6px 8px;
+}
+.markdown-body :global(a) {
+  color: var(--td-brand-color);
+}
+.markdown-body :global(img) {
+  max-width: 100%;
+}
+.markdown-body :global(.katex) {
+  font-size: 1em;
 }
 </style>

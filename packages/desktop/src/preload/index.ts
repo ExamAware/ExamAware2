@@ -35,6 +35,13 @@ const api = {
       set: (enable: boolean) => ipcRenderer.invoke('autostart:set', enable) as Promise<boolean>
     }
   },
+  deeplink: {
+    onOpen: (listener: (payload: any) => void) => {
+      const wrapped = (_event: Electron.IpcRendererEvent, payload: any) => listener(payload)
+      ipcRenderer.on('deeplink:open', wrapped)
+      return () => ipcRenderer.off('deeplink:open', wrapped)
+    }
+  },
   dialog: {
     showMessageBox: (options: MessageBoxOptions) =>
       ipcRenderer.invoke('dialog:show-message-box', options) as Promise<MessageBoxReturnValue>
@@ -46,6 +53,7 @@ const api = {
     list: () => ipcRenderer.invoke('plugin:list'),
     toggle: (name: string, enabled: boolean) => ipcRenderer.invoke('plugin:toggle', name, enabled),
     reload: (name: string) => ipcRenderer.invoke('plugin:reload', name),
+    uninstall: (name: string) => ipcRenderer.invoke('plugin:uninstall', name),
     services: () => ipcRenderer.invoke('plugin:services'),
     service: (name: string, owner?: string) => ipcRenderer.invoke('plugin:service', name, owner),
     getConfig: (name: string) => ipcRenderer.invoke('plugin:get-config', name),
@@ -69,7 +77,8 @@ const api = {
       ipcRenderer.on('plugin:config', wrapped)
       return () => ipcRenderer.off('plugin:config', wrapped)
     },
-    rendererEntry: (name: string) => ipcRenderer.invoke('plugin:renderer-entry', name)
+    rendererEntry: (name: string) => ipcRenderer.invoke('plugin:renderer-entry', name),
+    readme: (name: string) => ipcRenderer.invoke('plugin:readme', name)
   },
   ipc: {
     send: (channel: string, ...args: any[]) => ipcRenderer.send(channel, ...args),
