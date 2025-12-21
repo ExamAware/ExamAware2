@@ -37,6 +37,7 @@ export interface PlaybackSettingsRefs {
   uiDensity: Ref<UIDensity>
   largeClockEnabled: Ref<boolean>
   largeClockScale: Ref<number>
+  examInfoLargeFont: Ref<boolean>
 }
 
 export const usePlaybackSettings = (): PlaybackSettingsRefs => {
@@ -60,11 +61,17 @@ export const usePlaybackSettings = (): PlaybackSettingsRefs => {
     mapOut: clampLargeClockScale
   })
 
+  const examInfoLargeFont = useSettingRef<boolean>('player.examInfoLargeFont', false, {
+    mapIn: (raw) => Boolean(raw),
+    mapOut: (val) => Boolean(val)
+  })
+
   return {
     uiScale,
     uiDensity,
     largeClockEnabled,
-    largeClockScale
+    largeClockScale,
+    examInfoLargeFont
   }
 }
 

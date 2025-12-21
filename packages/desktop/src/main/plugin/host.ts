@@ -1,5 +1,7 @@
 import { EventEmitter } from 'events'
 import { BrowserWindow, ipcMain } from 'electron'
+import fs from 'fs'
+import { promises as fsp } from 'fs'
 import path from 'path'
 import { URLSearchParams } from 'url'
 import { DisposerGroup } from '../runtime/disposable'
@@ -148,6 +150,7 @@ export class PluginHost extends EventEmitter {
       provides: record.manifest.services.provide,
       injects: record.manifest.services.inject,
       hasRendererEntry: Boolean(record.manifest.targets.renderer),
+      hasReadme: Boolean(this.findReadmePath(record)),
       error: record.error
     }))
   }
@@ -295,6 +298,37 @@ export class PluginHost extends EventEmitter {
     }
   }
 
+  private isRemovable(record: InternalPluginRecord) {
+    const userDir = this.options.pluginDirectories?.[0]
+    if (!userDir) return false
+    const userRoot = path.resolve(userDir)
+    const pluginRoot = path.resolve(record.manifest.rootDir)
+    return pluginRoot === userRoot || pluginRoot.startsWith(`${userRoot}${path.sep}`)
+  }
+
+  async uninstallPlugin(name: string) {
+    const record = this.records.get(name)
+    if (!record) throw new Error(`Plugin ${name} not found`)
+    if (!this.isRemovable(record)) {
+      throw new Error('仅支持卸载用户安装的插件')
+    }
+
+    await this.unloadPlugin(name)
+
+    try {
+      const pluginRoot = path.resolve(record.manifest.rootDir)
+      await fsp.rm(pluginRoot, { recursive: true, force: true })
+    } catch (error) {
+      this.logger.warn('[PluginHost] failed to delete plugin directory', name, error)
+    }
+
+    this.records.delete(name)
+    this.configCache.delete(name)
+    this.configWatchers.delete(name)
+    await this.options.preferences?.remove?.(name)
+    this.notifyStateChange()
+  }
+
   /**
    * 设置插件启用状态。
    * @param name 插件名称
@@ -339,6 +373,10 @@ export class PluginHost extends EventEmitter {
       await this.reloadPlugin(name)
       return this.list()
     })
+    ipcMain.handle(`${channelPrefix}:uninstall`, async (_e, name: string) => {
+      await this.uninstallPlugin(name)
+      return this.list()
+    })
     ipcMain.handle(`${channelPrefix}:services`, async () => this.getServiceSnapshot())
     ipcMain.handle(`${channelPrefix}:service`, async (_e, name: string, owner?: string) =>
       this.peekServiceValue(name, owner)
@@ -355,6 +393,7 @@ export class PluginHost extends EventEmitter {
     ipcMain.handle(`${channelPrefix}:renderer-entry`, async (_e, name: string) =>
       this.getRendererEntryUrl(name)
     )
+    ipcMain.handle(`${channelPrefix}:readme`, async (_e, name: string) => this.getReadme(name))
   }
 
   private resolveEnabled(manifest: ResolvedPluginManifest) {
@@ -467,6 +506,28 @@ export class PluginHost extends EventEmitter {
     return path.join(record.manifest.rootDir, normalized)
   }
 
+  private findReadmePath(record: InternalPluginRecord) {
+    const candidates = ['README.md', 'Readme.md', 'readme.md']
+    for (const candidate of candidates) {
+      const full = path.join(record.manifest.rootDir, candidate)
+      if (fs.existsSync(full)) return full
+    }
+    return undefined
+  }
+
+  async getReadme(name: string) {
+    const record = this.records.get(name)
+    if (!record) return undefined
+    const readmePath = this.findReadmePath(record)
+    if (!readmePath) return undefined
+    try {
+      return await fsp.readFile(readmePath, 'utf-8')
+    } catch (error) {
+      this.logger.warn('[PluginHost] failed to read README', name, error)
+      return undefined
+    }
+  }
+
   private toPluginRelativePath(record: InternalPluginRecord, absolutePath: string) {
     const relative = path.relative(record.manifest.rootDir, absolutePath)
     if (!relative || relative.startsWith('..')) return undefined
@@ -487,6 +548,25 @@ export class PluginHost extends EventEmitter {
       this.logger.warn('[PluginHost] failed to read service value', name, error)
       return undefined
     }
+  }
+
+  /**
+   * 向服务注册表暴露核心（非插件）服务，供插件注入使用。
+   */
+  provideService(
+    name: string,
+    value: unknown,
+    options?: ServiceProvideOptions & { owner?: string }
+  ) {
+    const owner = options?.owner ?? 'core'
+    return this.services.provide(owner, name, value, options)
+  }
+
+  /**
+   * 读取服务值（用于桥接到渲染端 Desktop API）。
+   */
+  getServiceValue<T = unknown>(name: string, owner?: string): T | undefined {
+    return this.peekServiceValue(name, owner) as T | undefined
   }
 
   private notifyStateChange() {

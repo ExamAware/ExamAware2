@@ -66,6 +66,8 @@ export interface RendererPluginHost {
   refresh(): Promise<void>
   toggle(name: string, enabled: boolean): Promise<void>
   reload(name: string): Promise<void>
+  uninstall(name: string): Promise<void>
+  getReadme(name: string): Promise<string | undefined>
   getConfig<T = Record<string, any>>(name: string): Promise<T | undefined>
   setConfig<T = Record<string, any>>(name: string, config: T): Promise<T | undefined>
   patchConfig<T = Record<string, any>>(name: string, partial: Partial<T>): Promise<T | undefined>
@@ -226,6 +228,16 @@ export function createDesktopPluginHost(ctx: AppContext): RendererPluginHost {
     await refresh()
   }
 
+  const uninstall = async (name: string) => {
+    if (typeof bridge.uninstall !== 'function') {
+      throw new Error('当前版本不支持卸载插件')
+    }
+    await bridge.uninstall(name)
+    await refresh()
+  }
+
+  const getReadme = (name: string) => bridge.readme?.(name)
+
   const getConfig = <T = Record<string, any>>(name: string) => bridge.getConfig<T>(name)
   const setConfig = <T = Record<string, any>>(name: string, config: T) =>
     bridge.setConfig<T>(name, config)
@@ -272,6 +284,8 @@ export function createDesktopPluginHost(ctx: AppContext): RendererPluginHost {
     refresh,
     toggle,
     reload,
+    uninstall,
+    getReadme,
     getConfig,
     setConfig,
     patchConfig,

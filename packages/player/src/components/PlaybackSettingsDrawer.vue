@@ -66,6 +66,18 @@
             <div class="settings-hint">仅在大时钟模式下生效，用于独立放大时间显示字号</div>
           </div>
         </div>
+        <div class="settings-group">
+          <div class="settings-label">本场信息大字体</div>
+          <div class="settings-control">
+            <div class="switch-row">
+              <t-switch v-model:value="examInfoLargeFontModel" size="large" />
+              <span class="switch-label">
+                {{ examInfoLargeFontModel ? '已启用' : '未启用' }}
+              </span>
+            </div>
+            <div class="settings-hint">放大“当前考试信息”卡片内的字段字号，提升远距离可读性</div>
+          </div>
+        </div>
         <div v-if="isDevMode" class="settings-group dev-reminder-tools">
           <div class="settings-label">调试 · 全屏提醒</div>
           <div class="settings-control">
@@ -121,11 +133,13 @@ const props = withDefaults(
     densityOptions: DensityOption[];
     largeClockEnabled: boolean;
     largeClockScale: number;
+    examInfoLargeFont: boolean;
     formatScale: (value: number | string) => string;
     isDevMode?: boolean;
   }>(),
   {
-    isDevMode: false
+    isDevMode: false,
+    examInfoLargeFont: false
   }
 );
 
@@ -135,6 +149,7 @@ const emit = defineEmits<{
   (e: 'update:density', value: UIDensity): void;
   (e: 'update:largeClockEnabled', value: boolean): void;
   (e: 'update:largeClockScale', value: number): void;
+  (e: 'update:examInfoLargeFont', value: boolean): void;
   (e: 'confirm'): void;
   (e: 'close'): void;
   (e: 'devReminderTest', preset: DevReminderPreset): void;
@@ -161,6 +176,11 @@ const largeClockEnabledModel = computed({
 const largeClockScaleModel = computed({
   get: () => props.largeClockScale,
   set: (value: number) => emit('update:largeClockScale', value)
+});
+
+const examInfoLargeFontModel = computed({
+  get: () => props.examInfoLargeFont,
+  set: (value: boolean) => emit('update:examInfoLargeFont', value)
 });
 
 const handleVisibleChange = (value: boolean) => {

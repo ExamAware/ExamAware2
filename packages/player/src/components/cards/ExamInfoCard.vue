@@ -1,8 +1,8 @@
 <template>
   <InfoCardWithIcon
     title="当前考试信息"
-    @icon-click="$emit('editClick')"
-    custom-class="exam-info-card"
+    :show-icon="false"
+    :custom-class="['exam-info-card', ctx.examInfoLargeFont?.value ? 'exam-info-large' : '']"
   >
     <InfoItem label="当前科目" :value="ctx.currentExamName.value" />
     <InfoItem label="考试时间" :value="ctx.currentExamTimeRange.value" />
@@ -29,7 +29,24 @@ export interface ExamPlayerCtx {
   currentExamName: any;
   currentExamTimeRange: any;
   displayedRemainingTime: any;
+  examInfoLargeFont?: { value: boolean };
 }
 const ctx = inject<ExamPlayerCtx>('ExamPlayerCtx')!;
-defineEmits<{ (e: 'editClick'): void }>();
 </script>
+
+<style scoped>
+.exam-info-card.exam-info-large :deep(.card-body) {
+  grid-template-columns: 1fr;
+  gap: calc(var(--ui-scale, 1) * 1.1rem) calc(var(--ui-scale, 1) * 1rem);
+}
+
+.exam-info-card.exam-info-large :deep(.card-title) {
+  font-size: calc(var(--ui-scale, 1) * 1.6rem);
+}
+
+.exam-info-card.exam-info-large :deep(.info-label),
+.exam-info-card.exam-info-large :deep(.info-value) {
+  font-size: calc(var(--ui-scale, 1) * 1.8rem);
+  line-height: 1.15;
+}
+</style>

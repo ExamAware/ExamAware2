@@ -21,6 +21,7 @@ import {
   type EditorCenterViewMeta
 } from '../stores/editorPluginStore'
 import { onEditorRuntimeReady, type EditorRuntimeEnvironment } from '../core/editorBridge'
+import type { DeepLinkPayload } from '../../shared/types/deepLink'
 
 const DESKTOP_API_KEY = Symbol('DesktopAPI')
 const SETTINGS_BRIDGE_PROMISE = Symbol('SettingsBridgePromise')
@@ -41,6 +42,10 @@ export interface PlaybackAPI extends PlaybackSettingsRefs {
   reset(): void
 }
 
+export interface DeepLinkAPI {
+  onOpen(listener: (payload: DeepLinkPayload) => void): DisposableHandle
+}
+
 export interface DesktopPlugin {
   name: string
   install(api: DesktopAPI): void | (() => void) | Promise<void | (() => void)>
@@ -57,6 +62,8 @@ export interface PluginRegistry {
   refresh(): Promise<void>
   toggle(name: string, enabled: boolean): Promise<void>
   reload(name: string): Promise<void>
+  uninstall(name: string): Promise<void>
+  getReadme(name: string): Promise<string | undefined>
   getConfig<T = Record<string, any>>(name: string): Promise<T | undefined>
   setConfig<T = Record<string, any>>(name: string, config: T): Promise<T | undefined>
   patchConfig<T = Record<string, any>>(name: string, partial: Partial<T>): Promise<T | undefined>
@@ -84,6 +91,7 @@ export interface DesktopAPI {
   ctx: AppContext
   settings: SettingsGateway
   playback: PlaybackAPI
+  deeplink: DeepLinkAPI
   plugins: PluginRegistry
   services: DesktopServicesAPI
   ui: UiAPI
@@ -113,6 +121,7 @@ export function initDesktopApi(ctx: AppContext, app?: App): DesktopAPI {
 
   const settingsGateway = createSettingsGateway()
   const playback = createPlaybackApi()
+  const deeplink = createDeepLinkApi(ctx)
   const pluginRegistry = createPluginRegistry(ctx)
   const pluginHost = createDesktopPluginHost(ctx)
   const editorApi = createEditorApi(ctx)
@@ -121,6 +130,7 @@ export function initDesktopApi(ctx: AppContext, app?: App): DesktopAPI {
     ctx,
     settings: settingsGateway,
     playback,
+    deeplink,
     plugins: {
       list: pluginRegistry.list,
       dispose: pluginRegistry.dispose,
@@ -134,6 +144,8 @@ export function initDesktopApi(ctx: AppContext, app?: App): DesktopAPI {
       refresh: () => pluginHost.refresh(),
       toggle: (name: string, enabled: boolean) => pluginHost.toggle(name, enabled),
       reload: (name: string) => pluginHost.reload(name),
+      uninstall: (name: string) => pluginHost.uninstall(name),
+      getReadme: (name: string) => pluginHost.getReadme(name),
       getConfig: <T = Record<string, any>>(name: string) => pluginHost.getConfig<T>(name),
       setConfig: <T = Record<string, any>>(name: string, config: T) =>
         pluginHost.setConfig<T>(name, config),
@@ -214,6 +226,24 @@ function createPlaybackApi(): PlaybackAPI {
       refs.uiDensity.value = normalizeDensity('comfortable' as UIDensity)
       refs.largeClockEnabled.value = false
       refs.largeClockScale.value = clampLargeClockScale(1)
+      refs.examInfoLargeFont.value = false
+    }
+  }
+}
+
+function createDeepLinkApi(ctx: AppContext): DeepLinkAPI {
+  return {
+    onOpen(listener: (payload: DeepLinkPayload) => void): DisposableHandle {
+      const dispose =
+        window.api?.deeplink?.onOpen?.((payload: DeepLinkPayload) => {
+          try {
+            listener(payload)
+          } catch (err) {
+            console.warn('[DesktopAPI][deeplink] listener failed', err)
+          }
+        }) ?? (() => {})
+      ctx.effect?.(() => dispose())
+      return { dispose }
     }
   }
 }

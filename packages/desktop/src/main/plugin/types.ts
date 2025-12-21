@@ -1,5 +1,4 @@
 import type { PluginLogger, PluginRuntimeContext, PluginSettingsAPI, ServiceAPI } from './hosting'
-import type { PluginPreferenceStore } from './preferences'
 import type { Disposer } from '../runtime/disposable'
 import type { ServiceProvideOptions, ServiceWatcherMeta } from '../../shared/services/registry'
 
@@ -119,6 +118,7 @@ export interface PluginListItem {
   provides: string[]
   injects: string[]
   hasRendererEntry?: boolean
+  hasReadme?: boolean
   error?: PluginError
 }
 
@@ -168,6 +168,14 @@ export type PluginFactory = (
   ctx: PluginRuntimeContext,
   config?: Record<string, any>
 ) => void | Disposer | Promise<void | Disposer>
+
+export interface PluginPreferenceStore {
+  isEnabled(name: string): boolean
+  setEnabled(name: string, enabled: boolean): Promise<void> | void
+  getConfig<T = Record<string, any>>(name: string): T | undefined
+  setConfig<T = Record<string, any>>(name: string, config: T): Promise<void> | void
+  remove?(name: string): Promise<void> | void
+}
 
 export type ServiceAPIExtended = ServiceAPI
 

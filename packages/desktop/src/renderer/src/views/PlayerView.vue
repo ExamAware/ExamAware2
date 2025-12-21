@@ -13,14 +13,15 @@
       :ui-density="uiDensitySetting"
       :large-clock="largeClockEnabled"
       :large-clock-scale="largeClockScaleSetting"
+      :exam-info-large-font="examInfoLargeFontSetting"
       @exit="handleExit"
-      @edit-click="handleEditClick"
       @room-number-click="handleRoomNumberClick"
       @room-number-change="handleRoomNumberChange"
       @scale-change="handleScaleChange"
       @density-change="handleDensitySettingChange"
       @large-clock-toggle="handleLargeClockToggle"
       @large-clock-scale-change="handleLargeClockScaleChange"
+      @exam-info-large-font-toggle="handleExamInfoLargeFontToggle"
       @exam-start="handleExamStart"
       @exam-end="handleExamEnd"
       @exam-alert="handleExamAlert"
@@ -35,7 +36,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
-import { NotifyPlugin, DialogPlugin } from 'tdesign-vue-next'
+import { NotifyPlugin } from 'tdesign-vue-next'
 import { ExamPlayer, type PlayerConfig } from '@dsz-examaware/player'
 // 导入 player 包的样式
 import '@dsz-examaware/player/dist/player.css'
@@ -60,7 +61,8 @@ const {
   uiScale: uiScaleSetting,
   uiDensity: uiDensitySetting,
   largeClockEnabled: largeClockEnabledSetting,
-  largeClockScale: largeClockScaleSetting
+  largeClockScale: largeClockScaleSetting,
+  examInfoLargeFont: examInfoLargeFontSetting
 } = desktopApi.playback
 
 const defaultRoomSetting = computed(() => {
@@ -117,20 +119,6 @@ let didForceTheme = false
 
 // === 事件处理器 ===
 
-// 编辑按钮点击
-const handleEditClick = () => {
-  console.log('编辑按钮被点击')
-  DialogPlugin.confirm({
-    header: '提示',
-    body: '编辑功能需要在主窗口中进行，是否关闭当前窗口？',
-    confirmBtn: '确认',
-    cancelBtn: '取消',
-    onConfirm: () => {
-      window.close()
-    }
-  })
-}
-
 // 考场号点击（交由 ExamPlayer 弹出设置）
 const handleRoomNumberClick = () => {
   console.log('考场号被点击（由 ExamPlayer 处理弹窗）')
@@ -170,6 +158,12 @@ const handleLargeClockScaleChange = (scale: number) => {
   const safe = clampLargeClockScale(scale)
   if (Object.is(largeClockScaleSetting.value, safe)) return
   largeClockScaleSetting.value = safe
+}
+
+const handleExamInfoLargeFontToggle = (enabled: boolean) => {
+  const flag = Boolean(enabled)
+  if (examInfoLargeFontSetting.value === flag) return
+  examInfoLargeFontSetting.value = flag
 }
 
 // 考试开始事件
