@@ -43,5 +43,5 @@
   },
   "packageManager": "pnpm@10.18.2",
   "author": "hello8693 <hello8693@hello8693.xyz>",
-  "license": "MIT"
+  "license": "GPL-3.0-only"
 }
