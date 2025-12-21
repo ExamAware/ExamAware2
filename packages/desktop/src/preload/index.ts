@@ -2,7 +2,8 @@ import {
   contextBridge,
   ipcRenderer,
   type MessageBoxOptions,
-  type MessageBoxReturnValue
+  type MessageBoxReturnValue,
+  type OpenDialogOptions
 } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { fileApi } from '../main/fileUtils'
@@ -14,7 +15,7 @@ const api = {
   saveFile: (filePath: string, content: string) =>
     ipcRenderer.invoke('save-file', filePath, content),
   saveFileDialog: () => ipcRenderer.invoke('save-file-dialog'),
-  openFileDialog: () => ipcRenderer.invoke('open-file-dialog'),
+  openFileDialog: (options?: OpenDialogOptions) => ipcRenderer.invoke('open-file-dialog', options),
   config: {
     all: () => ipcRenderer.invoke('config:all'),
     get: (key?: string, def?: any) => ipcRenderer.invoke('config:get', key, def),
@@ -78,7 +79,9 @@ const api = {
       return () => ipcRenderer.off('plugin:config', wrapped)
     },
     rendererEntry: (name: string) => ipcRenderer.invoke('plugin:renderer-entry', name),
-    readme: (name: string) => ipcRenderer.invoke('plugin:readme', name)
+    readme: (name: string) => ipcRenderer.invoke('plugin:readme', name),
+    installPackage: (filePath: string) => ipcRenderer.invoke('plugin:install-package', filePath),
+    installDir: (dirPath: string) => ipcRenderer.invoke('plugin:install-dir', dirPath)
   },
   ipc: {
     send: (channel: string, ...args: any[]) => ipcRenderer.send(channel, ...args),
