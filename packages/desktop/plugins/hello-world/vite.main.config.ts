@@ -31,7 +31,8 @@ export default defineConfig(({ mode }) => {
         external: (source) =>
           externalDeps.some((dep) => source === dep || source.startsWith(`${dep}/`)),
         output: {
-          exports: 'named'
+          exports: 'default',
+          esModule: false
         }
       }
     }
