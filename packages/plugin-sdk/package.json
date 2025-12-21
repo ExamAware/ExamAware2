@@ -1,0 +1,46 @@
+{
+  "name": "@examaware/plugin-sdk",
+  "version": "0.1.0",
+  "description": "ExamAware plugin SDK",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./cli": "./bin/create-examaware-plugin.mjs"
+  },
+  "bin": {
+    "create-examaware-plugin": "./bin/create-examaware-plugin.mjs"
+  },
+  "files": [
+    "dist",
+    "bin",
+    "templates",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "vite build && node ./scripts/build-types.mjs",
+    "build:types": "node ./scripts/build-types.mjs",
+    "dev": "vite build --watch --mode development",
+    "lint": "eslint \"src/**/*.ts\""
+  },
+  "keywords": [
+    "examaware",
+    "plugin",
+    "sdk",
+    "di",
+    "hostbuilder"
+  ],
+  "author": "ExamAware",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "~5.7.3",
+    "vite": "^6.3.5"
+  }
+}

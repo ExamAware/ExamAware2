@@ -1,9 +1,11 @@
 {
-  "name": "@examaware/plugin-hello-world",
+  "name": "{{PACKAGE_NAME}}",
   "version": "0.1.0",
-  "description": "ExamAware 示例插件，演示主进程插件生命周期与服务提供",
-  "license": "MIT",
+  "private": false,
   "type": "module",
+  "main": "./dist/main/index.cjs",
+  "module": "./dist/renderer/index.mjs",
+  "types": "./dist/main/index.d.ts",
   "scripts": {
     "dev": "run-p dev:renderer dev:main",
     "dev:renderer": "vite build --watch --mode development --config vite.config.ts",
@@ -15,33 +17,31 @@
     "lint": "vue-tsc --noEmit"
   },
   "examaware": {
-    "displayName": "Hello World 插件",
-    "description": "向日志输出问候语并提供 hello.message 服务",
+    "displayName": "ExamAware Plugin",
+    "description": "Generated with @examaware/plugin-sdk",
     "targets": {
       "main": "./dist/main/index.cjs",
       "renderer": "./dist/renderer/index.mjs"
     },
     "services": {
-      "provide": [
-        "hello.message"
-      ],
+      "provide": ["hello.message"],
       "inject": []
     },
     "settings": {
-      "namespace": "plugin.helloWorld",
+      "namespace": "{{PACKAGE_NAME}}",
       "schema": "./schema.json"
     }
   },
   "dependencies": {
-    "@examaware/plugin-sdk": "workspace:*",
-    "vue": "^3.5.19"
+    "@examaware/plugin-sdk": "{{PLUGIN_SDK_VERSION}}",
+    "vue": "{{VUE_VERSION}}"
   },
   "devDependencies": {
-    "@types/node": "^20.17.6",
-    "@vitejs/plugin-vue": "^5.1.4",
-    "npm-run-all2": "^7.0.2",
-    "typescript": "~5.7.3",
-    "vite": "^6.3.5",
-    "vue-tsc": "^2.1.10"
+    "@types/node": "{{NODE_TYPES_VERSION}}",
+    "@vitejs/plugin-vue": "{{VITE_PLUGIN_VUE_VERSION}}",
+    "npm-run-all2": "{{NPM_RUN_ALL_VERSION}}",
+    "typescript": "{{TYPESCRIPT_VERSION}}",
+    "vite": "{{VITE_VERSION}}",
+    "vue-tsc": "{{VUE_TSC_VERSION}}"
   }
 }

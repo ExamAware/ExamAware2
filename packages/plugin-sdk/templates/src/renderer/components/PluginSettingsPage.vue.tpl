@@ -1,12 +1,16 @@
 <template>
-  <div class="hello-plugin-card">
-    <h3>Hello Plugin 示例页面</h3>
-    <p>该界面由插件 renderer 入口动态注册，以下按钮使用 ctx.settings 与宿主配置保持同步。</p>
-    <p class="hello-plugin-desc">累计点击次数：{{ clickCount }}</p>
-    <button class="hello-plugin-button" :disabled="saving" @click="increment">
-      {{ saving ? '保存中…' : '点我 +1' }}
-    </button>
-    <button class="hello-plugin-button ghost" :disabled="saving" @click="reset">重置配置</button>
+  <div class="plugin-card">
+    <h3>ExamAware 插件设置</h3>
+    <p>该页面由插件 renderer 入口注册，示例展示了如何读写宿主配置。</p>
+    <p class="plugin-desc">累计点击次数：{{ clickCount }}</p>
+    <div class="plugin-actions">
+      <button class="primary" :disabled="saving" @click="increment">
+        {{ saving ? '保存中…' : '点我 +1' }}
+      </button>
+      <button class="ghost" :disabled="saving" @click="reset">
+        重置配置
+      </button>
+    </div>
   </div>
 </template>
 
@@ -15,7 +19,6 @@ import { ref } from 'vue'
 import type { PluginRuntimeContext } from '@examaware/plugin-sdk'
 
 const props = defineProps<{ ctx: PluginRuntimeContext }>()
-
 const settings = props.ctx.settings
 const clickCount = ref(settings?.get<number>('demo.clicks', 0) ?? 0)
 const saving = ref(false)
@@ -51,39 +54,47 @@ const reset = async () => {
 </script>
 
 <style scoped>
-.hello-plugin-card {
+.plugin-card {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 16px;
+  gap: 12px;
+  padding: 20px;
   border-radius: 12px;
   background: #fff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
-.hello-plugin-desc {
+.plugin-desc {
   font-size: 14px;
-  color: #666;
+  color: #5f6c7b;
 }
 
-.hello-plugin-button {
-  padding: 8px 12px;
-  border-radius: 8px;
+.plugin-actions {
+  display: flex;
+  gap: 10px;
+}
+
+button {
   border: none;
-  cursor: pointer;
+  border-radius: 8px;
+  padding: 8px 16px;
   font-size: 14px;
-  color: #fff;
-  background: #0052d9;
-  transition: opacity 0.2s ease;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.hello-plugin-button:disabled {
+button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.hello-plugin-button.ghost {
-  background: #fff;
+button.primary {
+  background: #0052d9;
+  color: #fff;
+}
+
+button.ghost {
+  background: transparent;
   color: #0052d9;
   border: 1px solid #0052d9;
 }

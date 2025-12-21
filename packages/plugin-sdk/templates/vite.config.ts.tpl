@@ -1,4 +1,4 @@
-import { resolve } from 'path'
+import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
 import type { ResolvedConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
@@ -35,10 +35,9 @@ export default defineConfig(({ mode }) => {
         entry: resolve(__dirname, 'src/renderer/main.ts'),
         fileName: () => 'index.mjs',
         formats: ['es'],
-        name: 'HelloWorldRendererPlugin'
+        name: 'ExamAwareRendererPlugin'
       },
       rollupOptions: {
-        external: [],
         output: {
           format: 'es',
           entryFileNames: 'index.mjs',
