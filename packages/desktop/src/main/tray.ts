@@ -38,19 +38,29 @@ function markTrayInteractionSuppress(ms = 1500) {
 
 function resolveIcon(): string | undefined {
   try {
+    const appPath = app.getAppPath?.() ?? ''
     // Prefer tray-specific assets if present, fall back to app icon
     const candidates = [
-      // packaged paths
+      // packaged extraResources (electron-builder asarUnpack)
+      path.join(process.resourcesPath || '', 'resources/icon-tray.png'),
+      path.join(process.resourcesPath || '', 'resources/trayTemplate.png'),
+      path.join(process.resourcesPath || '', 'resources/icon.png'),
+      // packaged root (some packagers flatten)
       path.join(process.resourcesPath || '', 'icon-tray.png'),
       path.join(process.resourcesPath || '', 'trayTemplate.png'),
       path.join(process.resourcesPath || '', 'icon.png'),
-      // asar-relative dev/packed paths
+      // dev/as ar paths relative to compiled main
       path.join(__dirname, '../resources/icon-tray.png'),
       path.join(__dirname, '../resources/trayTemplate.png'),
       path.join(__dirname, '../resources/icon.png'),
       path.join(__dirname, '../../resources/icon-tray.png'),
       path.join(__dirname, '../../resources/trayTemplate.png'),
-      path.join(__dirname, '../../resources/icon.png')
+      path.join(__dirname, '../../resources/icon.png'),
+      // project root fallback (dev when __dirname is dist/main)
+      path.join(appPath, 'resources/icon-tray.png'),
+      path.join(appPath, 'resources/trayTemplate.png'),
+      path.join(appPath, 'resources/icon.png'),
+      path.join(appPath, 'build/icon.png')
     ]
     for (const p of candidates) if (fs.existsSync(p)) return p
   } catch {}
@@ -61,7 +71,7 @@ function buildTrayImage(): Electron.NativeImage {
   const iconPath = resolveIcon()
   let image = iconPath ? nativeImage.createFromPath(iconPath) : nativeImage.createEmpty()
   if (process.platform === 'darwin') {
-    // macOS 模板模式（先注释掉了 还没单色图标）
+    // macOS 使用模板图标以适配浅/深色菜单栏
     // try { image.setTemplateImage(true) } catch {}
     return image
   }
@@ -78,20 +88,29 @@ export function ensureAppTray(): Tray {
   const image = buildTrayImage()
   tray = new Tray(image)
   tray.setToolTip(app.getName())
-  log('ensureAppTray: created tray. platform =', process.platform, 'electron =', process.versions.electron)
+  log(
+    'ensureAppTray: created tray. platform =',
+    process.platform,
+    'electron =',
+    process.versions.electron
+  )
 
   // 右键保留原生菜单作为降级
   trayMenu = Menu.buildFromTemplate([
     {
       label: '打开主界面',
       click: () => {
-        try { createMainWindow() } catch {}
+        try {
+          createMainWindow()
+        } catch {}
       }
     },
     {
       label: '设置',
       click: () => {
-        try { createSettingsWindow() } catch {}
+        try {
+          createSettingsWindow()
+        } catch {}
       }
     },
     { type: 'separator' },
@@ -135,13 +154,24 @@ async function toggleTrayPopover() {
     } catch {}
   }
   const visible = win.isVisible()
-  log('toggleTrayPopover: isVisible=', visible, 'lastShownAt=', lastShownAt, 'delta=', Date.now() - lastShownAt)
+  log(
+    'toggleTrayPopover: isVisible=',
+    visible,
+    'lastShownAt=',
+    lastShownAt,
+    'delta=',
+    Date.now() - lastShownAt
+  )
   if (visible) {
     // darwin: 第二次点击不隐藏，改为确保置顶与聚焦，避免“看起来什么都没出现”
     if (process.platform === 'darwin') {
       log('toggleTrayPopover: already visible (darwin), re-position and refocus instead of hide')
       positionTrayWindow(win)
-      try { win.focus() } catch (e) { log('refocus error', e) }
+      try {
+        win.focus()
+      } catch (e) {
+        log('refocus error', e)
+      }
       return
     }
     // 其他平台仍走切换隐藏
@@ -155,19 +185,30 @@ async function toggleTrayPopover() {
   positionTrayWindow(win)
   if (process.platform === 'darwin') {
     // macOS：先以非激活方式显示，随后轻微延迟再聚焦，避免与系统激活/主窗拉前打架
-      try { win.show(); log('toggleTrayPopover: show() called') } catch (e) { log('toggleTrayPopover: show error', e) }
+    try {
+      win.show()
+      log('toggleTrayPopover: show() called')
+    } catch (e) {
+      log('toggleTrayPopover: show error', e)
+    }
     setTimeout(() => {
       try {
         if (!win.isDestroyed()) {
           win.focus()
           log('toggleTrayPopover: focus() after delay')
         }
-      } catch (e) { log('toggleTrayPopover: focus error', e) }
+      } catch (e) {
+        log('toggleTrayPopover: focus error', e)
+      }
     }, 40)
   } else {
     log('toggleTrayPopover: show() + focus() (non-darwin)')
     win.show()
-    try { win.focus() } catch (e) { log('toggleTrayPopover: focus error', e) }
+    try {
+      win.focus()
+    } catch (e) {
+      log('toggleTrayPopover: focus error', e)
+    }
   }
 }
 
