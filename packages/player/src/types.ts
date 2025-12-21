@@ -1,4 +1,7 @@
 import type { Component } from 'vue';
+import type { ExamConfig } from '@dsz-examaware/core';
+
+export type ExamInfo = ExamConfig['examInfos'] extends (infer U)[] ? U : any;
 
 // Player包的核心类型定义
 
@@ -38,20 +41,20 @@ export interface TaskInfo {
   /** 任务类型 */
   type: 'exam-start' | 'exam-end' | 'exam-alert';
   /** 关联的考试信息 */
-  examInfo: any;
+  examInfo: ExamInfo;
   /** 任务状态 */
   status: 'pending' | 'completed' | 'failed';
 }
 
 export interface PlayerEventHandlers {
   /** 考试开始事件 */
-  onExamStart?: (examInfo: any) => void;
+  onExamStart?: (examInfo: ExamInfo) => void;
   /** 考试结束事件 */
-  onExamEnd?: (examInfo: any) => void;
+  onExamEnd?: (examInfo: ExamInfo) => void;
   /** 考试提醒事件 */
-  onExamAlert?: (examInfo: any, alertTime: number) => void;
+  onExamAlert?: (examInfo: ExamInfo, alertTime: number) => void;
   /** 考试切换事件 */
-  onExamSwitch?: (fromExam: any, toExam: any) => void;
+  onExamSwitch?: (fromExam: ExamInfo | undefined, toExam: ExamInfo | undefined) => void;
   /** 错误事件 */
   onError?: (error: string) => void;
 }

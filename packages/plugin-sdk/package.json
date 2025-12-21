@@ -28,7 +28,8 @@
     "build": "vite build && node ./scripts/build-types.mjs",
     "build:types": "node ./scripts/build-types.mjs",
     "dev": "vite build --watch --mode development",
-    "lint": "eslint \"src/**/*.ts\""
+    "lint": "eslint \"src/**/*.ts\"",
+    "prepublishOnly": "node ../../scripts/sync-plugin-sdk-version.mjs && pnpm build"
   },
   "keywords": [
     "examaware",
@@ -38,7 +39,7 @@
     "hostbuilder"
   ],
   "author": "ExamAware",
-  "license": "MIT",
+  "license": "GPL-3.0-only",
   "dependencies": {
     "archiver": "^7.0.1"
   },

@@ -1,6 +1,6 @@
 import type { ExamConfig } from '@dsz-examaware/core';
 import { parseDateTime } from '@dsz-examaware/core';
-import type { TaskInfo, PlayerEventHandlers } from './types';
+import type { ExamInfo, TaskInfo, PlayerEventHandlers } from '../types';
 
 export type TaskType = 'exam-start' | 'exam-end' | 'exam-alert';
 
@@ -8,7 +8,7 @@ export interface Task {
   id: string;
   executeTime: number;
   type: TaskType;
-  examInfo: any;
+  examInfo: ExamInfo;
   callback: () => void;
   status: 'pending' | 'completed' | 'failed';
 }
@@ -29,7 +29,7 @@ export class ExamTaskQueue {
   /**
    * 添加任务
    */
-  addTask(executeTime: number, type: TaskType, examInfo: any, callback: () => void): string {
+  addTask(executeTime: number, type: TaskType, examInfo: ExamInfo, callback: () => void): string {
     const id = `${type}-${examInfo.name}-${executeTime}`;
     const task: Task = {
       id,
@@ -101,7 +101,7 @@ export class ExamTaskQueue {
 
     const now = this.timeProvider();
 
-    config.examInfos.forEach((exam: any) => {
+    config.examInfos.forEach((exam: ExamInfo) => {
       const startTime = parseDateTime(exam.start).getTime();
       const endTime = parseDateTime(exam.end).getTime();
 
