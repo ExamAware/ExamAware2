@@ -1,7 +1,10 @@
 import { readFileSync, writeFileSync } from 'fs'
 import path from 'path'
+import { fileURLToPath } from 'url'
 
-const root = process.cwd()
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const root = path.resolve(__dirname, '..')
 const desktopPkgPath = path.join(root, 'packages/desktop/package.json')
 const sdkPkgPath = path.join(root, 'packages/plugin-sdk/package.json')
 
