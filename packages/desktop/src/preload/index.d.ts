@@ -20,7 +20,9 @@ declare global {
       readFile: (filePath: string) => Promise<string>
       saveFile: (filePath: string, content: string) => Promise<boolean>
       saveFileDialog: () => Promise<string | undefined>
-      openFileDialog: () => Promise<string | undefined>
+      openFileDialog: (
+        options?: import('electron').OpenDialogOptions
+      ) => Promise<string | undefined>
       config: {
         all: () => Promise<any>
         get: (key?: string, def?: any) => Promise<any>
@@ -53,6 +55,10 @@ declare global {
         onConfig: (name: string, listener: (config: Record<string, any>) => void) => () => void
         rendererEntry: (name: string) => Promise<string | undefined>
         readme: (name: string) => Promise<string | undefined>
+        installPackage: (
+          filePath: string
+        ) => Promise<{ installedPath: string; list: PluginListItem[] }>
+        installDir: (dirPath: string) => Promise<{ installedPath: string; list: PluginListItem[] }>
       }
       system: {
         autostart: {

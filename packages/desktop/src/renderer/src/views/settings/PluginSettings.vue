@@ -3,6 +3,25 @@
     <h2>插件</h2>
     <p class="page-desc">插件可以实现很多好玩的东西。</p>
 
+    <t-card class="install-banner" theme="poster2">
+      <div class="install-inner">
+        <div class="install-copy">
+          <div class="install-title">快速安装</div>
+          <div class="install-desc">支持开发目录、解压后的插件文件夹，或 .ea2x 插件包。</div>
+        </div>
+        <div class="install-actions">
+          <t-button theme="default" size="large" shape="round" @click="handleInstallExtracted">
+            <template #icon><CloudUploadIcon /></template>
+            <span>解压缩插件</span>
+          </t-button>
+          <t-button theme="success" size="large" shape="round" @click="handleInstallPackage">
+            <template #icon><FileZipIcon /></template>
+            <span>插件包 (.ea2x)</span>
+          </t-button>
+        </div>
+      </div>
+    </t-card>
+
     <t-card class="plugin-table-card" title="插件列表" :loading="manager.loading.value">
       <div class="table-toolbar">
         <t-space size="small">
@@ -23,11 +42,8 @@
         :columns="columns"
         size="medium"
         table-layout="auto"
-        :hover="true"
-        :stripe="true"
         :row-class-name="rowClassName"
         :pagination="false"
-        bordered
         @row-click="onRowClick"
       >
         <template #empty>
@@ -169,7 +185,9 @@ import MarkdownIt from 'markdown-it'
 import markdownItKatex from 'markdown-it-katex'
 import { DialogPlugin, MessagePlugin } from 'tdesign-vue-next'
 import {
+  CloudUploadIcon,
   DeleteIcon,
+  FileZipIcon,
   InfoCircleIcon,
   PlayCircleIcon,
   PoweroffIcon,
@@ -263,6 +281,46 @@ async function handleReload(plugin: PluginListItem) {
   }
 }
 
+function handleInstallExtracted() {
+  window.api
+    ?.openFileDialog({ properties: ['openDirectory', 'openFile'] })
+    .then(async (dirPath) => {
+      if (!dirPath) return
+      try {
+        const result = await manager.installDir(dirPath)
+        MessagePlugin.success(`已安装至 ${result.installedPath}`)
+      } catch (error) {
+        MessagePlugin.error((error as Error).message)
+      }
+    })
+    .catch((err) => MessagePlugin.error((err as Error).message))
+}
+
+function handleInstallPackage() {
+  window.api
+    ?.openFileDialog({
+      properties: ['openFile'],
+      filters: [
+        { name: 'ExamAware 插件包', extensions: ['ea2x'] },
+        { name: '所有文件', extensions: ['*'] }
+      ]
+    })
+    .then(async (filePath) => {
+      if (!filePath) return
+      if (!filePath.toLowerCase().endsWith('.ea2x')) {
+        MessagePlugin.warning('请选择 .ea2x 插件包')
+        return
+      }
+      try {
+        const result = await manager.installPackage(filePath)
+        MessagePlugin.success(`已安装插件包：${result.installedPath}`)
+      } catch (error) {
+        MessagePlugin.error((error as Error).message)
+      }
+    })
+    .catch((err) => MessagePlugin.error((err as Error).message))
+}
+
 async function confirmUninstall(plugin: PluginListItem) {
   const dialog = DialogPlugin.confirm({
     theme: 'danger',
@@ -314,6 +372,53 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+.install-banner {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--td-brand-color) 12%, var(--td-bg-color-container)),
+    var(--td-bg-color-container)
+  );
+  border: 1px solid var(--td-border-level-1-color);
+}
+:global([theme-mode='dark']) .install-banner {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--td-brand-color) 18%, var(--td-bg-color-container)),
+    color-mix(in srgb, var(--td-brand-color) 8%, var(--td-bg-color-page))
+  );
+  border-color: color-mix(in srgb, var(--td-border-level-1-color) 70%, transparent);
+}
+.install-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px 24px;
+  flex-wrap: wrap;
+}
+.install-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 520px;
+}
+.install-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+.install-desc {
+  color: var(--td-text-color-secondary);
+}
+.install-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-left: auto;
+  min-width: 220px;
+  align-items: stretch;
+}
+.install-actions :deep(.t-button) {
+  width: 100%;
 }
 .plugin-table-card {
   width: 100%;

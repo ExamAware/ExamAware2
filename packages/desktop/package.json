@@ -28,6 +28,7 @@
     "@dsz-examaware/player": "workspace:*",
     "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/utils": "^3.0.0",
+    "adm-zip": "^0.5.16",
     "chokidar": "^4.0.3",
     "electron-updater": "^6.6.2",
     "katex": "^0.16.27",

@@ -68,6 +68,8 @@ export interface RendererPluginHost {
   reload(name: string): Promise<void>
   uninstall(name: string): Promise<void>
   getReadme(name: string): Promise<string | undefined>
+  installPackage(filePath: string): Promise<{ installedPath: string; list: PluginListItem[] }>
+  installDir(dirPath: string): Promise<{ installedPath: string; list: PluginListItem[] }>
   getConfig<T = Record<string, any>>(name: string): Promise<T | undefined>
   setConfig<T = Record<string, any>>(name: string, config: T): Promise<T | undefined>
   patchConfig<T = Record<string, any>>(name: string, partial: Partial<T>): Promise<T | undefined>
@@ -238,6 +240,24 @@ export function createDesktopPluginHost(ctx: AppContext): RendererPluginHost {
 
   const getReadme = (name: string) => bridge.readme?.(name)
 
+  const installPackage = async (filePath: string) => {
+    if (typeof bridge.installPackage !== 'function') {
+      throw new Error('当前版本不支持安装插件包')
+    }
+    const result = await bridge.installPackage(filePath)
+    await refresh()
+    return result
+  }
+
+  const installDir = async (dirPath: string) => {
+    if (typeof bridge.installDir !== 'function') {
+      throw new Error('当前版本不支持安装解压插件')
+    }
+    const result = await bridge.installDir(dirPath)
+    await refresh()
+    return result
+  }
+
   const getConfig = <T = Record<string, any>>(name: string) => bridge.getConfig<T>(name)
   const setConfig = <T = Record<string, any>>(name: string, config: T) =>
     bridge.setConfig<T>(name, config)
@@ -286,6 +306,8 @@ export function createDesktopPluginHost(ctx: AppContext): RendererPluginHost {
     reload,
     uninstall,
     getReadme,
+    installPackage,
+    installDir,
     getConfig,
     setConfig,
     patchConfig,

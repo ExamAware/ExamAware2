@@ -4,7 +4,8 @@ import {
   BrowserWindow,
   app,
   type MessageBoxOptions,
-  type WebContents
+  type WebContents,
+  type OpenDialogOptions
 } from 'electron'
 import * as fs from 'fs'
 import * as path from 'path'
@@ -698,40 +699,32 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
       })
     )
 
+  const openFile = async (options?: OpenDialogOptions) => {
+    const baseOptions: OpenDialogOptions = {
+      properties: ['openFile'],
+      filters: [
+        { name: 'ExamAware 档案文件', extensions: ['ea2'] },
+        { name: 'JSON 文件', extensions: ['json'] },
+        { name: '所有文件', extensions: ['*'] }
+      ]
+    }
+    const merged: OpenDialogOptions = {
+      ...baseOptions,
+      ...options,
+      properties: options?.properties ?? baseOptions.properties,
+      filters: options?.filters ?? baseOptions.filters
+    }
+
+    const result = await dialog.showOpenDialog(merged)
+    if (result.canceled) {
+      return null
+    }
+    return result.filePaths[0]
+  }
+
   if (ctx)
-    ctx.ipc.handle('open-file-dialog', async () => {
-      const result = await dialog.showOpenDialog({
-        properties: ['openFile'],
-        filters: [
-          { name: 'ExamAware 档案文件', extensions: ['ea2'] },
-          { name: 'JSON 文件', extensions: ['json'] },
-          { name: '所有文件', extensions: ['*'] }
-        ]
-      })
-      if (result.canceled) {
-        return null
-      } else {
-        return result.filePaths[0]
-      }
-    })
-  else
-    group.add(
-      handle('open-file-dialog', async () => {
-        const result = await dialog.showOpenDialog({
-          properties: ['openFile'],
-          filters: [
-            { name: 'ExamAware 档案文件', extensions: ['ea2'] },
-            { name: 'JSON 文件', extensions: ['json'] },
-            { name: '所有文件', extensions: ['*'] }
-          ]
-        })
-        if (result.canceled) {
-          return null
-        } else {
-          return result.filePaths[0]
-        }
-      })
-    )
+    ctx.ipc.handle('open-file-dialog', (_e, options?: OpenDialogOptions) => openFile(options))
+  else group.add(handle('open-file-dialog', (_e, options?: OpenDialogOptions) => openFile(options)))
 
   return () => group.disposeAll()
 }

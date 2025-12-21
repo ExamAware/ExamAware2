@@ -64,6 +64,8 @@ export interface PluginRegistry {
   reload(name: string): Promise<void>
   uninstall(name: string): Promise<void>
   getReadme(name: string): Promise<string | undefined>
+  installPackage(filePath: string): Promise<{ installedPath: string; list: PluginListItem[] }>
+  installDir(dirPath: string): Promise<{ installedPath: string; list: PluginListItem[] }>
   getConfig<T = Record<string, any>>(name: string): Promise<T | undefined>
   setConfig<T = Record<string, any>>(name: string, config: T): Promise<T | undefined>
   patchConfig<T = Record<string, any>>(name: string, partial: Partial<T>): Promise<T | undefined>
@@ -146,6 +148,8 @@ export function initDesktopApi(ctx: AppContext, app?: App): DesktopAPI {
       reload: (name: string) => pluginHost.reload(name),
       uninstall: (name: string) => pluginHost.uninstall(name),
       getReadme: (name: string) => pluginHost.getReadme(name),
+      installPackage: (filePath: string) => pluginHost.installPackage(filePath),
+      installDir: (dirPath: string) => pluginHost.installDir(dirPath),
       getConfig: <T = Record<string, any>>(name: string) => pluginHost.getConfig<T>(name),
       setConfig: <T = Record<string, any>>(name: string, config: T) =>
         pluginHost.setConfig<T>(name, config),

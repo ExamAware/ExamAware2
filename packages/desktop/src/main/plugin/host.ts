@@ -17,7 +17,7 @@ import type {
   ServiceProvideOptions,
   ServiceWatcherMeta
 } from './types'
-import { discoverPluginPackages } from './manifest'
+import { discoverPluginPackages, loadManifestFromPackage } from './manifest'
 import { buildPluginGraph } from './graph'
 import { PluginLoader } from './loader'
 
@@ -306,14 +306,63 @@ export class PluginHost extends EventEmitter {
     return pluginRoot === userRoot || pluginRoot.startsWith(`${userRoot}${path.sep}`)
   }
 
-  async uninstallPlugin(name: string) {
-    const record = this.records.get(name)
-    if (!record) throw new Error(`Plugin ${name} not found`)
-    if (!this.isRemovable(record)) {
-      throw new Error('仅支持卸载用户安装的插件')
+  private collectDependents(target: string) {
+    const providers = new Map<string, string>()
+    for (const rec of this.records.values()) {
+      for (const svc of rec.manifest.services.provide) {
+        providers.set(svc, rec.name)
+      }
     }
 
-    await this.unloadPlugin(name)
+    const adjacency = new Map<string, Set<string>>()
+    for (const rec of this.records.values()) {
+      for (const svc of rec.manifest.services.inject) {
+        const owner = providers.get(svc)
+        if (!owner) continue
+        if (!adjacency.has(owner)) adjacency.set(owner, new Set())
+        adjacency.get(owner)!.add(rec.name)
+      }
+    }
+
+    const visited = new Set<string>()
+    const order: string[] = []
+
+    const dfs = (name: string) => {
+      const consumers = adjacency.get(name)
+      if (!consumers) return
+      for (const consumer of consumers) {
+        if (visited.has(consumer)) continue
+        visited.add(consumer)
+        dfs(consumer)
+        order.push(consumer)
+      }
+    }
+
+    dfs(target)
+    return order
+  }
+
+  private ensureDependenciesSatisfied(manifest: ResolvedPluginManifest) {
+    if (!manifest.dependencies?.length) return
+    const missing: string[] = []
+    for (const dep of manifest.dependencies) {
+      if (!this.records.has(dep)) {
+        missing.push(dep)
+      }
+    }
+    if (missing.length) {
+      throw new Error(`缺少依赖插件：${missing.join(', ')}`)
+    }
+  }
+
+  private async removePluginRecord(
+    record: InternalPluginRecord,
+    options?: { skipUnload?: boolean }
+  ) {
+    const name = record.name
+    if (!options?.skipUnload) {
+      await this.unloadPlugin(name)
+    }
 
     try {
       const pluginRoot = path.resolve(record.manifest.rootDir)
@@ -326,6 +375,42 @@ export class PluginHost extends EventEmitter {
     this.configCache.delete(name)
     this.configWatchers.delete(name)
     await this.options.preferences?.remove?.(name)
+  }
+
+  async uninstallPlugin(name: string) {
+    const record = this.records.get(name)
+    if (!record) throw new Error(`Plugin ${name} not found`)
+    if (!this.isRemovable(record)) {
+      throw new Error('开发模式插件无法卸载')
+    }
+
+    const dependents = this.collectDependents(name)
+
+    for (const dep of dependents) {
+      const depRecord = this.records.get(dep)
+      if (!depRecord) continue
+      if (!this.isRemovable(depRecord)) {
+        throw new Error(`开发模式插件无法卸载：${depRecord.name} 依赖于 ${name}`)
+      }
+    }
+
+    for (const dep of dependents) {
+      await this.unloadPlugin(dep)
+    }
+    await this.unloadPlugin(name)
+
+    for (const dep of dependents) {
+      const depRecord = this.records.get(dep)
+      if (depRecord) {
+        await this.removePluginRecord(depRecord, { skipUnload: true })
+      }
+    }
+
+    const targetRecord = this.records.get(name)
+    if (targetRecord) {
+      await this.removePluginRecord(targetRecord, { skipUnload: true })
+    }
+
     this.notifyStateChange()
   }
 
@@ -394,6 +479,66 @@ export class PluginHost extends EventEmitter {
       this.getRendererEntryUrl(name)
     )
     ipcMain.handle(`${channelPrefix}:readme`, async (_e, name: string) => this.getReadme(name))
+    ipcMain.handle(`${channelPrefix}:install-package`, async (_e, filePath: string) => {
+      const target = await this.installPackage(filePath)
+      await this.scan()
+      await this.loadAll()
+      return { installedPath: target, list: this.list() }
+    })
+    ipcMain.handle(`${channelPrefix}:install-dir`, async (_e, dirPath: string) => {
+      const target = await this.installFromDirectory(dirPath)
+      await this.scan()
+      await this.loadAll()
+      return { installedPath: target, list: this.list() }
+    })
+  }
+
+  private getUserPluginsDir() {
+    return this.options.pluginDirectories?.[0]
+  }
+
+  private async ensureWritableDir() {
+    const dir = this.getUserPluginsDir()
+    if (!dir) throw new Error('插件目录未配置')
+    await fsp.mkdir(dir, { recursive: true })
+    return dir
+  }
+
+  async installFromDirectory(srcDir: string) {
+    const dir = await this.ensureWritableDir()
+    const normalized = path.resolve(srcDir)
+    const manifest = await loadManifestFromPackage(normalized)
+    if (!manifest) throw new Error('该目录不是有效的 ExamAware 插件')
+    this.ensureDependenciesSatisfied(manifest)
+
+    const name = manifest.name ? String(manifest.name).split('/').pop() : `plugin-${Date.now()}`
+    const targetDir = path.join(dir, name)
+    if (targetDir === normalized) {
+      return targetDir
+    }
+    await fsp.rm(targetDir, { recursive: true, force: true })
+    await fsp.cp(normalized, targetDir, { recursive: true })
+    return targetDir
+  }
+
+  async installPackage(filePath: string) {
+    const dir = await this.ensureWritableDir()
+    const pkgName = path.basename(filePath, path.extname(filePath))
+    const targetDir = path.join(dir, pkgName)
+    await fsp.rm(targetDir, { recursive: true, force: true })
+
+    // lazy import to avoid startup cost
+    const AdmZip = (await import('adm-zip')).default
+    const zip = new AdmZip(filePath)
+    zip.extractAllTo(targetDir, true)
+
+    const manifest = await loadManifestFromPackage(targetDir)
+    if (!manifest) {
+      await fsp.rm(targetDir, { recursive: true, force: true })
+      throw new Error('插件包不包含有效的 ExamAware 插件')
+    }
+    this.ensureDependenciesSatisfied(manifest)
+    return targetDir
   }
 
   private resolveEnabled(manifest: ResolvedPluginManifest) {

@@ -19,6 +19,16 @@ body,
   overflow: hidden;
 }
 
+:where(*) {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+:where(input, textarea, [contenteditable], .t-input__inner, .t-textarea__inner, .t-select__input) {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
 /* 自定义滚动条（亮/暗主题适配） */
 /* 统一变量 */
 :root[theme-mode='light'] {
