@@ -1,33 +1,15 @@
+import type { PluginLogger, PluginRuntimeContext, PluginSettingsAPI, ServiceAPI } from './hosting'
+import type { PluginPreferenceStore } from './preferences'
 import type { Disposer } from '../runtime/disposable'
 import type { ServiceProvideOptions, ServiceWatcherMeta } from '../../shared/services/registry'
+
+export type { PluginLogger, PluginRuntimeContext, PluginSettingsAPI, ServiceAPI } from './hosting'
 
 /**
  * 插件状态枚举
  * Plugin status enumeration
  */
 export type PluginStatus = 'idle' | 'loading' | 'active' | 'disabled' | 'error'
-
-/**
- * 插件日志记录器接口
- * Plugin logger interface
- */
-export interface PluginLogger {
-  info: (...args: any[]) => void
-  warn: (...args: any[]) => void
-  error: (...args: any[]) => void
-  debug?: (...args: any[]) => void
-}
-
-/**
- * 插件偏好设置存储接口
- * Plugin preference store interface
- */
-export interface PluginPreferenceStore {
-  isEnabled(name: string): boolean
-  setEnabled(name: string, enabled: boolean): Promise<void> | void
-  getConfig<T = Record<string, any>>(name: string): T | undefined
-  setConfig<T = Record<string, any>>(name: string, config: T): Promise<void> | void
-}
 
 /**
  * 插件入口点信息
@@ -187,68 +169,7 @@ export type PluginFactory = (
   config?: Record<string, any>
 ) => void | Disposer | Promise<void | Disposer>
 
-/**
- * 插件运行时上下文
- * Plugin runtime context
- */
-export interface PluginRuntimeContext {
-  /**
-   * 当前插件运行在哪个进程
-   */
-  app: 'main' | 'renderer'
-  logger: PluginLogger
-  config: Record<string, any>
-  settings: PluginSettingsAPI
-  effect: (fn: () => void | Disposer | Promise<void | Disposer>) => void
-  services: ServiceAPI
-  /**
-   * main 进程特有能力：窗口广播与 IPC 注册
-   */
-  windows?: {
-    broadcast: (channel: string, payload?: any) => void
-  }
-  ipc?: {
-    registerChannel: (
-      channel: string,
-      handler: (event: Electron.IpcMainInvokeEvent, ...args: any[]) => any
-    ) => Disposer
-    invokeRenderer?: (channel: string, payload?: any) => void
-  }
-  /**
-   * renderer 进程可选能力：向外暴露 Desktop API（避免循环依赖，保持为 unknown）
-   */
-  desktopApi?: unknown
-}
-
-/**
- * 服务API接口
- * Service API interface
- */
-export interface ServiceAPI {
-  provide: (name: string, value: unknown, options?: ServiceProvideOptions) => Disposer
-  inject: <T = unknown>(name: string, owner?: string) => T
-  injectAsync?: <T = unknown>(name: string, owner?: string) => Promise<T>
-  when?: <T = unknown>(
-    name: string,
-    cb: (svc: T, owner: string, meta: ServiceWatcherMeta) => void | (() => void)
-  ) => Disposer
-  has: (name: string, owner?: string) => boolean
-}
-
-export interface PluginSettingsAPI {
-  /**
-   * 返回当前完整配置的浅拷贝
-   */
-  all: () => Record<string, any>
-  /**
-   * 支持 key path（a.b.c），未填写 key 时返回全量配置
-   */
-  get: <T = unknown>(key?: string, def?: T) => T
-  set: <T = unknown>(key: string, value: T) => Promise<void>
-  patch: (partial: Record<string, any>) => Promise<void>
-  reset: () => Promise<void>
-  onChange: (listener: (config: Record<string, any>) => void) => Disposer
-}
+export type ServiceAPIExtended = ServiceAPI
 
 export type {
   ServiceProviderRecord,

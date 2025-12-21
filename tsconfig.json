@@ -24,6 +24,7 @@
     { "path": "./packages/core" },
     { "path": "./packages/web" },
     { "path": "./packages/desktop" },
-    { "path": "./packages/player" }
+    { "path": "./packages/player" },
+    { "path": "./packages/plugin-sdk" }
   ]
 }

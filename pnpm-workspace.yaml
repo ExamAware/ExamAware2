@@ -3,6 +3,8 @@ packages:
   - packages/core
   - packages/player
   - packages/web
+  - packages/plugin-sdk
+  - packages/desktop/plugins/*
 
 onlyBuiltDependencies:
   - electron

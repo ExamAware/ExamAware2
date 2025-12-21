@@ -1,28 +1,31 @@
 import { defineComponent, h } from 'vue'
-import HelloSettingsPage from './components/HelloSettingsPage.vue'
 import type { PluginRuntimeContext } from '@examaware/plugin-sdk'
+import PluginSettingsPage from './components/PluginSettingsPage.vue'
+
+const SETTINGS_PAGE_ID = '{{SETTINGS_PAGE_ID}}'
 
 export default async function setupRenderer(ctx: PluginRuntimeContext) {
   if (ctx.app !== 'renderer') return
   const desktopApi = ctx.desktopApi as any
   const settingsUi = desktopApi?.ui?.settings
   if (!settingsUi) {
-    ctx.logger.warn('Desktop API 当前不支持插件设置页面注册')
+    ctx.logger.warn('Desktop API does not expose settings UI in this build.')
     return
   }
 
-  const HelloSettingsEntry = defineComponent({
-    name: 'HelloPluginSettingsEntry',
+  const SettingsEntry = defineComponent({
+    name: 'ExamAwarePluginSettingsEntry',
     setup() {
-      return () => h(HelloSettingsPage, { ctx })
+      return () => h(PluginSettingsPage, { ctx })
     }
   })
+
   const handle = await settingsUi.registerPage({
-    id: 'plugin-hello-world-demo',
-    label: 'Hello 示例',
-    icon: 'smile',
+    id: SETTINGS_PAGE_ID,
+    label: 'Plugin Settings',
+    icon: 'puzzle',
     order: 50,
-    component: () => Promise.resolve(HelloSettingsEntry)
+    component: () => Promise.resolve(SettingsEntry)
   })
 
   if (handle) {
