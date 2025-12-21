@@ -43,8 +43,10 @@
         <div class="settings-group">
           <div class="settings-label">大时钟模式</div>
           <div class="settings-control">
-            <t-switch v-model:value="largeClockEnabledModel" size="large" />
-            <span class="switch-label">{{ largeClockEnabledModel ? '已启用' : '未启用' }}</span>
+            <div class="switch-row">
+              <t-switch v-model:value="largeClockEnabledModel" size="large" />
+              <span class="switch-label">{{ largeClockEnabledModel ? '已启用' : '未启用' }}</span>
+            </div>
             <div class="settings-hint">启用后主时间卡片将进入大时钟样式，可独立调整字号</div>
           </div>
         </div>
@@ -234,6 +236,17 @@ const triggerDevReminderHide = () => {
 .switch-label {
   font-size: calc(var(--ui-scale, 1) * 13px);
   color: var(--td-text-color-secondary, rgba(255, 255, 255, 0.7));
+}
+
+.switch-row {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--ui-scale, 1) * 10px);
+  align-self: flex-start;
+}
+
+.switch-row :deep(.t-switch) {
+  flex: none;
 }
 
 .settings-hint {
