@@ -1,9 +1,5 @@
 <template>
-  <InfoCardWithIcon
-    title="当前考试信息"
-    :show-icon="false"
-    :custom-class="['exam-info-card', ctx.examInfoLargeFont?.value ? 'exam-info-large' : '']"
-  >
+  <InfoCardWithIcon title="当前考试信息" :show-icon="false" :custom-class="customClass">
     <InfoItem label="当前科目" :value="ctx.currentExamName.value" />
     <InfoItem label="考试时间" :value="ctx.currentExamTimeRange.value" />
     <InfoItem label="剩余时间" :value="ctx.displayedRemainingTime.value" />
@@ -20,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject } from 'vue';
+import { computed, inject } from 'vue';
 import InfoCardWithIcon from '../InfoCardWithIcon.vue';
 import InfoItem from '../InfoItem.vue';
 
@@ -32,6 +28,11 @@ export interface ExamPlayerCtx {
   examInfoLargeFont?: { value: boolean };
 }
 const ctx = inject<ExamPlayerCtx>('ExamPlayerCtx')!;
+const customClass = computed(() =>
+  ['exam-info-card', ctx.examInfoLargeFont?.value ? 'exam-info-large' : '']
+    .filter(Boolean)
+    .join(' ')
+);
 </script>
 
 <style scoped>

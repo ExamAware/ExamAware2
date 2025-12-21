@@ -2,7 +2,7 @@ import { ref, computed, readonly, watch } from 'vue';
 import type { ExamConfig } from '@dsz-examaware/core';
 import { ExamTaskQueue } from '../utils/taskQueue';
 import { ExamDataProcessor } from '../utils/dataProcessor';
-import type { PlayerConfig, PlayerEventHandlers, PlayerState } from '../types';
+import type { ExamInfo, PlayerConfig, PlayerEventHandlers, PlayerState } from '../types';
 import type { TimeProvider, IExamConfigService } from './interfaces';
 import type { IReminderService } from './reminder';
 
@@ -170,19 +170,19 @@ export class ExamPlayerCore {
     this.updateCurrentExam();
 
     this.queue.createTasksForConfig(newConfig, {
-      onExamStart: (exam) => {
+      onExamStart: (exam: ExamInfo) => {
         this.currentTime.value = this.timeProvider.getCurrentTime();
         this.updateCurrentExam();
         this.events.onExamStart?.(exam);
         this.reminder?.showColorfulAlert({ title: '考试开始', themeBaseColor: '#2ecc71' });
       },
-      onExamEnd: (exam) => {
+      onExamEnd: (exam: ExamInfo) => {
         this.currentTime.value = this.timeProvider.getCurrentTime();
         this.updateCurrentExam();
         this.events.onExamEnd?.(exam);
         this.reminder?.showColorfulAlert({ title: '考试结束', themeBaseColor: '#ff3b30' });
       },
-      onExamAlert: (exam, alertTime) => {
+      onExamAlert: (exam: ExamInfo, alertTime: number) => {
         this.events.onExamAlert?.(exam, alertTime);
         this.reminder?.showColorfulAlert({ title: '考试即将结束', themeBaseColor: '#f1c40f' });
       },

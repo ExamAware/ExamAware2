@@ -65,6 +65,50 @@ export const settingsModule: AppModule = {
   name: 'settings',
   install(app: App, ctx) {
     const registry = new SettingsRegistry()
+    const defaults: SettingsPageMeta[] = [
+      {
+        id: 'basic',
+        label: '基本',
+        icon: 'setting',
+        order: 0,
+        component: () => import('@renderer/views/settings/BasicSettings.vue')
+      },
+      {
+        id: 'appearance',
+        label: '外观',
+        icon: 'palette',
+        order: 1,
+        component: () => import('@renderer/views/settings/AppearanceSettings.vue')
+      },
+      {
+        id: 'player',
+        label: '播放器',
+        icon: 'play-circle',
+        order: 2,
+        component: () => import('@renderer/views/settings/PlayerSettings.vue')
+      },
+      {
+        id: 'time',
+        label: '时间同步',
+        icon: 'time',
+        order: 3,
+        component: () => import('@renderer/views/settings/TimeSettings.vue')
+      },
+      {
+        id: 'plugins',
+        label: '插件',
+        icon: 'extension',
+        order: 4,
+        component: () => import('@renderer/views/settings/PluginSettings.vue')
+      },
+      {
+        id: 'about',
+        label: '关于',
+        icon: 'info-circle',
+        order: 99,
+        component: () => import('@renderer/views/settings/AboutSettings.vue')
+      }
+    ]
 
     // 注册api
     ;(ctx as any).addSettingsPage = async (meta: SettingsPageMeta) => {
@@ -77,93 +121,15 @@ export const settingsModule: AppModule = {
     ctx.provides.settings = registry
     if (ctx.provide) ctx.provide('settings', registry)
 
-    if ((ctx as any).addSettingsPage) {
-      ;(ctx as any).addSettingsPage({
-        id: 'basic',
-        label: '基本',
-        icon: 'setting',
-        order: 0,
-        component: () => import('@renderer/views/settings/BasicSettings.vue')
-      })
-      ;(ctx as any).addSettingsPage({
-        id: 'appearance',
-        label: '外观',
-        icon: 'palette',
-        order: 1,
-        component: () => import('@renderer/views/settings/AppearanceSettings.vue')
-      })
-      ;(ctx as any).addSettingsPage({
-        id: 'player',
-        label: '播放器',
-        icon: 'play-circle',
-        order: 2,
-        component: () => import('@renderer/views/settings/PlayerSettings.vue')
-      })
-      ;(ctx as any).addSettingsPage({
-        id: 'time',
-        label: '时间同步',
-        icon: 'time',
-        order: 3,
-        component: () => import('@renderer/views/settings/TimeSettings.vue')
-      })
-      ;(ctx as any).addSettingsPage({
-        id: 'plugins',
-        label: '插件',
-        icon: 'component',
-        order: 4,
-        component: () => import('@renderer/views/settings/PluginSettings.vue')
-      })
-      ;(ctx as any).addSettingsPage({
-        id: 'about',
-        label: '关于',
-        icon: 'info-circle',
-        order: 99,
-        component: () => import('@renderer/views/settings/AboutSettings.vue')
-      })
-    } else {
-      registry.register({
-        id: 'basic',
-        label: '基本',
-        icon: 'setting',
-        order: 0,
-        component: () => import('@renderer/views/settings/BasicSettings.vue')
-      })
-      registry.register({
-        id: 'appearance',
-        label: '外观',
-        icon: 'palette',
-        order: 1,
-        component: () => import('@renderer/views/settings/AppearanceSettings.vue')
-      })
-      registry.register({
-        id: 'player',
-        label: '播放器',
-        icon: 'play-circle',
-        order: 2,
-        component: () => import('@renderer/views/settings/PlayerSettings.vue')
-      })
-      registry.register({
-        id: 'time',
-        label: '时间同步',
-        icon: 'time',
-        order: 3,
-        component: () => import('@renderer/views/settings/TimeSettings.vue')
-      })
-      registry.register({
-        id: 'plugins',
-        label: '插件',
-        icon: 'component',
-        order: 4,
-        component: () => import('@renderer/views/settings/PluginSettings.vue')
-      })
-      registry.register({
-        id: 'about',
-        label: '关于',
-        icon: 'info-circle',
-        order: 99,
-        component: () => import('@renderer/views/settings/AboutSettings.vue')
-      })
-    }
+    const addSettingsPage = (ctx as any).addSettingsPage as
+      | ((meta: SettingsPageMeta) => Promise<{ path: string; dispose: () => void }>)
+      | undefined
+
+    const registerDefault = addSettingsPage
+      ? (meta: SettingsPageMeta) => addSettingsPage(meta)
+      : (meta: SettingsPageMeta) => registry.register(meta)
+
+    defaults.forEach((page) => registerDefault(page))
   },
   uninstall(app: App, ctx) {
     if ((app.config.globalProperties as any).$settings) {
