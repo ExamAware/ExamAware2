@@ -5,6 +5,7 @@
     </div>
     <h2 class="app-name">ExamAware</h2>
     <p class="version">版本：{{ version }}</p>
+    <p class="codename">Codename：Lighthouse / 灯塔</p>
     <div class="actions">
       <t-button size="small" theme="primary" variant="base" @click="openGithub">
         <t-icon name="logo-github" />
@@ -13,7 +14,13 @@
       <t-button size="small" variant="outline" @click="showLicense = true">开源协议</t-button>
     </div>
 
-    <t-dialog v-model:visible="showLicense" header="GPLv3 许可" :footer="false" width="720px" placement="center">
+    <t-dialog
+      v-model:visible="showLicense"
+      header="GPLv3 许可"
+      :footer="false"
+      width="720px"
+      placement="center"
+    >
       <div class="license-box" v-if="licenseText">
         <pre>{{ licenseText }}</pre>
       </div>
@@ -30,6 +37,7 @@ import gplText from '@renderer/assets/licenses/gpl-3.0.txt?raw'
 
 const logo = logoUrl
 const version = ref(DESKTOP_VERSION)
+const codename = 'Lighthouse / 灯塔'
 const showLicense = ref(false)
 const licenseText = ref(gplText)
 
@@ -83,6 +91,11 @@ onMounted(() => {
   font-weight: 600;
 }
 .version {
+  margin: 0;
+  font-size: 14px;
+  color: var(--td-text-color-secondary);
+}
+.codename {
   margin: 0;
   font-size: 14px;
   color: var(--td-text-color-secondary);

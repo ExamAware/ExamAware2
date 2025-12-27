@@ -38,6 +38,29 @@ protocol.registerSchemesAsPrivileged([
   }
 ])
 
+const STARTUP_BANNER = [
+  ' _____                        _                         ',
+  '| ____|_  ____ _ _ __ ___    / \__      ____ _ _ __ ___ ',
+  "|  _| \\ \\/ / _` | '_ ` _ \\  / _ \\ \\ /\\ / / _` | '__/ _ \\",
+  '| |___ >  < (_| | | | | | |/ ___ \\ V  V / (_| | | |  __/',
+  '|_____/_/\\_\\__,_|_| |_| |_/_/   \\_\\_/\\_/ \\__,_|_|  \\___|',
+  ''
+].join('\n')
+
+function printStartupBanner() {
+  try {
+    const version = app?.getVersion?.() ?? 'dev'
+    console.log(STARTUP_BANNER)
+    console.log(` ExamAware Desktop v${version}`)
+    console.log(' =================================')
+  } catch (error) {
+    console.log(STARTUP_BANNER)
+    console.warn('[banner] failed to print version', error)
+  }
+}
+
+printStartupBanner()
+
 let pluginHost: PluginHost | null = null
 
 // Ensure a friendly app name in development and across platforms (especially macOS About menu)
@@ -49,7 +72,7 @@ try {
   if (process.platform === 'darwin' && (app as any).setAboutPanelOptions) {
     ;(app as any).setAboutPanelOptions({
       applicationName: 'ExamAware',
-      applicationVersion: app.getVersion(),
+      applicationVersion: `${app.getVersion()} (Lighthouse / 灯塔)`,
       copyright: `© ${new Date().getFullYear()} ExamAware Contributors`,
       authors: ['ExamAware Team'],
       website: 'https://github.com/ExamAware/ExamAware2',
