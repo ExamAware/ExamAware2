@@ -20,6 +20,9 @@
           <t-list-item-meta title="App 版本" :description="versionInfo.appVersion" />
         </t-list-item>
         <t-list-item>
+          <t-list-item-meta title="Codename" description="Lighthouse / 灯塔" />
+        </t-list-item>
+        <t-list-item>
           <t-list-item-meta title="浏览器" :description="versionInfo.browserVersion" />
         </t-list-item>
         <t-list-item>
@@ -58,7 +61,7 @@ const versionInfo = ref({
 })
 
 const readableVersionInfo = computed(() => {
-  return `About DSZ ExamAware\n============\nApp Version: ${versionInfo.value.appVersion}\nBrowser: ${versionInfo.value.browserVersion}\nUser Agent: ${versionInfo.value.userAgent}`
+  return `About DSZ ExamAware\n============\nApp Version: ${versionInfo.value.appVersion}\nCodename: Lighthouse / 灯塔\nBrowser: ${versionInfo.value.browserVersion}\nUser Agent: ${versionInfo.value.userAgent}`
 })
 
 const props = defineProps({
