@@ -5,3 +5,8 @@ out
 *.log*
 packages/core/tsconfig.tsbuildinfo
 packages/desktop/plugins/*
+
+node_modules/
+docs/.vuepress/.cache/
+docs/.vuepress/.temp/
+docs/.vuepress/dist/

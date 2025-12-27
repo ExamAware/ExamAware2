@@ -30,6 +30,10 @@ export interface ExamAwarePluginManifest {
     main?: string
     renderer?: string
   }
+  engines?: {
+    desktop?: string
+    sdk?: string
+  }
   dependencies?: string[]
   services?: {
     provide?: string[]
@@ -55,6 +59,11 @@ export interface ResolvedPluginManifest {
     main?: PluginEntryPoint
     renderer?: PluginEntryPoint
   }
+  engines?: {
+    desktop?: string
+    sdk?: string
+  }
+  sdkVersion?: string
   dependencies: string[]
   services: {
     provide: string[]
@@ -88,7 +97,7 @@ export interface PluginRecord {
  * Plugin error information
  */
 export interface PluginError {
-  code: 'manifest-error' | 'missing-service' | 'cycle' | 'load-failed'
+  code: 'manifest-error' | 'missing-service' | 'cycle' | 'load-failed' | 'incompatible'
   message: string
   details?: any
 }

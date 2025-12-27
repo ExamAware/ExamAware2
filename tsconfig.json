@@ -1,10 +1,14 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "module": "NodeNext",
     "skipLibCheck": true,
-    "moduleResolution": "bundler",
+    "moduleResolution": "NodeNext",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -16,15 +20,33 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@dsz-examaware/player-core": ["./packages/player-core/src"],
-      "@dsz-examaware/player-core/*": ["./packages/player-core/src/*"]
+      "@dsz-examaware/player-core": [
+        "./packages/player-core/src"
+      ],
+      "@dsz-examaware/player-core/*": [
+        "./packages/player-core/src/*"
+      ]
     }
   },
   "references": [
-    { "path": "./packages/core" },
-    { "path": "./packages/web" },
-    { "path": "./packages/desktop" },
-    { "path": "./packages/player" },
-    { "path": "./packages/plugin-sdk" }
+    {
+      "path": "./packages/core"
+    },
+    {
+      "path": "./packages/web"
+    },
+    {
+      "path": "./packages/desktop"
+    },
+    {
+      "path": "./packages/player"
+    },
+    {
+      "path": "./packages/plugin-sdk"
+    }
+  ],
+  "include": [
+    "docs/.vuepress/**/*.ts",
+    "docs/.vuepress/**/*.vue"
   ]
 }

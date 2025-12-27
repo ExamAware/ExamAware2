@@ -1,12 +1,16 @@
-import { builtinModules } from 'node:module'
-import { resolve } from 'node:path'
-import { defineConfig } from 'vite'
+import { builtinModules } from 'node:module';
+import { resolve } from 'node:path';
+import { defineConfig } from 'vite';
 
-const builtins = new Set<string>([...builtinModules, ...builtinModules.map((mod) => `node:${mod}`)])
-const externalDeps = ['electron', 'electron/main', ...builtins]
+const builtins = new Set<string>([
+  ...builtinModules,
+  ...builtinModules.map((mod) => `node:${mod}`)
+]);
+// Bundle plugin-sdk; only externalize Electron + Node builtins so the plugin is self-contained.
+const externalDeps = ['electron', 'electron/main', ...builtins];
 
 export default defineConfig(({ mode }) => {
-  const isProd = mode === 'production'
+  const isProd = mode === 'production';
 
   return {
     build: {
@@ -29,5 +33,5 @@ export default defineConfig(({ mode }) => {
         }
       }
     }
-  }
-})
+  };
+});

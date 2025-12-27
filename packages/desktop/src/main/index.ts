@@ -52,7 +52,7 @@ try {
       applicationVersion: app.getVersion(),
       copyright: `© ${new Date().getFullYear()} ExamAware Contributors`,
       authors: ['ExamAware Team'],
-      website: 'https://github.com/ExamAware2/ExamAware2',
+      website: 'https://github.com/ExamAware/ExamAware2',
       license: 'GPLv3'
     })
   }

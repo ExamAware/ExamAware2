@@ -1,6 +1,6 @@
 {
-  "name": "{{PACKAGE_NAME}}",
-  "version": "0.1.0",
+  "name": "examaware-plugin-template",
+  "version": "0.1.1",
   "private": false,
   "type": "module",
   "main": "./dist/main/index.cjs",
@@ -18,31 +18,34 @@
     "lint": "vue-tsc --noEmit"
   },
   "examaware": {
-    "displayName": "ExamAware Plugin",
-    "description": "Generated with @dsz-examaware/plugin-sdk",
+    "displayName": "ExamAware Demo Plugin",
+    "description": "A starter plugin showing main + renderer wiring with a settings page.",
     "targets": {
       "main": "./dist/main/index.cjs",
       "renderer": "./dist/renderer/index.mjs"
     },
     "services": {
-      "provide": ["hello.message"],
+      "provide": [
+        "hello.message"
+      ],
       "inject": []
     },
     "settings": {
-      "namespace": "{{PACKAGE_NAME}}",
+      "namespace": "examaware-plugin-template",
       "schema": "./schema.json"
     }
   },
   "dependencies": {
-    "@dsz-examaware/plugin-sdk": "{{PLUGIN_SDK_VERSION}}",
-    "vue": "{{VUE_VERSION}}"
+    "vue": "^3.5.26",
+    "@dsz-examaware/plugin-sdk": "^1.1.1"
   },
   "devDependencies": {
-    "@types/node": "{{NODE_TYPES_VERSION}}",
-    "@vitejs/plugin-vue": "{{VITE_PLUGIN_VUE_VERSION}}",
-    "npm-run-all2": "{{NPM_RUN_ALL_VERSION}}",
-    "typescript": "{{TYPESCRIPT_VERSION}}",
-    "vite": "{{VITE_VERSION}}",
-    "vue-tsc": "{{VUE_TSC_VERSION}}"
+    "@types/node": "^20.19.27",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "npm-run-all2": "^7.0.2",
+    "run-p": "0.0.0",
+    "typescript": "~5.7.3",
+    "vite": "^6.4.1",
+    "vue-tsc": "^2.2.12"
   }
 }

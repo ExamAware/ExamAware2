@@ -1,18 +1,18 @@
-import { resolve } from 'node:path'
-import { defineConfig } from 'vite'
-import type { ResolvedConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
+import { resolve } from 'node:path';
+import { defineConfig } from 'vite';
+import type { ResolvedConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
 
 const inlineAllDeps = () => ({
   name: 'inline-all-deps',
   configResolved(config: ResolvedConfig) {
-    if (!config?.build?.rollupOptions) return
-    config.build.rollupOptions.external = undefined
+    if (!config?.build?.rollupOptions) return;
+    config.build.rollupOptions.external = undefined;
   }
-})
+});
 
 export default defineConfig(({ mode }) => {
-  const isProd = mode === 'production'
+  const isProd = mode === 'production';
 
   return {
     define: {
@@ -47,5 +47,5 @@ export default defineConfig(({ mode }) => {
         }
       }
     }
-  }
-})
+  };
+});

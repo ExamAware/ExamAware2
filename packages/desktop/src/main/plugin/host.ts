@@ -1,9 +1,11 @@
 import { EventEmitter } from 'events'
-import { BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
+import Module from 'module'
 import fs from 'fs'
 import { promises as fsp } from 'fs'
 import path from 'path'
 import { URLSearchParams } from 'url'
+import semver from 'semver'
 import { DisposerGroup } from '../runtime/disposable'
 import { ServiceRegistry } from '../../shared/services/registry'
 import type {
@@ -67,6 +69,32 @@ function deepMerge(target: AnyRecord, source: AnyRecord) {
   }
 }
 
+function loadHostSdkVersion() {
+  try {
+    const req = Module.createRequire(import.meta.url)
+    const entry = req.resolve('@dsz-examaware/plugin-sdk')
+    let dir = path.dirname(entry)
+    while (true) {
+      const candidate = path.join(dir, 'package.json')
+      if (fs.existsSync(candidate)) {
+        const pkg = req(candidate) as { version?: string }
+        return pkg.version
+      }
+      const parent = path.dirname(dir)
+      if (parent === dir) break
+      dir = parent
+    }
+    return undefined
+  } catch (error) {
+    console.warn('[PluginHost] unable to resolve host plugin-sdk version', error)
+    return undefined
+  }
+}
+
+function coerceVersion(input?: string | null) {
+  return semver.coerce(input ?? undefined)?.version
+}
+
 interface InternalPluginRecord extends PluginRecord {
   group: DisposerGroup
 }
@@ -86,6 +114,8 @@ export class PluginHost extends EventEmitter {
   private configCache = new Map<string, Record<string, any>>()
   private configWatchers = new Map<string, Set<(config: Record<string, any>) => void>>()
   private channelPrefix = 'plugin'
+  private hostVersion = app?.getVersion?.() ?? '0.0.0'
+  private hostSdkVersion = loadHostSdkVersion()
 
   constructor(private options: PluginHostOptions) {
     super()
@@ -233,6 +263,28 @@ export class PluginHost extends EventEmitter {
       return
     }
 
+    try {
+      this.ensureCompatibility(record.manifest)
+    } catch (error) {
+      record.status = 'error'
+      record.error = {
+        code: 'incompatible',
+        message: (error as Error).message,
+        details: {
+          hostVersion: this.hostVersion,
+          hostSdkVersion: this.hostSdkVersion,
+          requiredDesktop: record.manifest.engines?.desktop,
+          pluginSdk: record.manifest.sdkVersion ?? record.manifest.engines?.sdk
+        }
+      }
+      this.logger.warn(`[PluginHost] Plugin ${record.name} is incompatible`, error)
+      this.notifyStateChange()
+      return
+    }
+
+    // Clear require cache under plugin root to avoid stale code when reloading
+    this.loader.purgeRequireCache(record.manifest.rootDir)
+
     record.status = 'loading'
     try {
       const mod = await this.loader.importModule(mainEntry)
@@ -340,6 +392,39 @@ export class PluginHost extends EventEmitter {
 
     dfs(target)
     return order
+  }
+
+  private ensureCompatibility(manifest: ResolvedPluginManifest) {
+    const issues: string[] = []
+    const hostVersion = coerceVersion(this.hostVersion)
+    const hostSdk = coerceVersion(this.hostSdkVersion)
+
+    const desktopRange = manifest.engines?.desktop
+    if (desktopRange && hostVersion) {
+      const normalized = semver.validRange(desktopRange, { includePrerelease: true })
+      if (normalized && !semver.satisfies(hostVersion, normalized, { includePrerelease: true })) {
+        issues.push(`宿主版本 ${hostVersion} 不满足插件要求 ${normalized}`)
+      }
+    }
+
+    const sdkRange = manifest.engines?.sdk ?? manifest.sdkVersion
+    if (sdkRange && hostSdk) {
+      const normalized = semver.validRange(sdkRange, { includePrerelease: true })
+      if (normalized) {
+        if (!semver.satisfies(hostSdk, normalized, { includePrerelease: true })) {
+          issues.push(`宿主 SDK ${hostSdk} 不满足插件要求 ${normalized}`)
+        }
+      } else {
+        const pluginSdk = coerceVersion(sdkRange)
+        if (pluginSdk && semver.major(pluginSdk) !== semver.major(hostSdk)) {
+          issues.push(`插件 SDK ${pluginSdk} 与宿主 SDK ${hostSdk} 主版本不兼容`)
+        }
+      }
+    }
+
+    if (issues.length) {
+      throw new Error(issues.join('; '))
+    }
   }
 
   private ensureDependenciesSatisfied(manifest: ResolvedPluginManifest) {
@@ -633,7 +718,14 @@ export class PluginHost extends EventEmitter {
     if (!record || !entry) return undefined
     const relativePath = this.toPluginRelativePath(record, entry.file)
     if (!relativePath) return undefined
-    return this.buildPluginAssetUrl(record.name, relativePath)
+    let mtime: number | undefined
+    try {
+      const stat = fs.statSync(entry.file)
+      mtime = stat.mtimeMs
+    } catch (error) {
+      this.logger.warn('[PluginHost] failed to stat renderer entry', entry.file, error)
+    }
+    return this.buildPluginAssetUrl(record.name, relativePath, mtime)
   }
 
   resolveAssetPath(name: string, relativePath = '') {
@@ -679,10 +771,11 @@ export class PluginHost extends EventEmitter {
     return relative.split(path.sep).join('/')
   }
 
-  private buildPluginAssetUrl(name: string, relativePath: string) {
+  private buildPluginAssetUrl(name: string, relativePath: string, mtime?: number) {
     const params = new URLSearchParams()
     params.set('name', name)
     params.set('path', relativePath)
+    if (mtime) params.set('m', String(mtime))
     return `plugin://asset?${params.toString()}`
   }
 
