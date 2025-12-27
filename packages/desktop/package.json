@@ -1,6 +1,6 @@
 {
   "name": "@dsz-examaware/desktop",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "ExamAware Desktop",
   "homepage": "https://examaware.cn",
   "author": "ExamAware Team <team@examaware.cn>",
@@ -26,6 +26,7 @@
   "dependencies": {
     "@dsz-examaware/core": "workspace:*",
     "@dsz-examaware/player": "workspace:*",
+    "@dsz-examaware/plugin-sdk": "workspace:*",
     "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/utils": "^3.0.0",
     "adm-zip": "^0.5.16",
@@ -34,6 +35,7 @@
     "katex": "^0.16.27",
     "markdown-it": "^14.1.0",
     "markdown-it-katex": "^2.0.3",
+    "semver": "^7.6.3",
     "simple-keyboard": "^3.8.81",
     "uuid": "^11.1.0",
     "vue-qrcode-reader": "^5.7.3"
@@ -43,7 +45,6 @@
     "@electron-toolkit/eslint-config-prettier": "3.0.0",
     "@electron-toolkit/eslint-config-ts": "^3.1.0",
     "@electron-toolkit/tsconfig": "^2.0.0",
-    "@dsz-examaware/plugin-sdk": "workspace:*",
     "@imengyu/vue3-context-menu": "^1.5.2",
     "@rushstack/eslint-patch": "^1.12.0",
     "@tsconfig/node22": "^22.0.2",

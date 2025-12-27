@@ -26,7 +26,11 @@
     "lint": "pnpm -r lint",
     "clean": "pnpm -r clean",
     "format": "prettier --write .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "docs:build": "vuepress-vite build docs",
+    "docs:clean-dev": "vuepress-vite dev docs --clean-cache",
+    "docs:dev": "vuepress-vite dev docs",
+    "docs:update-package": "pnpm dlx vp-update"
   },
   "devDependencies": {
     "@types/node": "^22.18.10",
@@ -36,12 +40,22 @@
     "husky": "^9.1.7",
     "lint-staged": "^15.2.10",
     "prettier": "^3.6.2",
-    "typescript": "~5.7.3"
+    "typescript": "~5.7.3",
+    "@vuepress/bundler-vite": "2.0.0-rc.26",
+    "sass-embedded": "^1.93.3",
+    "vue": "^3.5.25",
+    "vuepress": "2.0.0-rc.26",
+    "vuepress-theme-hope": "2.0.0-rc.99"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,vue,json,yaml,yml,md,css,scss,less,html,mcconfig}": "prettier --write"
   },
   "packageManager": "pnpm@10.18.2",
   "author": "hello8693 <hello8693@hello8693.xyz>",
-  "license": "GPL-3.0-only"
+  "license": "GPL-3.0-only",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
 }

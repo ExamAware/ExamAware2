@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "properties": {
+    "demo": {
+      "type": "object",
+      "properties": {
+        "clicks": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Number of times the demo button was clicked."
+        },
+        "message": {
+          "type": "string",
+          "default": "Hello from ExamAware Demo Plugin",
+          "description": "Message shown in main-process heartbeat logs."
+        }
+      }
+    }
+  }
+}

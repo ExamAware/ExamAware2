@@ -84,6 +84,16 @@ export async function loadManifestFromPackage(
     ? Array.from(new Set(meta.services?.inject ?? []))
     : []
 
+  const sdkVersionFromDeps =
+    pkg.dependencies?.['@dsz-examaware/plugin-sdk'] ??
+    pkg.devDependencies?.['@dsz-examaware/plugin-sdk'] ??
+    pkg.peerDependencies?.['@dsz-examaware/plugin-sdk']
+
+  const engines = {
+    desktop: meta.engines?.desktop ?? pkg.engines?.examawareDesktop ?? pkg.engines?.examaware,
+    sdk: meta.engines?.sdk ?? sdkVersionFromDeps
+  }
+
   const resolved: ResolvedPluginManifest = {
     name: pkg.name,
     version: pkg.version,
@@ -93,6 +103,8 @@ export async function loadManifestFromPackage(
       main: toEntry(packageDir, targets.main),
       renderer: toEntry(packageDir, targets.renderer)
     },
+    engines,
+    sdkVersion: meta.engines?.sdk ?? sdkVersionFromDeps,
     dependencies,
     services: {
       provide: provides,

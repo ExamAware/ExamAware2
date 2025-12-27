@@ -1,4 +1,7 @@
+import Module from 'module'
 import path from 'path'
+import fs from 'fs'
+import { app } from 'electron'
 import { pathToFileURL } from 'url'
 import type { PluginEntryPoint, PluginFactory, PluginModuleExport } from './types'
 
@@ -7,6 +10,22 @@ import type { PluginEntryPoint, PluginFactory, PluginModuleExport } from './type
  * Plugin loader class responsible for dynamically importing and resolving plugin modules
  */
 export class PluginLoader {
+  purgeRequireCache(rootDir: string) {
+    const cache = (require as NodeRequire).cache
+    if (!cache) return
+    const normalized = path.resolve(rootDir)
+    let cleared = 0
+    for (const id of Object.keys(cache)) {
+      if (id.startsWith(normalized)) {
+        delete cache[id]
+        cleared += 1
+      }
+    }
+    if (cleared) {
+      console.info('[PluginLoader] purged require cache entries', cleared, 'under', normalized)
+    }
+  }
+
   /**
    * 动态导入插件模块
    * Dynamically import a plugin module
@@ -15,7 +34,50 @@ export class PluginLoader {
    */
   async importModule(entry: PluginEntryPoint): Promise<PluginModuleExport> {
     const resolved = path.resolve(entry.file)
-    return await import(pathToFileURL(resolved).href)
+    const exists = fs.existsSync(resolved)
+    console.info(`[PluginLoader] import format=${entry.format} path=${resolved} exists=${exists}`)
+    const mtime = exists ? fs.statSync(resolved).mtimeMs : Date.now()
+    if (entry.format === 'cjs') {
+      // Use host-scoped require so external deps (e.g., plugin-sdk) resolve from desktop's node_modules.
+      const baseCandidates = this.collectRequireBases()
+
+      let lastError: unknown
+      for (const base of baseCandidates) {
+        const pkgPath = path.join(base, 'package.json')
+        if (!fs.existsSync(pkgPath)) continue
+        try {
+          const hostRequire = Module.createRequire(pkgPath)
+          const moduleId = hostRequire.resolve(resolved)
+          if (hostRequire.cache?.[moduleId]) {
+            delete hostRequire.cache[moduleId]
+            console.info('[PluginLoader] cache cleared for', moduleId)
+          }
+          console.info('[PluginLoader] require CJS via', pkgPath)
+          return hostRequire(moduleId)
+        } catch (err) {
+          lastError = err
+        }
+      }
+      throw lastError ?? new Error('Failed to require plugin entry')
+    }
+    const bust = `${pathToFileURL(resolved).href}?t=${mtime}`
+    return await import(bust)
+  }
+
+  private collectRequireBases(): string[] {
+    const candidates = new Set<string>()
+    const maybe = (p?: string | null) => {
+      if (p) candidates.add(path.resolve(p))
+    }
+
+    maybe(app?.getAppPath?.())
+    maybe(process.resourcesPath)
+    // Common dev paths
+    maybe(path.join(__dirname, '../../..')) // packages/desktop
+    maybe(path.join(__dirname, '../../../..')) // repo root if __dirname inside dist/main
+    maybe(process.cwd())
+
+    return Array.from(candidates)
   }
 
   /**
