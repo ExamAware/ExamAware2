@@ -22,7 +22,8 @@ const packagesToMirror = [
   },
   {
     name: '@dsz-examaware/plugin-sdk',
-    source: path.join(workspaceRoot, 'plugin-sdk')
+    source: path.join(workspaceRoot, 'plugin-sdk'),
+    optional: true
   }
 ]
 
@@ -39,7 +40,14 @@ async function copyPackage(pkg) {
   const sourceDist = path.join(pkg.source, 'dist')
   const destDir = path.join(nodeModulesRoot, pkg.name)
 
+  // Remove existing pnpm link/symlink to avoid electron-builder rejecting out-of-tree paths
+  await fs.rm(destDir, { recursive: true, force: true })
+
   if (!(await pathExists(sourceDist))) {
+    if (pkg.optional) {
+      console.warn(`[prepare-workspace-deps] skip ${pkg.name}: dist not found at ${sourceDist}`)
+      return
+    }
     throw new Error(`Workspace package ${pkg.name} has no dist build at ${sourceDist}. Run its build before packaging.`)
   }
 
