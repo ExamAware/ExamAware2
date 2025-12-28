@@ -10,6 +10,10 @@ on:
         required: false
         default: false
         type: boolean
+  push:
+    branches:
+      - 'release/**'
+      - 'hotfix/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
