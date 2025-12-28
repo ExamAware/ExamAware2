@@ -10,6 +10,10 @@ on:
         required: false
         default: false
         type: boolean
+  push:
+    branches:
+      - 'release/**'
+      - 'hotfix/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -74,6 +78,9 @@ jobs:
 
       - name: Build player package
         run: pnpm player:build
+
+      - name: Build plugin SDK
+        run: pnpm --filter @dsz-examaware/plugin-sdk build
 
       - name: Build desktop application
         run: pnpm ${{ matrix.build_script }}
