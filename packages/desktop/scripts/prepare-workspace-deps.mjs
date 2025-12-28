@@ -19,6 +19,10 @@ const packagesToMirror = [
   {
     name: '@dsz-examaware/player',
     source: path.join(workspaceRoot, 'player')
+  },
+  {
+    name: '@dsz-examaware/plugin-sdk',
+    source: path.join(workspaceRoot, 'plugin-sdk')
   }
 ]
 
@@ -54,6 +58,14 @@ async function copyPackage(pkg) {
     recursive: true,
     force: true
   })
+
+  const sourceBin = path.join(pkg.source, 'bin')
+  if (await pathExists(sourceBin)) {
+    await fs.cp(sourceBin, path.join(destDir, 'bin'), {
+      recursive: true,
+      force: true
+    })
+  }
 }
 
 async function main() {
