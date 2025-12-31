@@ -7,13 +7,25 @@ import { createEditorWindow } from './windows/editorWindow'
 import { createSettingsWindow } from './windows/settingsWindow'
 import { windowManager } from './windows/windowManager'
 import { registerIpcHandlers } from './ipcHandlers'
+import { patchConsoleWithLogger, appLogger, initLoggingConfig } from './logging/winstonLogger'
 import { registerTimeSyncHandlers } from './ipcHandlers/timeServiceHandler'
-import { initializeTimeSync } from './ntpService/timeService'
+import {
+  initializeTimeSync,
+  getTimeSyncInfo,
+  getSyncedTime,
+  performTimeSync,
+  applyTimeConfig,
+  ensureTimeSyncInitialized,
+  isTimeSyncInitialized,
+  getCurrentTimeMs
+} from './ntpService/timeService'
 import { createMainContext } from './runtime/context'
 import { ensureAppTray, shouldSuppressActivate, isTrayPopoverVisible } from './tray'
 import { PluginHost, createFilePreferenceStore } from './plugin'
 import { deepLinkManager, type DeepLinkService } from './runtime/deepLink'
 import type { DeepLinkPayload } from '../shared/types/deepLink'
+import { applyDeepLinkControllers } from './deepLink/decorators'
+import { CoreDeepLinkController } from './deepLink/coreDeepLinkController'
 
 protocol.registerSchemesAsPrivileged([
   {
@@ -50,18 +62,22 @@ const STARTUP_BANNER = [
 function printStartupBanner() {
   try {
     const version = app?.getVersion?.() ?? 'dev'
-    console.log(STARTUP_BANNER)
-    console.log(` ExamAware Desktop v${version}`)
-    console.log(' =================================')
+    appLogger.info(STARTUP_BANNER)
+    appLogger.info(` ExamAware Desktop v${version}`)
+    appLogger.info(' =================================')
   } catch (error) {
-    console.log(STARTUP_BANNER)
-    console.warn('[banner] failed to print version', error)
+    appLogger.info(STARTUP_BANNER)
+    appLogger.warn('[banner] failed to print version', error as Error)
   }
 }
 
 printStartupBanner()
+patchConsoleWithLogger()
+initLoggingConfig()
+appLogger.info('Logger initialized')
 
 let pluginHost: PluginHost | null = null
+let disposeDeepLinks: (() => void) | undefined
 
 // Ensure a friendly app name in development and across platforms (especially macOS About menu)
 try {
@@ -138,7 +154,7 @@ app.on('second-instance', (_event, argv) => {
       main.focus()
     }
   } catch (error) {
-    console.error('[deeplink] failed to revive main window on second-instance', error)
+    appLogger.error('[deeplink] failed to revive main window on second-instance', error as Error)
   }
 })
 
@@ -161,11 +177,11 @@ app.whenReady().then(async () => {
       try {
         createSettingsWindow()
       } catch (e) {
-        console.error('open settings via shortcut failed', e)
+        appLogger.error('open settings via shortcut failed', e as Error)
       }
     })
   } catch (e) {
-    console.error('register shortcut failed', e)
+    appLogger.error('register shortcut failed', e as Error)
   }
   const disposeTimeIpc = registerTimeSyncHandlers()
 
@@ -184,11 +200,30 @@ app.whenReady().then(async () => {
       pluginDirectories,
       preferences: preferenceStore,
       logger: {
-        info: (...args: any[]) => console.log('[PluginHost]', ...args),
-        warn: (...args: any[]) => console.warn('[PluginHost]', ...args),
-        error: (...args: any[]) => console.error('[PluginHost]', ...args),
-        debug: (...args: any[]) => console.debug?.('[PluginHost]', ...args)
+        info: (...args: any[]) => appLogger.info('[PluginHost]', ...args),
+        warn: (...args: any[]) => appLogger.warn('[PluginHost]', ...args),
+        error: (...args: any[]) => appLogger.error('[PluginHost]', ...args),
+        debug: (...args: any[]) => appLogger.debug('[PluginHost]', ...args)
       }
+    })
+    pluginHost.provideService('logger', appLogger, {
+      default: true,
+      scope: 'main',
+      owner: 'core'
+    })
+    const timeApi = {
+      now: () => getSyncedTime(),
+      nowMs: () => getCurrentTimeMs(),
+      info: () => getTimeSyncInfo(),
+      sync: () => performTimeSync(),
+      applyConfig: (partial: any) => applyTimeConfig(partial ?? {}),
+      ensure: () => ensureTimeSyncInitialized(),
+      isReady: () => isTimeSyncInitialized()
+    }
+    pluginHost.provideService('time', timeApi, {
+      default: true,
+      scope: 'main',
+      owner: 'core'
     })
     // 提前暴露 deeplink 服务，供插件在 main 入口注入使用
     const deeplinkService: DeepLinkService = {
@@ -201,11 +236,37 @@ app.whenReady().then(async () => {
       scope: 'main',
       owner: 'core'
     })
+
+    const coreAppApi = {
+      version: () => app.getVersion(),
+      openSettings: (page?: string) => createSettingsWindow(page),
+      openMain: () => createMainWindow(),
+      openEditor: (path?: string) => createEditorWindow(path),
+      openPlayer: (path: string) => createPlayerWindow(path)
+    }
+    pluginHost.provideService('app', coreAppApi, {
+      default: true,
+      scope: 'main',
+      owner: 'core'
+    })
+
+    disposeDeepLinks = applyDeepLinkControllers(
+      [
+        new CoreDeepLinkController({
+          focusMainWindow: focusMainWindowFromDeepLink,
+          broadcast: broadcastDeepLink,
+          createTempConfigFromBase64
+        })
+      ],
+      deepLinkManager
+    )
+    deepLinkManager.flushQueue()
+
     pluginHost.setupIpcChannels()
     await pluginHost.scan()
     await pluginHost.loadAll()
   } catch (error) {
-    console.error('Failed to initialize plugin host', error)
+    appLogger.error('Failed to initialize plugin host', error as Error)
   }
 
   const isAutoStart = (() => {
@@ -235,7 +296,7 @@ app.whenReady().then(async () => {
     const trayVisible = isTrayPopoverVisible()
     if (suppressed || trayVisible) {
       try {
-        console.debug(
+        appLogger.debug(
           '[app] activate suppressed. suppressed =',
           suppressed,
           'trayVisible =',
@@ -245,7 +306,7 @@ app.whenReady().then(async () => {
       return
     }
     try {
-      console.debug('[app] activate: window count =', BrowserWindow.getAllWindows().length)
+      appLogger.debug('[app] activate: window count =', BrowserWindow.getAllWindows().length)
     } catch {}
     if (BrowserWindow.getAllWindows().length === 0) createMainWindow()
   })
@@ -263,7 +324,7 @@ app.whenReady().then(async () => {
               try {
                 createSettingsWindow('about')
               } catch (e) {
-                console.error('open about failed', e)
+                appLogger.error('open about failed', e as Error)
               }
             }
           },
@@ -275,7 +336,7 @@ app.whenReady().then(async () => {
               try {
                 createSettingsWindow()
               } catch (e) {
-                console.error('open preferences failed', e)
+                appLogger.error('open preferences failed', e as Error)
               }
             }
           },
@@ -296,7 +357,7 @@ app.whenReady().then(async () => {
       const menu = Menu.buildFromTemplate(template)
       Menu.setApplicationMenu(menu)
     } catch (e) {
-      console.error('set application menu failed', e)
+      appLogger.error('set application menu failed', e as Error)
     }
   }
 
@@ -308,6 +369,9 @@ app.whenReady().then(async () => {
     } catch {}
     try {
       disposeIpc()
+    } catch {}
+    try {
+      disposeDeepLinks?.()
     } catch {}
     try {
       disposeMainCtx()
@@ -329,7 +393,7 @@ function ensureExamawareProtocol() {
       app.setAsDefaultProtocolClient('examaware')
     }
   } catch (error) {
-    console.error('Failed to register examaware:// protocol', error)
+    appLogger.error('Failed to register examaware:// protocol', error as Error)
   }
 }
 
@@ -348,70 +412,9 @@ function broadcastDeepLink(payload: DeepLinkPayload) {
     try {
       win.webContents.send('deeplink:open', payload)
     } catch (error) {
-      console.warn('[deeplink] broadcast failed', error)
+      appLogger.warn('[deeplink] broadcast failed', error as Error)
     }
   })
-}
-
-function registerDeepLinkCoreHandlers() {
-  // 聚焦主窗口并广播给所有渲染进程；返回 true 表示已处理
-  deepLinkManager.registerHandler('core:focus-and-broadcast', (payload) => {
-    focusMainWindowFromDeepLink()
-    broadcastDeepLink(payload)
-    return true
-  })
-
-  // examaware://settings?page=xxx
-  deepLinkManager.registerHandler('core:settings', (payload) => {
-    if (payload.host !== 'settings') return false
-    const page =
-      payload.query.page || payload.query.tab || payload.pathname.replace('/', '') || undefined
-    createSettingsWindow(page)
-    return true
-  })
-
-  // examaware://editor?file=/abs/path OR examaware://editor?data=<b64>
-  deepLinkManager.registerHandler('core:editor', async (payload) => {
-    if (payload.host !== 'editor') return false
-    const file = payload.query.file
-    const data = payload.query.data
-    let target: string | undefined
-    if (file) {
-      target = file
-    } else if (data) {
-      try {
-        target = await createTempConfigFromBase64(data, 'editor')
-      } catch (error) {
-        console.error('[deeplink] failed to create temp editor file', error)
-        return false
-      }
-    }
-    createEditorWindow(target)
-    return true
-  })
-
-  // examaware://player?file=/abs/path OR examaware://player?data=<b64 json>
-  deepLinkManager.registerHandler('core:player', async (payload) => {
-    if (payload.host !== 'player') return false
-    const file = payload.query.file
-    const data = payload.query.data
-    let target: string | undefined
-    if (file) {
-      target = file
-    } else if (data) {
-      try {
-        target = await createTempConfigFromBase64(data, 'player')
-      } catch (error) {
-        console.error('[deeplink] failed to create temp player file', error)
-        return false
-      }
-    }
-    if (!target) return false
-    createPlayerWindow(target)
-    return true
-  })
-  // App ready 后处理任何在启动前缓存的深链
-  deepLinkManager.flushQueue()
 }
 
 function ensurePluginProtocol() {
@@ -437,13 +440,13 @@ function ensurePluginProtocol() {
         }
         callback({ path: filePath })
       } catch (error) {
-        console.error('[plugin://] resolve failed', error)
+        appLogger.error('[plugin://] resolve failed', error as Error)
         callback({ error: -6 })
       }
     })
     pluginProtocolRegistered = true
   } catch (error) {
-    console.error('Failed to register plugin:// protocol', error)
+    appLogger.error('Failed to register plugin:// protocol', error as Error)
   }
 }
 

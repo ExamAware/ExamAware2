@@ -38,6 +38,7 @@
     "semver": "^7.6.3",
     "simple-keyboard": "^3.8.81",
     "uuid": "^11.1.0",
+    "winston": "^3.15.0",
     "vue-qrcode-reader": "^5.7.3"
   },
   "devDependencies": {

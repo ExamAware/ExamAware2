@@ -9,6 +9,7 @@ import {
 import fs from 'fs'
 import path from 'path'
 import { getConfig, setConfig } from '../configStore'
+import { appLogger } from '../logging/winstonLogger'
 
 // 时间同步配置接口
 interface TimeSyncConfig {
@@ -75,7 +76,7 @@ export function loadTimeSyncConfig(): TimeSyncConfig {
       return timeSyncConfig
     }
   } catch (error) {
-    console.error('加载时间同步配置失败:', error)
+    appLogger.error('加载时间同步配置失败', error as Error)
   }
 
   return timeSyncConfig
@@ -106,7 +107,7 @@ export function applyTimeConfig(partial: Partial<TimeSyncConfig>): TimeSyncConfi
     }
     emitTimeSyncChanged()
   } catch (e) {
-    console.error('应用时间同步配置失败:', e)
+    appLogger.error('应用时间同步配置失败', e as Error)
   }
   return timeSyncConfig
 }
@@ -135,7 +136,7 @@ export function saveTimeSyncConfig(config: Partial<TimeSyncConfig>): TimeSyncCon
 
     return timeSyncConfig
   } catch (error) {
-    console.error('保存时间同步配置失败:', error)
+    appLogger.error('保存时间同步配置失败', error as Error)
     return timeSyncConfig
   }
 }
@@ -144,11 +145,11 @@ export function saveTimeSyncConfig(config: Partial<TimeSyncConfig>): TimeSyncCon
 export async function performTimeSync(): Promise<any> {
   try {
     const result = await syncTimeWithNTP(timeSyncConfig.ntpServer)
-    console.log('时间同步成功:', result)
+    appLogger.info('时间同步成功', { server: timeSyncConfig.ntpServer, result })
     emitTimeSyncChanged()
     return result
   } catch (error) {
-    console.error('时间同步失败:', error)
+    appLogger.error('时间同步失败', error as Error)
     throw error
   }
 }
@@ -164,12 +165,12 @@ function restartAutoSync(): void {
   // 如果启用了自动同步，设置新的定时器
   if (timeSyncConfig.autoSync) {
     // 首先执行一次同步
-    performTimeSync().catch(console.error)
+    performTimeSync().catch((err) => appLogger.error('自动时间同步失败', err as Error))
 
     // 设置定期同步
     const intervalMs = timeSyncConfig.syncIntervalMinutes * 60 * 1000
     syncIntervalId = setInterval(() => {
-      performTimeSync().catch(console.error)
+      performTimeSync().catch((err) => appLogger.error('自动时间同步失败', err as Error))
     }, intervalMs)
   } else {
     // 如果禁用了自动同步，重置偏移量
@@ -200,7 +201,7 @@ export function ensureTimeSyncInitialized(): void {
     try {
       initializeTimeSync()
     } catch (error) {
-      console.error('初始化时间同步服务失败:', error)
+      appLogger.error('初始化时间同步服务失败', error as Error)
       initialized = false
       pendingReadyHook = false
     }
@@ -255,7 +256,7 @@ function applyAutoIncrementIfNeeded() {
       setConfig('time.lastIncrementDate', today)
       emitTimeSyncChanged()
     } catch (e) {
-      console.error('写入自动增量配置失败:', e)
+      appLogger.error('写入自动增量配置失败', e as Error)
     }
   }
 }
@@ -281,6 +282,14 @@ function scheduleNextAutoIncrement() {
 
 // 获取当前校准时间
 export { getSyncedTime, getTimeSyncInfo }
+
+export function getCurrentTimeMs(): number {
+  try {
+    return getSyncedTime()
+  } catch {
+    return Date.now()
+  }
+}
 
 export function isTimeSyncInitialized(): boolean {
   return initialized

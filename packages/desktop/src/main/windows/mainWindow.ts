@@ -5,6 +5,7 @@ import {
   applyTitleBarOverlay,
   attachTitleBarOverlayLifecycle
 } from './titleBarOverlay'
+import { appLogger } from '../logging/winstonLogger'
 
 export function createMainWindow(): BrowserWindow {
   return windowManager.open(({ commonOptions }) => ({
@@ -31,9 +32,7 @@ export function createMainWindow(): BrowserWindow {
     },
     setup(win) {
       const log = (...args: any[]) => {
-        try {
-          console.debug('[mainWindow]', ...args)
-        } catch {}
+        appLogger.debug('[mainWindow]', ...args)
       }
       const FORCE_CLOSE_FLAG = '__ea_force_close__'
       log('setup start; isDestroyed?', win.isDestroyed())

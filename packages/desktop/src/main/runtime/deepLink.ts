@@ -1,4 +1,5 @@
 import { app } from 'electron'
+import { appLogger } from '../logging/winstonLogger'
 import { DeepLinkPayload, DeepLinkHandler } from '../../shared/types/deepLink'
 
 export interface DeepLinkService {
@@ -56,14 +57,14 @@ export class DeepLinkManager {
         const res = await Promise.resolve(handler(payload))
         if (res) handled = true
       } catch (error) {
-        console.error('[DeepLinkManager] handler failed', error)
+        appLogger.error('[DeepLinkManager] handler failed', error as Error)
       }
     }
     if (!handled && this.ensureReadyCallback) {
       try {
         this.ensureReadyCallback()
       } catch (error) {
-        console.error('[DeepLinkManager] ensureReady callback failed', error)
+        appLogger.error('[DeepLinkManager] ensureReady callback failed', error as Error)
       }
     }
   }
@@ -92,7 +93,7 @@ export class DeepLinkManager {
         query
       }
     } catch (error) {
-      console.warn('[DeepLinkManager] invalid url', raw, error)
+      appLogger.warn('[DeepLinkManager] invalid url', error as Error)
       return null
     }
   }

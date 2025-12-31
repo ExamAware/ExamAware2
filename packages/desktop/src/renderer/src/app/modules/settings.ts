@@ -95,10 +95,17 @@ export const settingsModule: AppModule = {
         component: () => import('@renderer/views/settings/TimeSettings.vue')
       },
       {
+        id: 'logging',
+        label: '日志',
+        icon: 'file-search',
+        order: 4,
+        component: () => import('@renderer/views/settings/LoggingSettings.vue')
+      },
+      {
         id: 'plugins',
         label: '插件',
         icon: 'extension',
-        order: 4,
+        order: 5,
         component: () => import('@renderer/views/settings/PluginSettings.vue')
       },
       {
