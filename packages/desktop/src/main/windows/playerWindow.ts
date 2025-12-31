@@ -2,6 +2,7 @@ import { BrowserWindow, ipcMain } from 'electron'
 import * as fs from 'fs'
 import { is } from '@electron-toolkit/utils'
 import { windowManager } from './windowManager'
+import { appLogger } from '../logging/winstonLogger'
 
 // 导入配置数据设置函数
 import { setCurrentConfigData } from '../ipcHandlers'
@@ -73,7 +74,7 @@ export function createPlayerWindow(configPath: string): BrowserWindow {
 
       fs.readFile(configPath, 'utf-8', (err, data) => {
         if (err) {
-          console.error('Failed to read config file:', err)
+          appLogger.error('Failed to read config file', err as Error)
           return
         }
 
@@ -82,7 +83,7 @@ export function createPlayerWindow(configPath: string): BrowserWindow {
 
         setTimeout(() => {
           playerWindow.webContents.send('load-config', data)
-          console.log('Config file loaded and sent to renderer:', data)
+          appLogger.debug('Config file loaded and sent to renderer (len=%d)', data?.length ?? 0)
         }, 1000)
       })
 

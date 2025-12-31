@@ -8,6 +8,7 @@ import { URLSearchParams } from 'url'
 import semver from 'semver'
 import { DisposerGroup } from '../runtime/disposable'
 import { ServiceRegistry } from '../../shared/services/registry'
+import { appLogger } from '../logging/winstonLogger'
 import type {
   PluginHostOptions,
   PluginListItem,
@@ -86,7 +87,7 @@ function loadHostSdkVersion() {
     }
     return undefined
   } catch (error) {
-    console.warn('[PluginHost] unable to resolve host plugin-sdk version', error)
+    appLogger.warn('[PluginHost] unable to resolve host plugin-sdk version', error as Error)
     return undefined
   }
 }
@@ -125,10 +126,10 @@ export class PluginHost extends EventEmitter {
   get logger() {
     return (
       this.options.logger ?? {
-        info: console.log,
-        warn: console.warn,
-        error: console.error,
-        debug: console.debug
+        info: appLogger.info.bind(appLogger),
+        warn: appLogger.warn.bind(appLogger),
+        error: appLogger.error.bind(appLogger),
+        debug: appLogger.debug.bind(appLogger)
       }
     )
   }

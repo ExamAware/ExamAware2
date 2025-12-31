@@ -1,6 +1,7 @@
 import Module from 'module'
 import path from 'path'
 import fs from 'fs'
+import { promises as fsp } from 'fs'
 import { app } from 'electron'
 import { pathToFileURL } from 'url'
 import type { PluginEntryPoint, PluginFactory, PluginModuleExport } from './types'
@@ -10,6 +11,9 @@ import type { PluginEntryPoint, PluginFactory, PluginModuleExport } from './type
  * Plugin loader class responsible for dynamically importing and resolving plugin modules
  */
 export class PluginLoader {
+  private readonly mtimeCache = new Map<string, { mtime: number; ts: number }>()
+  private readonly mtimeTtlMs = 500
+
   purgeRequireCache(rootDir: string) {
     const cache = (require as NodeRequire).cache
     if (!cache) return
@@ -36,7 +40,7 @@ export class PluginLoader {
     const resolved = path.resolve(entry.file)
     const exists = fs.existsSync(resolved)
     console.info(`[PluginLoader] import format=${entry.format} path=${resolved} exists=${exists}`)
-    const mtime = exists ? fs.statSync(resolved).mtimeMs : Date.now()
+    const mtime = exists ? await this.readMtime(resolved) : Date.now()
     if (entry.format === 'cjs') {
       // Use host-scoped require so external deps (e.g., plugin-sdk) resolve from desktop's node_modules.
       const baseCandidates = this.collectRequireBases()
@@ -62,6 +66,20 @@ export class PluginLoader {
     }
     const bust = `${pathToFileURL(resolved).href}?t=${mtime}`
     return await import(bust)
+  }
+
+  private async readMtime(file: string): Promise<number | undefined> {
+    const now = Date.now()
+    const cached = this.mtimeCache.get(file)
+    if (cached && now - cached.ts < this.mtimeTtlMs) return cached.mtime
+    try {
+      const stat = await fsp.stat(file)
+      const mtime = stat.mtimeMs
+      this.mtimeCache.set(file, { mtime, ts: now })
+      return mtime
+    } catch {
+      return undefined
+    }
   }
 
   private collectRequireBases(): string[] {

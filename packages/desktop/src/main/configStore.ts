@@ -1,5 +1,6 @@
 import { app, BrowserWindow } from 'electron'
 import * as fs from 'fs'
+import { promises as fsp } from 'fs'
 import * as path from 'path'
 
 type AnyRecord = Record<string, any>
@@ -7,6 +8,7 @@ type AnyRecord = Record<string, any>
 const FILE_NAME = 'config.json'
 let cache: AnyRecord | null = null
 let writeTimer: NodeJS.Timeout | null = null
+let writePromise: Promise<void> | null = null
 
 function getConfigPath() {
   const dir = app.getPath('userData')
@@ -62,16 +64,23 @@ function deepMerge(target: AnyRecord, src: AnyRecord) {
   }
 }
 
+async function flushWrite() {
+  try {
+    const file = getConfigPath()
+    await fsp.mkdir(path.dirname(file), { recursive: true })
+    await fsp.writeFile(file, JSON.stringify(cache ?? {}, null, 2), 'utf-8')
+  } catch (e) {
+    console.error('[config] write failed:', e)
+  } finally {
+    writePromise = null
+  }
+}
+
 function scheduleWrite() {
   if (writeTimer) clearTimeout(writeTimer)
   writeTimer = setTimeout(() => {
-    try {
-      const file = getConfigPath()
-      fs.mkdirSync(path.dirname(file), { recursive: true })
-      fs.writeFileSync(file, JSON.stringify(cache ?? {}, null, 2), 'utf-8')
-    } catch (e) {
-      console.error('[config] write failed:', e)
-    }
+    if (writePromise) return
+    writePromise = flushWrite()
   }, 100)
 }
 

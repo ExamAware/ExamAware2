@@ -60,6 +60,12 @@ declare global {
         ) => Promise<{ installedPath: string; list: PluginListItem[] }>
         installDir: (dirPath: string) => Promise<{ installedPath: string; list: PluginListItem[] }>
       }
+      logging: {
+        getConfig: () => Promise<any>
+        setConfig: (cfg: any) => Promise<any>
+        openDir: () => Promise<void>
+        clearFiles: () => Promise<void>
+      }
       system: {
         autostart: {
           get: () => Promise<boolean>

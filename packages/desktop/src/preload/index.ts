@@ -8,6 +8,17 @@ import {
 import { electronAPI } from '@electron-toolkit/preload'
 import { fileApi } from '../main/fileUtils'
 
+const LOG_COOLDOWN_MS = 50
+const lastLogSent: Partial<Record<'log' | 'info' | 'warn' | 'error' | 'debug', number>> = {}
+
+const sendLogThrottled = (level: 'log' | 'info' | 'warn' | 'error' | 'debug', message: string) => {
+  const now = Date.now()
+  const last = lastLogSent[level] ?? 0
+  if (now - last < LOG_COOLDOWN_MS) return
+  lastLogSent[level] = now
+  ipcRenderer.send('logs:renderer', { level, message })
+}
+
 // Custom APIs for renderer
 const api = {
   fileApi,
@@ -83,6 +94,12 @@ const api = {
     installPackage: (filePath: string) => ipcRenderer.invoke('plugin:install-package', filePath),
     installDir: (dirPath: string) => ipcRenderer.invoke('plugin:install-dir', dirPath)
   },
+  logging: {
+    getConfig: () => ipcRenderer.invoke('logging:get-config'),
+    setConfig: (cfg: any) => ipcRenderer.invoke('logging:set-config', cfg),
+    openDir: () => ipcRenderer.invoke('logging:open-dir'),
+    clearFiles: () => ipcRenderer.invoke('logging:clear-files')
+  },
   ipc: {
     send: (channel: string, ...args: any[]) => ipcRenderer.send(channel, ...args),
     invoke: (channel: string, ...args: any[]) => ipcRenderer.invoke(channel, ...args),
@@ -130,7 +147,7 @@ if (process.contextIsolated) {
       console[lvl] = (...args: any[]) => {
         try {
           const message = args.map((a) => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ')
-          ipcRenderer.send('logs:renderer', { level: lvl, message })
+          sendLogThrottled(lvl, message)
         } catch {}
         try {
           original[lvl].apply(console, args as any)
@@ -162,7 +179,7 @@ if (process.contextIsolated) {
     console[lvl] = (...args: any[]) => {
       try {
         const message = args.map((a) => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ')
-        ipcRenderer.send('logs:renderer', { level: lvl, message })
+        sendLogThrottled(lvl, message)
       } catch {}
       try {
         original[lvl].apply(console, args as any)

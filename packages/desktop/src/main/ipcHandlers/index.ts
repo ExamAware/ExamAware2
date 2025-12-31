@@ -9,7 +9,8 @@ import {
 } from 'electron'
 import * as fs from 'fs'
 import * as path from 'path'
-import { addLog, getLogs, clearLogs } from '../logging/logStore'
+import { addLog, setCurrentConfigData, getCurrentConfigData } from '../logging/logStore'
+import { appLogger } from '../logging/winstonLogger'
 import type { MainContext } from '../runtime/context'
 import { createEditorWindow } from '../windows/editorWindow'
 import { createPlayerWindow } from '../windows/playerWindow'
@@ -25,13 +26,15 @@ import { applyTimeConfig } from '../ntpService/timeService'
 import { createSettingsWindow } from '../windows/settingsWindow'
 import { createMainWindow } from '../windows/mainWindow'
 import { applyTitleBarOverlay, OverlayTheme } from '../windows/titleBarOverlay'
+import { applyIpcControllers } from '../ipc/decorators'
+import { LoggingIpcController } from '../ipc/loggingController'
 
 // 存储当前加载的配置数据
 let currentConfigData: string | null = null
 
 // 导出函数以供其他模块使用
 export function setCurrentConfigData(data: string) {
-  console.log('Setting config data via function:', data)
+  appLogger.debug('[ipc] setCurrentConfigData (len=%d)', data?.length ?? 0)
   currentConfigData = data
 }
 
@@ -78,6 +81,8 @@ function handle(channel: string, listener: Parameters<typeof ipcMain.handle>[1])
 
 export function registerIpcHandlers(ctx?: MainContext): () => void {
   const group = createDisposerGroup()
+  const disposeLogging = applyIpcControllers([new LoggingIpcController()], ctx)
+  group.add(disposeLogging)
   const createTempPlayerConfig = async (data: string) => {
     const tempDir = path.join(app.getPath('temp'), 'examaware-player')
     await fs.promises.mkdir(tempDir, { recursive: true })
@@ -136,70 +141,24 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
     })
   })
   // IPC test
-  if (ctx) ctx.ipc.on('ping', () => console.log('pong'))
-  else group.add(on('ping', () => console.log('pong')))
+  if (ctx) ctx.ipc.on('ping', () => appLogger.debug('[ipc] pong'))
+  else group.add(on('ping', () => appLogger.debug('[ipc] pong')))
 
   // Handle get current config data
   if (ctx)
     ctx.ipc.handle('get-config', () => {
       const config = getCurrentConfigData()
-      console.log('get-config requested, returning:', config)
+      appLogger.debug('[ipc] get-config requested (len=%d)', config?.length ?? 0)
       return config
     })
   else
     group.add(
       handle('get-config', () => {
         const config = getCurrentConfigData()
-        console.log('get-config requested, returning:', config)
+        appLogger.debug('[ipc] get-config requested (len=%d)', config?.length ?? 0)
         return config
       })
     )
-
-  // ===== Logging IPC =====
-  if (ctx)
-    ctx.ipc.on(
-      'logs:renderer',
-      (event, payload: { level: string; message: string; stack?: string; source?: string }) => {
-        const window = BrowserWindow.fromWebContents(event.sender)
-        addLog({
-          timestamp: Date.now(),
-          level: (['log', 'info', 'warn', 'error', 'debug'] as any).includes(payload.level)
-            ? (payload.level as any)
-            : 'log',
-          process: 'renderer',
-          windowId: window?.id,
-          message: payload.message,
-          stack: payload.stack,
-          source: payload.source
-        })
-      }
-    )
-  else
-    group.add(
-      on(
-        'logs:renderer',
-        (event, payload: { level: string; message: string; stack?: string; source?: string }) => {
-          const window = BrowserWindow.fromWebContents(event.sender)
-          addLog({
-            timestamp: Date.now(),
-            level: (['log', 'info', 'warn', 'error', 'debug'] as any).includes(payload.level)
-              ? (payload.level as any)
-              : 'log',
-            process: 'renderer',
-            windowId: window?.id,
-            message: payload.message,
-            stack: payload.stack,
-            source: payload.source
-          })
-        }
-      )
-    )
-
-  if (ctx) ctx.ipc.handle('logs:get', () => getLogs())
-  else group.add(handle('logs:get', () => getLogs()))
-
-  if (ctx) ctx.ipc.on('logs:clear', () => clearLogs())
-  else group.add(on('logs:clear', () => clearLogs()))
 
   // 应用信息
   if (ctx) ctx.ipc.handle('app:get-version', () => app.getVersion())
@@ -208,13 +167,13 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
   // Handle set config data (called from playerWindow)
   if (ctx)
     ctx.ipc.on('set-config', (_event, data: string) => {
-      console.log('Setting config data via IPC:', data)
+      appLogger.debug('[ipc] set-config received via IPC (len=%d)', data?.length ?? 0)
       setCurrentConfigData(data)
     })
   else
     group.add(
       on('set-config', (_event, data: string) => {
-        console.log('Setting config data via IPC:', data)
+        appLogger.debug('[ipc] set-config received via IPC (len=%d)', data?.length ?? 0)
         setCurrentConfigData(data)
       })
     )
@@ -350,7 +309,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
         return fs.existsSync(file)
       }
     } catch (e) {
-      console.error('autostart:get failed', e)
+      appLogger.error('autostart:get failed', e as Error)
     }
     return false
   }
@@ -381,7 +340,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
         return true
       }
     } catch (e) {
-      console.error('autostart:set failed', e)
+      appLogger.error('autostart:set failed', e as Error)
       return false
     }
     return false
@@ -624,7 +583,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
         const content = await fileApi.readFile(filePath)
         return content
       } catch (error) {
-        console.error('Error reading file:', error)
+        appLogger.error('Error reading file', error as Error)
         return null
       }
     })
@@ -635,7 +594,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
           const content = await fileApi.readFile(filePath)
           return content
         } catch (error) {
-          console.error('Error reading file:', error)
+          appLogger.error('Error reading file', error as Error)
           return null
         }
       })
@@ -647,7 +606,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
         await fileApi.writeFile(filePath, content)
         return true
       } catch (error) {
-        console.error('Error saving file:', error)
+        appLogger.error('Error saving file', error as Error)
         return false
       }
     })
@@ -658,7 +617,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
           await fileApi.writeFile(filePath, content)
           return true
         } catch (error) {
-          console.error('Error saving file:', error)
+          appLogger.error('Error saving file', error as Error)
           return false
         }
       })
