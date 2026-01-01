@@ -5,6 +5,7 @@ import type { MainContext } from '../runtime/context'
 import * as path from 'path'
 import { is } from '@electron-toolkit/utils'
 import { getConfig, onConfigChanged } from '../configStore'
+import { appLogger } from '../logging/winstonLogger'
 
 export interface CreateContext {
   isDev: boolean
@@ -86,7 +87,7 @@ export class WindowManager {
           win.focus()
         }
       } catch (error) {
-        console.error('[windowManager] failed to revive existing window', error)
+        appLogger.error('[windowManager] failed to revive existing window', error as Error)
       }
       return win
     }
@@ -158,7 +159,7 @@ export class WindowManager {
           }
           win.setWindowButtonVisibility?.(true)
         } catch (err) {
-          console.warn('liquid glass apply failed', err)
+          appLogger.warn('liquid glass apply failed', err as Error)
         }
       }
 

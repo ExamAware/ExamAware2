@@ -2,6 +2,7 @@ import { promises as fs } from 'fs'
 import path from 'path'
 import crypto from 'crypto'
 import type { ExamAwarePluginManifest, PluginEntryPoint, ResolvedPluginManifest } from './types'
+import { appLogger } from '../logging/winstonLogger'
 
 // 支持的插件入口文件扩展名 / Supported plugin entry file extensions
 const SUPPORTED_EXTENSIONS = ['.js', '.cjs', '.mjs', '.ts']
@@ -163,7 +164,7 @@ export async function discoverPluginPackages(paths: string[]): Promise<ResolvedP
           results.push(manifest)
         }
       } catch (error) {
-        console.warn('[PluginHost] manifest error', full, error)
+        appLogger.warn('[PluginHost] manifest error', full, error as Error)
       }
     }
   }

@@ -5,6 +5,7 @@ import { promises as fsp } from 'fs'
 import { app } from 'electron'
 import { pathToFileURL } from 'url'
 import type { PluginEntryPoint, PluginFactory, PluginModuleExport } from './types'
+import { appLogger } from '../logging/winstonLogger'
 
 /**
  * 插件加载器类，负责动态导入和解析插件模块
@@ -26,7 +27,7 @@ export class PluginLoader {
       }
     }
     if (cleared) {
-      console.info('[PluginLoader] purged require cache entries', cleared, 'under', normalized)
+      appLogger.info('[PluginLoader] purged require cache entries', cleared, 'under', normalized)
     }
   }
 
@@ -39,7 +40,7 @@ export class PluginLoader {
   async importModule(entry: PluginEntryPoint): Promise<PluginModuleExport> {
     const resolved = path.resolve(entry.file)
     const exists = fs.existsSync(resolved)
-    console.info(`[PluginLoader] import format=${entry.format} path=${resolved} exists=${exists}`)
+    appLogger.info(`[PluginLoader] import format=${entry.format} path=${resolved} exists=${exists}`)
     const mtime = exists ? await this.readMtime(resolved) : Date.now()
     if (entry.format === 'cjs') {
       // Use host-scoped require so external deps (e.g., plugin-sdk) resolve from desktop's node_modules.
@@ -54,9 +55,9 @@ export class PluginLoader {
           const moduleId = hostRequire.resolve(resolved)
           if (hostRequire.cache?.[moduleId]) {
             delete hostRequire.cache[moduleId]
-            console.info('[PluginLoader] cache cleared for', moduleId)
+            appLogger.info('[PluginLoader] cache cleared for', moduleId)
           }
-          console.info('[PluginLoader] require CJS via', pkgPath)
+          appLogger.info('[PluginLoader] require CJS via', pkgPath)
           return hostRequire(moduleId)
         } catch (err) {
           lastError = err

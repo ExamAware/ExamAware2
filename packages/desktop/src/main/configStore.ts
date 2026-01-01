@@ -2,6 +2,7 @@ import { app, BrowserWindow } from 'electron'
 import * as fs from 'fs'
 import { promises as fsp } from 'fs'
 import * as path from 'path'
+import { appLogger } from './logging/winstonLogger'
 
 type AnyRecord = Record<string, any>
 
@@ -27,7 +28,7 @@ function ensureLoaded() {
       cache = {}
     }
   } catch (e) {
-    console.error('[config] load failed:', e)
+    appLogger.error('[config] load failed:', e as Error)
     cache = {}
   }
 }
@@ -71,7 +72,7 @@ async function flushWrite() {
     await fsp.mkdir(path.dirname(file), { recursive: true })
     await fsp.writeFile(file, JSON.stringify(cache ?? {}, null, 2), 'utf-8')
   } catch (e) {
-    console.error('[config] write failed:', e)
+    appLogger.error('[config] write failed:', e as Error)
   } finally {
     writePromise = null
   }

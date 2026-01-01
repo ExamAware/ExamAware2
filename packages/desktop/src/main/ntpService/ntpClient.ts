@@ -1,4 +1,5 @@
 import * as dgram from 'dgram'
+import { appLogger } from '../logging/winstonLogger'
 
 // NTP 包结构常量
 const NTP_PACKET_SIZE = 48
@@ -99,7 +100,7 @@ export async function syncTimeWithNTP(
         // 忽略“Not running”等关闭异常，避免主进程崩溃
         // 记录一次错误信息便于追踪
         try {
-          console.error('[NTP] socket.close error:', (e as any)?.message || e)
+          appLogger.error('[NTP] socket.close error:', e as Error)
         } catch {}
       }
     }
