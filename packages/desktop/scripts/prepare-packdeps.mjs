@@ -1,7 +1,7 @@
 import { chmodSync, mkdtempSync, writeFileSync } from 'node:fs'
 import { rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join, resolve } from 'node:path'
+import { extname, join, resolve } from 'node:path'
 import { spawn } from 'node:child_process'
 
 const cwd = resolve(new URL('.', import.meta.url).pathname, '..')
@@ -21,8 +21,16 @@ async function run(cmd, args, options = {}) {
   let spawnArgs = args
 
   if (cmd === 'pnpm' && process.env.npm_execpath) {
-    spawnCmd = process.execPath
-    spawnArgs = [process.env.npm_execpath, ...args]
+    const execPath = process.env.npm_execpath
+    const ext = extname(execPath).toLowerCase()
+    if (ext === '.js' || ext === '.cjs' || ext === '.mjs') {
+      spawnCmd = process.execPath
+      spawnArgs = [execPath, ...args]
+    } else {
+      // npm_execpath points to a native pnpm binary; execute it directly.
+      spawnCmd = execPath
+      spawnArgs = args
+    }
   }
 
   return await new Promise((resolvePromise, reject) => {
