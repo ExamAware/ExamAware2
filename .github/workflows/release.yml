@@ -110,7 +110,11 @@ jobs:
         run: |
           CACHE="${ELECTRON_BUILDER_CACHE:-/tmp/electron-builder-cache-${GITHUB_RUN_ID}-ubuntu-latest}"
           TMP="${ELECTRON_BUILDER_TMPDIR:-/tmp/electron-builder-tmp-${GITHUB_RUN_ID}-ubuntu-latest}"
-          mkdir -p "$CACHE" "$TMP"
+          if ! mkdir -p "$CACHE" "$TMP" 2>/dev/null; then
+            CACHE="/tmp/electron-builder-cache-${GITHUB_RUN_ID}-ubuntu-latest"
+            TMP="/tmp/electron-builder-tmp-${GITHUB_RUN_ID}-ubuntu-latest"
+            mkdir -p "$CACHE" "$TMP"
+          fi
           chmod -R 777 "$CACHE" "$TMP"
           echo "ELECTRON_BUILDER_CACHE=$CACHE" >> "$GITHUB_ENV"
           echo "ELECTRON_BUILDER_TMPDIR=$TMP" >> "$GITHUB_ENV"
