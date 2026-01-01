@@ -31,6 +31,7 @@ jobs:
       HUSKY_SKIP_HOOKS: '1'
       ELECTRON_BUILDER_CACHE: ${{ matrix.eb_cache }}
       ELECTRON_BUILDER_TMPDIR: ${{ matrix.eb_tmp }}
+      ELECTRON_BUILDER_TMP_DIR: ${{ matrix.eb_tmp }}
 
     permissions:
       contents: write
@@ -46,8 +47,8 @@ jobs:
           #   build_script: desktop:build:mac
           - os: ubuntu-latest
             build_script: desktop:build:linux
-            eb_cache: /tmp/electron-builder-cache-${{ github.run_id }}-ubuntu-latest
-            eb_tmp: /tmp/electron-builder-tmp-${{ github.run_id }}-ubuntu-latest
+            eb_cache: ${{ github.workspace }}/.tmp/electron-builder-cache-${{ github.run_id }}-ubuntu-latest
+            eb_tmp: ${{ github.workspace }}/.tmp/electron-builder-tmp-${{ github.run_id }}-ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -95,6 +96,20 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
+
+      - name: Ensure electron-builder cache dirs (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "$Env:ELECTRON_BUILDER_CACHE" | Out-Null
+          New-Item -ItemType Directory -Force -Path "$Env:ELECTRON_BUILDER_TMPDIR" | Out-Null
+
+      - name: Ensure electron-builder cache dirs (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          mkdir -p "$ELECTRON_BUILDER_CACHE" "$ELECTRON_BUILDER_TMPDIR"
+          chmod -R 777 "$ELECTRON_BUILDER_CACHE" "$ELECTRON_BUILDER_TMPDIR"
 
       - name: Install system dependencies (Linux)
         if: matrix.os == 'ubuntu-latest'
