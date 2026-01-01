@@ -17,7 +17,9 @@ function createHuskyStub() {
 
 function findPnpmExecutable(args) {
   const execPath = process.env.npm_execpath
-  const pnpmHome = process.env.PNPM_HOME || (process.platform === 'win32' ? 'C:/pnpm' : undefined)
+  const pnpmHome =
+    process.env.PNPM_HOME ||
+    (process.platform === 'win32' ? 'C:/Users/runneradmin/setup-pnpm/node_modules/.bin' : undefined)
 
   const searchDirs = [pnpmHome, ...String(process.env.PATH || '').split(delimiter).filter(Boolean)].filter(Boolean)
   const candidateFiles = ['pnpm.cjs', 'pnpm.mjs', 'pnpm.js', 'pnpm.exe', 'pnpm.cmd', 'pnpm.ps1', 'pnpm']
@@ -40,9 +42,9 @@ function findPnpmExecutable(args) {
     if (candidate.includes('/') || candidate.includes('\\')) {
       if (!fs.existsSync(candidate)) continue
     }
-    return { path: candidate, pnpmHome }
+    return { path: candidate, pnpmHome, tried: tryPaths }
   }
-  return { path: null, pnpmHome }
+  return { path: null, pnpmHome, tried: tryPaths }
 }
 
 async function run(cmd, args, options = {}) {
@@ -50,7 +52,8 @@ async function run(cmd, args, options = {}) {
   const attempts = []
 
   if (cmd === 'pnpm') {
-    const { path: resolved, pnpmHome } = findPnpmExecutable(args)
+    const { path: resolved, pnpmHome, tried } = findPnpmExecutable(args)
+    console.error('[prepare-packdeps] resolved pnpm', { resolved, pnpmHome, tried })
     if (resolved) {
       const ext = extname(resolved).toLowerCase()
       if (ext === '.js' || ext === '.cjs' || ext === '.mjs') {
@@ -77,6 +80,12 @@ async function run(cmd, args, options = {}) {
       pnpmHome
     })
     attempts.push({ spawnCmd: 'pnpm', spawnArgs: args, shell: false, pnpmHome })
+    attempts.push({
+      spawnCmd: 'powershell.exe',
+      spawnArgs: ['-ExecutionPolicy', 'Bypass', '-Command', 'pnpm', ...args],
+      shell: false,
+      pnpmHome
+    })
   } else {
     attempts.push({ spawnCmd: cmd, spawnArgs: args, shell: false, pnpmHome: process.env.PNPM_HOME })
   }
