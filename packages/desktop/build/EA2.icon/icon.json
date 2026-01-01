@@ -1,0 +1,53 @@
+{
+  "fill": {
+    "linear-gradient": [
+      "display-p3:0.12549,0.50588,0.36471,1.00000",
+      "display-p3:0.04706,0.14118,0.05490,1.00000"
+    ]
+  },
+  "groups": [
+    {
+      "layers": [
+        {
+          "image-name": "画板.png",
+          "name": "画板",
+          "position": {
+            "scale": 0.184,
+            "translation-in-points": [0, -235]
+          }
+        },
+        {
+          "glass": true,
+          "hidden": true,
+          "image-name": "ea2 icon.png",
+          "name": "ea2 icon",
+          "position": {
+            "scale": 1.45,
+            "translation-in-points": [0, 0]
+          }
+        },
+        {
+          "glass": true,
+          "image-name": "icon_1.png",
+          "name": "icon_1",
+          "position": {
+            "scale": 2.95,
+            "translation-in-points": [-2.0703125, 39.984375]
+          }
+        }
+      ],
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.5
+      },
+      "translucency": {
+        "enabled": true,
+        "value": 0.5
+      }
+    }
+  ],
+  "supported-platforms": {
+    "circles": ["watchOS"],
+    "squares": "shared"
+  }
+}
