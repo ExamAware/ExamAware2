@@ -1,4 +1,5 @@
 import { BrowserWindow, nativeTheme } from 'electron'
+import { appLogger } from '../logging/winstonLogger'
 
 export type OverlayTheme = 'light' | 'dark'
 
@@ -34,7 +35,7 @@ export function applyTitleBarOverlay(win: BrowserWindow, theme?: OverlayTheme) {
   try {
     win.setTitleBarOverlay(buildTitleBarOverlay(theme))
   } catch (error) {
-    console.error('Failed to update title bar overlay', error)
+    appLogger.error('Failed to update title bar overlay', error as Error)
   }
 }
 

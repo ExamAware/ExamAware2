@@ -1,3 +1,4 @@
+import { appLogger } from '../../logging/winstonLogger'
 import type { Awaitable, Disposer, PluginHostApplicationLifetime } from './types'
 
 // 默认的应用生命周期实现，管理启动/停止事件
@@ -51,7 +52,7 @@ export class DefaultHostApplicationLifetime implements PluginHostApplicationLife
       try {
         await handler()
       } catch (error) {
-        console.error('[PluginHostLifetime] handler failed', error) // 记录错误但不中断
+        appLogger.error('[PluginHostLifetime] handler failed', error as Error) // 记录错误但不中断
       }
     }
   }

@@ -1,6 +1,7 @@
 import { Tray, Menu, app, nativeImage, screen, BrowserWindow } from 'electron'
 import * as path from 'path'
 import * as fs from 'fs'
+import { appLogger } from './logging/winstonLogger'
 import { createSettingsWindow } from './windows/settingsWindow'
 import { createMainWindow } from './windows/mainWindow'
 import { createOrGetTrayWindow } from './windows/trayWindow'
@@ -13,7 +14,7 @@ let trayPopoverWin: BrowserWindow | null = null
 
 function log(...args: any[]) {
   try {
-    console.debug('[tray]', ...args)
+    appLogger.debug('[tray]', ...args)
   } catch {}
 }
 

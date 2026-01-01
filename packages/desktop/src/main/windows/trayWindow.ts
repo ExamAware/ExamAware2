@@ -1,6 +1,7 @@
 import { BrowserWindow } from 'electron'
 import { windowManager } from './windowManager'
 import { getConfig } from '../configStore'
+import { appLogger } from '../logging/winstonLogger'
 
 export async function createOrGetTrayWindow(): Promise<BrowserWindow> {
   return await windowManager.open(({ commonOptions }) => {
@@ -28,7 +29,9 @@ export async function createOrGetTrayWindow(): Promise<BrowserWindow> {
       options,
       setup(_win) {
         const log = (...args: any[]) => {
-          try { console.debug('[trayWindow]', ...args) } catch {}
+          try {
+            appLogger.debug('[trayWindow]', ...args)
+          } catch {}
         }
         log('create tray window; isDestroyed?', _win.isDestroyed())
         // 失焦自动隐藏：受配置项控制（tray.autoHideOnBlur），默认关闭
@@ -76,7 +79,10 @@ export async function createOrGetTrayWindow(): Promise<BrowserWindow> {
               log('set vibrancy = popover')
             } catch (e) {
               log('set vibrancy popover failed, fallback to menu', e)
-              try { _win.setVibrancy('menu'); log('set vibrancy = menu') } catch {}
+              try {
+                _win.setVibrancy('menu')
+                log('set vibrancy = menu')
+              } catch {}
             }
             // 在新版 Electron 可选：背景材质
             try {
@@ -100,7 +106,15 @@ export async function createOrGetTrayWindow(): Promise<BrowserWindow> {
           const now = Date.now()
           const protection = getProtectionMs()
           const delta = now - lastShowTime
-          log('blur event; deltaSinceShow=', delta, 'protectionMs=', protection, 'autoHideEnabled=', shouldAutoHide(), focusSnapshot('blur'))
+          log(
+            'blur event; deltaSinceShow=',
+            delta,
+            'protectionMs=',
+            protection,
+            'autoHideEnabled=',
+            shouldAutoHide(),
+            focusSnapshot('blur')
+          )
           if (!shouldAutoHide()) return
           if (delta < protection) {
             log('blur ignored due to protection period')
