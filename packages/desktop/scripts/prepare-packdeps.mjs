@@ -16,8 +16,17 @@ function createHuskyStub() {
 }
 
 async function run(cmd, args, options = {}) {
+  // On CI the PATH may not expose pnpm; reuse npm_execpath when available to locate the pnpm CLI.
+  let spawnCmd = cmd
+  let spawnArgs = args
+
+  if (cmd === 'pnpm' && process.env.npm_execpath) {
+    spawnCmd = process.execPath
+    spawnArgs = [process.env.npm_execpath, ...args]
+  }
+
   return await new Promise((resolvePromise, reject) => {
-    const child = spawn(cmd, args, {
+    const child = spawn(spawnCmd, spawnArgs, {
       stdio: 'inherit',
       // Avoid relying on cmd.exe on Windows runners; run pnpm directly.
       shell: false,
