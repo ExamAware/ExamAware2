@@ -1,6 +1,10 @@
 import { BrowserWindow } from 'electron'
 import { windowManager } from './windowManager'
-import { buildTitleBarOverlay, applyTitleBarOverlay, attachTitleBarOverlayLifecycle } from './titleBarOverlay'
+import {
+  buildTitleBarOverlay,
+  applyTitleBarOverlay,
+  attachTitleBarOverlayLifecycle
+} from './titleBarOverlay'
 
 export function createSettingsWindow(page?: string): BrowserWindow {
   return windowManager.open(({ commonOptions }) => {
