@@ -1,6 +1,6 @@
 {
   "name": "@dsz-examaware/player",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "ExamAware Player - 考试信息播放器组件",
   "type": "module",
   "main": "./dist/index.js",
