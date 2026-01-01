@@ -41,8 +41,8 @@ jobs:
         include:
           - os: windows-latest
             build_script: desktop:build:win
-            eb_cache: C:/eb-cache-${{ github.run_id }}
-            eb_tmp: C:/eb-tmp-${{ github.run_id }}
+            eb_cache: ${{ runner.temp }}/eb-cache-${{ github.run_id }}
+            eb_tmp: ${{ runner.temp }}/eb-tmp-${{ github.run_id }}
           # - os: macos-latest
           #   build_script: desktop:build:mac
           - os: ubuntu-latest
@@ -103,6 +103,8 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path "$Env:ELECTRON_BUILDER_CACHE" | Out-Null
           New-Item -ItemType Directory -Force -Path "$Env:ELECTRON_BUILDER_TMPDIR" | Out-Null
+          Write-Host "ELECTRON_BUILDER_CACHE=$Env:ELECTRON_BUILDER_CACHE"
+          Write-Host "ELECTRON_BUILDER_TMPDIR=$Env:ELECTRON_BUILDER_TMPDIR"
 
       - name: Ensure electron-builder cache dirs (Linux)
         if: matrix.os == 'ubuntu-latest'
