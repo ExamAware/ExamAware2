@@ -1,4 +1,4 @@
-import { chmodSync, mkdtempSync, writeFileSync } from 'node:fs'
+import fs, { chmodSync, mkdtempSync, writeFileSync } from 'node:fs'
 import { rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { extname, join, resolve } from 'node:path'
@@ -20,16 +20,28 @@ async function run(cmd, args, options = {}) {
   let spawnCmd = cmd
   let spawnArgs = args
 
-  if (cmd === 'pnpm' && process.env.npm_execpath) {
+  if (cmd === 'pnpm') {
     const execPath = process.env.npm_execpath
-    const ext = extname(execPath).toLowerCase()
-    if (ext === '.js' || ext === '.cjs' || ext === '.mjs') {
-      spawnCmd = process.execPath
-      spawnArgs = [execPath, ...args]
-    } else {
-      // npm_execpath points to a native pnpm binary; execute it directly.
-      spawnCmd = execPath
-      spawnArgs = args
+    const pnpmHome = process.env.PNPM_HOME
+    const candidates = []
+    if (execPath) {
+      candidates.push(execPath, `${execPath}.cmd`)
+    }
+    if (pnpmHome) {
+      candidates.push(join(pnpmHome, 'pnpm.cjs'), join(pnpmHome, 'pnpm.cmd'))
+    }
+
+    const found = candidates.find((p) => p && fs.existsSync(p))
+
+    if (found) {
+      const ext = extname(found).toLowerCase()
+      if (ext === '.js' || ext === '.cjs' || ext === '.mjs') {
+        spawnCmd = process.execPath
+        spawnArgs = [found, ...args]
+      } else {
+        spawnCmd = found
+        spawnArgs = args
+      }
     }
   }
 
