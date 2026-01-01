@@ -68,7 +68,7 @@ def run_cmd(cmd, args, env=None):
         print(f'[prepare-packdeps] Command failed: {cmd} {" ".join(args)}', file=sys.stderr)
         raise
 
-async def main():
+def main():
     """Main cleanup and reinstall logic."""
     cwd = Path(__file__).parent.parent
     husky_stub = create_husky_stub()
@@ -85,7 +85,7 @@ async def main():
 
         # Reinstall with husky bypass
         print('[prepare-packdeps] Installing dependencies...', file=sys.stderr)
-        env = {'PATH': f'{husky_stub}{os.pathsep}{os.environ.get("PATH", "")}'}
+        env = {'PATH': f'{husky_stub}{os.pathsep}{os.environ.get("PATH", "")}' }
         run_cmd(pnpm, ['install', '--frozen-lockfile'], env)
 
         print('[prepare-packdeps] Done!', file=sys.stderr)
