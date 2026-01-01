@@ -24,6 +24,12 @@ jobs:
     name: Build ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
 
+    env:
+      PNPM_YES: 'true'
+      HUSKY: '0'
+      HUSKY_SKIP_INSTALL: '1'
+      HUSKY_SKIP_HOOKS: '1'
+
     permissions:
       contents: write
 
@@ -50,6 +56,9 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           version: 10.18.2
+
+      - name: Make pnpm non-interactive
+        run: pnpm config set yes true
 
       - name: Get pnpm store directory
         shell: bash

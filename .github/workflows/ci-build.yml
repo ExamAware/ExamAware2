@@ -1,0 +1,59 @@
+name: CI Build
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      PNPM_YES: 'true'
+      HUSKY: '0'
+      HUSKY_SKIP_INSTALL: '1'
+      HUSKY_SKIP_HOOKS: '1'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.18.2
+
+      - name: Make pnpm non-interactive
+        run: pnpm config set yes true
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build core package
+        run: pnpm core:build
+
+      - name: Build player package
+        run: pnpm player:build
+
+      - name: Build plugin SDK
+        run: pnpm --filter @dsz-examaware/plugin-sdk build
+
+      - name: Desktop type-check
+        run: pnpm --filter @dsz-examaware/desktop type-check
+
+      - name: Desktop renderer build (no packaging)
+        run: pnpm --filter @dsz-examaware/desktop build
