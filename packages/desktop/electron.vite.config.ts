@@ -18,6 +18,9 @@ export default defineConfig(({ mode }) => {
           exclude: ['@dsz-examaware/core', '@dsz-examaware/player']
         })
       ],
+      resolve: {
+        alias: [{ find: '@app/package.json', replacement: resolve(__dirname, 'package.json') }]
+      },
       build: {
         outDir: 'dist/main',
         lib: {
@@ -36,6 +39,9 @@ export default defineConfig(({ mode }) => {
           exclude: ['@dsz-examaware/core', '@dsz-examaware/player']
         })
       ],
+      resolve: {
+        alias: [{ find: '@app/package.json', replacement: resolve(__dirname, 'package.json') }]
+      },
       build: {
         outDir: 'dist/preload',
         lib: {
@@ -68,6 +74,7 @@ export default defineConfig(({ mode }) => {
                 { find: '@dsz-examaware/core', replacement: resolve(__dirname, '../core/src') }
               ]
             : []),
+          { find: '@app/package.json', replacement: resolve(__dirname, 'package.json') },
           { find: '@renderer', replacement: resolve('src/renderer/src') },
           { find: '@', replacement: resolve('src/renderer/src') }
         ]

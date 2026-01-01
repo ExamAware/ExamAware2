@@ -363,7 +363,8 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
     icon?: string
   }) {
     // 注意：Exec 需转义空格
-    const execEscaped = opts.exec.replace(/ /g, '\\\ ')
+    // 注意：Exec 需转义空格与反斜杠，避免生成的 desktop 文件被错误解析
+    const execEscaped = opts.exec.replace(/\\/g, '\\\\').replace(/ /g, '\\ ')
     const iconLine = opts.icon ? `Icon=${opts.icon}\n` : ''
     return (
       [

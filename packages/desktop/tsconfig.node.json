@@ -6,6 +6,12 @@
     "types": ["electron-vite/node"],
     "moduleResolution": "bundler",
     "experimentalDecorators": true,
-    "ignoreDeprecations": "5.0"
+    "ignoreDeprecations": "5.0",
+    "baseUrl": ".",
+    "paths": {
+      "@app/package.json": [
+        "./package.json"
+      ]
+    }
   }
 }

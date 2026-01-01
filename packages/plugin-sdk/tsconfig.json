@@ -14,9 +14,13 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "isolatedModules": true,
-    "noEmit": false
+    "noEmit": false,
+    "baseUrl": ".",
+    "paths": {
+      "@app/package.json": ["./package.json"]
+    }
   },
-  "include": ["src/**/*.ts", "shared/**/*.ts"],
+  "include": ["src/**/*.ts", "shared/**/*.ts", "package.json"],
   "exclude": ["dist", "node_modules", "**/*.test.ts"],
   "references": [
     { "path": "../desktop" }

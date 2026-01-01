@@ -8,15 +8,33 @@
     <t-divider />
 
     <div class="tray-list" role="menu">
-      <div class="menu-item" role="menuitem" tabindex="0" @click="openMain" @keydown.enter.prevent="openMain">
+      <div
+        class="menu-item"
+        role="menuitem"
+        tabindex="0"
+        @click="openMain"
+        @keydown.enter.prevent="openMain"
+      >
         <t-icon name="home" />
         <span>打开主界面</span>
       </div>
-      <div class="menu-item" role="menuitem" tabindex="0" @click="openSettings" @keydown.enter.prevent="openSettings">
+      <div
+        class="menu-item"
+        role="menuitem"
+        tabindex="0"
+        @click="openSettings"
+        @keydown.enter.prevent="openSettings"
+      >
         <t-icon name="setting" />
         <span>设置</span>
       </div>
-      <div class="menu-item" role="menuitem" tabindex="0" @click="openLogs" @keydown.enter.prevent="openLogs">
+      <div
+        class="menu-item"
+        role="menuitem"
+        tabindex="0"
+        @click="openLogs"
+        @keydown.enter.prevent="openLogs"
+      >
         <t-icon name="file-code" />
         <span>日志</span>
       </div>
@@ -55,7 +73,9 @@ function quit() {
   background: color-mix(in srgb, var(--td-bg-color-page) 20%, transparent);
   color: var(--td-text-color-primary);
   border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), 0 2px 12px rgba(0, 0, 0, 0.2);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.25),
+    0 2px 12px rgba(0, 0, 0, 0.2);
   width: 100%;
   height: 100%;
   box-sizing: border-box;
@@ -99,12 +119,19 @@ function quit() {
 .menu-item:active {
   background: var(--td-bg-color-component-active, var(--td-bg-color-component-hover));
 }
-.menu-item :deep(.t-icon) { font-size: 16px; color: var(--td-text-color-secondary); }
-.menu-item span { flex: 1; }
+.menu-item :deep(.t-icon) {
+  font-size: 16px;
+  color: var(--td-text-color-secondary);
+}
+.menu-item span {
+  flex: 1;
+}
 .tray-footer {
   display: flex;
   justify-content: flex-end;
   padding: 4px 2px 0 2px;
 }
-.tray-popover :deep(.t-divider) { margin: 6px 0; }
+.tray-popover :deep(.t-divider) {
+  margin: 6px 0;
+}
 </style>

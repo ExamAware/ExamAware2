@@ -11,5 +11,4 @@ import WindowFrame from '@renderer/components/WindowFrame.vue'
       </WindowFrame>
     </div>
   </t-config-provider>
-
 </template>
