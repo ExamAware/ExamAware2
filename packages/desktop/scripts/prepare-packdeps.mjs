@@ -19,7 +19,8 @@ async function run(cmd, args, options = {}) {
   return await new Promise((resolvePromise, reject) => {
     const child = spawn(cmd, args, {
       stdio: 'inherit',
-      shell: process.platform === 'win32',
+      // Avoid relying on cmd.exe on Windows runners; run pnpm directly.
+      shell: false,
       cwd,
       env: {
         ...process.env,
