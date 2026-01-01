@@ -1,1 +1,8 @@
+command -v pnpm >/dev/null 2>&1 || exit 0
+
+if ! pnpm exec lint-staged >/dev/null 2>&1; then
+	echo "[husky] lint-staged not found; run 'pnpm install' to enable pre-commit checks." >&2
+	exit 0
+fi
+
 pnpm exec lint-staged
