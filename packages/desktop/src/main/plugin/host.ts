@@ -597,7 +597,8 @@ export class PluginHost extends EventEmitter {
     if (!manifest) throw new Error('该目录不是有效的 ExamAware 插件')
     this.ensureDependenciesSatisfied(manifest)
 
-    const name = manifest.name ? String(manifest.name).split('/').pop() : `plugin-${Date.now()}`
+    const nameCandidate = manifest.name ? String(manifest.name).split('/').pop() : undefined
+    const name = nameCandidate && nameCandidate.length ? nameCandidate : `plugin-${Date.now()}`
     const targetDir = path.join(dir, name)
     if (targetDir === normalized) {
       return targetDir

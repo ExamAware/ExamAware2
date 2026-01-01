@@ -20,6 +20,8 @@ import {
 import { createPlayerWindow } from '../windows/playerWindow'
 import { appLogger } from '../logging/winstonLogger'
 
+type RouterInstance = InstanceType<typeof Router>
+
 export interface CastConfig {
   enabled: boolean
   name: string
@@ -130,14 +132,14 @@ export class CastService {
 
   private async ensureBonjourStarted() {
     if (this.bonjour) return
-    this.bonjour = new Bonjour({
-      errorCallback: (err) => appLogger.error('[cast] bonjour error', err)
-    })
+    const instance = new Bonjour()
+    ;(instance as any).on?.('error', (err: Error) => appLogger.error('[cast] bonjour error', err))
+    this.bonjour = instance
   }
 
   private publishBonjour() {
     if (!this.bonjour || !this.config.enabled) return
-    this.published?.stop()
+    this.published?.stop?.()
     this.published = this.bonjour.publish({
       name: this.config.name || 'ExamAware',
       type: 'examaware',
@@ -147,7 +149,7 @@ export class CastService {
         share: this.config.shareEnabled ? '1' : '0'
       }
     })
-    this.published.on('error', (err) => appLogger.error('[cast] publish error', err))
+    this.published?.on('error', (err) => appLogger.error('[cast] publish error', err))
   }
 
   private startBrowser() {
@@ -261,7 +263,7 @@ export class CastService {
     return file
   }
 
-  private registerRoutes(router: Router) {
+  private registerRoutes(router: RouterInstance) {
     router.get('/health', (ctx) => {
       ctx.body = { success: true }
     })
@@ -288,7 +290,7 @@ export class CastService {
     })
 
     router.post('/cast/play', async (ctx) => {
-      const body = ctx.request.body || {}
+      const body = (ctx.request.body ?? {}) as { config?: unknown }
       const config = typeof body.config === 'string' ? body.config : null
       if (!config) {
         ctx.status = 400
@@ -338,7 +340,7 @@ export class CastService {
     )
 
     const router = new Router()
-    this.registerRoutes(router)
+    this.registerRoutes(router as RouterInstance)
     this.app.use(router.routes())
     this.app.use(router.allowedMethods())
 
@@ -348,7 +350,7 @@ export class CastService {
   }
 
   async stop() {
-    this.published?.stop()
+    this.published?.stop?.()
     this.published = null
     this.browser?.stop()
     this.browser = null
@@ -367,7 +369,7 @@ export class CastService {
   async dispose() {
     await this.stop()
     if (this.bonjour) {
-      this.bonjour.unpublishAll(() => {})
+      this.bonjour.unpublishAll?.(() => {})
       this.bonjour.destroy()
     }
     this.bonjour = null

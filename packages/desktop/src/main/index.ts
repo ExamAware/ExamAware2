@@ -5,6 +5,7 @@ import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { createMainWindow } from './windows/mainWindow'
 import { createEditorWindow } from './windows/editorWindow'
 import { createSettingsWindow } from './windows/settingsWindow'
+import { createPlayerWindow } from './windows/playerWindow'
 import { windowManager } from './windows/windowManager'
 import { registerIpcHandlers } from './ipcHandlers'
 import { patchConsoleWithLogger, appLogger, initLoggingConfig } from './logging/winstonLogger'
@@ -29,8 +30,6 @@ import type { DeepLinkPayload } from '../shared/types/deepLink'
 import { applyDeepLinkControllers } from './deepLink/decorators'
 import { CoreDeepLinkController } from './deepLink/coreDeepLinkController'
 import { composeVersionLabel } from '../shared/appInfo'
-// macOS liquid glass; safely a no-op on non-mac
-import liquidGlass from 'electron-liquid-glass'
 
 protocol.registerSchemesAsPrivileged([
   {
@@ -55,14 +54,13 @@ protocol.registerSchemesAsPrivileged([
   }
 ])
 
-const STARTUP_BANNER = [
-  ' _____                        _                         ',
-  '| ____|_  ____ _ _ __ ___    / \__      ____ _ _ __ ___ ',
-  "|  _| \\ \\/ / _` | '_ ` _ \\  / _ \\ \\ /\\ / / _` | '__/ _ \\",
-  '| |___ >  < (_| | | | | | |/ ___ \\ V  V / (_| | | |  __/',
-  '|_____/_/\\_\\__,_|_| |_| |_/_/   \\_\\_/\\_/ \\__,_|_|  \\___|',
-  ''
-].join('\n')
+const STARTUP_BANNER = String.raw`
+ _____                        _                         
+| ____|_  ____ _ _ __ ___    / \__      ____ _ _ __ ___ 
+|  _| \ \/ / _\` | '_ \` _ \  / _ \ \ /\ / / _\` | '__/ _ \
+| |___ >  < (_| | | | | | |/ ___ \ V  V / (_| | | |  __/
+|_____/_/\__,_|_| |_| |_/_/   \_/\_/ \__,_|_|  \___|
+`.trim()
 
 function printStartupBanner() {
   try {

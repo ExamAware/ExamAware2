@@ -75,8 +75,10 @@ declare global {
         listPeers: () => Promise<any>
         peerShares: (peerId: string) => Promise<any>
         localShares: () => Promise<any>
-        sharedConfig: () => Promise<string | null>
-        peerConfig: (peerId: string) => Promise<string | null>
+        sharedConfig: (id?: string) => Promise<string | null>
+        setShares: (shares: any[]) => Promise<void>
+        upsertShare: (share: any) => Promise<void>
+        peerConfig: (peerId: string, shareId?: string) => Promise<string | null>
         send: (peerId: string, config: string) => Promise<any>
       }
       logging: {

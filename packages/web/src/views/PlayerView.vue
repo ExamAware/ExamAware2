@@ -49,6 +49,8 @@ type ExamPlayerExpose = {
   };
 };
 
+type ExamInfo = ExamConfig['examInfos'][number];
+
 const router = useRouter();
 const roomNumber = ref('01');
 const playerRef = ref<HTMLElement | null>(null);
@@ -85,21 +87,21 @@ const playerConfig = computed<PlayerConfig>(() => ({
 const timeSyncStatus = computed(() => (timeSyncEnabled.value ? '电脑时间' : '未同步'));
 
 const eventHandlers: PlayerEventHandlers = {
-  onExamStart: (exam) => {
+  onExamStart: (exam: ExamInfo) => {
     MessagePlugin.success({ content: `“${exam?.name || '考试'}”开始` });
   },
-  onExamEnd: (exam) => {
+  onExamEnd: (exam: ExamInfo) => {
     MessagePlugin.info({ content: `“${exam?.name || '考试'}”结束` });
   },
-  onExamAlert: (exam, alertTime) => {
+  onExamAlert: (exam: ExamInfo, alertTime: number) => {
     MessagePlugin.warning({ content: `“${exam?.name || '考试'}”还有 ${alertTime} 分钟结束` });
   },
-  onExamSwitch: (fromExam, toExam) => {
+  onExamSwitch: (fromExam: ExamInfo | undefined, toExam: ExamInfo | undefined) => {
     if (toExam) {
       MessagePlugin.info({ content: `切换到 “${toExam?.name || '考试'}”` });
     }
   },
-  onError: (error) => {
+  onError: (error: string) => {
     MessagePlugin.error({ content: error || '播放器错误' });
   }
 };

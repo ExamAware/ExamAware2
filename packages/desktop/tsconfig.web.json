@@ -6,14 +6,15 @@
     "src/renderer/src/**/*.vue",
     "src/preload/*.d.ts",
     "src/main/plugin/**/*.ts",
-    "src/shared/**/*"
+    "src/shared/**/*",
+    "../player/src/**/*"
   ],
   "module": "esnext",
   "compilerOptions": {
     "composite": true,
     "baseUrl": ".",
     "moduleResolution": "bundler",
-    "ignoreDeprecations": "5.0",
+    "ignoreDeprecations": "6.0",
     "paths": {
       "@renderer/*": [
         "src/renderer/src/*"
