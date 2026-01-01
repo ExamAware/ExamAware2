@@ -16,57 +16,74 @@ function createHuskyStub() {
 }
 
 async function run(cmd, args, options = {}) {
-  // On CI the PATH may not expose pnpm; reuse npm_execpath when available to locate the pnpm CLI.
-  let spawnCmd = cmd
-  let spawnArgs = args
+  // Build attempt list for pnpm on Windows to avoid ENOENT from missing shim/binary.
+  const attempts = []
 
   if (cmd === 'pnpm') {
     const execPath = process.env.npm_execpath
     const pnpmHome = process.env.PNPM_HOME
     const candidates = []
     if (execPath) {
-      candidates.push(execPath, `${execPath}.cmd`)
+      candidates.push(execPath, `${execPath}.cmd`, `${execPath}.exe`)
     }
     if (pnpmHome) {
-      candidates.push(join(pnpmHome, 'pnpm.cjs'), join(pnpmHome, 'pnpm.cmd'))
+      candidates.push(
+        join(pnpmHome, 'pnpm.cjs'),
+        join(pnpmHome, 'pnpm.cmd'),
+        join(pnpmHome, 'pnpm.exe')
+      )
     }
 
-    const found = candidates.find((p) => p && fs.existsSync(p))
-
-    if (found) {
-      const ext = extname(found).toLowerCase()
+    for (const candidate of candidates) {
+      if (!candidate || !fs.existsSync(candidate)) continue
+      const ext = extname(candidate).toLowerCase()
       if (ext === '.js' || ext === '.cjs' || ext === '.mjs') {
-        spawnCmd = process.execPath
-        spawnArgs = [found, ...args]
+        attempts.push({ spawnCmd: process.execPath, spawnArgs: [candidate, ...args], shell: false })
       } else {
-        spawnCmd = found
-        spawnArgs = args
+        attempts.push({ spawnCmd: candidate, spawnArgs: args, shell: false })
       }
+    }
+
+    // Fallbacks: PATH-resolved pnpm executables
+    attempts.push({ spawnCmd: 'pnpm.exe', spawnArgs: args, shell: false })
+    attempts.push({ spawnCmd: 'pnpm.cmd', spawnArgs: args, shell: false })
+    attempts.push({ spawnCmd: 'pnpm', spawnArgs: args, shell: process.platform === 'win32' })
+  } else {
+    attempts.push({ spawnCmd: cmd, spawnArgs: args, shell: false })
+  }
+
+  let lastError
+  for (const attempt of attempts) {
+    try {
+      await new Promise((resolvePromise, reject) => {
+        const child = spawn(attempt.spawnCmd, attempt.spawnArgs, {
+          stdio: 'inherit',
+          shell: attempt.shell,
+          cwd,
+          env: {
+            ...process.env,
+            CI: 'true',
+            HUSKY: '0',
+            HUSKY_SKIP_INSTALL: '1',
+            HUSKY_SKIP_HOOKS: '1',
+            PNPM_HOME: process.env.PNPM_HOME,
+            PATH: `${huskyStubDir}:${process.env.PATH ?? ''}`
+          },
+          ...options
+        })
+        child.on('error', reject)
+        child.on('exit', (code) => {
+          if (code === 0) return resolvePromise()
+          reject(new Error(`${attempt.spawnCmd} ${attempt.spawnArgs.join(' ')} exited with code ${code}`))
+        })
+      })
+      return
+    } catch (err) {
+      lastError = err
     }
   }
 
-  return await new Promise((resolvePromise, reject) => {
-    const child = spawn(spawnCmd, spawnArgs, {
-      stdio: 'inherit',
-      // Avoid relying on cmd.exe on Windows runners; run pnpm directly.
-      shell: false,
-      cwd,
-      env: {
-        ...process.env,
-        CI: 'true',
-        HUSKY: '0',
-        HUSKY_SKIP_INSTALL: '1',
-        HUSKY_SKIP_HOOKS: '1',
-        PNPM_HOME: process.env.PNPM_HOME,
-        PATH: `${huskyStubDir}:${process.env.PATH ?? ''}`
-      },
-      ...options
-    })
-    child.on('exit', (code) => {
-      if (code === 0) return resolvePromise()
-      reject(new Error(`${cmd} ${args.join(' ')} exited with code ${code}`))
-    })
-  })
+  throw lastError ?? new Error('Failed to run command')
 }
 
 async function main() {
