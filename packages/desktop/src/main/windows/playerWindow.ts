@@ -3,9 +3,7 @@ import * as fs from 'fs'
 import { is } from '@electron-toolkit/utils'
 import { windowManager } from './windowManager'
 import { appLogger } from '../logging/winstonLogger'
-
-// 导入配置数据设置函数
-import { setCurrentConfigData } from '../ipcHandlers'
+import { setSharedConfig } from '../state/sharedConfigStore'
 
 export function createPlayerWindow(configPath: string): BrowserWindow {
   return windowManager.open(({ commonOptions }) => ({
@@ -79,7 +77,7 @@ export function createPlayerWindow(configPath: string): BrowserWindow {
         }
 
         // 通知主进程存储配置数据
-        setCurrentConfigData(data)
+        setSharedConfig(data)
 
         setTimeout(() => {
           playerWindow.webContents.send('load-config', data)

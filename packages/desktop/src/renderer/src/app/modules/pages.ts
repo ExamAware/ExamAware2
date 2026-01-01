@@ -98,11 +98,21 @@ export const pagesModule: AppModule = {
             component: () => import('@renderer/views/home/PlayerHomeView.vue')
           },
           {
+            id: 'discover',
+            label: '发现',
+            path: '/discover',
+            icon: 'search',
+            order: 3,
+            group: 'sidebar' as const,
+            routeName: 'discover',
+            component: () => import('@renderer/views/home/DiscoverView.vue')
+          },
+          {
             id: 'ntpsettings',
             label: 'NTP 设置',
             path: '/ntpsettings',
             icon: 'time',
-            order: 3,
+            order: 4,
             group: 'sidebar' as const,
             visible: false,
             routeName: 'ntpsettings',
@@ -135,11 +145,21 @@ export const pagesModule: AppModule = {
         component: () => import('@renderer/views/home/PlayerHomeView.vue')
       })
       add({
+        id: 'discover',
+        label: '发现',
+        path: '/discover',
+        icon: 'search',
+        order: 3,
+        group: 'sidebar',
+        routeName: 'discover',
+        component: () => import('@renderer/views/home/DiscoverView.vue')
+      })
+      add({
         id: 'ntpsettings',
         label: 'NTP 设置',
         path: '/ntpsettings',
         icon: 'time',
-        order: 3,
+        order: 4,
         group: 'sidebar',
         visible: false,
         routeName: 'ntpsettings',

@@ -84,28 +84,42 @@ export const settingsModule: AppModule = {
         id: 'player',
         label: '播放器',
         icon: 'play-circle',
-        order: 2,
+        order: 3,
         component: () => import('@renderer/views/settings/PlayerSettings.vue')
       },
       {
         id: 'time',
         label: '时间同步',
         icon: 'time',
-        order: 3,
+        order: 4,
         component: () => import('@renderer/views/settings/TimeSettings.vue')
+      },
+      {
+        id: 'http-api',
+        label: 'HTTP API',
+        icon: 'api',
+        order: 5,
+        component: () => import('@renderer/views/settings/HttpApiSettings.vue')
+      },
+      {
+        id: 'cast',
+        label: '共享与投送',
+        icon: 'share',
+        order: 2,
+        component: () => import('@renderer/views/settings/CastSettings.vue')
       },
       {
         id: 'logging',
         label: '日志',
         icon: 'file-search',
-        order: 4,
+        order: 6,
         component: () => import('@renderer/views/settings/LoggingSettings.vue')
       },
       {
         id: 'plugins',
         label: '插件',
         icon: 'extension',
-        order: 5,
+        order: 7,
         component: () => import('@renderer/views/settings/PluginSettings.vue')
       },
       {

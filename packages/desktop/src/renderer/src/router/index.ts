@@ -3,11 +3,13 @@ import HomeView from '@renderer/views/HomeView.vue'
 import MainpageView from '@renderer/views/home/MainpageView.vue'
 import PlayerHomeView from '@renderer/views/home/PlayerHomeView.vue'
 import ntpSettingsPage from '@renderer/views/home/ntpSettingsPage.vue'
+import DiscoverView from '@renderer/views/home/DiscoverView.vue'
 import EditorView from '@renderer/views/EditorView.vue'
 import PlayerView from '@renderer/views/PlayerView.vue'
 import LogsView from '@renderer/views/LogsView.vue'
 import TrayPopover from '@renderer/views/tray/TrayPopover.vue'
 import SettingsShell from '@renderer/views/SettingsShell.vue'
+import CastWindow from '@renderer/views/CastWindow.vue'
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -19,6 +21,7 @@ const router = createRouter({
       children: [
         { path: 'mainpage', name: 'mainpage', component: MainpageView },
         { path: 'playerhome', name: 'playerhome', component: PlayerHomeView },
+        { path: 'discover', name: 'discover', component: DiscoverView },
         { path: 'ntpsettings', name: 'ntpsettings', component: ntpSettingsPage }
       ]
     },
@@ -30,6 +33,11 @@ const router = createRouter({
       name: 'playerview',
       component: PlayerView,
       meta: { hideTitlebar: true }
+    },
+    {
+      path: '/cast',
+      name: 'cast',
+      component: CastWindow
     },
     // 独立日志窗口可直接使用 #/logs 打开
     { path: '/logs', name: 'logs', component: LogsView },

@@ -5,7 +5,8 @@
     </div>
     <h2 class="app-name">ExamAware</h2>
     <p class="version">版本：{{ version }}</p>
-    <p class="codename">Codename：Lighthouse / 灯塔</p>
+    <p class="codename">Codename：{{ codename }}</p>
+    <p class="git-hash">Git Hash：{{ gitHash }}</p>
     <div class="actions">
       <t-button size="small" theme="primary" variant="base" @click="openGithub">
         <t-icon name="logo-github" />
@@ -35,9 +36,12 @@ import logoUrl from '@renderer/assets/logo.svg'
 const DESKTOP_VERSION = ((import.meta as any).env?.VITE_APP_VERSION as string) || ''
 import gplText from '@renderer/assets/licenses/gpl-3.0.txt?raw'
 
+import { APP_CODENAME, APP_GIT_HASH_SHORT, composeVersionLabel } from '../../../../shared/appInfo'
+
 const logo = logoUrl
-const version = ref(DESKTOP_VERSION)
-const codename = 'Lighthouse / 灯塔'
+const version = ref(composeVersionLabel(DESKTOP_VERSION))
+const codename = APP_CODENAME
+const gitHash = ref(APP_GIT_HASH_SHORT || 'unknown')
 const showLicense = ref(false)
 const licenseText = ref(gplText)
 
@@ -46,16 +50,15 @@ function openGithub() {
 }
 
 async function ensureVersion() {
-  if (version.value) return
   try {
     const remoteVersion = await window.api?.app?.getVersion?.()
     if (remoteVersion) {
-      version.value = remoteVersion
+      version.value = composeVersionLabel(remoteVersion)
       return
     }
   } catch {}
   const match = navigator.userAgent.match(/ExamAware\/([\w.]+)/)
-  version.value = match?.[1] || 'dev'
+  version.value = composeVersionLabel(match?.[1] || 'dev')
 }
 
 onMounted(() => {
@@ -90,12 +93,9 @@ onMounted(() => {
   font-size: 24px;
   font-weight: 600;
 }
-.version {
-  margin: 0;
-  font-size: 14px;
-  color: var(--td-text-color-secondary);
-}
-.codename {
+.version,
+.codename,
+.git-hash {
   margin: 0;
   font-size: 14px;
   color: var(--td-text-color-secondary);

@@ -7,7 +7,6 @@ import 'misans/lib/Normal/MiSans-Regular.min.css';
 import 'misans/lib/Normal/MiSans-Normal.min.css';
 import 'misans/lib/Normal/MiSans-Bold.min.css';
 
-import '@dsz-examaware/player/dist/player.css';
 import './assets/main.css';
 
 const app = createApp(App);

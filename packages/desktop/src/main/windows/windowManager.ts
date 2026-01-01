@@ -1,7 +1,10 @@
-import { BrowserWindow, shell } from 'electron'
+import { BrowserWindow, shell, nativeTheme } from 'electron'
+// macOS liquid glass background
+import liquidGlass from 'electron-liquid-glass'
 import type { MainContext } from '../runtime/context'
 import * as path from 'path'
 import { is } from '@electron-toolkit/utils'
+import { getConfig, onConfigChanged } from '../configStore'
 
 export interface CreateContext {
   isDev: boolean
@@ -117,6 +120,90 @@ export class WindowManager {
     if (setup) {
       const res = setup(win)
       if (typeof res === 'function') cleanup = res
+    }
+
+    // Apply macOS liquid glass background for main window when enabled in settings
+    if (process.platform === 'darwin' && id === 'main') {
+      let glassId: number | undefined
+      let configUnsub: (() => void) | undefined
+      let glassEnabled = false
+
+      const removeGlass = () => {
+        if (typeof glassId === 'number' && typeof (liquidGlass as any).removeView === 'function') {
+          try {
+            ;(liquidGlass as any).removeView(glassId)
+          } catch {}
+        }
+        glassId = undefined
+      }
+
+      const applyGlass = () => {
+        if (!glassEnabled) {
+          removeGlass()
+          return
+        }
+        try {
+          removeGlass()
+          const isDark = nativeTheme.shouldUseDarkColors
+          const tint = isDark ? '#1c1f2b66' : '#ffffff55'
+          glassId = liquidGlass.addView(win.getNativeWindowHandle(), {
+            cornerRadius: 18,
+            tintColor: tint,
+            opaque: false
+          }) as number
+          if (typeof glassId === 'number' && liquidGlass.unstable_setVariant) {
+            try {
+              liquidGlass.unstable_setVariant(glassId, isDark ? 2 : 3)
+            } catch {}
+          }
+          win.setWindowButtonVisibility?.(true)
+        } catch (err) {
+          console.warn('liquid glass apply failed', err)
+        }
+      }
+
+      const refreshGlassEnabled = () => {
+        try {
+          glassEnabled = !!getConfig('appearance.glassMain', false)
+        } catch {
+          glassEnabled = false
+        }
+        applyGlass()
+      }
+
+      const handleThemeChange = () => applyGlass()
+
+      win.webContents.once('did-finish-load', () => {
+        refreshGlassEnabled()
+        nativeTheme.on('updated', handleThemeChange)
+        configUnsub = onConfigChanged((cfg) => {
+          if (!cfg) return
+          const nextEnabled = !!getConfig('appearance.glassMain', false)
+          if (nextEnabled !== glassEnabled) {
+            glassEnabled = nextEnabled
+            applyGlass()
+          }
+        })
+      })
+
+      const cleanupGlass = () => {
+        nativeTheme.removeListener('updated', handleThemeChange)
+        configUnsub?.()
+        removeGlass()
+      }
+
+      if (cleanup) {
+        const prev = cleanup
+        cleanup = () => {
+          try {
+            prev()
+          } finally {
+            cleanupGlass()
+          }
+        }
+      } else {
+        cleanup = cleanupGlass
+      }
     }
 
     win.on('ready-to-show', () => {

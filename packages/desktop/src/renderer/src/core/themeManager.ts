@@ -1,8 +1,23 @@
+import { logService } from './logService'
+
 export type ThemeMode = 'light' | 'dark' | 'auto'
 
 let currentMode: ThemeMode = 'auto'
 let mediaQuery: MediaQueryList | null = null
 let mediaListener: ((e: MediaQueryListEvent) => void) | null = null
+
+const logger = logService.scoped('theme')
+
+function syncNativeThemeSource(mode: ThemeMode) {
+  try {
+    if (typeof window === 'undefined') return
+    const api = (window as any).electronAPI
+    if (!api || typeof api.setNativeTheme !== 'function') return
+    api.setNativeTheme(mode === 'auto' ? 'system' : mode)
+  } catch (error) {
+    logger.warn('sync native theme failed', error as any)
+  }
+}
 
 function syncTitlebarOverlay(mode: 'light' | 'dark') {
   try {
@@ -12,7 +27,7 @@ function syncTitlebarOverlay(mode: 'light' | 'dark') {
     if (typeof api.setTitlebarTheme !== 'function') return
     api.setTitlebarTheme(mode)
   } catch (error) {
-    console.debug('[theme] sync titlebar overlay failed', error)
+    logger.warn('sync titlebar overlay failed', error as any)
   }
 }
 
@@ -52,6 +67,7 @@ function setupAutoListener() {
 
 export function applyThemeMode(mode: ThemeMode) {
   currentMode = mode
+  syncNativeThemeSource(mode)
   if (mode === 'auto') {
     setupAutoListener()
   } else {

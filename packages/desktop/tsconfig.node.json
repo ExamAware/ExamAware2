@@ -5,6 +5,7 @@
     "composite": true,
     "types": ["electron-vite/node"],
     "moduleResolution": "bundler",
+    "experimentalDecorators": true,
     "ignoreDeprecations": "5.0"
   }
 }

@@ -7,7 +7,8 @@ import {
   BugIcon,
   CheckCircleIcon,
   HistoryIcon,
-  ApiIcon
+  ApiIcon,
+  ShareIcon
 } from 'tdesign-icons-vue-next'
 
 /**
@@ -90,6 +91,28 @@ export class LayoutManager {
       startOpen: true,
       iconSmall: () => h(InfoCircleIcon),
       iconLarge: () => h(InfoCircleIcon, { size: '16pt' })
+    })
+
+    // 共享分组（主侧边栏）
+    const groupShare = this.codeLayout.addGroup(
+      {
+        title: '共享',
+        tooltip: 'Sharing',
+        name: 'share',
+        badge: '',
+        iconLarge: () => h(ShareIcon, { size: '16pt' })
+      },
+      'primarySideBar'
+    )
+
+    groupShare.addPanel({
+      title: '就近共享',
+      tooltip: 'Nearby Share',
+      name: 'share.nearby',
+      noHide: false,
+      startOpen: true,
+      iconSmall: () => h(ShareIcon),
+      iconLarge: () => h(ShareIcon, { size: '16pt' })
     })
 
     // 操作记录独立分组（在主侧边栏）

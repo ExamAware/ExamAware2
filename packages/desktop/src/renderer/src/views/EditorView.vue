@@ -65,7 +65,9 @@ const {
   openAboutDialog,
   closeAboutDialog,
   openGithub,
-  startPresentation
+  startPresentation,
+  // 提供原始 configManager 以便共享导出
+  configManager
 } = useExamEditor()
 
 // 使用布局管理器
@@ -80,6 +82,40 @@ const {
 const pluginStore = useEditorPluginStore()
 const pluginCenterView = computed(() => pluginStore.centerView)
 const closePluginCenterView = (id?: string) => pluginStore.clearCenterView(id)
+
+// 就近共享：同步当前编辑配置
+let shareSyncTimer: ReturnType<typeof setTimeout> | null = null
+let shareSyncInterval: ReturnType<typeof setInterval> | null = null
+const syncNowChannel = 'cast:sync-now'
+const handleSyncNow = () => {
+  void pushShare()
+}
+
+const pushShare = async () => {
+  try {
+    const cfg = await window.api.cast.getConfig()
+    if (!cfg?.enabled || !cfg?.shareEnabled) return
+    const payload = configManager.exportToJson()
+    const examName = examConfig.examInfos[0]?.name || '未命名考试'
+    const entry = {
+      id: 'current',
+      examName,
+      examCount: examConfig.examInfos.length,
+      updatedAt: Date.now(),
+      payload
+    }
+    await window.api.cast.setShares([entry])
+  } catch (err) {
+    console.warn('cast share sync failed', err)
+  }
+}
+
+const scheduleShareSync = () => {
+  if (shareSyncTimer) clearTimeout(shareSyncTimer)
+  shareSyncTimer = setTimeout(() => {
+    void pushShare()
+  }, 500)
+}
 
 // 多标签（TDesign Tabs）状态
 const activeTabUid = ref<string | null>(null)
@@ -261,6 +297,10 @@ const deleteCurrentExam = () => {
   }
 }
 
+const openCastWindow = () => {
+  window.api.ipc.send('open-cast-window')
+}
+
 const nextExam = () => {
   const len = examConfig.examInfos.length
   if (len === 0) return
@@ -301,6 +341,7 @@ onMounted(async () => {
     onPresentation: () => {
       void startPresentation()
     },
+    onCast: openCastWindow,
     onAddExam: addExam,
     onDeleteExam: deleteCurrentExam,
     onNextExam: nextExam,
@@ -323,6 +364,13 @@ onMounted(async () => {
     activeTabUid.value = null
   }
 
+  scheduleShareSync()
+  shareSyncInterval = setInterval(() => {
+    void pushShare()
+  }, 5000)
+
+  window.api?.ipc?.on?.(syncNowChannel, handleSyncNow)
+
   // 检查 CodeLayout 实例
   setTimeout(() => {
     console.log('CodeLayout ref:', codeLayout.value)
@@ -331,7 +379,17 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   setEditorRuntime(null)
+  if (shareSyncInterval) clearInterval(shareSyncInterval)
+  window.api?.ipc?.off?.(syncNowChannel, handleSyncNow)
 })
+
+watch(
+  () => examConfig,
+  () => {
+    scheduleShareSync()
+  },
+  { deep: true }
+)
 </script>
 
 <template>

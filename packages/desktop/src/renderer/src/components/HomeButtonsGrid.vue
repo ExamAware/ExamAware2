@@ -5,7 +5,7 @@
         class="buttons-page"
         v-for="(page, pageIndex) in pages"
         :key="pageIndex"
-        :class="{ active: currentPage === pageIndex }"
+        :style="pageStyle(pageIndex)"
       >
         <div class="buttons-row" v-for="(row, rowIndex) in page" :key="rowIndex">
           <div class="button-container" v-for="button in row" :key="button.id">
@@ -62,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { useHomeButtonsList } from '@renderer/composables/useHomeButtons'
 import type { HomeButtonMeta } from '@renderer/app/modules/homeButtons'
 import { useHomeButtons } from '@renderer/composables/useHomeButtons'
@@ -83,9 +83,7 @@ const pages = computed((): HomeButtonMeta[][][] => {
 
     for (let j = 0; j < 2; j++) {
       const rowButtons = pageButtons.slice(j * 4, (j + 1) * 4)
-      if (rowButtons.length > 0) {
-        rows.push(rowButtons)
-      }
+      rows.push(rowButtons)
     }
 
     result.push(rows)
@@ -93,6 +91,26 @@ const pages = computed((): HomeButtonMeta[][][] => {
 
   return result
 })
+
+const pageStyle = (pageIndex: number) => {
+  const offset = (pageIndex - currentPage.value) * 100
+  const isActive = pageIndex === currentPage.value
+  return {
+    transform: `translateX(${offset}%)`,
+    opacity: isActive ? 1 : 0,
+    zIndex: `${pages.value.length - Math.abs(pageIndex - currentPage.value)}`
+  }
+}
+
+// Keep current page in range when items change
+watch(
+  () => pages.value.length,
+  (len) => {
+    if (currentPage.value > len - 1) {
+      currentPage.value = Math.max(0, len - 1)
+    }
+  }
+)
 
 const handleButtonClick = async (button: HomeButtonMeta) => {
   try {
@@ -150,6 +168,19 @@ onMounted(() => {
   max-width: 520px;
   height: 300px;
   overflow: hidden;
+  background: color-mix(in srgb, var(--td-bg-color-page) 35%, transparent);
+  backdrop-filter: blur(16px);
+  border-radius: 14px;
+}
+
+/* macOS main window: lighten overlays to expose glass */
+.is-mac-main .home-buttons-grid {
+  background: transparent;
+}
+
+.is-mac-main .pagination-container {
+  background: color-mix(in srgb, var(--td-bg-color-page) 22%, transparent);
+  backdrop-filter: blur(18px) saturate(1.1);
 }
 .buttons-page {
   position: absolute;
@@ -162,13 +193,10 @@ onMounted(() => {
   justify-content: center;
   gap: 16px; /* 减小行间距 */
   opacity: 0;
-  transform: translateX(100%);
-  transition: all 0.3s ease-in-out;
-}
-
-.buttons-page.active {
-  opacity: 1;
   transform: translateX(0);
+  transition:
+    transform 0.32s ease,
+    opacity 0.32s ease;
 }
 
 .buttons-row {
@@ -184,6 +212,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   min-width: 100px; /* 减小最小宽度 */
+  min-height: 130px; /* 保持单行页与双行页的行高一致 */
 }
 
 .button-container.placeholder {
