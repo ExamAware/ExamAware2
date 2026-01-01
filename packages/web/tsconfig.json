@@ -12,7 +12,7 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "types": ["vite/client"],
     "baseUrl": ".",
-    "ignoreDeprecations": "6.0",
+    "ignoreDeprecations": "5.0",
     "paths": {
       "@dsz-examaware/core": ["../core/src/index.ts"],
       "@dsz-examaware/player": ["../player/src/index.ts"]

@@ -30,6 +30,7 @@ import type { DeepLinkPayload } from '../shared/types/deepLink'
 import { applyDeepLinkControllers } from './deepLink/decorators'
 import { CoreDeepLinkController } from './deepLink/coreDeepLinkController'
 import { composeVersionLabel } from '../shared/appInfo'
+import bannerText from './banner.txt?raw'
 
 protocol.registerSchemesAsPrivileged([
   {
@@ -54,22 +55,16 @@ protocol.registerSchemesAsPrivileged([
   }
 ])
 
-const STARTUP_BANNER = String.raw`
- _____                        _                         
-| ____|_  ____ _ _ __ ___    / \__      ____ _ _ __ ___ 
-|  _| \ \/ / _\` | '_ \` _ \  / _ \ \ /\ / / _\` | '__/ _ \
-| |___ >  < (_| | | | | | |/ ___ \ V  V / (_| | | |  __/
-|_____/_/\__,_|_| |_| |_/_/   \_/\_/ \__,_|_|  \___|
-`.trim()
+const STARTUP_BANNER = bannerText.trim()
 
 function printStartupBanner() {
   try {
     const version = app?.getVersion?.() ?? 'dev'
-    appLogger.info(STARTUP_BANNER)
+    STARTUP_BANNER.split('\n').forEach((line) => console.log(line))
     appLogger.info(` ExamAware Desktop v${version}`)
     appLogger.info(' =================================')
   } catch (error) {
-    appLogger.info(STARTUP_BANNER)
+    STARTUP_BANNER.split('\n').forEach((line) => appLogger.info(line))
     appLogger.warn('[banner] failed to print version', error as Error)
   }
 }

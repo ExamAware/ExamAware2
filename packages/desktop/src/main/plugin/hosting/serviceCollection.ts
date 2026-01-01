@@ -32,7 +32,7 @@ export class ServiceCollection {
   private readonly hostLifetime: DefaultHostApplicationLifetime // 应用生命周期管理器
 
   constructor(private readonly ctx: PluginRuntimeContext) {
-    this.hostLifetime = new DefaultHostApplicationLifetime()
+    this.hostLifetime = new DefaultHostApplicationLifetime((ctx as any).logger ?? console)
     // 预注册常用服务
     this.addSingleton(PluginContextToken, () => ctx)
     this.addSingleton(PluginLoggerToken, () => ctx.logger)

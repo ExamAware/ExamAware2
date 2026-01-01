@@ -55,9 +55,9 @@ export class PluginLoader {
           const moduleId = hostRequire.resolve(resolved)
           if (hostRequire.cache?.[moduleId]) {
             delete hostRequire.cache[moduleId]
-            appLogger.info('[PluginLoader] cache cleared for', moduleId)
+            appLogger.info(`[PluginLoader] cache cleared for ${moduleId}`)
           }
-          appLogger.info('[PluginLoader] require CJS via', pkgPath)
+          appLogger.info(`[PluginLoader] require CJS via ${pkgPath}`)
           return hostRequire(moduleId)
         } catch (err) {
           lastError = err

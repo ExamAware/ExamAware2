@@ -79,7 +79,20 @@ const baseFormat = winston.format.combine(
     delete rest.stack
     delete rest[Symbol.for('splat') as unknown as string]
 
-    if (Object.keys(rest).length) metaParts.push(rest)
+    const restKeys = Object.keys(rest)
+    if (restKeys.length) {
+      const isNumericKeyed = restKeys.every((k) => /^\d+$/.test(k))
+      if (isNumericKeyed) {
+        // Handle cases where a bare string gets converted into an object of char indices.
+        const collapsed = restKeys
+          .sort((a, b) => Number(a) - Number(b))
+          .map((k) => rest[k])
+          .join('')
+        metaParts.push(collapsed)
+      } else {
+        metaParts.push(rest)
+      }
+    }
 
     const metaStr = metaParts.length
       ? ' ' +

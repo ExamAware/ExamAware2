@@ -29,6 +29,9 @@ jobs:
       HUSKY: '0'
       HUSKY_SKIP_INSTALL: '1'
       HUSKY_SKIP_HOOKS: '1'
+      ELECTRON_BUILDER_CACHE: ${{ matrix.eb_cache }}
+      ELECTRON_BUILDER_TMPDIR: ${{ matrix.eb_tmp }}
+      ELECTRON_BUILDER_TMP_DIR: ${{ matrix.eb_tmp }}
 
     permissions:
       contents: write
@@ -38,10 +41,14 @@ jobs:
         include:
           - os: windows-latest
             build_script: desktop:build:win
+            eb_cache: C:/Users/runneradmin/AppData/Local/Temp/eb-cache-${{ github.run_id }}
+            eb_tmp: C:/Users/runneradmin/AppData/Local/Temp/eb-tmp-${{ github.run_id }}
           # - os: macos-latest
           #   build_script: desktop:build:mac
           - os: ubuntu-latest
             build_script: desktop:build:linux
+            eb_cache: ${{ github.workspace }}/.tmp/electron-builder-cache-${{ github.run_id }}-ubuntu-latest
+            eb_tmp: ${{ github.workspace }}/.tmp/electron-builder-tmp-${{ github.run_id }}-ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -56,9 +63,25 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           version: 10.18.2
+          standalone: true
+
+      - name: Verify pnpm
+        run: pnpm --version
+
+      - name: Force git to use HTTPS for GitHub
+        run: 'git config --global url."https://github.com/".insteadOf git@github.com:'
 
       - name: Make pnpm non-interactive
         run: pnpm config set yes true
+
+      - name: Diagnose pnpm path (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          Write-Host "PATH=$Env:PATH"
+          Write-Host "PNPM_HOME=$Env:PNPM_HOME"
+          Write-Host "npm_execpath=$Env:npm_execpath"
+          where.exe pnpm* || cmd /c "where pnpm*"
 
       - name: Get pnpm store directory
         id: pnpm-store
@@ -73,6 +96,31 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
+
+      - name: Ensure electron-builder cache dirs (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "$Env:ELECTRON_BUILDER_CACHE" | Out-Null
+          New-Item -ItemType Directory -Force -Path "$Env:ELECTRON_BUILDER_TMPDIR" | Out-Null
+          Write-Host "ELECTRON_BUILDER_CACHE=$Env:ELECTRON_BUILDER_CACHE"
+          Write-Host "ELECTRON_BUILDER_TMPDIR=$Env:ELECTRON_BUILDER_TMPDIR"
+
+      - name: Ensure electron-builder cache dirs (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          CACHE="${ELECTRON_BUILDER_CACHE:-/tmp/electron-builder-cache-${GITHUB_RUN_ID}-ubuntu-latest}"
+          TMP="${ELECTRON_BUILDER_TMPDIR:-/tmp/electron-builder-tmp-${GITHUB_RUN_ID}-ubuntu-latest}"
+          if ! mkdir -p "$CACHE" "$TMP" 2>/dev/null; then
+            CACHE="/tmp/electron-builder-cache-${GITHUB_RUN_ID}-ubuntu-latest"
+            TMP="/tmp/electron-builder-tmp-${GITHUB_RUN_ID}-ubuntu-latest"
+            mkdir -p "$CACHE" "$TMP"
+          fi
+          chmod -R 777 "$CACHE" "$TMP"
+          echo "ELECTRON_BUILDER_CACHE=$CACHE" >> "$GITHUB_ENV"
+          echo "ELECTRON_BUILDER_TMPDIR=$TMP" >> "$GITHUB_ENV"
+          echo "ELECTRON_BUILDER_TMP_DIR=$TMP" >> "$GITHUB_ENV"
 
       - name: Install system dependencies (Linux)
         if: matrix.os == 'ubuntu-latest'

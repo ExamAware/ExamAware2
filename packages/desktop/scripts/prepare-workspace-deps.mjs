@@ -48,7 +48,9 @@ async function copyPackage(pkg) {
       console.warn(`[prepare-workspace-deps] skip ${pkg.name}: dist not found at ${sourceDist}`)
       return
     }
-    throw new Error(`Workspace package ${pkg.name} has no dist build at ${sourceDist}. Run its build before packaging.`)
+    throw new Error(
+      `Workspace package ${pkg.name} has no dist build at ${sourceDist}. Run its build before packaging.`
+    )
   }
 
   await fs.rm(destDir, { recursive: true, force: true })
