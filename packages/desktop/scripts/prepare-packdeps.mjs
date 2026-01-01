@@ -44,10 +44,10 @@ async function run(cmd, args, options = {}) {
       }
     }
 
-    // Fallbacks: PATH-resolved pnpm executables
+    // Fallbacks: PATH-resolved pnpm executables (never through cmd.exe)
     attempts.push({ spawnCmd: 'pnpm.exe', spawnArgs: args, shell: false })
     attempts.push({ spawnCmd: 'pnpm.cmd', spawnArgs: args, shell: false })
-    attempts.push({ spawnCmd: 'pnpm', spawnArgs: args, shell: process.platform === 'win32' })
+    attempts.push({ spawnCmd: 'pnpm', spawnArgs: args, shell: false })
   } else {
     attempts.push({ spawnCmd: cmd, spawnArgs: args, shell: false })
   }
@@ -56,6 +56,13 @@ async function run(cmd, args, options = {}) {
   for (const attempt of attempts) {
     try {
       await new Promise((resolvePromise, reject) => {
+        console.error('[prepare-packdeps] trying pnpm spawn', {
+          cmd: attempt.spawnCmd,
+          args: attempt.spawnArgs,
+          shell: attempt.shell,
+          npm_execpath: process.env.npm_execpath,
+          pnpm_home: process.env.PNPM_HOME
+        })
         const child = spawn(attempt.spawnCmd, attempt.spawnArgs, {
           stdio: 'inherit',
           shell: attempt.shell,
@@ -80,6 +87,7 @@ async function run(cmd, args, options = {}) {
       return
     } catch (err) {
       lastError = err
+      console.error('[prepare-packdeps] pnpm spawn failed', err)
     }
   }
 
