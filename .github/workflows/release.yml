@@ -29,8 +29,8 @@ jobs:
       HUSKY: '0'
       HUSKY_SKIP_INSTALL: '1'
       HUSKY_SKIP_HOOKS: '1'
-      ELECTRON_BUILDER_CACHE: '${{ github.workspace }}/.tmp/electron-builder-cache-${{ github.run_id }}-${{ matrix.os }}'
-      ELECTRON_BUILDER_TMPDIR: '${{ github.workspace }}/.tmp/electron-builder-tmp-${{ github.run_id }}-${{ matrix.os }}'
+      ELECTRON_BUILDER_CACHE: ${{ matrix.eb_cache }}
+      ELECTRON_BUILDER_TMPDIR: ${{ matrix.eb_tmp }}
 
     permissions:
       contents: write
@@ -40,10 +40,14 @@ jobs:
         include:
           - os: windows-latest
             build_script: desktop:build:win
+            eb_cache: C:/eb-cache-${{ github.run_id }}
+            eb_tmp: C:/eb-tmp-${{ github.run_id }}
           # - os: macos-latest
           #   build_script: desktop:build:mac
           - os: ubuntu-latest
             build_script: desktop:build:linux
+            eb_cache: ${{ github.workspace }}/.tmp/electron-builder-cache-${{ github.run_id }}-ubuntu-latest
+            eb_tmp: ${{ github.workspace }}/.tmp/electron-builder-tmp-${{ github.run_id }}-ubuntu-latest
 
     steps:
       - name: Checkout code
