@@ -5,7 +5,6 @@
       <slot />
     </div>
   </div>
-
 </template>
 
 <script setup lang="ts">
@@ -20,6 +19,13 @@ const title = computed(() => props.title)
 </script>
 
 <style scoped>
-.ea-window-frame { display: flex; flex-direction: column; height: 100%; }
-.ea-window-content { flex: 1; min-height: 0; }
+.ea-window-frame {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.ea-window-content {
+  flex: 1;
+  min-height: 0;
+}
 </style>

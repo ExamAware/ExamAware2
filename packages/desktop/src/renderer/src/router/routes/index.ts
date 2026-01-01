@@ -5,8 +5,8 @@ import { playerRoutes } from './player'
 import { trayRoutes } from './tray'
 
 export const routes: RouteRecordRaw[] = [
-	...homeRoutes,
-	...editorRoutes,
-	...playerRoutes,
-	...trayRoutes
+  ...homeRoutes,
+  ...editorRoutes,
+  ...playerRoutes,
+  ...trayRoutes
 ]
