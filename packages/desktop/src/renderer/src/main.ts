@@ -20,7 +20,6 @@ import { pagesModule } from './app/modules/pages'
 import { routerRegistrarModule } from './app/modules/routerRegistrar'
 import { homeButtonsModule } from './app/modules/homeButtons'
 import { settingsModule } from './app/modules/settings'
-import { glassModule } from './app/modules/glass'
 
 async function bootstrap() {
   const platform = (window as any).electronAPI?.platform || 'unknown'
@@ -37,7 +36,6 @@ async function bootstrap() {
       piniaModule,
       routerModule,
       codeLayoutModule,
-      glassModule,
       // 主题与设置联动（appearance.theme: auto/light/dark）
       themeSyncModule
     ]

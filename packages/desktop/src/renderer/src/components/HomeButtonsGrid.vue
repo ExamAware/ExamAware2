@@ -173,15 +173,6 @@ onMounted(() => {
   border-radius: 14px;
 }
 
-/* macOS main window: lighten overlays to expose glass */
-.is-mac-main .home-buttons-grid {
-  background: transparent;
-}
-
-.is-mac-main .pagination-container {
-  background: color-mix(in srgb, var(--td-bg-color-page) 22%, transparent);
-  backdrop-filter: blur(18px) saturate(1.1);
-}
 .buttons-page {
   position: absolute;
   top: 0;

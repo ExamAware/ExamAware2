@@ -125,26 +125,6 @@ body,
   background: var(--td-bg-color-page) !important;
 }
 
-/* macOS main window: glass-compatible transparency */
-.is-mac-main html,
-.is-mac-main body,
-.is-mac-main #app,
-.is-mac-main .root,
-.is-mac-main .ea_app,
-.is-mac-main .mainpage {
-  background: transparent !important;
-}
-
-/* macOS main window: flatten layout shell and sider/content backgrounds */
-.is-mac-main .mainpage-layout,
-.is-mac-main .mainpage-layout.t-layout,
-.is-mac-main .mainpage-layout .t-layout__sider,
-.is-mac-main .mainpage-layout .t-layout__content {
-  background: transparent !important;
-  box-shadow: none !important;
-  border: none !important;
-}
-
 [data-tray-popover] .ea_app,
 [data-tray-popover] .mainpage {
   background: color-mix(in srgb, var(--td-bg-color-page) 40%, transparent) !important;
