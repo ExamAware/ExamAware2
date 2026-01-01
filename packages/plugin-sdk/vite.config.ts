@@ -5,7 +5,13 @@ const entry = resolve(__dirname, 'src/index.ts');
 
 export default defineConfig(() => ({
   resolve: {
-    preserveSymlinks: true
+    preserveSymlinks: true,
+    alias: [
+      {
+        find: '@app/package.json',
+        replacement: resolve(__dirname, 'package.json')
+      }
+    ]
   },
   build: {
     lib: {

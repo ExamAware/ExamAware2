@@ -30,6 +30,9 @@
       ],
       "@dsz-examaware/core/*": [
         "../core/src/*"
+      ],
+      "@app/package.json": [
+        "./package.json"
       ]
     }
   }

@@ -1,8 +1,10 @@
-import { appLogger } from '../../logging/winstonLogger'
 import type { Awaitable, Disposer, PluginHostApplicationLifetime } from './types'
+
+type LoggerLike = { error: (...args: any[]) => void }
 
 // 默认的应用生命周期实现，管理启动/停止事件
 export class DefaultHostApplicationLifetime implements PluginHostApplicationLifetime {
+  constructor(private readonly logger: LoggerLike = console) {}
   private readonly started = new Set<() => Awaitable<void>>() // 启动事件处理器
   private readonly stopping = new Set<() => Awaitable<void>>() // 停止事件处理器
   private readonly stopped = new Set<() => Awaitable<void>>() // 已停止事件处理器
@@ -52,7 +54,7 @@ export class DefaultHostApplicationLifetime implements PluginHostApplicationLife
       try {
         await handler()
       } catch (error) {
-        appLogger.error('[PluginHostLifetime] handler failed', error as Error) // 记录错误但不中断
+        this.logger.error('[PluginHostLifetime] handler failed', error as Error) // 记录错误但不中断
       }
     }
   }
