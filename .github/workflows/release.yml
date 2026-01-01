@@ -108,8 +108,13 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         shell: bash
         run: |
-          mkdir -p "$ELECTRON_BUILDER_CACHE" "$ELECTRON_BUILDER_TMPDIR"
-          chmod -R 777 "$ELECTRON_BUILDER_CACHE" "$ELECTRON_BUILDER_TMPDIR"
+          CACHE="${ELECTRON_BUILDER_CACHE:-/tmp/electron-builder-cache-${GITHUB_RUN_ID}-ubuntu-latest}"
+          TMP="${ELECTRON_BUILDER_TMPDIR:-/tmp/electron-builder-tmp-${GITHUB_RUN_ID}-ubuntu-latest}"
+          mkdir -p "$CACHE" "$TMP"
+          chmod -R 777 "$CACHE" "$TMP"
+          echo "ELECTRON_BUILDER_CACHE=$CACHE" >> "$GITHUB_ENV"
+          echo "ELECTRON_BUILDER_TMPDIR=$TMP" >> "$GITHUB_ENV"
+          echo "ELECTRON_BUILDER_TMP_DIR=$TMP" >> "$GITHUB_ENV"
 
       - name: Install system dependencies (Linux)
         if: matrix.os == 'ubuntu-latest'
