@@ -67,6 +67,13 @@ async function run(cmd, args, options = {}) {
         })
       } else {
         attempts.push({ spawnCmd: resolved, spawnArgs: args, shell: false, pnpmHome })
+        // Extra fallback: run the resolved executable through PowerShell to avoid edge CreateProcess issues
+        attempts.push({
+          spawnCmd: 'powershell.exe',
+          spawnArgs: ['-ExecutionPolicy', 'Bypass', '-Command', `& '${resolved}'`, ...args],
+          shell: false,
+          pnpmHome
+        })
       }
     }
 
