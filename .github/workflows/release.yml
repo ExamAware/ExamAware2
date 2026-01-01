@@ -29,6 +29,8 @@ jobs:
       HUSKY: '0'
       HUSKY_SKIP_INSTALL: '1'
       HUSKY_SKIP_HOOKS: '1'
+      ELECTRON_BUILDER_CACHE: '${{ github.workspace }}/.tmp/electron-builder-cache-${{ github.run_id }}-${{ matrix.os }}'
+      ELECTRON_BUILDER_TMPDIR: '${{ github.workspace }}/.tmp/electron-builder-tmp-${{ github.run_id }}-${{ matrix.os }}'
 
     permissions:
       contents: write
