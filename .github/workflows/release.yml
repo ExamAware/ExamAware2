@@ -56,6 +56,10 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           version: 10.18.2
+          standalone: true
+
+      - name: Verify pnpm
+        run: pnpm --version
 
       - name: Make pnpm non-interactive
         run: pnpm config set yes true
