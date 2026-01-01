@@ -9,19 +9,19 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@dsz-examaware/player": "workspace:*",
     "@dsz-examaware/core": "workspace:*",
-    "tdesign-vue-next": "^1.15.5",
-    "vue": "^3.5.19",
-    "vue-router": "^4.5.1"
+    "@dsz-examaware/player": "workspace:*",
+    "tdesign-vue-next": "^1.17.7",
+    "vue": "^3.5.26",
+    "vue-router": "^4.6.4"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.2.4",
-    "@vitejs/plugin-vue-jsx": "^4.2.0",
-    "typescript": "~5.7.3",
-    "unplugin-auto-import": "^19.3.0",
-    "unplugin-vue-components": "^28.8.0",
-    "vite": "^6.3.5",
-    "vite-plugin-vue-devtools": "^7.7.7"
+    "@vitejs/plugin-vue": "^6.0.3",
+    "@vitejs/plugin-vue-jsx": "^5.1.3",
+    "typescript": "~5.9.3",
+    "unplugin-auto-import": "^20.3.0",
+    "unplugin-vue-components": "^30.0.0",
+    "vite": "^7.3.0",
+    "vite-plugin-vue-devtools": "^8.0.5"
   }
 }

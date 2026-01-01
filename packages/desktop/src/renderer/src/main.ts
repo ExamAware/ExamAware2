@@ -20,8 +20,13 @@ import { pagesModule } from './app/modules/pages'
 import { routerRegistrarModule } from './app/modules/routerRegistrar'
 import { homeButtonsModule } from './app/modules/homeButtons'
 import { settingsModule } from './app/modules/settings'
+import { glassModule } from './app/modules/glass'
 
 async function bootstrap() {
+  const platform = (window as any).electronAPI?.platform || 'unknown'
+  const hash = window.location.hash || ''
+  const isMacMain = platform === 'darwin' && hash.includes('mainpage')
+
   const app = await createDesktopApp({
     modules: [
       capabilitiesModule,
@@ -31,9 +36,10 @@ async function bootstrap() {
       routerRegistrarModule,
       piniaModule,
       routerModule,
-  codeLayoutModule,
-  // 主题与设置联动（appearance.theme: auto/light/dark）
-  themeSyncModule
+      codeLayoutModule,
+      glassModule,
+      // 主题与设置联动（appearance.theme: auto/light/dark）
+      themeSyncModule
     ]
   })
 

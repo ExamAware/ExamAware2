@@ -42,21 +42,21 @@
     "@dsz-examaware/core": "workspace:*",
     "misans": "^4.1.0",
     "ogl": "^1.0.11",
-    "simple-keyboard": "^3.8.2"
+    "simple-keyboard": "^3.8.93"
   },
   "peerDependencies": {
     "tdesign-vue-next": "^1.15.5",
     "vue": "^3.0.0"
   },
   "devDependencies": {
-    "@types/node": "^22.17.2",
-    "@vitejs/plugin-vue": "^5.2.4",
-    "eslint": "^9.33.0",
-    "rimraf": "^5.0.0",
-    "tdesign-vue-next": "^1.15.5",
-    "typescript": "~5.7.3",
-    "vite": "^6.3.5",
+    "@types/node": "^25.0.3",
+    "@vitejs/plugin-vue": "^6.0.3",
+    "eslint": "^9.39.2",
+    "rimraf": "^6.1.2",
+    "tdesign-vue-next": "^1.17.7",
+    "typescript": "~5.9.3",
+    "vite": "^7.3.0",
     "vite-plugin-dts": "^4.5.4",
-    "vue": "^3.5.19"
+    "vue": "^3.5.26"
   }
 }

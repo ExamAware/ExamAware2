@@ -27,6 +27,7 @@ export class MenuConfigManager {
     onAbout: () => void
     onGithub: () => void
     onPresentation?: () => void
+    onCast?: () => void
     onAddExam?: () => void
     onDeleteExam?: () => void
     onNextExam?: () => void
@@ -129,6 +130,7 @@ export class MenuConfigManager {
         {
           label: '考试',
           children: [
+            { label: '投送', onClick: this.handlers.onCast },
             { label: '添加考试', onClick: this.handlers.onAddExam },
             { label: '删除考试', onClick: this.handlers.onDeleteExam },
             { divided: true },

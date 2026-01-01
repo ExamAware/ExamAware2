@@ -415,9 +415,12 @@ export function useExamEditor() {
     historyStore.init(examConfig, '关闭项目')
   }
 
+  let allowClose = false
+
   const closeEditorWindow = async () => {
     historyStore.flushAllDebounced()
-    if (isFileModified.value && !isNewFile.value) {
+
+    if (isFileModified.value) {
       let choice: 'save' | 'discard' | 'cancel' = 'discard'
 
       if (window.api?.dialog?.showMessageBox) {
@@ -453,12 +456,21 @@ export function useExamEditor() {
           MessageService.warning('窗口关闭已取消')
           return
         }
+        allowClose = true
       } else if (choice === 'cancel') {
         MessageService.info('窗口关闭已取消')
         return
+      } else {
+        // discard
+        allowClose = true
       }
     }
-    window.electronAPI?.close?.()
+    if (!allowClose && !isFileModified.value) {
+      allowClose = true
+    }
+    if (allowClose) {
+      window.electronAPI?.close?.()
+    }
   }
 
   let removeRequestCloseListener: (() => void) | null = null
@@ -643,7 +655,8 @@ export function useExamEditor() {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       // 先冲刷所有延迟的历史快照，避免丢失最后一次编辑
       historyStore.flushAllDebounced()
-      if (isFileModified.value && !isNewFile.value) {
+      if (allowClose) return undefined
+      if (isFileModified.value) {
         event.preventDefault()
         event.returnValue = '您有未保存的更改，确定要离开吗？'
         return '您有未保存的更改，确定要离开吗？'

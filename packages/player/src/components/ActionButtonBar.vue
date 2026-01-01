@@ -798,7 +798,7 @@ const formatScale = (value: number | string) => {
 }
 
 .action-button.extra-tool {
-  min-width: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 4.25rem);
+  min-width: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 5rem);
 }
 
 .action-button:hover {
@@ -909,6 +909,10 @@ const formatScale = (value: number | string) => {
   border-radius: 999px;
   padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.25rem);
   gap: 0;
+}
+
+.action-button-bar.collapsed .action-button.extra-tool {
+  min-width: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 3.2rem);
 }
 
 .action-button-bar.collapsed .progress-border {

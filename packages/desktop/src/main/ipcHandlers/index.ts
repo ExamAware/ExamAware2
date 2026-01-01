@@ -3,17 +3,19 @@ import {
   dialog,
   BrowserWindow,
   app,
+  nativeTheme,
   type MessageBoxOptions,
   type WebContents,
   type OpenDialogOptions
 } from 'electron'
 import * as fs from 'fs'
 import * as path from 'path'
-import { addLog, setCurrentConfigData, getCurrentConfigData } from '../logging/logStore'
+import { addLog } from '../logging/logStore'
 import { appLogger } from '../logging/winstonLogger'
 import type { MainContext } from '../runtime/context'
 import { createEditorWindow } from '../windows/editorWindow'
 import { createPlayerWindow } from '../windows/playerWindow'
+import { createCastWindow } from '../windows/castWindow'
 import { fileApi } from '../fileUtils'
 import { createLogsWindow } from '../windows/logsWindow'
 import {
@@ -28,19 +30,9 @@ import { createMainWindow } from '../windows/mainWindow'
 import { applyTitleBarOverlay, OverlayTheme } from '../windows/titleBarOverlay'
 import { applyIpcControllers } from '../ipc/decorators'
 import { LoggingIpcController } from '../ipc/loggingController'
-
-// 存储当前加载的配置数据
-let currentConfigData: string | null = null
-
-// 导出函数以供其他模块使用
-export function setCurrentConfigData(data: string) {
-  appLogger.debug('[ipc] setCurrentConfigData (len=%d)', data?.length ?? 0)
-  currentConfigData = data
-}
-
-export function getCurrentConfigData(): string | null {
-  return currentConfigData
-}
+import { HttpApiController } from '../ipc/httpApiController'
+import { CastController } from '../ipc/castController'
+import { getSharedConfig, setSharedConfig } from '../state/sharedConfigStore'
 
 // minimal disposer group for main process
 function createDisposerGroup() {
@@ -81,8 +73,11 @@ function handle(channel: string, listener: Parameters<typeof ipcMain.handle>[1])
 
 export function registerIpcHandlers(ctx?: MainContext): () => void {
   const group = createDisposerGroup()
-  const disposeLogging = applyIpcControllers([new LoggingIpcController()], ctx)
-  group.add(disposeLogging)
+  const disposeIpcDecorators = applyIpcControllers(
+    [new LoggingIpcController(), new HttpApiController(), new CastController()],
+    ctx
+  )
+  group.add(disposeIpcDecorators)
   const createTempPlayerConfig = async (data: string) => {
     const tempDir = path.join(app.getPath('temp'), 'examaware-player')
     await fs.promises.mkdir(tempDir, { recursive: true })
@@ -147,14 +142,14 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
   // Handle get current config data
   if (ctx)
     ctx.ipc.handle('get-config', () => {
-      const config = getCurrentConfigData()
+      const config = getSharedConfig()
       appLogger.debug('[ipc] get-config requested (len=%d)', config?.length ?? 0)
       return config
     })
   else
     group.add(
       handle('get-config', () => {
-        const config = getCurrentConfigData()
+        const config = getSharedConfig()
         appLogger.debug('[ipc] get-config requested (len=%d)', config?.length ?? 0)
         return config
       })
@@ -168,13 +163,13 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
   if (ctx)
     ctx.ipc.on('set-config', (_event, data: string) => {
       appLogger.debug('[ipc] set-config received via IPC (len=%d)', data?.length ?? 0)
-      setCurrentConfigData(data)
+      setSharedConfig(data)
     })
   else
     group.add(
       on('set-config', (_event, data: string) => {
         appLogger.debug('[ipc] set-config received via IPC (len=%d)', data?.length ?? 0)
-        setCurrentConfigData(data)
+        setSharedConfig(data)
       })
     )
 
@@ -187,6 +182,17 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
     group.add(
       on('open-editor-window', () => {
         createEditorWindow()
+      })
+    )
+
+  if (ctx)
+    ctx.ipc.on('open-cast-window', () => {
+      createCastWindow()
+    })
+  else
+    group.add(
+      on('open-cast-window', () => {
+        createCastWindow()
       })
     )
 
@@ -511,6 +517,22 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
     ctx.ipc.on('window-titlebar-theme', onTitlebarTheme)
   } else {
     group.add(on('window-titlebar-theme', onTitlebarTheme))
+  }
+
+  // 由渲染进程设置 nativeTheme，支持跟随应用主题
+  const onNativeThemeSet = (_event: Electron.IpcMainEvent, source: 'light' | 'dark' | 'system') => {
+    if (source !== 'light' && source !== 'dark' && source !== 'system') return
+    try {
+      nativeTheme.themeSource = source
+    } catch (error) {
+      appLogger.warn('[ipc] set nativeTheme failed', error as Error)
+    }
+  }
+
+  if (ctx) {
+    ctx.ipc.on('native-theme:set', onNativeThemeSet)
+  } else {
+    group.add(on('native-theme:set', onNativeThemeSet))
   }
 
   // 监听窗口状态变化事件

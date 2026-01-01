@@ -8,6 +8,7 @@ import SettingsPanel from '@renderer/components/SettingsPanel.vue'
 import ValidationPanel from '@renderer/components/ValidationPanel.vue'
 import OperationHistoryPanel from '@renderer/components/OperationHistoryPanel.vue'
 import PluginPanelHost from '@renderer/components/PluginPanelHost.vue'
+import NearbySharePanel from '@renderer/components/NearbySharePanel.vue'
 
 /**
  * 布局管理组合式函数
@@ -19,6 +20,7 @@ export function useLayoutManager() {
   const panelComponents: Record<string, Component> = {
     'explorer.examlist': SideExamsPanel,
     'explorer.examinfo': SideExamInfoPanel,
+    'share.nearby': NearbySharePanel,
     'history.operations': OperationHistoryPanel,
     'settings.general': SettingsPanel,
     'bottom.validation': ValidationPanel,
@@ -57,6 +59,7 @@ export function useLayoutManager() {
     onAbout: () => void
     onGithub: () => void
     onPresentation?: () => void
+    onCast?: () => void
     onAddExam?: () => void
     onDeleteExam?: () => void
     onNextExam?: () => void
@@ -100,6 +103,7 @@ export function useLayoutManager() {
       onAbout: () => void
       onGithub: () => void
       onPresentation?: () => void
+      onCast?: () => void
       onAddExam?: () => void
       onDeleteExam?: () => void
       onNextExam?: () => void

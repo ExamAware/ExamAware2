@@ -19,6 +19,8 @@ import {
   isTimeSyncInitialized,
   getCurrentTimeMs
 } from './ntpService/timeService'
+import { httpApiService } from './http/httpApiService'
+import { castService } from './cast/castService'
 import { createMainContext } from './runtime/context'
 import { ensureAppTray, shouldSuppressActivate, isTrayPopoverVisible } from './tray'
 import { PluginHost, createFilePreferenceStore } from './plugin'
@@ -26,6 +28,9 @@ import { deepLinkManager, type DeepLinkService } from './runtime/deepLink'
 import type { DeepLinkPayload } from '../shared/types/deepLink'
 import { applyDeepLinkControllers } from './deepLink/decorators'
 import { CoreDeepLinkController } from './deepLink/coreDeepLinkController'
+import { composeVersionLabel } from '../shared/appInfo'
+// macOS liquid glass; safely a no-op on non-mac
+import liquidGlass from 'electron-liquid-glass'
 
 protocol.registerSchemesAsPrivileged([
   {
@@ -75,6 +80,8 @@ printStartupBanner()
 patchConsoleWithLogger()
 initLoggingConfig()
 appLogger.info('Logger initialized')
+httpApiService.loadConfig()
+castService.loadConfig()
 
 let pluginHost: PluginHost | null = null
 let disposeDeepLinks: (() => void) | undefined
@@ -86,9 +93,10 @@ try {
   }
   // macOS About panel info
   if (process.platform === 'darwin' && (app as any).setAboutPanelOptions) {
+    const versionLabel = composeVersionLabel(app.getVersion())
     ;(app as any).setAboutPanelOptions({
       applicationName: 'ExamAware',
-      applicationVersion: `${app.getVersion()} (Lighthouse / 灯塔)`,
+      applicationVersion: versionLabel,
       copyright: `© ${new Date().getFullYear()} ExamAware Contributors`,
       authors: ['ExamAware Team'],
       website: 'https://github.com/ExamAware/ExamAware2',
@@ -164,7 +172,6 @@ app.whenReady().then(async () => {
   electronApp.setAppUserModelId('org.examaware')
   ensurePluginProtocol()
   ensureExamawareProtocol()
-  registerDeepLinkCoreHandlers()
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
@@ -184,6 +191,19 @@ app.whenReady().then(async () => {
     appLogger.error('register shortcut failed', e as Error)
   }
   const disposeTimeIpc = registerTimeSyncHandlers()
+  // 启动内置 HTTP API（端口冲突自动处理）
+  try {
+    await httpApiService.start()
+  } catch (error) {
+    appLogger.error('Failed to start HTTP API', error as Error)
+  }
+
+  // 启动共享与投送服务（独立于 HTTP API）
+  try {
+    await castService.start()
+  } catch (error) {
+    appLogger.error('Failed to start Cast service', error as Error)
+  }
 
   // 初始化时间同步服务
   initializeTimeSync()
@@ -195,15 +215,26 @@ app.whenReady().then(async () => {
     const userPluginDir = path.join(app.getPath('userData'), 'plugins')
     const pluginDirectories = [userPluginDir, path.join(app.getAppPath(), 'plugins')]
     const preferenceStore = createFilePreferenceStore(path.join(userPluginDir, 'plugins.json'))
+    const fmt = (...args: any[]) =>
+      args
+        .map((a) => {
+          if (typeof a === 'string') return a
+          try {
+            return JSON.stringify(a)
+          } catch {
+            return String(a)
+          }
+        })
+        .join(' ')
     pluginHost = new PluginHost({
       ctx: _mainCtx,
       pluginDirectories,
       preferences: preferenceStore,
       logger: {
-        info: (...args: any[]) => appLogger.info('[PluginHost]', ...args),
-        warn: (...args: any[]) => appLogger.warn('[PluginHost]', ...args),
-        error: (...args: any[]) => appLogger.error('[PluginHost]', ...args),
-        debug: (...args: any[]) => appLogger.debug('[PluginHost]', ...args)
+        info: (...args: any[]) => appLogger.info(fmt('[PluginHost]', ...args)),
+        warn: (...args: any[]) => appLogger.warn(fmt('[PluginHost]', ...args)),
+        error: (...args: any[]) => appLogger.error(fmt('[PluginHost]', ...args)),
+        debug: (...args: any[]) => appLogger.debug(fmt('[PluginHost]', ...args))
       }
     })
     pluginHost.provideService('logger', appLogger, {
@@ -221,6 +252,13 @@ app.whenReady().then(async () => {
       isReady: () => isTimeSyncInitialized()
     }
     pluginHost.provideService('time', timeApi, {
+      default: true,
+      scope: 'main',
+      owner: 'core'
+    })
+
+    const httpApi = httpApiService.getPublicApi()
+    pluginHost.provideService('httpApi', httpApi, {
       default: true,
       scope: 'main',
       owner: 'core'
@@ -369,6 +407,12 @@ app.whenReady().then(async () => {
     } catch {}
     try {
       disposeIpc()
+    } catch {}
+    try {
+      void httpApiService.dispose()
+    } catch {}
+    try {
+      void castService.dispose()
     } catch {}
     try {
       disposeDeepLinks?.()

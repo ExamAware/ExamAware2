@@ -1,6 +1,10 @@
 import { BrowserWindow } from 'electron'
 import { windowManager } from './windowManager'
-import { buildTitleBarOverlay, applyTitleBarOverlay, attachTitleBarOverlayLifecycle } from './titleBarOverlay'
+import {
+  buildTitleBarOverlay,
+  applyTitleBarOverlay,
+  attachTitleBarOverlayLifecycle
+} from './titleBarOverlay'
 
 export function createEditorWindow(filePath?: string): BrowserWindow {
   return windowManager.open(({ commonOptions }) => {
@@ -28,6 +32,20 @@ export function createEditorWindow(filePath?: string): BrowserWindow {
       setup(win) {
         applyTitleBarOverlay(win)
         attachTitleBarOverlayLifecycle(win)
+        const FORCE_CLOSE_FLAG = '__ea_force_close__'
+
+        // Intercept close to ask renderer; renderer will call back with window-close IPC when confirmed
+        win.on('close', (e) => {
+          if ((win as any)[FORCE_CLOSE_FLAG]) {
+            delete (win as any)[FORCE_CLOSE_FLAG]
+            return
+          }
+          e.preventDefault()
+          try {
+            win.webContents.send('editor:request-close')
+          } catch {}
+        })
+
         win.on('ready-to-show', () => {
           if (filePath) {
             win.webContents.send('open-file-at-startup', filePath)

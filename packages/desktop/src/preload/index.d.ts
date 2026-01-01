@@ -1,6 +1,8 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 import type { MessageBoxOptions, MessageBoxReturnValue } from 'electron'
 import type { PluginListItem, ServiceProviderRecord } from '../main/plugin/types'
+import type { HttpApiConfig } from '../main/http/httpApiService'
+import type { CastConfig } from '../main/cast/castService'
 
 declare global {
   interface Window {
@@ -14,6 +16,7 @@ declare global {
       platform: string
       onOpenFileAtStartup?: (callback: (filePath: string) => void) => void
       setTitlebarTheme?: (theme: 'light' | 'dark') => void
+      setNativeTheme?: (source: 'light' | 'dark' | 'system') => void
     }
     api: {
       fileApi: any
@@ -59,6 +62,22 @@ declare global {
           filePath: string
         ) => Promise<{ installedPath: string; list: PluginListItem[] }>
         installDir: (dirPath: string) => Promise<{ installedPath: string; list: PluginListItem[] }>
+      }
+      http: {
+        getConfig: () => Promise<HttpApiConfig>
+        setConfig: (cfg: Partial<HttpApiConfig>) => Promise<HttpApiConfig>
+        restart: () => Promise<HttpApiConfig>
+      }
+      cast: {
+        getConfig: () => Promise<CastConfig>
+        setConfig: (cfg: Partial<CastConfig>) => Promise<CastConfig>
+        restart: () => Promise<CastConfig>
+        listPeers: () => Promise<any>
+        peerShares: (peerId: string) => Promise<any>
+        localShares: () => Promise<any>
+        sharedConfig: () => Promise<string | null>
+        peerConfig: (peerId: string) => Promise<string | null>
+        send: (peerId: string, config: string) => Promise<any>
       }
       logging: {
         getConfig: () => Promise<any>

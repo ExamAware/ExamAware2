@@ -9,6 +9,7 @@ const FILE_NAME = 'config.json'
 let cache: AnyRecord | null = null
 let writeTimer: NodeJS.Timeout | null = null
 let writePromise: Promise<void> | null = null
+const listeners = new Set<(cfg: AnyRecord) => void>()
 
 function getConfigPath() {
   const dir = app.getPath('userData')
@@ -91,6 +92,11 @@ function broadcastChanged() {
       w.webContents.send('config:changed', full)
     } catch {}
   })
+  listeners.forEach((fn) => {
+    try {
+      fn(full)
+    } catch {}
+  })
 }
 
 export function getAllConfig(): AnyRecord {
@@ -117,4 +123,9 @@ export function patchConfig(partial: AnyRecord) {
   deepMerge(cache as AnyRecord, partial)
   scheduleWrite()
   broadcastChanged()
+}
+
+export function onConfigChanged(listener: (cfg: AnyRecord) => void): () => void {
+  listeners.add(listener)
+  return () => listeners.delete(listener)
 }

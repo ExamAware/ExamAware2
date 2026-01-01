@@ -94,6 +94,25 @@ const api = {
     installPackage: (filePath: string) => ipcRenderer.invoke('plugin:install-package', filePath),
     installDir: (dirPath: string) => ipcRenderer.invoke('plugin:install-dir', dirPath)
   },
+  http: {
+    getConfig: () => ipcRenderer.invoke('http:get-config'),
+    setConfig: (cfg: any) => ipcRenderer.invoke('http:set-config', cfg),
+    restart: () => ipcRenderer.invoke('http:restart')
+  },
+  cast: {
+    getConfig: () => ipcRenderer.invoke('cast:get-config'),
+    setConfig: (cfg: any) => ipcRenderer.invoke('cast:set-config', cfg),
+    restart: () => ipcRenderer.invoke('cast:restart'),
+    listPeers: () => ipcRenderer.invoke('cast:list-peers'),
+    peerShares: (peerId: string) => ipcRenderer.invoke('cast:peer-shares', peerId),
+    localShares: () => ipcRenderer.invoke('cast:local-shares'),
+    sharedConfig: (id?: string) => ipcRenderer.invoke('cast:shared-config', id),
+    setShares: (shares: any[]) => ipcRenderer.invoke('cast:set-shares', shares),
+    upsertShare: (share: any) => ipcRenderer.invoke('cast:upsert-share', share),
+    peerConfig: (peerId: string, shareId?: string) =>
+      ipcRenderer.invoke('cast:peer-config', { peerId, shareId }),
+    send: (peerId: string, config: string) => ipcRenderer.invoke('cast:send', { peerId, config })
+  },
   logging: {
     getConfig: () => ipcRenderer.invoke('logging:get-config'),
     setConfig: (cfg: any) => ipcRenderer.invoke('logging:set-config', cfg),
@@ -121,7 +140,9 @@ const windowAPI = {
   onOpenFileAtStartup: (callback: (filePath: string) => void) => {
     ipcRenderer.on('open-file-at-startup', (_event, filePath) => callback(filePath))
   },
-  setTitlebarTheme: (theme: 'light' | 'dark') => ipcRenderer.send('window-titlebar-theme', theme)
+  setTitlebarTheme: (theme: 'light' | 'dark') => ipcRenderer.send('window-titlebar-theme', theme),
+  setNativeTheme: (source: 'light' | 'dark' | 'system') =>
+    ipcRenderer.send('native-theme:set', source)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

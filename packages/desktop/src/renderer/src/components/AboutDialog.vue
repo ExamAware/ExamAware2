@@ -20,7 +20,10 @@
           <t-list-item-meta title="App 版本" :description="versionInfo.appVersion" />
         </t-list-item>
         <t-list-item>
-          <t-list-item-meta title="Codename" description="Lighthouse / 灯塔" />
+          <t-list-item-meta title="Codename" :description="versionInfo.codename" />
+        </t-list-item>
+        <t-list-item>
+          <t-list-item-meta title="Git Hash" :description="versionInfo.gitHash" />
         </t-list-item>
         <t-list-item>
           <t-list-item-meta title="浏览器" :description="versionInfo.browserVersion" />
@@ -34,13 +37,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { NotifyPlugin } from 'tdesign-vue-next'
 
-import packageJson from '../../../../package.json'
+import {
+  APP_CODENAME,
+  APP_GIT_HASH,
+  APP_GIT_HASH_SHORT,
+  composeVersionLabel
+} from '../../../shared/appInfo'
 
 const versionInfo = ref({
-  appVersion: packageJson.version,
+  appVersion: composeVersionLabel(),
+  codename: APP_CODENAME,
+  gitHash: APP_GIT_HASH_SHORT || 'unknown',
   userAgent: navigator.userAgent,
   browserVersion: (() => {
     const ua = navigator.userAgent
@@ -61,8 +71,18 @@ const versionInfo = ref({
 })
 
 const readableVersionInfo = computed(() => {
-  return `About DSZ ExamAware\n============\nApp Version: ${versionInfo.value.appVersion}\nCodename: Lighthouse / 灯塔\nBrowser: ${versionInfo.value.browserVersion}\nUser Agent: ${versionInfo.value.userAgent}`
+  const gitHash = APP_GIT_HASH || versionInfo.value.gitHash || 'unknown'
+  return `About DSZ ExamAware\n============\nApp Version: ${versionInfo.value.appVersion}\nCodename: ${versionInfo.value.codename}\nGit Hash: ${gitHash}\nBrowser: ${versionInfo.value.browserVersion}\nUser Agent: ${versionInfo.value.userAgent}`
 })
+
+async function ensureVersion() {
+  try {
+    const runtimeVersion = await window.api?.app?.getVersion?.()
+    if (runtimeVersion) {
+      versionInfo.value.appVersion = composeVersionLabel(runtimeVersion)
+    }
+  } catch {}
+}
 
 const props = defineProps({
   visible: Boolean
@@ -95,4 +115,8 @@ function copyToClipboard() {
       })
     })
 }
+
+onMounted(() => {
+  ensureVersion()
+})
 </script>

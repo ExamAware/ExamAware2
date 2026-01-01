@@ -64,8 +64,40 @@ const baseFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
   winston.format.errors({ stack: true }),
   winston.format.splat(),
-  winston.format.printf(({ timestamp, level, message, stack, ...meta }) => {
-    const metaStr = Object.keys(meta).length ? ` ${JSON.stringify(meta)}` : ''
+  winston.format.printf((info) => {
+    const { timestamp, level, message, stack } = info
+    const splat = (info as any)[Symbol.for('splat')] as any[] | undefined
+
+    // Collect extra payloads but avoid spreading strings into { 0: 'c', ... }
+    const metaParts: any[] = []
+    if (Array.isArray(splat) && splat.length) metaParts.push(...splat)
+
+    const rest: Record<string, any> = { ...info }
+    delete rest.timestamp
+    delete rest.level
+    delete rest.message
+    delete rest.stack
+    delete rest[Symbol.for('splat') as unknown as string]
+
+    if (Object.keys(rest).length) metaParts.push(rest)
+
+    const metaStr = metaParts.length
+      ? ' ' +
+        metaParts
+          .map((m) => {
+            if (m instanceof Error) return m.stack ?? m.message
+            if (typeof m === 'string') return m
+            if (m === undefined || m === null) return ''
+            try {
+              return JSON.stringify(m)
+            } catch {
+              return String(m)
+            }
+          })
+          .filter(Boolean)
+          .join(' ')
+      : ''
+
     const body = stack ? `${message}\n${stack}` : message
     return `${timestamp} [${level}] ${body}${metaStr}`
   })
