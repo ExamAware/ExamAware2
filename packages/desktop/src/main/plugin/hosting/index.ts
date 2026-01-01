@@ -26,5 +26,22 @@ export type {
   ConfigureServicesDelegate,
   ConfigureHostDelegate,
   PluginHostApplicationContext,
-  ServiceToken
+  ServiceToken,
+  EauiAPI,
+  EauiWidget,
+  EauiWindow,
+  EauiLabel,
+  EauiButton,
+  EauiLineEdit,
+  EauiCheckBox,
+  EauiLayout,
+  EauiSignal,
+  EauiWindowOptions,
+  EauiWindowCtor,
+  EauiLabelCtor,
+  EauiButtonCtor,
+  EauiLineEditCtor,
+  EauiCheckBoxCtor,
+  EauiVBoxLayoutCtor,
+  EauiHBoxLayoutCtor
 } from './types'
