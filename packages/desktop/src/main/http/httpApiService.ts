@@ -16,12 +16,13 @@ import {
   DEFAULT_CONFIG,
   DEFAULT_SWAGGER,
   DEFAULT_RATE_LIMIT,
-  type HttpApiToken,
   type HttpApiConfig,
   type RouteRegistration
 } from './types'
 import { findAvailablePort, isLoopback, normalizePath } from './utils'
 import { buildSwaggerSpec, renderSwaggerIndex, serveSwaggerAsset } from './swagger'
+
+type RouterInstance = InstanceType<typeof Router>
 
 export type { HttpApiConfig, HttpApiSwaggerConfig, RouteRegistration } from './types'
 
@@ -30,7 +31,6 @@ export class HttpApiService {
   private app: Koa | null = null
   private server: import('http').Server | null = null
   private routes: RouteRegistration[] = []
-  private baseRouter: typeof Router | null = null
   private prefix = API_PREFIX
   private limiter = new Map<string, { count: number; resetAt: number }>()
   private swaggerCache: any = null
@@ -63,7 +63,7 @@ export class HttpApiService {
   }
 
   private ok(ctx: Koa.ParameterizedContext, data: any, extras?: Record<string, any>) {
-    ctx.body = { success: true, data, ...(extras ?? {}) }
+    ctx.body = extras ? { success: true, data, ...extras } : { success: true, data }
   }
 
   private fail(
@@ -74,14 +74,34 @@ export class HttpApiService {
     extras?: Record<string, any>
   ) {
     ctx.status = status
-    ctx.body = { success: false, code, message, ...(extras ?? {}) }
+    ctx.body = extras
+      ? { success: false, code, message, ...extras }
+      : { success: false, code, message }
   }
 
   private normalizeConfig(partial: Partial<HttpApiConfig>) {
     const merged = { ...DEFAULT_CONFIG, ...partial }
-    merged.cors = { ...DEFAULT_CONFIG.cors!, ...(partial.cors ?? merged.cors ?? {}) }
-    merged.rateLimit = { ...DEFAULT_RATE_LIMIT, ...(partial.rateLimit ?? merged.rateLimit ?? {}) }
-    merged.swagger = { ...DEFAULT_SWAGGER, ...(partial.swagger ?? merged.swagger ?? {}) }
+
+    const corsBase = merged.cors ?? DEFAULT_CONFIG.cors ?? { enabled: false, origins: [] }
+    merged.cors = {
+      enabled: partial.cors?.enabled ?? corsBase.enabled,
+      origins: partial.cors?.origins ?? corsBase.origins
+    }
+
+    const rateBase = merged.rateLimit ?? DEFAULT_RATE_LIMIT
+    merged.rateLimit = {
+      enabled: partial.rateLimit?.enabled ?? rateBase.enabled,
+      burst: partial.rateLimit?.burst ?? rateBase.burst,
+      windowMs: partial.rateLimit?.windowMs ?? rateBase.windowMs
+    }
+
+    const swaggerBase = merged.swagger ?? DEFAULT_SWAGGER
+    merged.swagger = {
+      enabled: partial.swagger?.enabled ?? swaggerBase.enabled,
+      title: partial.swagger?.title ?? swaggerBase.title,
+      version: partial.swagger?.version ?? swaggerBase.version,
+      description: partial.swagger?.description ?? swaggerBase.description
+    }
     merged.tokens = Array.isArray(partial.tokens ?? merged.tokens)
       ? (partial.tokens ?? merged.tokens)?.filter((t) => t?.value).map((t) => ({ ...t }))
       : []
@@ -165,7 +185,7 @@ export class HttpApiService {
     return this.getConfig()
   }
 
-  private registerCoreRoutes(router: Router) {
+  private registerCoreRoutes(router: RouterInstance) {
     const health = (ctx: Koa.ParameterizedContext) => {
       this.ok(ctx, { status: 'ok', version: app.getVersion(), platform: process.platform })
     }
@@ -259,7 +279,7 @@ export class HttpApiService {
 
   private buildRouter() {
     const router = new Router({ prefix: this.prefix })
-    this.registerCoreRoutes(router)
+    this.registerCoreRoutes(router as RouterInstance)
 
     // swagger 文档路由（仅 JSON 由 router 处理，静态资源在 app 级别处理）
     if (this.config.swagger?.enabled) {
@@ -269,7 +289,7 @@ export class HttpApiService {
     }
 
     this.routes.forEach((route) => {
-      const method = route.method.toLowerCase() as keyof Router
+      const method = route.method.toLowerCase() as keyof RouterInstance
       const handler = async (ctx: Koa.ParameterizedContext) => {
         try {
           const res = await route.handler(ctx)
@@ -283,7 +303,6 @@ export class HttpApiService {
       ;(router as any)[method](fullPath, handler)
     })
 
-    this.baseRouter = router
     return router
   }
 
@@ -421,7 +440,7 @@ export class HttpApiService {
 
     // 向后兼容短路径（无前缀）核心路由，避免已有调用立刻失效
     const legacyRouter = new Router()
-    this.registerCoreRoutes(legacyRouter)
+    this.registerCoreRoutes(legacyRouter as RouterInstance)
     if (this.config.swagger?.enabled) {
       legacyRouter.get('/swagger.json', (ctx) => {
         ctx.body = this.getSwaggerSpec()
@@ -583,7 +602,6 @@ export class HttpApiService {
   async dispose() {
     await this.stop()
     this.routes = []
-    this.baseRouter = null
   }
 }
 

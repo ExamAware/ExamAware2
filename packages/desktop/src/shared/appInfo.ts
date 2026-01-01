@@ -1,5 +1,7 @@
 import packageJson from '../../package.json'
 
+const pkg = packageJson as typeof packageJson & { productName?: string }
+
 type EnvRecord = Record<string, string | undefined>
 
 const runtimeEnv: EnvRecord = (() => {
@@ -15,12 +17,12 @@ const runtimeEnv: EnvRecord = (() => {
   return {}
 })()
 
-export const APP_NAME = packageJson.productName || 'ExamAware'
+export const APP_NAME = pkg.productName || 'ExamAware'
 export const APP_CODENAME = runtimeEnv.VITE_APP_CODENAME || 'Street / 马路'
 export const APP_VERSION = (
   runtimeEnv.VITE_APP_VERSION ||
   runtimeEnv.APP_VERSION ||
-  packageJson.version ||
+  pkg.version ||
   'dev'
 ).trim()
 

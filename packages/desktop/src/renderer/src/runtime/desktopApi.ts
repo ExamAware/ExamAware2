@@ -21,7 +21,7 @@ import {
   type EditorCenterViewMeta
 } from '../stores/editorPluginStore'
 import { onEditorRuntimeReady, type EditorRuntimeEnvironment } from '../core/editorBridge'
-import type { DeepLinkPayload } from '../../shared/types/deepLink'
+import type { DeepLinkPayload } from '../../../shared/types/deepLink'
 
 const DESKTOP_API_KEY = Symbol('DesktopAPI')
 const SETTINGS_BRIDGE_PROMISE = Symbol('SettingsBridgePromise')

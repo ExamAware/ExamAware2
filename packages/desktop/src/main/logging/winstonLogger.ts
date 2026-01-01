@@ -197,7 +197,7 @@ export function patchConsoleWithLogger() {
     console[lvl] = (...args: any[]) => {
       try {
         const msg = args.map((a) => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ')
-        appLogger.log({ level: levelMap[lvl], message: msg, source: 'main-console' })
+        appLogger.log({ level: levelMap[lvl] ?? 'info', message: msg, source: 'main-console' })
       } catch {}
       try {
         orig?.apply(console, args as any)

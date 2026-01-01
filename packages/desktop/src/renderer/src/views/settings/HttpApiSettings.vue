@@ -184,7 +184,7 @@ interface HttpApiConfig {
   allowRemote?: boolean
   tokenRequired?: boolean
   tokens?: { value: string; label?: string; expiresAt?: number; role?: 'read' | 'write' }[]
-  swagger?: { enabled: boolean; title?: string; description?: string; version?: string }
+  swagger: { enabled: boolean; title?: string; description?: string; version?: string }
 }
 
 const loading = ref(false)

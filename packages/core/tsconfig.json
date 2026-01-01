@@ -16,7 +16,8 @@
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "noEmit": false,
-    "ignoreDeprecations": "5.0"
+    "ignoreDeprecations": "6.0",
+    "allowImportingTsExtensions": false
   },
   "include": [
     "src/**/*.ts"
