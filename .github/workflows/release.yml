@@ -41,8 +41,8 @@ jobs:
         include:
           - os: windows-latest
             build_script: desktop:build:win
-            eb_cache: ${{ runner.temp }}/eb-cache-${{ github.run_id }}
-            eb_tmp: ${{ runner.temp }}/eb-tmp-${{ github.run_id }}
+            eb_cache: C:/Users/runneradmin/AppData/Local/Temp/eb-cache-${{ github.run_id }}
+            eb_tmp: C:/Users/runneradmin/AppData/Local/Temp/eb-tmp-${{ github.run_id }}
           # - os: macos-latest
           #   build_script: desktop:build:mac
           - os: ubuntu-latest
