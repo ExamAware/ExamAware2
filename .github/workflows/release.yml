@@ -69,6 +69,15 @@ jobs:
       - name: Make pnpm non-interactive
         run: pnpm config set yes true
 
+      - name: Diagnose pnpm path (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          Write-Host "PATH=$Env:PATH"
+          Write-Host "PNPM_HOME=$Env:PNPM_HOME"
+          Write-Host "npm_execpath=$Env:npm_execpath"
+          where.exe pnpm* || cmd /c "where pnpm*"
+
       - name: Get pnpm store directory
         id: pnpm-store
         shell: bash
