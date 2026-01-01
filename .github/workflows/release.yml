@@ -46,8 +46,8 @@ jobs:
           #   build_script: desktop:build:mac
           - os: ubuntu-latest
             build_script: desktop:build:linux
-            eb_cache: ${{ github.workspace }}/.tmp/electron-builder-cache-${{ github.run_id }}-ubuntu-latest
-            eb_tmp: ${{ github.workspace }}/.tmp/electron-builder-tmp-${{ github.run_id }}-ubuntu-latest
+            eb_cache: /tmp/electron-builder-cache-${{ github.run_id }}-ubuntu-latest
+            eb_tmp: /tmp/electron-builder-tmp-${{ github.run_id }}-ubuntu-latest
 
     steps:
       - name: Checkout code
