@@ -109,16 +109,9 @@ linux:
   category: Education
   mimeTypes:
     - application/x-examaware-examjson
-  desktop:
-    Name: ExamAware
-    Comment: Exam monitoring and management application
-    Categories: Education;Office;
-    MimeType: application/x-examaware-examjson;
-    Icon: examaware
   icon: build/icon.png
 appImage:
   artifactName: ${productName}-${version}.${ext}
-  desktop: build/examaware.desktop
   category: Education
 snap:
   artifactName: ${productName}-${version}-${arch}.${ext}
