@@ -9,6 +9,7 @@ import type {
 import type { AppContext } from '../app/types'
 import { DisposerGroup } from './disposable'
 import type { DesktopAPI } from './desktopApi'
+import { createEauiApi } from './eaui'
 
 type AnyRecord = Record<string, any>
 
@@ -462,6 +463,9 @@ function createRendererRuntimeContext(
         }),
       has: (name: string, owner?: string) =>
         providers.value.some((svc) => svc.name === name && (!owner || svc.owner === owner))
+    },
+    ui: {
+      eaui: createEauiApi()
     }
   }
 

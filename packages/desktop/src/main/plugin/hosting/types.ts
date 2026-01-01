@@ -128,6 +128,86 @@ export interface PluginRuntimeContext {
     invokeRenderer?: (channel: string, payload?: any) => void
   }
   desktopApi?: unknown // Desktop API（渲染进程）
+  ui?: {
+    eaui: EauiAPI // PyQt 风格 UI API（渲染进程）
+  }
+}
+
+// eaui：简化 PyQt 风格 UI 类型定义（仅渲染进程可用）
+export interface EauiSignal<TArgs extends any[] = any[]> {
+  connect: (fn: (...args: TArgs) => void) => Disposer
+  disconnect: (fn: (...args: TArgs) => void) => void
+}
+
+export interface EauiWidget {
+  readonly element: HTMLElement
+  setVisible(visible: boolean): void
+  setEnabled(enabled: boolean): void
+  dispose(): void
+}
+
+export interface EauiLayout extends EauiWidget {
+  addWidget(widget: EauiWidget): void
+  removeWidget(widget: EauiWidget): void
+}
+
+export interface EauiWindow extends EauiWidget {
+  setLayout(layout: EauiLayout): void
+  show(): void
+  hide(): void
+}
+
+export interface EauiLabel extends EauiWidget {
+  setText(text: string): void
+}
+
+export interface EauiButton extends EauiWidget {
+  setText(text: string): void
+  clicked: EauiSignal<[]> // click 信号
+}
+
+export interface EauiLineEdit extends EauiWidget {
+  text(): string
+  setText(text: string): void
+  textChanged: EauiSignal<[string]>
+}
+
+export interface EauiCheckBox extends EauiWidget {
+  isChecked(): boolean
+  setChecked(checked: boolean): void
+  stateChanged: EauiSignal<[boolean]>
+  setText(text: string): void
+}
+
+export type EauiWindowCtor = new (options?: EauiWindowOptions) => EauiWindow
+export type EauiLabelCtor = new (text?: string) => EauiLabel
+export type EauiButtonCtor = new (text?: string) => EauiButton
+export type EauiLineEditCtor = new (text?: string) => EauiLineEdit
+export type EauiCheckBoxCtor = new (label?: string, checked?: boolean) => EauiCheckBox
+export type EauiVBoxLayoutCtor = new () => EauiLayout
+export type EauiHBoxLayoutCtor = new () => EauiLayout
+
+export interface EauiWindowOptions {
+  title?: string
+  width?: number
+  height?: number
+}
+
+export interface EauiAPI {
+  Window: EauiWindowCtor
+  Label: EauiLabelCtor
+  Button: EauiButtonCtor
+  LineEdit: EauiLineEditCtor
+  CheckBox: EauiCheckBoxCtor
+  VBoxLayout: EauiVBoxLayoutCtor
+  HBoxLayout: EauiHBoxLayoutCtor
+  createWindow(options?: EauiWindowOptions): EauiWindow
+  createLabel(text?: string): EauiLabel
+  createButton(text?: string): EauiButton
+  createLineEdit(text?: string): EauiLineEdit
+  createCheckBox(label?: string, checked?: boolean): EauiCheckBox
+  createVBoxLayout(): EauiLayout
+  createHBoxLayout(): EauiLayout
 }
 
 // 插件应用生命周期接口，管理启动/停止事件
