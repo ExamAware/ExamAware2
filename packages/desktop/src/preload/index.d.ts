@@ -108,6 +108,15 @@ declare global {
         off: (channel: string, listener: (...args: any[]) => void) => void
         removeAllListeners: (channel: string) => void
       }
+      windows: {
+        open: (payload?: {
+          id?: string
+          route?: string
+          options?: Electron.BrowserWindowConstructorOptions
+        }) => Promise<{ id: string; browserWindowId: number }>
+        close: (id: string) => Promise<void>
+        currentId: () => Promise<number | undefined>
+      }
     }
   }
 }

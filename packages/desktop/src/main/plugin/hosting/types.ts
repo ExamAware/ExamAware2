@@ -1,3 +1,5 @@
+import type { BrowserWindowConstructorOptions } from 'electron'
+import type { Component, Ref } from 'vue'
 import type { ServiceProvideOptions, ServiceWatcherMeta } from '../../shared/services/registry'
 import type { ServiceCollection, ServiceProvider } from './serviceCollection'
 
@@ -130,6 +132,7 @@ export interface PluginRuntimeContext {
   desktopApi?: unknown // Desktop API（渲染进程）
   ui?: {
     eaui: EauiAPI // PyQt 风格 UI API（渲染进程）
+    tdesign?: TDesignUI // TDesign UI 包装（渲染进程）
   }
 }
 
@@ -140,10 +143,164 @@ export interface EauiSignal<TArgs extends any[] = any[]> {
 }
 
 export interface EauiWidget {
-  readonly element: HTMLElement
+  readonly element: unknown // DOM element placeholder; concrete env provides HTMLElement
   setVisible(visible: boolean): void
   setEnabled(enabled: boolean): void
   dispose(): void
+}
+
+// TDesign：对齐 EauiWidget 接口的一组包装组件
+export interface TDesignButton extends EauiWidget {
+  setText(text: string): void
+  setTheme(theme: 'default' | 'primary' | 'danger' | 'warning' | 'success'): void
+  setVariant(variant: 'base' | 'outline' | 'dashed' | 'text'): void
+  setSize(size: 'small' | 'medium' | 'large'): void
+  setShape(shape: 'rectangle' | 'square' | 'round' | 'circle'): void
+  setGhost(ghost: boolean): void
+  setBlock(block: boolean): void
+  setLoading(loading: boolean): void
+  clicked: EauiSignal<[unknown]>
+}
+
+export interface TDesignButtonOptions {
+  text?: string
+  theme?: 'default' | 'primary' | 'danger' | 'warning' | 'success'
+  variant?: 'base' | 'outline' | 'dashed' | 'text'
+  size?: 'small' | 'medium' | 'large'
+  shape?: 'rectangle' | 'square' | 'round' | 'circle'
+  ghost?: boolean
+  block?: boolean
+  loading?: boolean
+  disabled?: boolean
+}
+
+export interface TDesignUI {
+  createButton(options?: TDesignButtonOptions): TDesignButton
+  createDropdown(options?: TDesignDropdownOptions): TDesignDropdown
+  createTabs(options?: TDesignTabsOptions): TDesignTabs
+  createInput(options?: TDesignInputOptions): TDesignInput
+  createRadioGroup(options?: TDesignRadioGroupOptions): TDesignRadioGroup
+  createCheckboxGroup(options?: TDesignCheckboxGroupOptions): TDesignCheckboxGroup
+}
+
+export interface TDesignDropdown extends EauiWidget {
+  setOptions(options: TDesignDropdownItem[]): void
+  setLabel(label: string): void
+  setTrigger(trigger: 'hover' | 'click' | 'focus' | 'context-menu'): void
+  setPlacement(placement: string): void
+  setHideAfterItemClick(hide: boolean): void
+  setDisabled(disabled: boolean): void
+  clicked: EauiSignal<[unknown]>
+}
+
+export interface TDesignDropdownItem {
+  label: string
+  value: unknown
+  disabled?: boolean
+  divider?: boolean
+  theme?: 'default' | 'success' | 'warning' | 'error'
+}
+
+export interface TDesignDropdownOptions {
+  label?: string
+  options?: TDesignDropdownItem[]
+  trigger?: 'hover' | 'click' | 'focus' | 'context-menu'
+  placement?: string
+  hideAfterItemClick?: boolean
+  disabled?: boolean
+}
+
+export interface TDesignTabs extends EauiWidget {
+  setTabs(tabs: TDesignTabItem[]): void
+  setValue(value: string | number): void
+  setPlacement(placement: 'left' | 'top' | 'bottom' | 'right'): void
+  setTheme(theme: 'normal' | 'card'): void
+  setSize(size: 'medium' | 'large'): void
+  setDisabled(disabled: boolean): void
+  changed: EauiSignal<[unknown]>
+}
+
+export interface TDesignTabItem {
+  label: string
+  value: string | number
+  disabled?: boolean
+}
+
+export interface TDesignTabsOptions {
+  tabs?: TDesignTabItem[]
+  value?: string | number
+  placement?: 'left' | 'top' | 'bottom' | 'right'
+  theme?: 'normal' | 'card'
+  size?: 'medium' | 'large'
+  disabled?: boolean
+}
+
+export interface TDesignInput extends EauiWidget {
+  setValue(value: string | number): void
+  value(): string | number
+  setPlaceholder(text: string): void
+  setStatus(status: 'default' | 'success' | 'warning' | 'error'): void
+  setSize(size: 'small' | 'medium' | 'large'): void
+  setType(
+    type: 'text' | 'number' | 'url' | 'tel' | 'password' | 'search' | 'submit' | 'hidden'
+  ): void
+  setClearable(clearable: boolean): void
+  setEnabled(enabled: boolean): void
+  changed: EauiSignal<[unknown]>
+  entered: EauiSignal<[unknown]>
+}
+
+export interface TDesignInputOptions {
+  value?: string | number
+  placeholder?: string
+  status?: 'default' | 'success' | 'warning' | 'error'
+  size?: 'small' | 'medium' | 'large'
+  type?: 'text' | 'number' | 'url' | 'tel' | 'password' | 'search' | 'submit' | 'hidden'
+  clearable?: boolean
+  disabled?: boolean
+}
+
+export interface TDesignRadioGroup extends EauiWidget {
+  setOptions(options: TDesignRadioOption[]): void
+  setValue(value: string | number | boolean): void
+  setAllowUncheck(allow: boolean): void
+  setDisabled(disabled: boolean): void
+  changed: EauiSignal<[unknown]>
+}
+
+export interface TDesignRadioOption {
+  label: string
+  value: string | number | boolean
+  disabled?: boolean
+}
+
+export interface TDesignRadioGroupOptions {
+  options?: TDesignRadioOption[]
+  value?: string | number | boolean
+  allowUncheck?: boolean
+  disabled?: boolean
+}
+
+export interface TDesignCheckboxGroup extends EauiWidget {
+  setOptions(options: TDesignCheckboxOption[]): void
+  setValue(values: Array<string | number | boolean>): void
+  setMax(max?: number): void
+  setDisabled(disabled: boolean): void
+  changed: EauiSignal<[unknown]>
+}
+
+export interface TDesignCheckboxOption {
+  label: string
+  value: string | number | boolean
+  disabled?: boolean
+  checkAll?: boolean
+}
+
+export interface TDesignCheckboxGroupOptions {
+  options?: TDesignCheckboxOption[]
+  value?: Array<string | number | boolean>
+  max?: number
+  disabled?: boolean
 }
 
 export interface EauiLayout extends EauiWidget {
@@ -155,6 +312,7 @@ export interface EauiWindow extends EauiWidget {
   setLayout(layout: EauiLayout): void
   show(): void
   hide(): void
+  mountVue(component: Component, props?: Record<string, any>): Disposer
 }
 
 export interface EauiLabel extends EauiWidget {
@@ -169,6 +327,8 @@ export interface EauiButton extends EauiWidget {
 export interface EauiLineEdit extends EauiWidget {
   text(): string
   setText(text: string): void
+  bind(model: Ref<string>): void
+  model(): Ref<string>
   textChanged: EauiSignal<[string]>
 }
 
@@ -177,6 +337,8 @@ export interface EauiCheckBox extends EauiWidget {
   setChecked(checked: boolean): void
   stateChanged: EauiSignal<[boolean]>
   setText(text: string): void
+  bind(model: Ref<boolean>): void
+  model(): Ref<boolean>
 }
 
 export type EauiWindowCtor = new (options?: EauiWindowOptions) => EauiWindow
@@ -187,10 +349,26 @@ export type EauiCheckBoxCtor = new (label?: string, checked?: boolean) => EauiCh
 export type EauiVBoxLayoutCtor = new () => EauiLayout
 export type EauiHBoxLayoutCtor = new () => EauiLayout
 
+export interface CreateEauiWindowOptions {
+  routeId?: string
+  electronWindow?: {
+    width?: number
+    height?: number
+    title?: string
+    resizable?: boolean
+    fullscreenable?: boolean
+    show?: boolean
+    extraOptions?: BrowserWindowConstructorOptions
+  }
+  buildUi: (ctx: PluginRuntimeContext) => void
+}
+
 export interface EauiWindowOptions {
   title?: string
   width?: number
   height?: number
+  route?: string // 渲染进程路由（用于原生窗口）
+  hash?: string // 追加到路由的 hash
 }
 
 export interface EauiAPI {
@@ -208,6 +386,7 @@ export interface EauiAPI {
   createCheckBox(label?: string, checked?: boolean): EauiCheckBox
   createVBoxLayout(): EauiLayout
   createHBoxLayout(): EauiLayout
+  tdesign?: TDesignUI
 }
 
 // 插件应用生命周期接口，管理启动/停止事件

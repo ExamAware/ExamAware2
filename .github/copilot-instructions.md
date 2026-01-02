@@ -19,3 +19,7 @@
 - Desktop API notes: renderer and plugins communicate via IPC; prefer using window.api cast/player/editor abstractions rather than raw IPC. When following config streams (e.g., Cast follow), ensure timers are cleared on unmount and hash changes trigger reloads.
 - Fonts/assets: misans bundled; avoid adding heavy assets to renderer; electron-builder configs live in [packages/desktop/electron-builder.yml](packages/desktop/electron-builder.yml).
 - When adding new features, respect reversibility and service graph: register disposables, avoid global mutations without cleanup, and align with host/plugin lifecycle documented in plugin-system plan.
+
+## 注意
+
+plugin-sdk 包的 hosting 和 shared 目录为 symlink到 desktop 内的对应代码目录，目的是为了同步代码。修改时请修改 desktop 内代码。

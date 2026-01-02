@@ -27,6 +27,7 @@ import {
 import { applyTimeConfig } from '../ntpService/timeService'
 import { createSettingsWindow } from '../windows/settingsWindow'
 import { createMainWindow } from '../windows/mainWindow'
+import { windowManager } from '../windows/windowManager'
 import { applyTitleBarOverlay, OverlayTheme } from '../windows/titleBarOverlay'
 import { applyIpcControllers } from '../ipc/decorators'
 import { LoggingIpcController } from '../ipc/loggingController'
@@ -431,15 +432,75 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
     group.add(on('ui:app-quit', doQuit))
   }
 
+  const openWindow = async (
+    _event: Electron.IpcMainInvokeEvent,
+    payload?: {
+      id?: string
+      route?: string
+      options?: Electron.BrowserWindowConstructorOptions
+    }
+  ) => {
+    const route = (payload?.route ?? '/').replace(/^#/, '')
+    const id = payload?.id ?? `plugin-win-${Date.now()}`
+    const win = await windowManager.open(({ commonOptions }) => ({
+      id,
+      route,
+      options: {
+        ...commonOptions(),
+        ...(payload?.options ?? {}),
+        show: payload?.options?.show ?? true
+      }
+    }))
+    return { id, browserWindowId: win.id }
+  }
+
+  const closeWindow = (_event: Electron.IpcMainInvokeEvent, id?: string) => {
+    if (id) windowManager.close(id)
+  }
+
+  const getWindowId = (event: Electron.IpcMainInvokeEvent) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    return win?.id
+  }
+
+  if (ctx) {
+    ctx.ipc.handle('window:open', openWindow)
+    ctx.ipc.handle('window:close', closeWindow)
+    ctx.ipc.handle('window:id', getWindowId)
+  } else {
+    group.add(handle('window:open', openWindow))
+    group.add(handle('window:close', closeWindow))
+    group.add(handle('window:id', getWindowId))
+  }
+
   // 窗口控制处理程序
-  if (ctx)
+  if (ctx) {
     ctx.ipc.on('window-minimize', (event) => {
       const window = BrowserWindow.fromWebContents(event.sender)
       if (window) {
         window.minimize()
       }
     })
-  else
+
+    ctx.ipc.on('window-close', (event) => {
+      const window = BrowserWindow.fromWebContents(event.sender)
+      if (window) {
+        ;(window as any).__ea_force_close__ = true
+        window.close()
+      }
+    })
+
+    ctx.ipc.on('window-maximize', (event) => {
+      const window = BrowserWindow.fromWebContents(event.sender)
+      if (window) {
+        if (window.isMaximized()) {
+          window.unmaximize()
+        } else {
+          window.maximize()
+        }
+      }
+    })
+  } else {
     group.add(
       on('window-minimize', (event) => {
         const window = BrowserWindow.fromWebContents(event.sender)
@@ -449,15 +510,6 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
       })
     )
 
-  if (ctx)
-    ctx.ipc.on('window-close', (event) => {
-      const window = BrowserWindow.fromWebContents(event.sender)
-      if (window) {
-        ;(window as any).__ea_force_close__ = true
-        window.close()
-      }
-    })
-  else
     group.add(
       on('window-close', (event) => {
         const window = BrowserWindow.fromWebContents(event.sender)
@@ -467,6 +519,20 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
         }
       })
     )
+
+    group.add(
+      on('window-maximize', (event) => {
+        const window = BrowserWindow.fromWebContents(event.sender)
+        if (window) {
+          if (window.isMaximized()) {
+            window.unmaximize()
+          } else {
+            window.maximize()
+          }
+        }
+      })
+    )
+  }
 
   if (ctx)
     ctx.ipc.on('window-maximize', (event) => {

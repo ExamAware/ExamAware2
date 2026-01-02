@@ -15,6 +15,7 @@ import { EauiButtonImpl } from './button'
 import { EauiLineEditImpl } from './lineEdit'
 import { EauiCheckBoxImpl } from './checkBox'
 import { EauiVBoxLayout, EauiHBoxLayout } from './layouts'
+import { createTDesignApi } from './tdesign/api'
 
 export function createEauiApi(): EauiAPI {
   return {
@@ -31,6 +32,8 @@ export function createEauiApi(): EauiAPI {
     createLineEdit: (text?: string) => new EauiLineEditImpl(text),
     createCheckBox: (label?: string, checked?: boolean) => new EauiCheckBoxImpl(label, checked),
     createVBoxLayout: () => new EauiVBoxLayout(),
-    createHBoxLayout: () => new EauiHBoxLayout()
+    createHBoxLayout: () => new EauiHBoxLayout(),
+    // Optional TDesign wrapper set; kept separate from core eaui widgets.
+    tdesign: createTDesignApi()
   }
 }

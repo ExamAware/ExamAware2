@@ -126,6 +126,15 @@ const api = {
     off: (channel: string, listener: (...args: any[]) => void) =>
       ipcRenderer.off(channel, listener),
     removeAllListeners: (channel: string) => ipcRenderer.removeAllListeners(channel)
+  },
+  windows: {
+    open: (payload?: {
+      id?: string
+      route?: string
+      options?: Electron.BrowserWindowConstructorOptions
+    }) => ipcRenderer.invoke('window:open', payload),
+    close: (id: string) => ipcRenderer.invoke('window:close', id),
+    currentId: () => ipcRenderer.invoke('window:id') as Promise<number | undefined>
   }
 }
 

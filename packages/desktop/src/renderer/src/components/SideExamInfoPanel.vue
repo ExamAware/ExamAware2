@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, watch, ref } from 'vue'
+import { watch, ref } from 'vue'
 import type { ExamConfig } from '@renderer/core/configTypes'
 
 const props = defineProps({
