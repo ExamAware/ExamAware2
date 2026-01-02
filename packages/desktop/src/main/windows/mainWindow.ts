@@ -15,12 +15,6 @@ export function createMainWindow(): BrowserWindow {
       ...commonOptions(),
       width: 720,
       height: 480,
-      ...(process.platform === 'darwin'
-        ? {
-            transparent: true,
-            backgroundColor: '#00000000'
-          }
-        : {}),
       // 使用系统自带窗口控制按钮，隐藏默认标题栏并启用 overlay（Windows/macOS）
       ...(process.platform !== 'linux'
         ? {

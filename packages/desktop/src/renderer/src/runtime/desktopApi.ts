@@ -1,4 +1,5 @@
 import { inject, type App, type Ref } from 'vue'
+import type { BrowserWindowConstructorOptions } from 'electron'
 import { setActivePinia } from 'pinia'
 import type { AppContext } from '../app/types'
 import type { UIDensity } from '@dsz-examaware/player'
@@ -77,8 +78,19 @@ export interface UiSettingsAPI {
   registerPage(meta: SettingsPageMeta): Promise<DisposableHandle>
 }
 
+export interface UiWindowsAPI {
+  open(payload?: {
+    id?: string
+    route?: string
+    options?: BrowserWindowConstructorOptions
+  }): Promise<{ id: string; browserWindowId: number } | undefined>
+  close(id: string): Promise<void>
+  currentId(): Promise<number | undefined>
+}
+
 export interface UiAPI {
   settings: UiSettingsAPI
+  windows: UiWindowsAPI
 }
 
 export interface DesktopServicesAPI {
@@ -304,6 +316,19 @@ function createUiApi(ctx: AppContext): UiAPI {
         return {
           dispose: () => handle.dispose()
         }
+      }
+    },
+    windows: {
+      async open(payload) {
+        if (typeof window.api?.windows?.open !== 'function') return undefined
+        const result = await window.api.windows.open(payload)
+        return result as { id: string; browserWindowId: number }
+      },
+      async close(id: string) {
+        await window.api?.windows?.close?.(id)
+      },
+      async currentId() {
+        return window.api?.windows?.currentId?.()
       }
     }
   }

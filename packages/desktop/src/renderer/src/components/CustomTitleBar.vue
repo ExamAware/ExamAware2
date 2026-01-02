@@ -49,6 +49,6 @@ const { platform, toggleMaximize } = useWindowControls()
 }
 
 .ea-titlebar__side.left.darwin {
-  padding-left: 70px;
+  padding-left: 76px;
 }
 </style>
