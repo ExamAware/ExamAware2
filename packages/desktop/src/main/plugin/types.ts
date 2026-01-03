@@ -178,6 +178,48 @@ export type PluginFactory = (
   config?: Record<string, any>
 ) => void | Disposer | Promise<void | Disposer>
 
+// 插件注册表安装（npm registry）相关类型
+export type RegistryInstallStep =
+  | 'resolving'
+  | 'downloading'
+  | 'verifying'
+  | 'extracting'
+  | 'installing'
+  | 'reloading'
+
+export interface RegistryInstallProgress {
+  step: RegistryInstallStep
+  package: string
+  registry: string
+  version?: string
+  detail?: string
+  percent?: number
+  requestId?: string
+}
+
+export interface RegistryInstallOptions {
+  versionRange?: string
+  registry?: string
+  requestId?: string
+}
+
+export interface RegistryInstallResult {
+  name: string
+  version: string
+  registry: string
+  installedPath: string
+  integrity?: string
+  shasum?: string
+  fromCache: boolean
+  requestId?: string
+}
+
+export interface RegistryReadmeResult {
+  readme: string | null
+  version?: string
+  registry: string
+}
+
 export interface PluginPreferenceStore {
   isEnabled(name: string): boolean
   setEnabled(name: string, enabled: boolean): Promise<void> | void
@@ -193,3 +235,10 @@ export type {
   ServiceProvideOptions,
   ServiceWatcherMeta
 } from '../../shared/services/registry'
+export type {
+  PluginIndexPayload,
+  PluginIndexItem,
+  PluginIndexVersionEntry,
+  PluginSourceFetchRequest,
+  PluginSourceFetchResult
+} from '../../shared/pluginSource'

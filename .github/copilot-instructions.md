@@ -23,3 +23,5 @@
 ## 注意
 
 plugin-sdk 包的 hosting 和 shared 目录为 symlink到 desktop 内的对应代码目录，目的是为了同步代码。修改时请修改 desktop 内代码。
+
+建议每个任务都做好详细的计划，写入文件，工作时实时在计划文件内标注更新进度信息。

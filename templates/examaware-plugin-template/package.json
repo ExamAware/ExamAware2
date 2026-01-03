@@ -1,5 +1,5 @@
 {
-  "name": "examaware-plugin-template",
+  "name": "@dsz-examaware/plugin-demo",
   "version": "0.1.1",
   "private": false,
   "type": "module",

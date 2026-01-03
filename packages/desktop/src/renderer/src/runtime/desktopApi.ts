@@ -14,7 +14,16 @@ import {
   type PlaybackSettingsRefs
 } from '../composables/usePlaybackSettings'
 import { createDesktopPluginHost } from './desktopPluginHost'
-import type { PluginListItem, ServiceProviderRecord } from '../../../main/plugin/types'
+import type {
+  PluginListItem,
+  PluginSourceFetchRequest,
+  PluginSourceFetchResult,
+  RegistryInstallOptions,
+  RegistryInstallProgress,
+  RegistryInstallResult,
+  RegistryReadmeResult,
+  ServiceProviderRecord
+} from '../../../main/plugin/types'
 import type { SettingsPageMeta } from '../app/modules/settings'
 import {
   useEditorPluginStore,
@@ -60,6 +69,7 @@ export interface PluginRegistry {
   serviceProviders: Ref<ServiceProviderRecord[]>
   loading: Ref<boolean>
   error: Ref<string | null>
+  registryProgress: Ref<RegistryInstallProgress | null>
   refresh(): Promise<void>
   toggle(name: string, enabled: boolean): Promise<void>
   reload(name: string): Promise<void>
@@ -67,6 +77,12 @@ export interface PluginRegistry {
   getReadme(name: string): Promise<string | undefined>
   installPackage(filePath: string): Promise<{ installedPath: string; list: PluginListItem[] }>
   installDir(dirPath: string): Promise<{ installedPath: string; list: PluginListItem[] }>
+  installFromRegistry(pkg: string, options?: RegistryInstallOptions): Promise<RegistryInstallResult>
+  fetchRegistryReadme(
+    pkg: string,
+    options?: { version?: string; registry?: string }
+  ): Promise<RegistryReadmeResult>
+  fetchSourceIndex(payload?: PluginSourceFetchRequest): Promise<PluginSourceFetchResult>
   getConfig<T = Record<string, any>>(name: string): Promise<T | undefined>
   setConfig<T = Record<string, any>>(name: string, config: T): Promise<T | undefined>
   patchConfig<T = Record<string, any>>(name: string, partial: Partial<T>): Promise<T | undefined>
@@ -155,6 +171,7 @@ export function initDesktopApi(ctx: AppContext, app?: App): DesktopAPI {
       serviceProviders: pluginHost.providers,
       loading: pluginHost.loading,
       error: pluginHost.error,
+      registryProgress: pluginHost.registryProgress,
       refresh: () => pluginHost.refresh(),
       toggle: (name: string, enabled: boolean) => pluginHost.toggle(name, enabled),
       reload: (name: string) => pluginHost.reload(name),
@@ -162,6 +179,12 @@ export function initDesktopApi(ctx: AppContext, app?: App): DesktopAPI {
       getReadme: (name: string) => pluginHost.getReadme(name),
       installPackage: (filePath: string) => pluginHost.installPackage(filePath),
       installDir: (dirPath: string) => pluginHost.installDir(dirPath),
+      installFromRegistry: (pkg: string, options?: RegistryInstallOptions) =>
+        pluginHost.installFromRegistry(pkg, options),
+      fetchRegistryReadme: (pkg: string, options?: { version?: string; registry?: string }) =>
+        pluginHost.fetchRegistryReadme(pkg, options),
+      fetchSourceIndex: (payload?: PluginSourceFetchRequest) =>
+        pluginHost.fetchSourceIndex(payload),
       getConfig: <T = Record<string, any>>(name: string) => pluginHost.getConfig<T>(name),
       setConfig: <T = Record<string, any>>(name: string, config: T) =>
         pluginHost.setConfig<T>(name, config),

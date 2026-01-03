@@ -26,6 +26,7 @@ import {
 } from '../configStore'
 import { applyTimeConfig } from '../ntpService/timeService'
 import { createSettingsWindow } from '../windows/settingsWindow'
+import { createPluginStoreWindow } from '../windows/pluginStoreWindow'
 import { createMainWindow } from '../windows/mainWindow'
 import { windowManager } from '../windows/windowManager'
 import { applyTitleBarOverlay, OverlayTheme } from '../windows/titleBarOverlay'
@@ -415,6 +416,18 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
     group.add(
       on('open-settings-window', (_e, page?: string) => {
         createSettingsWindow(page)
+      })
+    )
+
+  // 打开插件商店窗口（单例）
+  if (ctx)
+    ctx.ipc.on('open-plugin-store-window', () => {
+      createPluginStoreWindow()
+    })
+  else
+    group.add(
+      on('open-plugin-store-window', () => {
+        createPluginStoreWindow()
       })
     )
 

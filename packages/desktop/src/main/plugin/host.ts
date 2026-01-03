@@ -9,12 +9,16 @@ import semver from 'semver'
 import { DisposerGroup } from '../runtime/disposable'
 import { ServiceRegistry } from '../../shared/services/registry'
 import { appLogger } from '../logging/winstonLogger'
+import { PluginRegistryInstaller } from './registryInstaller'
+import { PluginSourceFetcher } from './sourceFetcher'
+import type { RegistryInstallProgress } from './types'
 import type {
   PluginHostOptions,
   PluginListItem,
   PluginLogger,
   PluginRecord,
   PluginRuntimeContext,
+  PluginSourceFetchRequest,
   ResolvedPluginManifest,
   ServiceProviderRecord,
   ServiceProvideOptions,
@@ -23,6 +27,7 @@ import type {
 import { discoverPluginPackages, loadManifestFromPackage } from './manifest'
 import { buildPluginGraph } from './graph'
 import { PluginLoader } from './loader'
+import { DownloadManager } from '../runtime/downloadManager'
 
 type AnyRecord = Record<string, any>
 
@@ -117,10 +122,22 @@ export class PluginHost extends EventEmitter {
   private channelPrefix = 'plugin'
   private hostVersion = app?.getVersion?.() ?? '0.0.0'
   private hostSdkVersion = loadHostSdkVersion()
+  private registryInstaller: PluginRegistryInstaller
+  private downloadManager: DownloadManager
+  private sourceFetcher: PluginSourceFetcher
 
   constructor(private options: PluginHostOptions) {
     super()
     this.services = new ServiceRegistry(() => this.broadcastState(), this.logger)
+    this.downloadManager = new DownloadManager({ logger: this.logger })
+    this.registryInstaller = new PluginRegistryInstaller(this, {
+      logger: this.logger,
+      downloadManager: this.downloadManager
+    })
+    this.sourceFetcher = new PluginSourceFetcher({
+      logger: this.logger,
+      downloader: this.downloadManager
+    })
   }
 
   get logger() {
@@ -529,6 +546,10 @@ export class PluginHost extends EventEmitter {
     }
   }
 
+  async fetchPluginSource(payload?: PluginSourceFetchRequest) {
+    return this.sourceFetcher.fetch(payload)
+  }
+
   /**
    * 设置 IPC 通道，用于与渲染进程通信。
    * @param channelPrefix 通道前缀
@@ -565,6 +586,33 @@ export class PluginHost extends EventEmitter {
       this.getRendererEntryUrl(name)
     )
     ipcMain.handle(`${channelPrefix}:readme`, async (_e, name: string) => this.getReadme(name))
+    ipcMain.handle(`${channelPrefix}:fetch-source`, async (_e, payload: PluginSourceFetchRequest) =>
+      this.fetchPluginSource(payload)
+    )
+    ipcMain.handle(
+      `${channelPrefix}:install-registry`,
+      async (
+        _e,
+        payload: { pkg?: string; versionRange?: string; registry?: string; requestId?: string }
+      ) => {
+        const pkg = payload?.pkg?.trim()
+        if (!pkg) throw new Error('缺少包名')
+        return this.registryInstaller.installFromRegistry(pkg, {
+          versionRange: payload?.versionRange,
+          registry: payload?.registry,
+          requestId: payload?.requestId,
+          onProgress: (progress) => this.broadcastRegistryProgress(progress)
+        })
+      }
+    )
+    ipcMain.handle(`${channelPrefix}:registry-readme`, async (_e, payload) => {
+      const pkg = payload?.pkg?.trim()
+      if (!pkg) throw new Error('缺少包名')
+      return this.registryInstaller.fetchReadme(pkg, {
+        version: payload?.version,
+        registry: payload?.registry
+      })
+    })
     ipcMain.handle(`${channelPrefix}:install-package`, async (_e, filePath: string) => {
       const target = await this.installPackage(filePath)
       await this.scan()
@@ -812,6 +860,17 @@ export class PluginHost extends EventEmitter {
   private notifyStateChange() {
     this.emit('state-changed', this.list())
     this.broadcastState()
+  }
+
+  private broadcastRegistryProgress(progress: RegistryInstallProgress) {
+    if (!this.channelPrefix) return
+    for (const window of BrowserWindow.getAllWindows()) {
+      try {
+        window.webContents.send(`${this.channelPrefix}:registry-progress`, progress)
+      } catch (error) {
+        this.logger.warn('[PluginHost] registry progress broadcast failed', error)
+      }
+    }
   }
 
   private broadcastState() {
