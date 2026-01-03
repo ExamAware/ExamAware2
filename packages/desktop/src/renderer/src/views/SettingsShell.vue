@@ -24,7 +24,16 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch, inject, getCurrentInstance, provide } from 'vue'
+import {
+  onMounted,
+  onUnmounted,
+  ref,
+  shallowRef,
+  watch,
+  inject,
+  getCurrentInstance,
+  provide
+} from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useSettingsApi } from '@renderer/stores/settingsStore'
 import { useSettingRef, useSettingsGroup, useSettingToggle } from '@renderer/composables/useSetting'
@@ -56,7 +65,7 @@ provide('useSettingRef', useSettingRef)
 provide('useSettingsGroup', useSettingsGroup)
 provide('useSettingToggle', useSettingToggle)
 
-const currentComponent = ref<any>(null)
+const currentComponent = shallowRef<any>(null)
 
 async function loadCurrent() {
   const id = active.value

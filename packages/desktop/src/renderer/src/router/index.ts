@@ -10,6 +10,7 @@ import LogsView from '@renderer/views/LogsView.vue'
 import TrayPopover from '@renderer/views/tray/TrayPopover.vue'
 import SettingsShell from '@renderer/views/SettingsShell.vue'
 import CastWindow from '@renderer/views/CastWindow.vue'
+import PluginStoreWindow from '@renderer/views/PluginStoreWindow.vue'
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -27,6 +28,7 @@ const router = createRouter({
     },
     { path: '/editor', name: 'editor', component: EditorView, meta: { hideTitlebar: true } },
     { path: '/settings/:page?', name: 'settings', component: SettingsShell },
+    { path: '/plugin-store', name: 'plugin-store', component: PluginStoreWindow },
     // 播放器独立窗口路由（由主进程以 #/playerview 打开）
     {
       path: '/playerview',

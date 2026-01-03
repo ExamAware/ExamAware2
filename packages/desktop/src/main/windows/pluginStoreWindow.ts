@@ -6,24 +6,26 @@ import {
   attachTitleBarOverlayLifecycle
 } from './titleBarOverlay'
 
-export function createSettingsWindow(page?: string): BrowserWindow {
+export function createPluginStoreWindow(): BrowserWindow {
   return windowManager.open(({ commonOptions }) => {
     const options: Electron.BrowserWindowConstructorOptions = {
       ...commonOptions(),
-      width: 1280,
-      height: 700,
+      width: 1120,
+      height: 780,
+      minWidth: 960,
+      minHeight: 640,
       ...(process.platform !== 'linux'
         ? {
             titleBarStyle: 'hidden' as const,
             titleBarOverlay: buildTitleBarOverlay()
           }
         : {}),
-      title: '应用设置'
+      title: '插件商店'
     }
 
     return {
-      id: 'settings',
-      route: page ? `settings/${page}` : 'settings',
+      id: 'plugin-store',
+      route: 'plugin-store',
       options,
       setup(win) {
         applyTitleBarOverlay(win)

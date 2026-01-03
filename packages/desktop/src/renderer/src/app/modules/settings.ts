@@ -116,10 +116,17 @@ export const settingsModule: AppModule = {
         component: () => import('@renderer/views/settings/LoggingSettings.vue')
       },
       {
+        id: 'plugin-source',
+        label: '插件源',
+        icon: 'link',
+        order: 7,
+        component: () => import('@renderer/views/settings/PluginSourceSettings.vue')
+      },
+      {
         id: 'plugins',
         label: '插件',
         icon: 'extension',
-        order: 7,
+        order: 8,
         component: () => import('@renderer/views/settings/PluginSettings.vue')
       },
       {

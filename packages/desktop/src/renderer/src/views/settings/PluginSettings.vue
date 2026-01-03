@@ -1,101 +1,186 @@
 <template>
   <div class="settings-page plugin-settings">
     <h2>插件</h2>
-    <p class="page-desc">插件可以实现很多好玩的东西。</p>
+    <p class="page-desc">插件可以扩展能力，支持本地和注册表安装。</p>
 
-    <t-card class="install-banner" theme="poster2">
-      <div class="install-inner">
-        <div class="install-copy">
-          <div class="install-title">快速安装</div>
-          <div class="install-desc">支持开发目录、解压后的插件文件夹，或 .ea2x 插件包。</div>
-        </div>
-        <div class="install-actions">
-          <t-button theme="default" size="large" shape="round" @click="handleInstallExtracted">
-            <template #icon><CloudUploadIcon /></template>
-            <span>解压缩插件</span>
-          </t-button>
-          <t-button theme="success" size="large" shape="round" @click="handleInstallPackage">
-            <template #icon><FileZipIcon /></template>
-            <span>插件包 (.ea2x)</span>
-          </t-button>
-        </div>
-      </div>
-    </t-card>
-
-    <t-card class="plugin-table-card" title="插件列表" :loading="manager.loading.value">
-      <div class="table-toolbar">
-        <t-space size="small">
-          <t-button
-            variant="outline"
-            size="small"
-            @click="manager.refresh"
-            :loading="manager.loading.value"
-          >
-            刷新
-          </t-button>
-        </t-space>
-      </div>
-
-      <t-table
-        row-key="name"
-        :data="plugins"
-        :columns="columns"
-        size="medium"
-        table-layout="auto"
-        :row-class-name="rowClassName"
-        :pagination="false"
-        @row-click="onRowClick"
-      >
-        <template #empty>
-          <div class="empty">暂无插件</div>
-        </template>
-
-        <template #name="{ row }">
-          <div class="plugin-name-col">
-            <span class="plugin-name">{{ row.displayName || row.name }}</span>
+    <t-space direction="vertical" size="small" style="width: 100%">
+      <t-card title="安装" theme="poster2">
+        <div class="settings-item">
+          <div class="settings-item-icon">
+            <TIcon name="cloud-download" size="22px" />
           </div>
-        </template>
+          <div class="settings-item-main">
+            <div class="settings-item-title">从注册表安装</div>
+            <div class="settings-item-desc">
+              输入包名即可从 npm registry 下载并安装插件包，支持版本范围和自定义 registry。
+            </div>
+            <div v-if="currentProgress" class="registry-progress">
+              <div class="progress-head">
+                <span class="progress-step">
+                  {{ formatRegistryStep(currentProgress.step) }}
+                </span>
+                <span v-if="currentProgress.version" class="muted"
+                  >v{{ currentProgress.version }}</span
+                >
+              </div>
+              <div v-if="currentProgress.detail" class="progress-detail">
+                {{ currentProgress.detail }}
+              </div>
+              <t-progress
+                v-if="progressPercent !== undefined"
+                :percentage="progressPercent"
+                size="small"
+                theme="primary"
+              />
+              <t-tag v-else size="small" variant="light-outline">
+                {{ currentProgress.step }}
+              </t-tag>
+            </div>
+          </div>
+          <div class="settings-item-action registry-action">
+            <t-input
+              v-model="registryPackage"
+              size="small"
+              placeholder="包名，例如 @scope/plugin"
+              :disabled="registryInstalling"
+            />
+            <t-input
+              v-model="registryVersionRange"
+              size="small"
+              placeholder="版本范围（可选，例如 ^1.0.0）"
+              :disabled="registryInstalling"
+            />
+            <t-input
+              v-model="registryRegistry"
+              size="small"
+              placeholder="Registry URL（可选）"
+              :disabled="registryInstalling"
+            />
+            <t-button
+              theme="primary"
+              size="small"
+              :loading="registryInstalling"
+              @click="handleRegistryInstall"
+            >
+              <template #icon><CloudUploadIcon /></template>
+              开始安装
+            </t-button>
+          </div>
+        </div>
 
-        <template #description="{ row }">
-          <div class="plugin-desc">{{ row.description || '未提供描述' }}</div>
-        </template>
+        <t-divider />
 
-        <template #version="{ row }">
-          <span>v{{ row.version }}</span>
-        </template>
+        <div class="settings-item">
+          <div class="settings-item-icon">
+            <TIcon name="folder-add" size="22px" />
+          </div>
+          <div class="settings-item-main">
+            <div class="settings-item-title">本地安装</div>
+            <div class="settings-item-desc">
+              支持解压后的插件目录或 .ea2x 插件包，方便离线部署或本地调试。
+            </div>
+          </div>
+          <div class="settings-item-action local-actions">
+            <t-button
+              theme="default"
+              size="small"
+              variant="outline"
+              @click="handleInstallExtracted"
+            >
+              <template #icon><CloudUploadIcon /></template>
+              解压缩插件
+            </t-button>
+            <t-button theme="success" size="small" variant="outline" @click="handleInstallPackage">
+              <template #icon><FileZipIcon /></template>
+              插件包 (.ea2x)
+            </t-button>
+          </div>
+        </div>
+      </t-card>
 
-        <template #operations="{ row }">
+      <t-card class="plugin-table-card" title="插件列表" :loading="manager.loading.value">
+        <div class="card-toolbar">
+          <div class="card-meta">
+            <t-tag size="small" variant="light">总数 {{ pluginList.length }}</t-tag>
+            <span class="muted">启用 {{ enabledCount }}</span>
+          </div>
           <t-space size="small">
-            <t-tooltip content="查看详情">
-              <t-button shape="circle" variant="text" @click.stop="openDetail(row)">
-                <InfoCircleIcon />
-              </t-button>
-            </t-tooltip>
-            <t-tooltip content="重载插件">
-              <t-button shape="circle" variant="text" @click.stop="handleReload(row)">
-                <RefreshIcon />
-              </t-button>
-            </t-tooltip>
-            <t-tooltip :content="row.enabled ? '禁用插件' : '启用插件'">
-              <t-button shape="circle" variant="text" @click.stop="handleToggle(row, !row.enabled)">
-                <PoweroffIcon v-if="row.enabled" />
-                <PlayCircleIcon v-else />
-              </t-button>
-            </t-tooltip>
-            <t-tooltip content="卸载插件">
-              <t-button
-                shape="circle"
-                variant="text"
-                theme="danger"
-                @click.stop="confirmUninstall(row)"
-              >
-                <DeleteIcon />
-              </t-button>
-            </t-tooltip>
+            <t-button
+              variant="outline"
+              size="small"
+              @click="manager.refresh"
+              :loading="manager.loading.value"
+            >
+              刷新
+            </t-button>
           </t-space>
-        </template>
-      </t-table>
-    </t-card>
+        </div>
+
+        <t-table
+          row-key="name"
+          :data="pluginList"
+          :columns="columns"
+          size="medium"
+          table-layout="auto"
+          :row-class-name="rowClassName"
+          :pagination="false"
+          @row-click="onRowClick"
+        >
+          <template #empty>
+            <div class="empty">暂无插件</div>
+          </template>
+
+          <template #name="{ row }">
+            <div class="plugin-name-col">
+              <span class="plugin-name">{{ row.displayName || row.name }}</span>
+            </div>
+          </template>
+
+          <template #description="{ row }">
+            <div class="plugin-desc">{{ row.description || '未提供描述' }}</div>
+          </template>
+
+          <template #version="{ row }">
+            <span>v{{ row.version }}</span>
+          </template>
+
+          <template #operations="{ row }">
+            <t-space size="small">
+              <t-tooltip content="查看详情">
+                <t-button shape="circle" variant="text" @click.stop="openDetail(row)">
+                  <InfoCircleIcon />
+                </t-button>
+              </t-tooltip>
+              <t-tooltip content="重载插件">
+                <t-button shape="circle" variant="text" @click.stop="handleReload(row)">
+                  <RefreshIcon />
+                </t-button>
+              </t-tooltip>
+              <t-tooltip :content="row.enabled ? '禁用插件' : '启用插件'">
+                <t-button
+                  shape="circle"
+                  variant="text"
+                  @click.stop="handleToggle(row, !row.enabled)"
+                >
+                  <PoweroffIcon v-if="row.enabled" />
+                  <PlayCircleIcon v-else />
+                </t-button>
+              </t-tooltip>
+              <t-tooltip content="卸载插件">
+                <t-button
+                  shape="circle"
+                  variant="text"
+                  theme="danger"
+                  @click.stop="confirmUninstall(row)"
+                >
+                  <DeleteIcon />
+                </t-button>
+              </t-tooltip>
+            </t-space>
+          </template>
+        </t-table>
+      </t-card>
+    </t-space>
 
     <t-drawer v-model:visible="detailVisible" :header="detailTitle" size="70%" :footer="false">
       <div v-if="detailTarget" class="drawer-body">
@@ -140,10 +225,15 @@
         <div class="drawer-section">
           <div class="section-title">依赖服务</div>
           <div class="chip-group">
-            <t-tag v-for="svc in detailTarget.injects" :key="svc" size="small" variant="outline">
+            <t-tag
+              v-for="svc in detailTarget.injects || []"
+              :key="svc"
+              size="small"
+              variant="outline"
+            >
               {{ svc }}
             </t-tag>
-            <span v-if="!detailTarget.injects.length" class="muted">无</span>
+            <span v-if="!(detailTarget.injects || []).length" class="muted">无</span>
           </div>
         </div>
 
@@ -188,19 +278,36 @@ import {
   CloudUploadIcon,
   DeleteIcon,
   FileZipIcon,
+  Icon as TIcon,
   InfoCircleIcon,
   PlayCircleIcon,
   PoweroffIcon,
   RefreshIcon
 } from 'tdesign-icons-vue-next'
 import { useDesktopApi } from '@renderer/runtime/desktopApi'
-import type { PluginListItem, ServiceProviderRecord } from '../../../../main/plugin/types'
+import type {
+  PluginListItem,
+  RegistryInstallProgress,
+  ServiceProviderRecord
+} from '../../../../main/plugin/types'
 import 'katex/dist/katex.min.css'
 
 const desktopApi = useDesktopApi()
 const manager = desktopApi.plugins
 const plugins = manager.installed
+const pluginList = computed(() => plugins.value ?? [])
+const registryProgress = manager.registryProgress
 const selectedName = ref<string | null>(null)
+const registryInstalling = ref(false)
+const registryPackage = ref('')
+const registryVersionRange = ref('')
+const registryRegistry = ref('')
+const currentProgress = computed(() => registryProgress.value)
+const progressPercent = computed(() => {
+  const pct = registryProgress.value?.percent
+  if (pct === undefined || pct === null) return undefined
+  return Math.max(0, Math.min(100, Number(pct)))
+})
 
 const detailVisible = ref(false)
 const detailTarget = ref<PluginListItem | null>(null)
@@ -220,9 +327,12 @@ const columns = [
   { colKey: 'operations', title: '操作', width: 220, align: 'center' }
 ]
 
+const enabledCount = computed(() => pluginList.value.filter((item) => item.enabled).length)
+
 const providerMap = computed(() => {
   const map = new Map<string, ServiceProviderRecord[]>()
-  manager.serviceProviders.value.forEach((svc) => {
+  const services = manager.serviceProviders.value ?? []
+  services.forEach((svc) => {
     const list = map.get(svc.owner) ?? []
     list.push(svc)
     map.set(svc.owner, list)
@@ -235,8 +345,27 @@ const detailProvidedServices = computed(() => {
   return providerMap.value.get(detailTarget.value.name) ?? []
 })
 
+function formatRegistryStep(step: RegistryInstallProgress['step']) {
+  switch (step) {
+    case 'resolving':
+      return '解析版本'
+    case 'downloading':
+      return '下载插件包'
+    case 'verifying':
+      return '校验完整性'
+    case 'extracting':
+      return '解压缩'
+    case 'installing':
+      return '安装中'
+    case 'reloading':
+      return '重载插件'
+    default:
+      return step
+  }
+}
+
 watch(
-  plugins,
+  pluginList,
   (list) => {
     if (!list.length) {
       selectedName.value = null
@@ -257,10 +386,6 @@ function rowClassName({ row }: { row: PluginListItem }) {
   return row.name === selectedName.value ? 'is-selected-row' : ''
 }
 
-function providedFor(name: string) {
-  return providerMap.value.get(name) ?? []
-}
-
 async function handleToggle(plugin: PluginListItem, enabled: boolean) {
   try {
     await manager.toggle(plugin.name, enabled)
@@ -268,6 +393,31 @@ async function handleToggle(plugin: PluginListItem, enabled: boolean) {
   } catch (error) {
     const msg = (error as Error).message
     MessagePlugin.error(msg)
+  }
+}
+
+async function handleRegistryInstall() {
+  if (!registryPackage.value.trim()) {
+    MessagePlugin.warning('请输入包名')
+    return
+  }
+  registryInstalling.value = true
+  try {
+    const requestId =
+      typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : String(Date.now())
+    const result = await manager.installFromRegistry(registryPackage.value.trim(), {
+      versionRange: registryVersionRange.value.trim() || undefined,
+      registry: registryRegistry.value.trim() || undefined,
+      requestId
+    })
+    MessagePlugin.success(`已安装 ${result.name}@${result.version}`)
+  } catch (error) {
+    const msg = (error as Error).message
+    MessagePlugin.error(msg)
+  } finally {
+    registryInstalling.value = false
   }
 }
 
@@ -331,7 +481,7 @@ async function confirmUninstall(plugin: PluginListItem) {
         await manager.uninstall(plugin.name)
         MessagePlugin.success('插件已卸载')
         if (selectedName.value === plugin.name) {
-          selectedName.value = plugins.value.find((p) => p.name !== plugin.name)?.name ?? null
+          selectedName.value = pluginList.value.find((p) => p.name !== plugin.name)?.name ?? null
         }
       } catch (error) {
         const msg = (error as Error).message
@@ -371,66 +521,57 @@ onMounted(() => {
 .plugin-settings {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-}
-.install-banner {
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--td-brand-color) 12%, var(--td-bg-color-container)),
-    var(--td-bg-color-container)
-  );
-  border: 1px solid var(--td-border-level-1-color);
-}
-:global([theme-mode='dark']) .install-banner {
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--td-brand-color) 18%, var(--td-bg-color-container)),
-    color-mix(in srgb, var(--td-brand-color) 8%, var(--td-bg-color-page))
-  );
-  border-color: color-mix(in srgb, var(--td-border-level-1-color) 70%, transparent);
-}
-.install-inner {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px 24px;
-  flex-wrap: wrap;
-}
-.install-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  max-width: 520px;
-}
-.install-title {
-  font-size: 16px;
-  font-weight: 700;
-}
-.install-desc {
-  color: var(--td-text-color-secondary);
-}
-.install-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-left: auto;
-  min-width: 220px;
-  align-items: stretch;
-}
-.install-actions :deep(.t-button) {
-  width: 100%;
-}
-.plugin-table-card {
-  width: 100%;
-}
-.table-toolbar {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 8px;
+  gap: 12px;
 }
 .page-desc {
   margin: 0 0 12px;
   color: var(--td-text-color-secondary);
+}
+.plugin-table-card {
+  width: 100%;
+}
+.card-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.registry-action {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
+  min-width: 340px;
+  align-items: center;
+}
+.local-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.registry-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+.progress-head {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.progress-step {
+  font-weight: 600;
+}
+.progress-detail {
+  color: var(--td-text-color-secondary);
+  font-size: 12px;
 }
 .plugin-cell {
   display: flex;

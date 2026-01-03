@@ -131,11 +131,22 @@ export const homeButtonsModule: AppModule = {
     })
 
     add({
+      id: 'plugin-store',
+      label: '插件商店',
+      icon: 'shop',
+      theme: 'primary',
+      order: 6,
+      action: () => {
+        window.api?.ipc?.send('open-plugin-store-window')
+      }
+    })
+
+    add({
       id: 'help',
       label: '帮助',
       icon: 'help-circle',
       theme: 'default',
-      order: 6,
+      order: 7,
       action: () => {
         console.log('帮助功能待实现')
       }
@@ -146,7 +157,7 @@ export const homeButtonsModule: AppModule = {
       label: '关于',
       icon: 'info-circle',
       theme: 'default',
-      order: 7,
+      order: 8,
       action: () => {
         window.api?.ipc?.send('open-settings-window', 'about')
       }
@@ -158,7 +169,7 @@ export const homeButtonsModule: AppModule = {
       label: '日志',
       icon: 'file-code',
       theme: 'default',
-      order: 8,
+      order: 9,
       action: () => {
         // 打开/聚焦独立的日志窗口（单例）
         window.api?.ipc?.send('open-logs-window')
