@@ -132,10 +132,19 @@ export class CastService {
 
   private async ensureBonjourStarted() {
     if (this.bonjour) return
-    const instance = new Bonjour()
+    const mdnsOptions = {
+      multicast: true,
+      interface: '0.0.0.0',
+      loopback: true,
+      reuseAddr: true,
+      ip: '224.0.0.251',
+      port: 5353
+    }
+    const instance = new Bonjour(mdnsOptions)
     ;(instance as any).on?.('error', (err: Error) => appLogger.error('[cast] bonjour error', err))
     appLogger.info('[cast] bonjour init', {
-      interfaces: Array.from(this.getLocalAddressSet())
+      interfaces: Array.from(this.getLocalAddressSet()),
+      options: mdnsOptions
     })
     this.bonjour = instance
   }
@@ -152,11 +161,14 @@ export class CastService {
       name: this.config.name || 'ExamAware',
       type: 'examaware',
       port: this.config.port,
+      host: `${os.hostname?.() || 'examaware'}.local`,
       txt: {
         v: app.getVersion?.() || 'dev',
         share: this.config.shareEnabled ? '1' : '0'
       }
     })
+    // Some environments require explicit start()
+    this.published.start?.()
     this.published?.on('error', (err) => appLogger.error('[cast] publish error', err))
     this.published?.on('up', () =>
       appLogger.info('[cast] bonjour publish up', {
@@ -177,6 +189,7 @@ export class CastService {
     ;(this.browser as any).on?.('error', (err: Error) =>
       appLogger.error('[cast] bonjour browse error', err)
     )
+    this.browser.start?.()
   }
 
   private isSelfService(host: string, port: number, addresses: string[] = []) {
