@@ -15,8 +15,7 @@
 import { defineProps, defineEmits, computed } from 'vue'
 import type { ExamConfig, ExamInfo } from '@renderer/core/configTypes'
 import ExamList from './ExamList.vue'
-import { formatLocalDateTime } from '@renderer/utils/dateFormat'
-import { getSyncedTime } from '@renderer/utils/timeUtils'
+import { useExamEditor } from '@renderer/composables/useExamEditor'
 
 const props = defineProps({
   profile: Object as () => ExamConfig
@@ -32,29 +31,11 @@ const currentProfile = computed(() => ({
   ...props.profile
 }))
 
-// 添加考试
+// 添加考试统一走 configManager 逻辑
+const { configManager } = useExamEditor()
 const addExam = () => {
-  console.log('SideExamsPanel: addExam called')
-  console.log('Current profile examInfos:', currentProfile.value.examInfos)
-
-  const now = new Date(getSyncedTime())
-  const startTime = formatLocalDateTime(now)
-  const endTime = formatLocalDateTime(new Date(now.getTime() + 2 * 60 * 60 * 1000))
-
-  const newExam: ExamInfo = {
-    name: `考试${(currentProfile.value.examInfos || []).length + 1}`,
-    start: startTime,
-    end: endTime,
-    alertTime: 15
-  }
-
-  const updatedProfile = {
-    ...currentProfile.value,
-    examInfos: [...(currentProfile.value.examInfos || []), newExam]
-  }
-
-  console.log('Emitting update:profile with:', updatedProfile)
-  emit('update:profile', updatedProfile)
+  configManager.addExamInfo()
+  emit('update:profile', configManager.getConfig())
 }
 
 // 切换考试信息
