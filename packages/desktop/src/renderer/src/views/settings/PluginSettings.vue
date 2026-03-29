@@ -5,7 +5,7 @@
 
     <t-space direction="vertical" size="small" style="width: 100%">
       <t-card title="安装" theme="poster2">
-        <div class="settings-item">
+        <!-- <div class="settings-item">
           <div class="settings-item-icon">
             <TIcon name="cloud-download" size="22px" />
           </div>
@@ -66,7 +66,7 @@
               开始安装
             </t-button>
           </div>
-        </div>
+        </div> -->
 
         <t-divider />
 

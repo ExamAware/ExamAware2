@@ -42,6 +42,13 @@ async function bootstrap() {
   })
 
   app.app.mount('#app')
+
+  try {
+    const windowId = await (window as any).api?.windows?.currentId?.()
+    ;(window as any).api?.ipc?.send?.('renderer:ready', { windowId })
+  } catch (error) {
+    console.warn('failed to notify renderer ready', error)
+  }
 }
 
 bootstrap()

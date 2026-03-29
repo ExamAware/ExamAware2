@@ -461,7 +461,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
       options: {
         ...commonOptions(),
         ...(payload?.options ?? {}),
-        show: payload?.options?.show ?? true
+        show: payload?.options?.show ?? false
       }
     }))
     return { id, browserWindowId: win.id }

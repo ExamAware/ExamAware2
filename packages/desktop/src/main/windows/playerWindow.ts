@@ -41,10 +41,6 @@ export function createPlayerWindow(configPath: string): BrowserWindow {
       }
       ipcMain.on(exitChannel, onRendererExit)
 
-      playerWindow.on('ready-to-show', () => {
-        playerWindow.show()
-      })
-
       // windowManager 已统一设置外链打开处理
 
       playerWindow.webContents.on('before-input-event', (event, input) => {

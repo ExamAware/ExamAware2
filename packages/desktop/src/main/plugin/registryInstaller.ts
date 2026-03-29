@@ -42,13 +42,8 @@ interface VersionMetadata {
 interface PackageMetadata {
   name: string
   'dist-tags': Record<string, string>
-  versions: Record<string, VersionMetadata>
-}
-
-interface PackageVersionPayload {
+  versions: Record<string, VersionMetadata & { readme?: string }>
   readme?: string
-  version?: string
-  'dist-tags'?: Record<string, string>
 }
 
 type LoggerLike = Pick<PluginLogger, 'info' | 'warn' | 'error' | 'debug'>
@@ -208,15 +203,55 @@ export class PluginRegistryInstaller {
     options: { version?: string; registry?: string } = {}
   ): Promise<RegistryReadmeResult> {
     const registry = normalizeRegistry(options.registry ?? this.defaultRegistry)
-    const version = options.version?.trim()
-    const url = `${registry}/${encodePackagePath(pkg)}${version ? `/${encodeURIComponent(version)}` : ''}`
-    const res = await fetch(url, { headers: { accept: 'application/json' } })
+    const requestedVersion = options.version?.trim()
+    const url = `${registry}/${encodePackagePath(pkg)}`
+    const requestInfo = {
+      method: 'GET',
+      url,
+      headers: { accept: 'application/json' },
+      requestedVersion: requestedVersion || 'latest'
+    }
+
+    this.logger.info('[PluginRegistryInstaller] fetchReadme start', {
+      pkg,
+      registry,
+      request: requestInfo
+    })
+
+    const res = await fetch(url, { headers: requestInfo.headers })
+    this.logger.debug?.('[PluginRegistryInstaller] fetchReadme response', {
+      status: res.status,
+      ok: res.ok,
+      contentType: res.headers.get('content-type'),
+      contentLength: res.headers.get('content-length'),
+      url
+    })
     if (!res.ok) {
       throw new Error(`Registry responded with ${res.status} for ${url}`)
     }
-    const payload = (await res.json()) as PackageVersionPayload
-    const resolvedVersion = payload?.version ?? version ?? payload?.['dist-tags']?.latest
-    const readme = typeof payload?.readme === 'string' ? payload.readme : null
+    const meta = (await res.json()) as PackageMetadata
+    const resolvedVersion = this.client.resolveVersion(meta, requestedVersion)
+
+    // Always prefer top-level readme (npm registry always provides it)
+    const readme = typeof meta.readme === 'string' ? meta.readme : null
+
+    if (!readme) {
+      this.logger.warn?.('[PluginRegistryInstaller] registry returned no README', {
+        pkg,
+        registry,
+        requestedVersion,
+        resolvedVersion
+      })
+    } else {
+      this.logger.debug?.('[PluginRegistryInstaller] fetched README', {
+        pkg,
+        registry,
+        requestedVersion,
+        resolvedVersion,
+        readmeLength: readme.length
+      })
+    }
+
     return { readme, version: resolvedVersion, registry }
   }
 
