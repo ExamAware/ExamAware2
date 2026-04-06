@@ -17,4 +17,5 @@ export type DevReminderPreset = 'start' | 'warning' | 'end';
 export interface DevReminderPayload {
   title: string;
   themeBaseColor: string;
+  forceWhiteText?: boolean;
 }
