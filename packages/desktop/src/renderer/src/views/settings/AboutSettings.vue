@@ -9,7 +9,9 @@
     <p class="git-hash">Git Hash：{{ gitHash }}</p>
     <div class="actions">
       <t-button size="small" theme="primary" variant="base" @click="openGithub">
-        <t-icon name="logo-github" />
+        <template #icon>
+          <t-icon name="logo-github"></t-icon>
+        </template>
         <span>GitHub</span>
       </t-button>
       <t-button size="small" variant="outline" @click="showLicense = true">开源协议</t-button>

@@ -12,3 +12,5 @@ docs/.vuepress/.temp/
 docs/.vuepress/dist/
 packages/desktop/docs/*
 ignore/
+
+packages/rpc/tsconfig.tsbuildinfo
