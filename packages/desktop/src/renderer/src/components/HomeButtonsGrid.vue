@@ -9,7 +9,12 @@
       >
         <div class="buttons-row" v-for="(row, rowIndex) in page" :key="rowIndex">
           <div class="button-container" v-for="button in row" :key="button.id">
-            <t-button class="home-button" :theme="button.theme" @click="handleButtonClick(button)">
+            <t-button
+              class="home-button"
+              :theme="button.theme"
+              :title="button.hint"
+              @click="handleButtonClick(button)"
+            >
               <t-icon :name="button.icon" size="50px" />
             </t-button>
             <p class="button-description">{{ button.label }}</p>

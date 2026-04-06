@@ -1,11 +1,13 @@
 import type { App } from 'vue'
 import type { AppModule } from '../types'
 import { DisposerGroup } from '@renderer/runtime/disposable'
+import { MessagePlugin } from 'tdesign-vue-next'
 
 export interface HomeButtonMeta {
   id: string
   label: string
   icon: string
+  hint?: string
   theme?: 'default' | 'primary' | 'success' | 'warning' | 'danger'
   order?: number
   action: () => void | Promise<void>
@@ -111,11 +113,11 @@ export const homeButtonsModule: AppModule = {
       id: 'control',
       label: '集控',
       icon: 'server',
+      hint: '敬请期待',
       theme: 'default',
       order: 4,
       action: () => {
-        // TODO: 实现集控功能
-        console.log('集控功能待实现')
+        MessagePlugin.info('敬请期待')
       }
     })
 
