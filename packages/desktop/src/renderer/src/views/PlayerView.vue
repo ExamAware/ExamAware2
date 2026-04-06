@@ -14,6 +14,7 @@
       :large-clock="largeClockEnabled"
       :large-clock-scale="largeClockScaleSetting"
       :exam-info-large-font="examInfoLargeFontSetting"
+      :hdr-highlight="hdrHighlightSetting"
       @exit="handleExit"
       @room-number-click="handleRoomNumberClick"
       @room-number-change="handleRoomNumberChange"
@@ -71,6 +72,9 @@ const defaultRoomSetting = computed(() => {
   const trimmed = raw.trim()
   return trimmed.length ? trimmed : '01'
 })
+const hdrHighlightSetting = computed(() =>
+  Boolean(settingsStore.get<boolean>('player.hdrHighlight', false))
+)
 const largeClockEnabled = largeClockEnabledSetting
 
 // 考场号相关状态

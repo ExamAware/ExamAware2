@@ -99,9 +99,11 @@ export const homeButtonsModule: AppModule = {
       icon: 'link',
       theme: 'default',
       order: 3,
-      action: () => {
-        // TODO: 实现 URL 放映功能
-        console.log('URL 放映功能待实现')
+      action: async () => {
+        const router = (app.config.globalProperties as any).$router
+        if (router) {
+          await router.push('/playerhome/url')
+        }
       }
     })
 

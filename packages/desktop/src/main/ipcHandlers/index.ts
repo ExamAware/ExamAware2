@@ -35,6 +35,9 @@ import { LoggingIpcController } from '../ipc/loggingController'
 import { HttpApiController } from '../ipc/httpApiController'
 import { CastController } from '../ipc/castController'
 import { getSharedConfig, setSharedConfig } from '../state/sharedConfigStore'
+import axios from 'axios'
+import https from 'https'
+import { parseExamConfig, validateExamConfig } from '@dsz-examaware/core'
 
 // minimal disposer group for main process
 function createDisposerGroup() {
@@ -98,6 +101,56 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
     const filePath = await createTempPlayerConfig(data)
     createPlayerWindow(filePath)
     return filePath
+  }
+
+  const fetchTextFromUrl = async (input: string) => {
+    let parsed: URL
+    try {
+      parsed = new URL(input)
+    } catch {
+      throw new Error('URL 格式不正确')
+    }
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      throw new Error('仅支持 http/https URL')
+    }
+    const url = parsed.toString()
+    const readBody = (payload: unknown) => {
+      const data = String(payload ?? '')
+      if (!data.trim()) {
+        throw new Error('URL 返回内容为空')
+      }
+      return data
+    }
+
+    try {
+      const res = await axios.get<string>(url, {
+        responseType: 'text',
+        timeout: 30000
+      })
+      return readBody(res.data)
+    } catch (error: any) {
+      const code = error?.cause?.code || error?.code
+      if (code !== 'UNABLE_TO_GET_ISSUER_CERT_LOCALLY') {
+        throw error
+      }
+      appLogger.warn('[ipc] fetch url tls failed, retrying insecure', { url, code })
+      const httpsAgent = new https.Agent({ rejectUnauthorized: false })
+      const res = await axios.get<string>(url, {
+        responseType: 'text',
+        timeout: 30000,
+        httpsAgent
+      })
+      return readBody(res.data)
+    }
+  }
+
+  const openPlayerFromUrl = async (url: string) => {
+    const data = await fetchTextFromUrl(url)
+    const config = parseExamConfig(data)
+    if (!config || !validateExamConfig(config)) {
+      throw new Error('URL 返回内容不是有效的 ExamAware 配置')
+    }
+    return openPlayerFromEditor(data)
   }
 
   const showMessageBox = (event: { sender: WebContents }, options: MessageBoxOptions) => {
@@ -215,6 +268,9 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
     group.add(
       handle('player:open-from-editor', (_event, data: string) => openPlayerFromEditor(data))
     )
+
+  if (ctx) ctx.ipc.handle('player:open-from-url', (_event, url: string) => openPlayerFromUrl(url))
+  else group.add(handle('player:open-from-url', (_event, url: string) => openPlayerFromUrl(url)))
 
   // 打开日志窗口
   if (ctx)

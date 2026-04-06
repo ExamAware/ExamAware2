@@ -55,6 +55,12 @@ protocol.registerSchemesAsPrivileged([
   }
 ])
 
+if (process.platform === 'darwin') {
+  // Enable system HDR output on macOS when the display supports it.
+  app.commandLine.appendSwitch('enable-features', 'UseSkiaRenderer,UseDisplayHDR')
+  app.commandLine.appendSwitch('force-color-profile', 'display-p3')
+}
+
 const STARTUP_BANNER = bannerText.trim()
 
 function printStartupBanner() {

@@ -15,7 +15,8 @@
 import { defineProps, defineEmits, computed } from 'vue'
 import type { ExamConfig, ExamInfo } from '@renderer/core/configTypes'
 import ExamList from './ExamList.vue'
-import { useExamEditor } from '@renderer/composables/useExamEditor'
+import { formatLocalDateTime } from '@renderer/utils/dateFormat'
+import { getSyncedTime } from '@renderer/utils/timeUtils'
 
 const props = defineProps({
   profile: Object as () => ExamConfig
@@ -31,11 +32,28 @@ const currentProfile = computed(() => ({
   ...props.profile
 }))
 
-// 添加考试统一走 configManager 逻辑
-const { configManager } = useExamEditor()
+const createNewExam = (examInfos: ExamInfo[]): ExamInfo => {
+  const now = new Date(getSyncedTime())
+  const lastExam = examInfos[examInfos.length - 1]
+  const start = lastExam ? new Date(new Date(lastExam.end).getTime() + 10 * 60000) : now
+  const end = new Date(start.getTime() + 60 * 60000)
+
+  return {
+    name: `未命名考试${examInfos.length + 1}`,
+    start: formatLocalDateTime(start),
+    end: formatLocalDateTime(end),
+    alertTime: 15,
+    materials: []
+  }
+}
+
 const addExam = () => {
-  configManager.addExamInfo()
-  emit('update:profile', configManager.getConfig())
+  const examInfos = currentProfile.value.examInfos || []
+  const updatedProfile = {
+    ...currentProfile.value,
+    examInfos: [...examInfos, createNewExam(examInfos)]
+  }
+  emit('update:profile', updatedProfile)
 }
 
 // 切换考试信息

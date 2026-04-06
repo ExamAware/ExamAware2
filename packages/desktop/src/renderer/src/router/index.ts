@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import HomeView from '@renderer/views/HomeView.vue'
 import MainpageView from '@renderer/views/home/MainpageView.vue'
 import PlayerHomeView from '@renderer/views/home/PlayerHomeView.vue'
+import UrlPlayerView from '@renderer/views/home/UrlPlayerView.vue'
 import ntpSettingsPage from '@renderer/views/home/ntpSettingsPage.vue'
 import DiscoverView from '@renderer/views/home/DiscoverView.vue'
 import EditorView from '@renderer/views/EditorView.vue'
@@ -22,6 +23,7 @@ const router = createRouter({
       children: [
         { path: 'mainpage', name: 'mainpage', component: MainpageView },
         { path: 'playerhome', name: 'playerhome', component: PlayerHomeView },
+        { path: 'playerhome/url', name: 'playerhome-url', component: UrlPlayerView },
         { path: 'discover', name: 'discover', component: DiscoverView },
         { path: 'ntpsettings', name: 'ntpsettings', component: ntpSettingsPage }
       ]
