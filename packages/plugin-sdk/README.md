@@ -22,6 +22,16 @@ pnpm build
 pnpm pack
 ```
 
+Scaffold options:
+
+```bash
+pnpm dlx create-examaware-plugin my-plugin \
+  --name my-plugin \
+  --display-name "My Plugin" \
+  --description "My ExamAware plugin" \
+  --namespace my-plugin
+```
+
 生成的模板默认包含：
 
 - `src/main.ts`：示例主进程入口，使用 `defineExamAwarePlugin`
@@ -50,6 +60,29 @@ export default defineExamAwarePlugin((builder) => {
     await next();
   });
 });
+```
+
+RPC sugar helpers:
+
+```ts
+import { defineExamAwarePlugin, rpcService, rpcExpose, rpcToken } from '@dsz-examaware/plugin-sdk';
+
+const BACK_SERVICE = rpcToken('demo', 'backService');
+
+export default defineExamAwarePlugin((builder) => {
+  builder.use(async ({ ctx }, next) => {
+    rpcExpose(ctx, BACK_SERVICE, {
+      async $ping() {
+        return 'pong';
+      }
+    });
+    await next();
+  });
+});
+
+// renderer
+const back = rpcService<{ $ping(): Promise<string> }>(ctx, BACK_SERVICE);
+await back.$ping();
 ```
 
 更多示例与 API 参考见 `docs/plugin-system-plan.md` 中的 Phase 4.5 章节。

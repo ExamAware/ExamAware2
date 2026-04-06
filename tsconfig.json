@@ -25,6 +25,12 @@
       ],
       "@dsz-examaware/player-core/*": [
         "./packages/player-core/src/*"
+      ],
+      "@dsz-examaware/rpc": [
+        "./packages/rpc/src"
+      ],
+      "@dsz-examaware/rpc/*": [
+        "./packages/rpc/src/*"
       ]
     }
   },
