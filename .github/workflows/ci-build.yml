@@ -43,6 +43,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build rpc package
+        run: pnpm rpc:build
+
       - name: Build core package
         run: pnpm core:build
 

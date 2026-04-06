@@ -1,0 +1,129 @@
+name: Publish Packages
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+      id-token: write
+      pull-requests: write
+    env:
+      PNPM_YES: 'true'
+      HUSKY: '0'
+      HUSKY_SKIP_INSTALL: '1'
+      HUSKY_SKIP_HOOKS: '1'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+          registry-url: https://registry.npmjs.org/
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.18.2
+
+      - name: Make pnpm non-interactive
+        run: pnpm config set yes true
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Sync plugin SDK version
+        run: node scripts/sync-plugin-sdk-version.mjs
+
+      - name: Check plugin SDK version sync
+        id: sdk-sync
+        run: |
+          if ! git diff --quiet -- packages/plugin-sdk/package.json; then
+            echo "needs_pr=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "needs_pr=false" >> "$GITHUB_OUTPUT"
+
+      - name: Create PR for plugin SDK version sync
+        if: steps.sdk-sync.outputs.needs_pr == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          title: 'chore: sync plugin-sdk version'
+          commit-message: 'chore: sync plugin-sdk version'
+          branch: 'chore/sync-plugin-sdk-version'
+          base: 'develop'
+          body: 'Sync plugin-sdk version to match desktop.'
+          labels: 'automation'
+          add-paths: |
+            packages/plugin-sdk/package.json
+
+      - name: Detect versions to publish
+        id: publish-check
+        if: steps.sdk-sync.outputs.needs_pr != 'true'
+        run: |
+          set -euo pipefail
+          PACKAGES=(
+            "@dsz-examaware/rpc packages/rpc/package.json"
+            "@dsz-examaware/core packages/core/package.json"
+            "@dsz-examaware/player packages/player/package.json"
+            "@dsz-examaware/plugin-sdk packages/plugin-sdk/package.json"
+            "@dsz-examaware/plugin-template packages/plugin-template/package.json"
+          )
+          TO_PUBLISH=()
+          for entry in "${PACKAGES[@]}"; do
+            pkg="${entry%% *}"
+            file="${entry#* }"
+            local_version=$(node -p "require('./${file}').version")
+            remote_version=$(npm view "$pkg" version 2>/dev/null || echo "none")
+            if [ "$local_version" != "$remote_version" ]; then
+              TO_PUBLISH+=("$pkg")
+              echo "$pkg: $remote_version -> $local_version"
+            else
+              echo "$pkg: unchanged ($local_version)"
+            fi
+          done
+          if [ ${#TO_PUBLISH[@]} -eq 0 ]; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "packages=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "publish=true" >> "$GITHUB_OUTPUT"
+          echo "packages=${TO_PUBLISH[*]}" >> "$GITHUB_OUTPUT"
+
+      - name: Build rpc package
+        if: steps.sdk-sync.outputs.needs_pr != 'true'
+        run: pnpm rpc:build
+
+      - name: Build core package
+        if: steps.sdk-sync.outputs.needs_pr != 'true'
+        run: pnpm core:build
+
+      - name: Build player package
+        if: steps.sdk-sync.outputs.needs_pr != 'true'
+        run: pnpm player:build
+
+      - name: Build plugin SDK
+        if: steps.sdk-sync.outputs.needs_pr != 'true'
+        run: pnpm --filter @dsz-examaware/plugin-sdk build
+
+      - name: Publish packages
+        if: steps.publish-check.outputs.publish == 'true'
+        run: |
+          for pkg in ${{ steps.publish-check.outputs.packages }}; do
+            pnpm --filter "$pkg" exec npm publish --access public --provenance
+          done
