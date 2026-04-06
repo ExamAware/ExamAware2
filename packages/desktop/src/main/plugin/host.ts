@@ -32,11 +32,22 @@ import { DownloadManager } from '../runtime/downloadManager'
 
 type AnyRecord = Record<string, any>
 
+const BLOCKED_KEYS = new Set(['__proto__', 'prototype', 'constructor'])
+
+function isUnsafeKey(key: string) {
+  return BLOCKED_KEYS.has(key)
+}
+
+function isUnsafePath(segs: string[]) {
+  return segs.some((seg) => isUnsafeKey(seg))
+}
+
 function deepClone<T>(value: T): T {
   if (value == null || typeof value !== 'object') return value
   if (Array.isArray(value)) return value.map((item) => deepClone(item)) as unknown as T
   const next: AnyRecord = {}
   for (const key of Object.keys(value as AnyRecord)) {
+    if (isUnsafeKey(key)) continue
     next[key] = deepClone((value as AnyRecord)[key])
   }
   return next as T
@@ -55,6 +66,7 @@ function deepGet(obj: AnyRecord, key?: string) {
 
 function deepSet(obj: AnyRecord, key: string, value: any) {
   const segs = key.split('.')
+  if (isUnsafePath(segs)) return
   let cur: any = obj
   for (let i = 0; i < segs.length - 1; i++) {
     const seg = segs[i]
@@ -66,6 +78,7 @@ function deepSet(obj: AnyRecord, key: string, value: any) {
 
 function deepMerge(target: AnyRecord, source: AnyRecord) {
   for (const key of Object.keys(source)) {
+    if (isUnsafeKey(key)) continue
     const value = source[key]
     if (value && typeof value === 'object' && !Array.isArray(value)) {
       if (!target[key] || typeof target[key] !== 'object') target[key] = {}

@@ -6,6 +6,16 @@ import { appLogger } from './logging/winstonLogger'
 
 type AnyRecord = Record<string, any>
 
+const BLOCKED_KEYS = new Set(['__proto__', 'prototype', 'constructor'])
+
+function isUnsafeKey(key: string) {
+  return BLOCKED_KEYS.has(key)
+}
+
+function isUnsafePath(segs: string[]) {
+  return segs.some((seg) => isUnsafeKey(seg))
+}
+
 const FILE_NAME = 'config.json'
 let cache: AnyRecord | null = null
 let writeTimer: NodeJS.Timeout | null = null
@@ -35,6 +45,7 @@ function ensureLoaded() {
 
 function deepSet(obj: AnyRecord, key: string, value: any) {
   const segs = key.split('.')
+  if (isUnsafePath(segs)) return
   let cur: any = obj
   for (let i = 0; i < segs.length - 1; i++) {
     const s = segs[i]
@@ -56,6 +67,7 @@ function deepGet(obj: AnyRecord, key: string) {
 
 function deepMerge(target: AnyRecord, src: AnyRecord) {
   for (const k of Object.keys(src)) {
+    if (isUnsafeKey(k)) continue
     const v = (src as any)[k]
     if (v && typeof v === 'object' && !Array.isArray(v)) {
       if (!target[k] || typeof target[k] !== 'object') target[k] = {}

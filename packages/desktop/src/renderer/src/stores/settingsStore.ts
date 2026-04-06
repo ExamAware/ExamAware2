@@ -5,6 +5,19 @@ export interface SettingsRecord {
   [key: string]: any
 }
 
+const BLOCKED_KEYS = new Set(['__proto__', 'prototype', 'constructor'])
+
+const isUnsafeKey = (key: string) => BLOCKED_KEYS.has(key)
+
+const isUnsafePath = (segs: string[]) => segs.some((seg) => isUnsafeKey(seg))
+
+const safeAssign = (target: SettingsRecord, source: SettingsRecord) => {
+  for (const key of Object.keys(source)) {
+    if (isUnsafeKey(key)) continue
+    target[key] = source[key]
+  }
+}
+
 export const useSettingsStore = defineStore('settings', () => {
   const data = ref<SettingsRecord>({})
 
@@ -53,6 +66,7 @@ export const useSettingsStore = defineStore('settings', () => {
     }
     // 乐观更新本地
     const segs = key.split('.')
+    if (isUnsafePath(segs)) return
     let cur: any = data.value
     for (let i = 0; i < segs.length - 1; i++) {
       const s = segs[i]
@@ -65,7 +79,7 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   const patch = (obj: SettingsRecord) => {
-    Object.assign(data.value, obj)
+    safeAssign(data.value, obj)
     window.api.config.patch(obj).catch((e) => console.error('保存配置失败', e))
   }
 
