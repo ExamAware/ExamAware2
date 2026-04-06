@@ -112,12 +112,19 @@ export interface PluginSettingsAPI {
   onChange(listener: (config: Record<string, any>) => void): Disposer // 监听配置变化
 }
 
+export interface PluginRpcApi {
+  get: <T extends Record<string, any> = Record<string, any>>(token: string) => T
+  expose: (token: string, service: Record<string, any>) => Disposer
+  notify: (token: string, method: string, ...args: any[]) => void
+}
+
 // 插件运行时上下文，插件的核心接口
 export interface PluginRuntimeContext {
   app: 'main' | 'renderer' // 运行在主进程还是渲染进程
   logger: PluginLogger // 日志器
   config: Record<string, any> // 插件配置
   settings: PluginSettingsAPI // 设置API
+  rpc: PluginRpcApi // JSON-RPC API
   effect: (fn: () => void | Disposer | Promise<void | Disposer>) => void // 注册副作用清理
   services: ServiceAPI // 服务API
   windows?: {

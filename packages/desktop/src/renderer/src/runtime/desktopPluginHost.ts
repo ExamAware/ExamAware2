@@ -16,6 +16,7 @@ import type { AppContext } from '../app/types'
 import { DisposerGroup } from './disposable'
 import type { DesktopAPI } from './desktopApi'
 import { createEauiApi } from './eaui'
+import { JsonRpcClient, JsonRpcServer, createRpcProxy } from '@dsz-examaware/rpc'
 
 type AnyRecord = Record<string, any>
 
@@ -500,11 +501,39 @@ function createRendererRuntimeContext(
     }
   }
 
+  const rpcChannel = `plugin:rpc:${plugin.name}`
+  const rpcClient = new JsonRpcClient({
+    send: (message) => window.api.ipc.send(rpcChannel, message),
+    onMessage: (handler) => {
+      const listener = (_event: unknown, payload: string) => handler(payload)
+      window.api.ipc.on(rpcChannel, listener)
+      return () => window.api.ipc.off(rpcChannel, listener)
+    }
+  })
+  const rpcServer = new JsonRpcServer({
+    onMessage: (handler) => {
+      const listener = (_event: unknown, payload: string) =>
+        handler(payload, (response) => window.api.ipc.send(rpcChannel, response))
+      window.api.ipc.on(rpcChannel, listener)
+      return () => window.api.ipc.off(rpcChannel, listener)
+    }
+  })
+  group.add(() => rpcClient.dispose())
+  group.add(() => rpcServer.dispose())
+
   const runtimeCtx: PluginRuntimeContext = {
     app: 'renderer',
     logger,
     config: cloneConfig(currentConfig),
     settings,
+    rpc: {
+      get: <T extends Record<string, any> = Record<string, any>>(token: string) =>
+        createRpcProxy<T>(rpcClient, token),
+      expose: (token: string, service: Record<string, any>) =>
+        rpcServer.registerService(token, service),
+      notify: (token: string, method: string, ...args: any[]) =>
+        rpcClient.notify(`${token}.${method}`, args)
+    },
     effect,
     services: {
       provide: () => {

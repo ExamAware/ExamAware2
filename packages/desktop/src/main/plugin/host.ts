@@ -6,6 +6,7 @@ import { promises as fsp } from 'fs'
 import path from 'path'
 import { URLSearchParams } from 'url'
 import semver from 'semver'
+import { JsonRpcClient, JsonRpcServer, createRpcProxy } from '@dsz-examaware/rpc'
 import { DisposerGroup } from '../runtime/disposable'
 import { ServiceRegistry } from '../../shared/services/registry'
 import { appLogger } from '../logging/winstonLogger'
@@ -920,11 +921,50 @@ export class PluginHost extends EventEmitter {
 
     const settings = this.createSettingsApi(record, logger)
 
+    const rpcChannel = `${this.channelPrefix}:rpc:${record.name}`
+    const rpcClient = new JsonRpcClient({
+      send: (message) => {
+        const target = BrowserWindow.getAllWindows()[0]
+        if (!target) {
+          logger.warn('rpc send skipped: no renderer window')
+          return
+        }
+        target.webContents.send(rpcChannel, message)
+      },
+      onMessage: (handler) => {
+        const listener = (_event: Electron.IpcMainEvent, payload: string) => handler(payload)
+        ipcMain.on(rpcChannel, listener)
+        const disposer = () => ipcMain.off(rpcChannel, listener)
+        record.group.add(disposer)
+        return disposer
+      }
+    })
+    const rpcServer = new JsonRpcServer({
+      onMessage: (handler) => {
+        const listener = (event: Electron.IpcMainEvent, payload: string) =>
+          handler(payload, (response) => event.sender.send(rpcChannel, response))
+        ipcMain.on(rpcChannel, listener)
+        const disposer = () => ipcMain.off(rpcChannel, listener)
+        record.group.add(disposer)
+        return disposer
+      }
+    })
+    record.group.add(() => rpcClient.dispose())
+    record.group.add(() => rpcServer.dispose())
+
     return {
       app: 'main',
       logger,
       config: settings.all(),
       settings,
+      rpc: {
+        get: <T extends Record<string, any> = Record<string, any>>(token: string) =>
+          createRpcProxy<T>(rpcClient, token),
+        expose: (token: string, service: Record<string, any>) =>
+          rpcServer.registerService(token, service),
+        notify: (token: string, method: string, ...args: any[]) =>
+          rpcClient.notify(`${token}.${method}`, args)
+      },
       effect,
       services: {
         provide: (name: string, value: unknown, options?: ServiceProvideOptions) => {
