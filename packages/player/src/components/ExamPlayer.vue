@@ -56,7 +56,12 @@
 
     <!-- 彩色提醒：用于考试开始/即将结束/考试结束，淡入动画 -->
     <transition name="fade-soft">
-      <div v-if="colorfulVisible" class="overlay colorful-overlay" :style="colorfulOverlayStyle">
+      <div
+        v-if="colorfulVisible"
+        class="overlay colorful-overlay"
+        :class="{ 'hdr-highlight': colorfulHdrActive }"
+        :style="colorfulOverlayStyle"
+      >
         <div class="colorful-title">{{ colorfulTitle }}</div>
       </div>
     </transition>
@@ -171,6 +176,8 @@ interface Props {
   roomNumber?: string;
   /** 是否显示操作栏 */
   showActionBar?: boolean;
+  /** HDR 高亮提醒（仅对白色文字生效） */
+  hdrHighlight?: boolean;
   /** 是否启用大时钟样式 */
   largeClock?: boolean;
   /** 大时钟字号缩放 */
@@ -217,6 +224,7 @@ const props = withDefaults(defineProps<Props>(), {
   timeSyncStatus: '电脑时间',
   roomNumber: '01',
   showActionBar: true,
+  hdrHighlight: false,
   largeClock: false,
   allowEditRoomNumber: true,
   eventHandlers: () => ({}),
@@ -226,6 +234,33 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>();
 const reminder = useReminderService();
+
+const reminderShown = new Set<string>();
+
+const getExamKey = (exam: any): string => {
+  const raw = exam?.id ?? exam?.name;
+  if (raw === undefined || raw === null) return '';
+  return String(raw);
+};
+
+const showColorfulOnce = (
+  key: string,
+  options: { title: string; themeBaseColor: string; forceWhiteText?: boolean }
+) => {
+  if (!key || reminderShown.has(key)) return;
+  reminderShown.add(key);
+  reminder.showColorfulAlert(options);
+};
+
+const showExamReminder = (
+  kind: 'start' | 'end' | 'alert',
+  exam: any,
+  options: { title: string; themeBaseColor: string; forceWhiteText?: boolean }
+) => {
+  const examKey = getExamKey(exam);
+  if (!examKey) return;
+  showColorfulOnce(`${kind}:${examKey}`, options);
+};
 
 // 显式注册局部组件（<t-dialog> / <t-input>）
 // 在 <script setup> 中，import 即可自动可用，但为兼容性，保留命名引用
@@ -240,19 +275,23 @@ const mergedEventHandlers: PlayerEventHandlers = {
     props.eventHandlers?.onExamStart?.(exam);
     emit('examStart', exam);
     // 考试开始（绿色）
-    reminder.showColorfulAlert({ title: '考试开始', themeBaseColor: '#2ecc71' });
+    showExamReminder('start', exam, { title: '考试开始', themeBaseColor: '#2ecc71' });
   },
   onExamEnd: (exam: any) => {
     props.eventHandlers?.onExamEnd?.(exam);
     emit('examEnd', exam);
     // 考试结束（红色）
-    reminder.showColorfulAlert({ title: '考试结束', themeBaseColor: '#ff3b30' });
+    showExamReminder('end', exam, { title: '考试结束', themeBaseColor: '#ff3b30' });
   },
   onExamAlert: (exam: any, alertTime: number) => {
     props.eventHandlers?.onExamAlert?.(exam, alertTime);
     emit('examAlert', exam, alertTime);
     // 考试即将结束（黄色）
-    reminder.showColorfulAlert({ title: '考试即将结束', themeBaseColor: '#f1c40f' });
+    showExamReminder('alert', exam, {
+      title: '考试即将结束',
+      themeBaseColor: '#f1c40f',
+      forceWhiteText: true
+    });
   },
   onExamSwitch: (fromExam: any, toExam: any) => {
     props.eventHandlers?.onExamSwitch?.(fromExam, toExam);
@@ -440,11 +479,11 @@ watch(
 );
 
 type DevReminderPreset = 'start' | 'warning' | 'end';
-type DevReminderPayload = { title: string; themeBaseColor: string };
+type DevReminderPayload = { title: string; themeBaseColor: string; forceWhiteText?: boolean };
 
 const devReminderPresets: Record<DevReminderPreset, DevReminderPayload> = {
   start: { title: '考试开始', themeBaseColor: '#2ecc71' },
-  warning: { title: '考试即将结束', themeBaseColor: '#f1c40f' },
+  warning: { title: '考试即将结束', themeBaseColor: '#f1c40f', forceWhiteText: true },
   end: { title: '考试结束', themeBaseColor: '#ff3b30' }
 };
 
@@ -470,11 +509,20 @@ const colorfulVisible = reminder.isColorfulVisible;
 const colorfulTitle = computed(() => reminder._colorfulReminder.value?.title || '提示');
 const colorfulOverlayStyle = computed(() => {
   const base = reminder._colorfulReminder.value?.themeBaseColor || '#ff3b30';
-  const text = ReminderUtils.getContrastingTextColor(base);
+  const forceWhite = Boolean(reminder._colorfulReminder.value?.forceWhiteText);
+  const text = forceWhite ? '#ffffff' : ReminderUtils.getContrastingTextColor(base);
+  const shadow = forceWhite
+    ? '0 10px 32px rgba(255, 255, 255, 0.55), 0 0 18px rgba(255, 255, 255, 0.45)'
+    : '0 6px 24px rgba(0, 0, 0, 0.35)';
   return {
     '--colorful-bg': base,
-    '--colorful-text': text
+    '--colorful-text': text,
+    '--colorful-shadow': shadow
   } as Record<string, string>;
+});
+const colorfulHdrActive = computed(() => {
+  if (!props.hdrHighlight) return false;
+  return Boolean(reminder._colorfulReminder.value?.forceWhiteText);
 });
 
 // 普通通知派生
@@ -526,9 +574,43 @@ watch(
       hasShownEndingForExamId !== examId
     ) {
       hasShownEndingForExamId = examId;
-      reminder.showColorfulAlert({ title: '考试即将结束', themeBaseColor: '#f1c40f' });
+      showExamReminder('alert', currentExam.value, {
+        title: '考试即将结束',
+        themeBaseColor: '#f1c40f',
+        forceWhiteText: true
+      });
     }
   }
+);
+
+const lastStatusRef = ref<string | null>(null);
+const lastExamKeyRef = ref<string | null>(null);
+
+watch(
+  () => [currentExam.value, examStatus.value?.status] as const,
+  ([exam, status]) => {
+    const examKey = getExamKey(exam);
+    if (!examKey || !status) {
+      lastExamKeyRef.value = examKey || null;
+      lastStatusRef.value = status ?? null;
+      return;
+    }
+
+    if (lastExamKeyRef.value !== examKey) {
+      lastExamKeyRef.value = examKey;
+      lastStatusRef.value = status;
+      return;
+    }
+
+    if (status === 'inProgress' && lastStatusRef.value !== 'inProgress') {
+      showExamReminder('start', exam, { title: '考试开始', themeBaseColor: '#2ecc71' });
+    } else if (status === 'completed' && lastStatusRef.value !== 'completed') {
+      showExamReminder('end', exam, { title: '考试结束', themeBaseColor: '#ff3b30' });
+    }
+
+    lastStatusRef.value = status;
+  },
+  { immediate: true }
 );
 
 // === 考场号设置相关状态 ===
@@ -596,6 +678,7 @@ const onKeyPress = (button: string) => {
 // 初始化虚拟键盘
 const initKeyboard = () => {
   // 动态导入 simple-keyboard
+  //  TODO: 已知这块会卡一下 不是很影响体验 先不改了 回头改
   import('simple-keyboard')
     .then(({ default: Keyboard }) => {
       if (keyboardRef.value && !keyboardInstance) {
@@ -657,6 +740,7 @@ const displayFormattedExamInfos = computed(() => {
 });
 
 // pending 状态时不显示剩余时间
+// 没用的屎山 我现在不敢删
 const displayedRemainingTime = computed(() => {
   return examStatus.value?.status === 'pending' ? '' : remainingTime.value || '';
 });
@@ -701,6 +785,7 @@ const calculateAutoScale = () => {
 };
 
 // 缓动函数 - 使用 ease-out-cubic
+//  TODO: 这几次测试的时候感觉其实还是不是很好看 回来换一个
 const easeOutCubic = (t: number): number => {
   return 1 - Math.pow(1 - t, 3);
 };
@@ -1166,6 +1251,7 @@ const resolvedCards = computed(() => ({
 
 /* 彩色提醒：全屏遮罩（可定制颜色） */
 .colorful-overlay {
+  background: var(--colorful-bg, #ff3b30);
   background: color-mix(in srgb, var(--colorful-bg, #ff3b30) 85%, transparent);
   backdrop-filter: blur(2px);
 }
@@ -1174,8 +1260,14 @@ const resolvedCards = computed(() => ({
   font-size: calc(var(--ui-scale, 1) * 5rem);
   font-weight: 800;
   letter-spacing: 0.05em;
-  text-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  text-shadow: var(--colorful-shadow, 0 6px 24px rgba(0, 0, 0, 0.35));
   text-align: center;
+}
+
+@media (dynamic-range: high) {
+  .colorful-overlay.hdr-highlight .colorful-title {
+    color: color(display-p3 1 1 1);
+  }
 }
 
 /* 普通通知：毛玻璃卡片 */

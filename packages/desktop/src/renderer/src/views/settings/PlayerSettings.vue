@@ -70,6 +70,23 @@
             <t-switch v-model="largeClockEnabled" size="large" />
           </div>
         </div>
+
+        <t-divider />
+
+        <div class="settings-item">
+          <div class="settings-item-icon">
+            <TIcon name="view-module" size="22px" />
+          </div>
+          <div class="settings-item-main">
+            <div class="settings-item-title">HDR 高亮提醒</div>
+            <div class="settings-item-desc">
+              彩色全屏提醒为白色文字时启用 P3 HDR 亮度高亮（显示器支持时）。
+            </div>
+          </div>
+          <div class="settings-item-action">
+            <t-switch v-model="hdrHighlight" size="large" />
+          </div>
+        </div>
       </t-card>
     </t-space>
   </div>
@@ -104,6 +121,11 @@ const defaultScale = settings.ref<number>('defaultScale', 1, {
 })
 
 const largeClockEnabled = settings.ref<boolean>('largeClock', false, {
+  mapIn: (value) => Boolean(value),
+  mapOut: (value) => Boolean(value)
+})
+
+const hdrHighlight = settings.ref<boolean>('hdrHighlight', false, {
   mapIn: (value) => Boolean(value),
   mapOut: (value) => Boolean(value)
 })

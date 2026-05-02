@@ -3,7 +3,7 @@
   "private": true,
   "description": "ExamAware 知试",
   "scripts": {
-    "dev:prebuild": "pnpm core:build && pnpm player:build",
+    "dev:prebuild": "pnpm rpc:build && pnpm core:build && pnpm player:build",
     "dev:watch": "pnpm -r --parallel --filter @dsz-examaware/core --filter @dsz-examaware/player dev",
     "dev": "pnpm --filter @dsz-examaware/desktop dev",
     "desktop:dev": "pnpm --filter @dsz-examaware/desktop dev",
@@ -11,6 +11,8 @@
     "preview": "pnpm --filter @dsz-examaware/desktop preview",
     "core:build": "pnpm --filter @dsz-examaware/core build",
     "core:dev": "pnpm --filter @dsz-examaware/core dev",
+    "rpc:build": "pnpm --filter @dsz-examaware/rpc build",
+    "rpc:dev": "pnpm --filter @dsz-examaware/rpc dev",
     "player:build": "pnpm --filter @dsz-examaware/player build",
     "player:dev": "pnpm --filter @dsz-examaware/player dev",
     "web:build": "pnpm --filter @dsz-examaware/web build",
@@ -55,7 +57,7 @@
   "license": "GPL-3.0-only",
   "pnpm": {
     "onlyBuiltDependencies": [
-      "@scarf/scarf",
+      "@parcel/watcher",
       "electron",
       "esbuild",
       "vue-demi"

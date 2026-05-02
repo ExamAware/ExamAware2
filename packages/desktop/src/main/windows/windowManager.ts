@@ -1,8 +1,9 @@
-import { BrowserWindow, shell } from 'electron'
+import { BrowserWindow, ipcMain, nativeTheme, shell } from 'electron'
 import type { MainContext } from '../runtime/context'
 import * as path from 'path'
 import { is } from '@electron-toolkit/utils'
 import { appLogger } from '../logging/winstonLogger'
+import { getConfig, onConfigChanged } from '../configStore'
 
 export interface CreateContext {
   isDev: boolean
@@ -20,12 +21,25 @@ export interface WindowFactoryResult {
 
 type WindowRecord = { win: BrowserWindow; cleanup?: () => void }
 
+const LIGHT_BG = '#f5f6f7'
+const DARK_BG = '#0f172a'
+
 export class WindowManager {
   private windows = new Map<string, WindowRecord>()
   private ctx: MainContext | undefined
+  private backgroundColor = LIGHT_BG
+  private disposeConfigWatcher: (() => void) | undefined
+  private nativeThemeListener: (() => void) | undefined
 
   setContext(ctx: MainContext) {
     this.ctx = ctx
+    this.refreshBackgroundColor()
+    this.disposeConfigWatcher?.()
+    this.disposeConfigWatcher = onConfigChanged(() => this.refreshBackgroundColor())
+    if (!this.nativeThemeListener) {
+      this.nativeThemeListener = () => this.refreshBackgroundColor()
+      nativeTheme.on('updated', this.nativeThemeListener)
+    }
   }
 
   get(id: string): BrowserWindow | undefined {
@@ -58,6 +72,8 @@ export class WindowManager {
       commonOptions: () => ({
         show: false,
         autoHideMenuBar: true,
+        // Follow theme background to avoid white flash during hide/close
+        backgroundColor: this.backgroundColor,
         webPreferences: {
           preload: path.join(__dirname, '../preload/index.mjs'),
           sandbox: false
@@ -98,6 +114,33 @@ export class WindowManager {
     // track window for disposal safety
     this.ctx?.windows.track(win)
 
+    const showWindow = () => {
+      try {
+        if (!win.isDestroyed() && !win.isVisible()) {
+          win.show()
+        }
+      } catch (error) {
+        appLogger.error('[windowManager] failed to show window', error as Error)
+      }
+    }
+
+    const onRendererReady = (event: Electron.IpcMainEvent, payload?: { windowId?: number }) => {
+      if (event.sender !== win.webContents) return
+      if (payload?.windowId && payload.windowId !== win.id) return
+      showWindow()
+    }
+
+    ipcMain.on('renderer:ready', onRendererReady)
+    const showFallbackTimer = setTimeout(() => {
+      if (!win.isDestroyed() && !win.isVisible()) {
+        appLogger.warn('[windowManager] renderer ready timeout, showing window anyway', {
+          id,
+          route
+        })
+        showWindow()
+      }
+    }, 5000)
+
     // default: open external links in system browser
     if (externalOpenHandler) {
       win.webContents.setWindowOpenHandler((details) => {
@@ -120,21 +163,37 @@ export class WindowManager {
       if (typeof res === 'function') cleanup = res
     }
 
-    win.on('ready-to-show', () => {
-      win.show()
-    })
-
     win.on('closed', () => {
       if (cleanup) {
         try {
           cleanup()
         } catch {}
       }
+      clearTimeout(showFallbackTimer)
+      ipcMain.off('renderer:ready', onRendererReady)
       this.windows.delete(id)
     })
 
     this.windows.set(id, { win, cleanup })
     return win
+  }
+
+  private refreshBackgroundColor() {
+    try {
+      const mode = (getConfig('appearance.theme', 'auto') as 'light' | 'dark' | 'auto') ?? 'auto'
+      const useDark = mode === 'dark' || (mode === 'auto' && nativeTheme.shouldUseDarkColors)
+      const next = useDark ? DARK_BG : LIGHT_BG
+      this.backgroundColor = next
+      for (const { win } of this.windows.values()) {
+        try {
+          if (!win.isDestroyed()) {
+            win.setBackgroundColor(next)
+          }
+        } catch {}
+      }
+    } catch (error) {
+      appLogger.warn('[windowManager] refreshBackgroundColor failed', error as Error)
+    }
   }
 }
 

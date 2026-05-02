@@ -26,13 +26,18 @@ import {
 } from '../configStore'
 import { applyTimeConfig } from '../ntpService/timeService'
 import { createSettingsWindow } from '../windows/settingsWindow'
+import { createPluginStoreWindow } from '../windows/pluginStoreWindow'
 import { createMainWindow } from '../windows/mainWindow'
+import { windowManager } from '../windows/windowManager'
 import { applyTitleBarOverlay, OverlayTheme } from '../windows/titleBarOverlay'
 import { applyIpcControllers } from '../ipc/decorators'
 import { LoggingIpcController } from '../ipc/loggingController'
 import { HttpApiController } from '../ipc/httpApiController'
 import { CastController } from '../ipc/castController'
 import { getSharedConfig, setSharedConfig } from '../state/sharedConfigStore'
+import axios from 'axios'
+import https from 'https'
+import { parseExamConfig, validateExamConfig } from '@dsz-examaware/core'
 
 // minimal disposer group for main process
 function createDisposerGroup() {
@@ -96,6 +101,56 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
     const filePath = await createTempPlayerConfig(data)
     createPlayerWindow(filePath)
     return filePath
+  }
+
+  const fetchTextFromUrl = async (input: string) => {
+    let parsed: URL
+    try {
+      parsed = new URL(input)
+    } catch {
+      throw new Error('URL 格式不正确')
+    }
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      throw new Error('仅支持 http/https URL')
+    }
+    const url = parsed.toString()
+    const readBody = (payload: unknown) => {
+      const data = String(payload ?? '')
+      if (!data.trim()) {
+        throw new Error('URL 返回内容为空')
+      }
+      return data
+    }
+
+    try {
+      const res = await axios.get<string>(url, {
+        responseType: 'text',
+        timeout: 30000
+      })
+      return readBody(res.data)
+    } catch (error: any) {
+      const code = error?.cause?.code || error?.code
+      if (code !== 'UNABLE_TO_GET_ISSUER_CERT_LOCALLY') {
+        throw error
+      }
+      appLogger.warn('[ipc] fetch url tls failed, retrying insecure', { url, code })
+      const httpsAgent = new https.Agent({ rejectUnauthorized: false })
+      const res = await axios.get<string>(url, {
+        responseType: 'text',
+        timeout: 30000,
+        httpsAgent
+      })
+      return readBody(res.data)
+    }
+  }
+
+  const openPlayerFromUrl = async (url: string) => {
+    const data = await fetchTextFromUrl(url)
+    const config = parseExamConfig(data)
+    if (!config || !validateExamConfig(config)) {
+      throw new Error('URL 返回内容不是有效的 ExamAware 配置')
+    }
+    return openPlayerFromEditor(data)
   }
 
   const showMessageBox = (event: { sender: WebContents }, options: MessageBoxOptions) => {
@@ -213,6 +268,9 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
     group.add(
       handle('player:open-from-editor', (_event, data: string) => openPlayerFromEditor(data))
     )
+
+  if (ctx) ctx.ipc.handle('player:open-from-url', (_event, url: string) => openPlayerFromUrl(url))
+  else group.add(handle('player:open-from-url', (_event, url: string) => openPlayerFromUrl(url)))
 
   // 打开日志窗口
   if (ctx)
@@ -417,6 +475,18 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
       })
     )
 
+  // 打开插件商店窗口（单例）
+  if (ctx)
+    ctx.ipc.on('open-plugin-store-window', () => {
+      createPluginStoreWindow()
+    })
+  else
+    group.add(
+      on('open-plugin-store-window', () => {
+        createPluginStoreWindow()
+      })
+    )
+
   // UI：从托盘自绘菜单触发
   const doOpenMain = () => createMainWindow()
   const doQuit = () => {
@@ -431,15 +501,75 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
     group.add(on('ui:app-quit', doQuit))
   }
 
+  const openWindow = async (
+    _event: Electron.IpcMainInvokeEvent,
+    payload?: {
+      id?: string
+      route?: string
+      options?: Electron.BrowserWindowConstructorOptions
+    }
+  ) => {
+    const route = (payload?.route ?? '/').replace(/^#/, '')
+    const id = payload?.id ?? `plugin-win-${Date.now()}`
+    const win = await windowManager.open(({ commonOptions }) => ({
+      id,
+      route,
+      options: {
+        ...commonOptions(),
+        ...(payload?.options ?? {}),
+        show: payload?.options?.show ?? false
+      }
+    }))
+    return { id, browserWindowId: win.id }
+  }
+
+  const closeWindow = (_event: Electron.IpcMainInvokeEvent, id?: string) => {
+    if (id) windowManager.close(id)
+  }
+
+  const getWindowId = (event: Electron.IpcMainInvokeEvent) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    return win?.id
+  }
+
+  if (ctx) {
+    ctx.ipc.handle('window:open', openWindow)
+    ctx.ipc.handle('window:close', closeWindow)
+    ctx.ipc.handle('window:id', getWindowId)
+  } else {
+    group.add(handle('window:open', openWindow))
+    group.add(handle('window:close', closeWindow))
+    group.add(handle('window:id', getWindowId))
+  }
+
   // 窗口控制处理程序
-  if (ctx)
+  if (ctx) {
     ctx.ipc.on('window-minimize', (event) => {
       const window = BrowserWindow.fromWebContents(event.sender)
       if (window) {
         window.minimize()
       }
     })
-  else
+
+    ctx.ipc.on('window-close', (event) => {
+      const window = BrowserWindow.fromWebContents(event.sender)
+      if (window) {
+        ;(window as any).__ea_force_close__ = true
+        window.close()
+      }
+    })
+
+    ctx.ipc.on('window-maximize', (event) => {
+      const window = BrowserWindow.fromWebContents(event.sender)
+      if (window) {
+        if (window.isMaximized()) {
+          window.unmaximize()
+        } else {
+          window.maximize()
+        }
+      }
+    })
+  } else {
     group.add(
       on('window-minimize', (event) => {
         const window = BrowserWindow.fromWebContents(event.sender)
@@ -449,15 +579,6 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
       })
     )
 
-  if (ctx)
-    ctx.ipc.on('window-close', (event) => {
-      const window = BrowserWindow.fromWebContents(event.sender)
-      if (window) {
-        ;(window as any).__ea_force_close__ = true
-        window.close()
-      }
-    })
-  else
     group.add(
       on('window-close', (event) => {
         const window = BrowserWindow.fromWebContents(event.sender)
@@ -467,6 +588,20 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
         }
       })
     )
+
+    group.add(
+      on('window-maximize', (event) => {
+        const window = BrowserWindow.fromWebContents(event.sender)
+        if (window) {
+          if (window.isMaximized()) {
+            window.unmaximize()
+          } else {
+            window.maximize()
+          }
+        }
+      })
+    )
+  }
 
   if (ctx)
     ctx.ipc.on('window-maximize', (event) => {

@@ -7,6 +7,7 @@ import {
 } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { fileApi } from '../main/fileUtils'
+import type { PluginSourceFetchRequest } from '../main/plugin/types'
 
 const LOG_COOLDOWN_MS = 50
 const lastLogSent: Partial<Record<'log' | 'info' | 'warn' | 'error' | 'debug', number>> = {}
@@ -91,8 +92,23 @@ const api = {
     },
     rendererEntry: (name: string) => ipcRenderer.invoke('plugin:renderer-entry', name),
     readme: (name: string) => ipcRenderer.invoke('plugin:readme', name),
+    fetchSourceIndex: (payload?: PluginSourceFetchRequest) =>
+      ipcRenderer.invoke('plugin:fetch-source', payload),
+    installFromRegistry: (payload: {
+      pkg: string
+      versionRange?: string
+      registry?: string
+      requestId?: string
+    }) => ipcRenderer.invoke('plugin:install-registry', payload),
+    fetchRegistryReadme: (payload: { pkg: string; version?: string; registry?: string }) =>
+      ipcRenderer.invoke('plugin:registry-readme', payload),
     installPackage: (filePath: string) => ipcRenderer.invoke('plugin:install-package', filePath),
-    installDir: (dirPath: string) => ipcRenderer.invoke('plugin:install-dir', dirPath)
+    installDir: (dirPath: string) => ipcRenderer.invoke('plugin:install-dir', dirPath),
+    onRegistryProgress: (listener: (progress: any) => void) => {
+      const wrapped = (_event: Electron.IpcRendererEvent, payload: any) => listener(payload)
+      ipcRenderer.on('plugin:registry-progress', wrapped)
+      return () => ipcRenderer.off('plugin:registry-progress', wrapped)
+    }
   },
   http: {
     getConfig: () => ipcRenderer.invoke('http:get-config'),
@@ -126,6 +142,15 @@ const api = {
     off: (channel: string, listener: (...args: any[]) => void) =>
       ipcRenderer.off(channel, listener),
     removeAllListeners: (channel: string) => ipcRenderer.removeAllListeners(channel)
+  },
+  windows: {
+    open: (payload?: {
+      id?: string
+      route?: string
+      options?: Electron.BrowserWindowConstructorOptions
+    }) => ipcRenderer.invoke('window:open', payload),
+    close: (id: string) => ipcRenderer.invoke('window:close', id),
+    currentId: () => ipcRenderer.invoke('window:id') as Promise<number | undefined>
   }
 }
 

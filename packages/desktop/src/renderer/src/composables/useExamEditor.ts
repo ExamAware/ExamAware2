@@ -4,6 +4,13 @@ import { ExamConfigManager } from '@renderer/core/configManager'
 import { FileOperationManager } from '@renderer/core/fileOperations'
 import { RecentFileManager } from '@renderer/core/recentFileManager'
 import { MessageService } from '@renderer/core/messageService'
+import { logService } from '@renderer/core/logService'
+
+// 关闭流程全局状态，避免多实例重复注册导致的重复弹窗
+let allowCloseGlobal = false
+let closingInProgressGlobal = false
+let closeListenerRegistered = false
+let removeRequestCloseListenerGlobal: (() => void) | null = null
 import { KeyboardShortcutManager, type KeyboardShortcut } from '@renderer/core/keyboardShortcuts'
 import { historyStore } from '@renderer/core/historyStore'
 
@@ -227,7 +234,6 @@ export function useExamEditor() {
     const newIndex = configManager.addExamInfo()
     currentExamIndex.value = newIndex
     markFileAsModified()
-    historyStore.push('新增考试', examConfig)
   }
 
   const deleteExam = (index: number) => {
@@ -415,13 +421,30 @@ export function useExamEditor() {
     historyStore.init(examConfig, '关闭项目')
   }
 
-  let allowClose = false
+  let allowClose = allowCloseGlobal
+  const closeLogger = logService.scoped('editor-close')
+
+  const getClosingFlag = () => closingInProgressGlobal
+  const setClosingFlag = (val: boolean) => {
+    closingInProgressGlobal = val
+  }
 
   const closeEditorWindow = async () => {
+    if (getClosingFlag()) {
+      closeLogger.info('request-close ignored (in progress)')
+      return
+    }
+    setClosingFlag(true)
+    closeLogger.info('request-close received', {
+      isFileModified: isFileModified.value,
+      allowClose
+    })
+
     historyStore.flushAllDebounced()
 
     if (isFileModified.value) {
       let choice: 'save' | 'discard' | 'cancel' = 'discard'
+      let choiceSource: 'dialog' | 'fallback' = 'dialog'
 
       if (window.api?.dialog?.showMessageBox) {
         try {
@@ -436,58 +459,79 @@ export function useExamEditor() {
             detail: '选择“不保存”将丢弃当前更改，此操作不可撤销。'
           })
           choice = response === 0 ? 'save' : response === 1 ? 'discard' : 'cancel'
+          closeLogger.info('messageBox choice', { response, choice })
         } catch (error) {
           console.error('显示保存确认对话框失败:', error)
+          closeLogger.warn('messageBox failed, fallback confirm', error as any)
           const shouldSave = window.confirm(
             '当前文件已修改，是否在关闭窗口前保存？\n点击“确定”保存，点击“取消”放弃更改并退出。'
           )
           choice = shouldSave ? 'save' : 'discard'
+          choiceSource = 'fallback'
         }
       } else {
         const shouldSave = window.confirm(
           '当前文件已修改，是否在关闭窗口前保存？\n点击“确定”保存，点击“取消”放弃更改并退出。'
         )
         choice = shouldSave ? 'save' : 'discard'
+        choiceSource = 'fallback'
+        closeLogger.info('legacy confirm choice', { shouldSave, choice })
       }
 
       if (choice === 'save') {
         const success = await saveProject()
         if (!success) {
           MessageService.warning('窗口关闭已取消')
+          closeLogger.warn('close cancelled because save failed')
+          setClosingFlag(false)
           return
         }
         allowClose = true
+        closeLogger.info('close via save success')
       } else if (choice === 'cancel') {
-        MessageService.info('窗口关闭已取消')
+        if (choiceSource === 'dialog') {
+          MessageService.info('窗口关闭已取消')
+        }
+        closeLogger.info('close cancelled by user', { choiceSource })
+        setClosingFlag(false)
         return
       } else {
         // discard
         allowClose = true
+        closeLogger.info('close via discard')
       }
     }
     if (!allowClose && !isFileModified.value) {
       allowClose = true
+      closeLogger.info('close allowed (not modified)')
     }
+    allowCloseGlobal = allowClose
     if (allowClose) {
+      closeLogger.info('sending close signal')
       window.electronAPI?.close?.()
     }
+    setClosingFlag(false)
+    closeLogger.info('close flow ended')
   }
 
   let removeRequestCloseListener: (() => void) | null = null
 
   onMounted(() => {
+    if (closeListenerRegistered) return
     const handler = () => {
       void closeEditorWindow()
     }
     if (window.api?.ipc?.on && window.api?.ipc?.off) {
       window.api.ipc.on('editor:request-close', handler)
-      removeRequestCloseListener = () => window.api?.ipc?.off?.('editor:request-close', handler)
+      removeRequestCloseListenerGlobal = () =>
+        window.api?.ipc?.off?.('editor:request-close', handler)
+      closeListenerRegistered = true
+      closeLogger.info('registered request-close listener')
     }
   })
 
   onUnmounted(() => {
-    removeRequestCloseListener?.()
-    removeRequestCloseListener = null
+    // 监听保持单例，不在卸载时移除，避免 HMR 重复注册
   })
   const undoAction = () => {
     // 撤销到上一历史

@@ -32,28 +32,27 @@ const currentProfile = computed(() => ({
   ...props.profile
 }))
 
-// 添加考试
-const addExam = () => {
-  console.log('SideExamsPanel: addExam called')
-  console.log('Current profile examInfos:', currentProfile.value.examInfos)
-
+const createNewExam = (examInfos: ExamInfo[]): ExamInfo => {
   const now = new Date(getSyncedTime())
-  const startTime = formatLocalDateTime(now)
-  const endTime = formatLocalDateTime(new Date(now.getTime() + 2 * 60 * 60 * 1000))
+  const lastExam = examInfos[examInfos.length - 1]
+  const start = lastExam ? new Date(new Date(lastExam.end).getTime() + 10 * 60000) : now
+  const end = new Date(start.getTime() + 60 * 60000)
 
-  const newExam: ExamInfo = {
-    name: `考试${(currentProfile.value.examInfos || []).length + 1}`,
-    start: startTime,
-    end: endTime,
-    alertTime: 15
+  return {
+    name: `未命名考试${examInfos.length + 1}`,
+    start: formatLocalDateTime(start),
+    end: formatLocalDateTime(end),
+    alertTime: 15,
+    materials: []
   }
+}
 
+const addExam = () => {
+  const examInfos = currentProfile.value.examInfos || []
   const updatedProfile = {
     ...currentProfile.value,
-    examInfos: [...(currentProfile.value.examInfos || []), newExam]
+    examInfos: [...examInfos, createNewExam(examInfos)]
   }
-
-  console.log('Emitting update:profile with:', updatedProfile)
   emit('update:profile', updatedProfile)
 }
 

@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import HomeView from '@renderer/views/HomeView.vue'
 import MainpageView from '@renderer/views/home/MainpageView.vue'
 import PlayerHomeView from '@renderer/views/home/PlayerHomeView.vue'
+import UrlPlayerView from '@renderer/views/home/UrlPlayerView.vue'
 import ntpSettingsPage from '@renderer/views/home/ntpSettingsPage.vue'
 import DiscoverView from '@renderer/views/home/DiscoverView.vue'
 import EditorView from '@renderer/views/EditorView.vue'
@@ -10,6 +11,7 @@ import LogsView from '@renderer/views/LogsView.vue'
 import TrayPopover from '@renderer/views/tray/TrayPopover.vue'
 import SettingsShell from '@renderer/views/SettingsShell.vue'
 import CastWindow from '@renderer/views/CastWindow.vue'
+import PluginStoreWindow from '@renderer/views/PluginStoreWindow.vue'
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -21,12 +23,14 @@ const router = createRouter({
       children: [
         { path: 'mainpage', name: 'mainpage', component: MainpageView },
         { path: 'playerhome', name: 'playerhome', component: PlayerHomeView },
+        { path: 'playerhome/url', name: 'playerhome-url', component: UrlPlayerView },
         { path: 'discover', name: 'discover', component: DiscoverView },
         { path: 'ntpsettings', name: 'ntpsettings', component: ntpSettingsPage }
       ]
     },
     { path: '/editor', name: 'editor', component: EditorView, meta: { hideTitlebar: true } },
     { path: '/settings/:page?', name: 'settings', component: SettingsShell },
+    { path: '/plugin-store', name: 'plugin-store', component: PluginStoreWindow },
     // 播放器独立窗口路由（由主进程以 #/playerview 打开）
     {
       path: '/playerview',

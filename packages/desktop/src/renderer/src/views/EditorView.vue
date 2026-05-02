@@ -169,13 +169,17 @@ const { isValid, hasErrors, hasWarnings, validationErrors, validationWarnings } 
 // 格式化验证错误供底部面板使用
 const formattedValidationErrors = computed(() => {
   const errors = validationErrors.value.map((error) => ({
-    message: error,
-    type: 'error' as const
+    message: error.message,
+    type: 'error' as const,
+    path: error.path,
+    code: error.code
   }))
 
   const warnings = validationWarnings.value.map((warning) => ({
-    message: warning,
-    type: 'warning' as const
+    message: warning.message,
+    type: 'warning' as const,
+    path: warning.path,
+    code: warning.code
   }))
 
   return [...errors, ...warnings]

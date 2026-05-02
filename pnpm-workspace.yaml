@@ -4,6 +4,8 @@ packages:
   - packages/player
   - packages/web
   - packages/plugin-sdk
+  - packages/plugin-template
+  - packages/rpc
   - packages/desktop/plugins/*
 
 onlyBuiltDependencies:

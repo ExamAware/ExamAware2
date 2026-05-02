@@ -15,12 +15,6 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     TButton: typeof import('tdesign-vue-next')['Button']
-    TInput: typeof import('tdesign-vue-next')['Input']
-    TSelect: typeof import('tdesign-vue-next')['Select']
-    TSlider: typeof import('tdesign-vue-next')['Slider']
-    TSpace: typeof import('tdesign-vue-next')['Space']
-    TSwitch: typeof import('tdesign-vue-next')['Switch']
-    TTag: typeof import('tdesign-vue-next')['Tag']
   }
 }
 
@@ -29,10 +23,4 @@ declare global {
   const RouterLink: (typeof import('vue-router'))['RouterLink'];
   const RouterView: (typeof import('vue-router'))['RouterView'];
   const TButton: (typeof import('tdesign-vue-next'))['Button'];
-  const TInput: (typeof import('tdesign-vue-next'))['Input'];
-  const TSelect: (typeof import('tdesign-vue-next'))['Select'];
-  const TSlider: (typeof import('tdesign-vue-next'))['Slider'];
-  const TSpace: (typeof import('tdesign-vue-next'))['Space'];
-  const TSwitch: (typeof import('tdesign-vue-next'))['Switch'];
-  const TTag: (typeof import('tdesign-vue-next'))['Tag'];
 }

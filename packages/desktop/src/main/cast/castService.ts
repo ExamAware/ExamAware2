@@ -132,24 +132,50 @@ export class CastService {
 
   private async ensureBonjourStarted() {
     if (this.bonjour) return
-    const instance = new Bonjour()
+    const mdnsOptions = {
+      multicast: true,
+      interface: '0.0.0.0',
+      loopback: true,
+      reuseAddr: true,
+      ip: '224.0.0.251',
+      port: 5353
+    }
+    const instance = new Bonjour(mdnsOptions)
     ;(instance as any).on?.('error', (err: Error) => appLogger.error('[cast] bonjour error', err))
+    appLogger.info('[cast] bonjour init', {
+      interfaces: Array.from(this.getLocalAddressSet()),
+      options: mdnsOptions
+    })
     this.bonjour = instance
   }
 
   private publishBonjour() {
     if (!this.bonjour || !this.config.enabled) return
     this.published?.stop?.()
+    appLogger.info('[cast] bonjour publish start', {
+      name: this.config.name || 'ExamAware',
+      port: this.config.port,
+      share: this.config.shareEnabled
+    })
     this.published = this.bonjour.publish({
       name: this.config.name || 'ExamAware',
       type: 'examaware',
       port: this.config.port,
+      host: `${os.hostname?.() || 'examaware'}.local`,
       txt: {
         v: app.getVersion?.() || 'dev',
         share: this.config.shareEnabled ? '1' : '0'
       }
     })
+    // Some environments require explicit start()
+    this.published.start?.()
     this.published?.on('error', (err) => appLogger.error('[cast] publish error', err))
+    this.published?.on('up', () =>
+      appLogger.info('[cast] bonjour publish up', {
+        name: this.published?.name,
+        port: this.published?.port
+      })
+    )
   }
 
   private startBrowser() {
@@ -157,8 +183,13 @@ export class CastService {
     this.browser?.stop()
     this.peers.clear()
     this.browser = this.bonjour.find({ type: 'examaware' })
+    appLogger.info('[cast] bonjour browse start')
     this.browser.on('up', (service) => this.onServiceUp(service))
     this.browser.on('down', (service) => this.onServiceDown(service))
+    ;(this.browser as any).on?.('error', (err: Error) =>
+      appLogger.error('[cast] bonjour browse error', err)
+    )
+    this.browser.start?.()
   }
 
   private isSelfService(host: string, port: number, addresses: string[] = []) {
@@ -177,6 +208,13 @@ export class CastService {
     const port = service.port
     const id = service.fqdn || `${host}:${port}`
     if (this.isSelfService(host, port, service.addresses || [])) return
+    appLogger.info('[cast] peer discovered', {
+      id,
+      host,
+      port,
+      addresses: service.addresses,
+      txt: service.txt
+    })
     this.peers.set(id, {
       id,
       name: service.name || host,
@@ -195,6 +233,7 @@ export class CastService {
     ).replace(/\.local\.?:?$/, '')
     const port = service.port
     const id = service.fqdn || `${host}:${port}`
+    appLogger.info('[cast] peer left', { id, host, port })
     this.peers.delete(id)
   }
 

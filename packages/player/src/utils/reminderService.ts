@@ -13,6 +13,7 @@ export interface ColorfulAlertOptions {
   durationMs?: number; // default 8000
   title?: string; // default '提示'
   themeBaseColor?: string; // 用于计算对比色
+  forceWhiteText?: boolean; // 强制白字（覆盖自动对比色）
 }
 
 export interface ReminderServiceApi {
@@ -49,6 +50,7 @@ export interface ColorfulReminder extends BaseReminder {
   title: string;
   durationMs: number;
   themeBaseColor?: string;
+  forceWhiteText?: boolean;
 }
 
 let uid = 0;
@@ -179,6 +181,7 @@ export function useReminderService(): (ReminderServiceApi & {
     const title = options.title ?? '提示';
     const durationMs = options.durationMs ?? 5000;
     const themeBaseColor = options.themeBaseColor;
+    const forceWhiteText = options.forceWhiteText;
 
     colorfulRef.value = {
       id: genId('c'),
@@ -186,7 +189,8 @@ export function useReminderService(): (ReminderServiceApi & {
       createdAt: Date.now(),
       title,
       durationMs,
-      themeBaseColor
+      themeBaseColor,
+      forceWhiteText
     };
 
     if (endingTimer != null) {

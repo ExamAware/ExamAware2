@@ -1,0 +1,19 @@
+{
+  "name": "@dsz-examaware/plugin-template",
+  "version": "0.2.0",
+  "description": "ExamAware plugin template",
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "template"
+  ],
+  "keywords": [
+    "examaware",
+    "plugin",
+    "template"
+  ],
+  "author": "ExamAware",
+  "license": "GPL-3.0-only"
+}

@@ -10,7 +10,7 @@ export function createSettingsWindow(page?: string): BrowserWindow {
   return windowManager.open(({ commonOptions }) => {
     const options: Electron.BrowserWindowConstructorOptions = {
       ...commonOptions(),
-      width: 920,
+      width: 1280,
       height: 700,
       ...(process.platform !== 'linux'
         ? {

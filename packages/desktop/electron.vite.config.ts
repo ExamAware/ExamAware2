@@ -15,11 +15,16 @@ export default defineConfig(({ mode }) => {
     main: {
       plugins: [
         externalizeDepsPlugin({
-          exclude: ['@dsz-examaware/core', '@dsz-examaware/player']
+          exclude: ['@dsz-examaware/core', '@dsz-examaware/player', '@dsz-examaware/rpc']
         })
       ],
       resolve: {
-        alias: [{ find: '@app/package.json', replacement: resolve(__dirname, 'package.json') }]
+        alias: [
+          { find: '@app/package.json', replacement: resolve(__dirname, 'package.json') },
+          ...(!isProduction
+            ? [{ find: '@dsz-examaware/rpc', replacement: resolve(__dirname, '../rpc/src') }]
+            : [])
+        ]
       },
       build: {
         outDir: 'dist/main',
@@ -36,11 +41,16 @@ export default defineConfig(({ mode }) => {
     preload: {
       plugins: [
         externalizeDepsPlugin({
-          exclude: ['@dsz-examaware/core', '@dsz-examaware/player']
+          exclude: ['@dsz-examaware/core', '@dsz-examaware/player', '@dsz-examaware/rpc']
         })
       ],
       resolve: {
-        alias: [{ find: '@app/package.json', replacement: resolve(__dirname, 'package.json') }]
+        alias: [
+          { find: '@app/package.json', replacement: resolve(__dirname, 'package.json') },
+          ...(!isProduction
+            ? [{ find: '@dsz-examaware/rpc', replacement: resolve(__dirname, '../rpc/src') }]
+            : [])
+        ]
       },
       build: {
         outDir: 'dist/preload',
@@ -71,7 +81,8 @@ export default defineConfig(({ mode }) => {
                   replacement: resolve('src/renderer/src/assets/player.css')
                 },
                 { find: '@dsz-examaware/player', replacement: resolve(__dirname, '../player/src') },
-                { find: '@dsz-examaware/core', replacement: resolve(__dirname, '../core/src') }
+                { find: '@dsz-examaware/core', replacement: resolve(__dirname, '../core/src') },
+                { find: '@dsz-examaware/rpc', replacement: resolve(__dirname, '../rpc/src') }
               ]
             : []),
           { find: '@app/package.json', replacement: resolve(__dirname, 'package.json') },

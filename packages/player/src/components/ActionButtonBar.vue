@@ -373,7 +373,7 @@ const setLargeClockScale = (value: number) => {
 
 const devReminderPresets: Record<DevReminderPreset, DevReminderPayload> = {
   start: { title: '考试开始（测试）', themeBaseColor: '#2ecc71' },
-  warning: { title: '考试即将结束（测试）', themeBaseColor: '#f1c40f' },
+  warning: { title: '考试即将结束（测试）', themeBaseColor: '#f1c40f', forceWhiteText: true },
   end: { title: '考试结束（测试）', themeBaseColor: '#ff3b30' }
 };
 

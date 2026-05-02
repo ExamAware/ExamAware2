@@ -5,6 +5,7 @@ export {
   Host,
   defineExamAwarePlugin
 } from './hostBuilder'
+export { createEauiWindowForPlugin } from './eauiWindowHelper'
 export { ServiceCollection, ServiceProvider } from './serviceCollection'
 export {
   PluginContextToken,
@@ -26,5 +27,38 @@ export type {
   ConfigureServicesDelegate,
   ConfigureHostDelegate,
   PluginHostApplicationContext,
-  ServiceToken
+  ServiceToken,
+  EauiAPI,
+  EauiWidget,
+  EauiWindow,
+  EauiLabel,
+  EauiButton,
+  EauiLineEdit,
+  EauiCheckBox,
+  EauiLayout,
+  EauiSignal,
+  EauiWindowOptions,
+  EauiWindowCtor,
+  EauiLabelCtor,
+  EauiButtonCtor,
+  EauiLineEditCtor,
+  EauiCheckBoxCtor,
+  EauiVBoxLayoutCtor,
+  EauiHBoxLayoutCtor,
+  CreateEauiWindowOptions,
+  TDesignUI,
+  TDesignButton,
+  TDesignButtonOptions,
+  TDesignDropdown,
+  TDesignDropdownOptions,
+  TDesignTabs,
+  TDesignTabsOptions,
+  TDesignInput,
+  TDesignInputOptions,
+  TDesignRadioGroup,
+  TDesignRadioGroupOptions,
+  TDesignRadioOption,
+  TDesignCheckboxGroup,
+  TDesignCheckboxGroupOptions,
+  TDesignCheckboxOption
 } from './types'

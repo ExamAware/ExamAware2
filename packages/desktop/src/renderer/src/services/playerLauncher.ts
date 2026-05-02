@@ -19,7 +19,15 @@ export function createPlayerLauncher(ipc = window.api.ipc): PlayerLauncher {
         ipc.send('open-player-window', options.pathOrUrl)
         return
       }
-      // TODO: 扩展 URL/远端打开方式
+      if (options.source === 'url' && options.pathOrUrl) {
+        const value = options.pathOrUrl.trim()
+        if (!value) {
+          throw new Error('URL 不能为空')
+        }
+        await ipc.invoke('player:open-from-url', value)
+        return
+      }
+      // TODO: 扩展远端打开方式
       throw new Error('不支持的打开方式或缺少路径/URL')
     }
   }

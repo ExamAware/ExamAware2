@@ -6,15 +6,20 @@ import { promises as fsp } from 'fs'
 import path from 'path'
 import { URLSearchParams } from 'url'
 import semver from 'semver'
+import { JsonRpcClient, JsonRpcServer, createRpcProxy } from '@dsz-examaware/rpc'
 import { DisposerGroup } from '../runtime/disposable'
 import { ServiceRegistry } from '../../shared/services/registry'
 import { appLogger } from '../logging/winstonLogger'
+import { PluginRegistryInstaller } from './registryInstaller'
+import { PluginSourceFetcher } from './sourceFetcher'
+import type { RegistryInstallProgress } from './types'
 import type {
   PluginHostOptions,
   PluginListItem,
   PluginLogger,
   PluginRecord,
   PluginRuntimeContext,
+  PluginSourceFetchRequest,
   ResolvedPluginManifest,
   ServiceProviderRecord,
   ServiceProvideOptions,
@@ -23,14 +28,26 @@ import type {
 import { discoverPluginPackages, loadManifestFromPackage } from './manifest'
 import { buildPluginGraph } from './graph'
 import { PluginLoader } from './loader'
+import { DownloadManager } from '../runtime/downloadManager'
 
 type AnyRecord = Record<string, any>
+
+const BLOCKED_KEYS = new Set(['__proto__', 'prototype', 'constructor'])
+
+function isUnsafeKey(key: string) {
+  return BLOCKED_KEYS.has(key)
+}
+
+function isUnsafePath(segs: string[]) {
+  return segs.some((seg) => isUnsafeKey(seg))
+}
 
 function deepClone<T>(value: T): T {
   if (value == null || typeof value !== 'object') return value
   if (Array.isArray(value)) return value.map((item) => deepClone(item)) as unknown as T
   const next: AnyRecord = {}
   for (const key of Object.keys(value as AnyRecord)) {
+    if (isUnsafeKey(key)) continue
     next[key] = deepClone((value as AnyRecord)[key])
   }
   return next as T
@@ -49,6 +66,7 @@ function deepGet(obj: AnyRecord, key?: string) {
 
 function deepSet(obj: AnyRecord, key: string, value: any) {
   const segs = key.split('.')
+  if (isUnsafePath(segs)) return
   let cur: any = obj
   for (let i = 0; i < segs.length - 1; i++) {
     const seg = segs[i]
@@ -60,6 +78,7 @@ function deepSet(obj: AnyRecord, key: string, value: any) {
 
 function deepMerge(target: AnyRecord, source: AnyRecord) {
   for (const key of Object.keys(source)) {
+    if (isUnsafeKey(key)) continue
     const value = source[key]
     if (value && typeof value === 'object' && !Array.isArray(value)) {
       if (!target[key] || typeof target[key] !== 'object') target[key] = {}
@@ -117,10 +136,22 @@ export class PluginHost extends EventEmitter {
   private channelPrefix = 'plugin'
   private hostVersion = app?.getVersion?.() ?? '0.0.0'
   private hostSdkVersion = loadHostSdkVersion()
+  private registryInstaller: PluginRegistryInstaller
+  private downloadManager: DownloadManager
+  private sourceFetcher: PluginSourceFetcher
 
   constructor(private options: PluginHostOptions) {
     super()
     this.services = new ServiceRegistry(() => this.broadcastState(), this.logger)
+    this.downloadManager = new DownloadManager({ logger: this.logger })
+    this.registryInstaller = new PluginRegistryInstaller(this, {
+      logger: this.logger,
+      downloadManager: this.downloadManager
+    })
+    this.sourceFetcher = new PluginSourceFetcher({
+      logger: this.logger,
+      downloader: this.downloadManager
+    })
   }
 
   get logger() {
@@ -529,6 +560,10 @@ export class PluginHost extends EventEmitter {
     }
   }
 
+  async fetchPluginSource(payload?: PluginSourceFetchRequest) {
+    return this.sourceFetcher.fetch(payload)
+  }
+
   /**
    * 设置 IPC 通道，用于与渲染进程通信。
    * @param channelPrefix 通道前缀
@@ -565,6 +600,33 @@ export class PluginHost extends EventEmitter {
       this.getRendererEntryUrl(name)
     )
     ipcMain.handle(`${channelPrefix}:readme`, async (_e, name: string) => this.getReadme(name))
+    ipcMain.handle(`${channelPrefix}:fetch-source`, async (_e, payload: PluginSourceFetchRequest) =>
+      this.fetchPluginSource(payload)
+    )
+    ipcMain.handle(
+      `${channelPrefix}:install-registry`,
+      async (
+        _e,
+        payload: { pkg?: string; versionRange?: string; registry?: string; requestId?: string }
+      ) => {
+        const pkg = payload?.pkg?.trim()
+        if (!pkg) throw new Error('缺少包名')
+        return this.registryInstaller.installFromRegistry(pkg, {
+          versionRange: payload?.versionRange,
+          registry: payload?.registry,
+          requestId: payload?.requestId,
+          onProgress: (progress) => this.broadcastRegistryProgress(progress)
+        })
+      }
+    )
+    ipcMain.handle(`${channelPrefix}:registry-readme`, async (_e, payload) => {
+      const pkg = payload?.pkg?.trim()
+      if (!pkg) throw new Error('缺少包名')
+      return this.registryInstaller.fetchReadme(pkg, {
+        version: payload?.version,
+        registry: payload?.registry
+      })
+    })
     ipcMain.handle(`${channelPrefix}:install-package`, async (_e, filePath: string) => {
       const target = await this.installPackage(filePath)
       await this.scan()
@@ -814,6 +876,17 @@ export class PluginHost extends EventEmitter {
     this.broadcastState()
   }
 
+  private broadcastRegistryProgress(progress: RegistryInstallProgress) {
+    if (!this.channelPrefix) return
+    for (const window of BrowserWindow.getAllWindows()) {
+      try {
+        window.webContents.send(`${this.channelPrefix}:registry-progress`, progress)
+      } catch (error) {
+        this.logger.warn('[PluginHost] registry progress broadcast failed', error)
+      }
+    }
+  }
+
   private broadcastState() {
     if (!this.channelPrefix) return
     const payload = {
@@ -861,11 +934,50 @@ export class PluginHost extends EventEmitter {
 
     const settings = this.createSettingsApi(record, logger)
 
+    const rpcChannel = `${this.channelPrefix}:rpc:${record.name}`
+    const rpcClient = new JsonRpcClient({
+      send: (message) => {
+        const target = BrowserWindow.getAllWindows()[0]
+        if (!target) {
+          logger.warn('rpc send skipped: no renderer window')
+          return
+        }
+        target.webContents.send(rpcChannel, message)
+      },
+      onMessage: (handler) => {
+        const listener = (_event: Electron.IpcMainEvent, payload: string) => handler(payload)
+        ipcMain.on(rpcChannel, listener)
+        const disposer = () => ipcMain.off(rpcChannel, listener)
+        record.group.add(disposer)
+        return disposer
+      }
+    })
+    const rpcServer = new JsonRpcServer({
+      onMessage: (handler) => {
+        const listener = (event: Electron.IpcMainEvent, payload: string) =>
+          handler(payload, (response) => event.sender.send(rpcChannel, response))
+        ipcMain.on(rpcChannel, listener)
+        const disposer = () => ipcMain.off(rpcChannel, listener)
+        record.group.add(disposer)
+        return disposer
+      }
+    })
+    record.group.add(() => rpcClient.dispose())
+    record.group.add(() => rpcServer.dispose())
+
     return {
       app: 'main',
       logger,
       config: settings.all(),
       settings,
+      rpc: {
+        get: <T extends Record<string, any> = Record<string, any>>(token: string) =>
+          createRpcProxy<T>(rpcClient, token),
+        expose: (token: string, service: Record<string, any>) =>
+          rpcServer.registerService(token, service),
+        notify: (token: string, method: string, ...args: any[]) =>
+          rpcClient.notify(`${token}.${method}`, args)
+      },
       effect,
       services: {
         provide: (name: string, value: unknown, options?: ServiceProvideOptions) => {

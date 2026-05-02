@@ -14,20 +14,12 @@
       <t-col :span="8">
         <t-card class="card-button" @click="openUrl">
           <div class="card-content">
-            <t-icon name="code" size="60px" class="card-button-icon"></t-icon>
-            <p>更多打开方式正在开发中</p>
+            <t-icon name="link" size="60px" class="card-button-icon"></t-icon>
+            <p>从 URL 放映</p>
           </div>
         </t-card>
       </t-col>
       <!-- <t-col :span="4">
-        <t-card class="card-button" @click="openUrl">
-          <div class="card-content">
-            <t-icon name="link" size="60px" class="card-button-icon"></t-icon>
-            <p>URL</p>
-          </div>
-        </t-card>
-      </t-col>
-      <t-col :span="4">
         <t-card class="card-button" @click="selectFile">
           <div class="card-content">
             <t-icon name="server" size="60px" class="card-button-icon"></t-icon>
@@ -40,16 +32,18 @@
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import { createPlayerLauncher } from '@renderer/services/playerLauncher'
 
 const launcher = createPlayerLauncher()
+const router = useRouter()
 
 const selectFile = async () => {
   await launcher.selectLocalAndOpen()
 }
 
-const openUrl = () => {
-  console.log('打开 URL')
+const openUrl = async () => {
+  await router.push('/playerhome/url')
 }
 </script>
 

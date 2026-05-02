@@ -49,11 +49,16 @@
     </div>
 
     <div class="exam-list-empty" v-else>
-      <t-empty description="暂无考试">
-        <template #image>
-          <component :is="renderCalendarIcon" />
-        </template>
-      </t-empty>
+      <div class="exam-list-empty-vertical">
+        <t-empty description="暂无考试">
+          <template #image>
+            <component :is="renderCalendarIcon" />
+          </template>
+        </t-empty>
+        <t-button theme="primary" size="medium" style="margin-top: 24px" @click="$emit('add')">
+          添加考试
+        </t-button>
+      </div>
     </div>
 
     <!-- 确认删除对话框 -->
@@ -257,6 +262,13 @@ const handleConfirmDelete = () => {
   align-items: center;
   justify-content: center;
   padding: 32px 16px;
+}
+
+.exam-list-empty-vertical {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .exam-time {

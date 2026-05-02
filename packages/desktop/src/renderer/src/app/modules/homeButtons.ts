@@ -1,11 +1,13 @@
 import type { App } from 'vue'
 import type { AppModule } from '../types'
 import { DisposerGroup } from '@renderer/runtime/disposable'
+import { MessagePlugin } from 'tdesign-vue-next'
 
 export interface HomeButtonMeta {
   id: string
   label: string
   icon: string
+  hint?: string
   theme?: 'default' | 'primary' | 'success' | 'warning' | 'danger'
   order?: number
   action: () => void | Promise<void>
@@ -99,9 +101,11 @@ export const homeButtonsModule: AppModule = {
       icon: 'link',
       theme: 'default',
       order: 3,
-      action: () => {
-        // TODO: 实现 URL 放映功能
-        console.log('URL 放映功能待实现')
+      action: async () => {
+        const router = (app.config.globalProperties as any).$router
+        if (router) {
+          await router.push('/playerhome/url')
+        }
       }
     })
 
@@ -109,11 +113,11 @@ export const homeButtonsModule: AppModule = {
       id: 'control',
       label: '集控',
       icon: 'server',
+      hint: '敬请期待',
       theme: 'default',
       order: 4,
       action: () => {
-        // TODO: 实现集控功能
-        console.log('集控功能待实现')
+        MessagePlugin.info('敬请期待')
       }
     })
 
@@ -131,11 +135,22 @@ export const homeButtonsModule: AppModule = {
     })
 
     add({
+      id: 'plugin-store',
+      label: '插件商店',
+      icon: 'shop',
+      theme: 'primary',
+      order: 6,
+      action: () => {
+        window.api?.ipc?.send('open-plugin-store-window')
+      }
+    })
+
+    add({
       id: 'help',
       label: '帮助',
       icon: 'help-circle',
       theme: 'default',
-      order: 6,
+      order: 7,
       action: () => {
         console.log('帮助功能待实现')
       }
@@ -146,7 +161,7 @@ export const homeButtonsModule: AppModule = {
       label: '关于',
       icon: 'info-circle',
       theme: 'default',
-      order: 7,
+      order: 8,
       action: () => {
         window.api?.ipc?.send('open-settings-window', 'about')
       }
@@ -158,7 +173,7 @@ export const homeButtonsModule: AppModule = {
       label: '日志',
       icon: 'file-code',
       theme: 'default',
-      order: 8,
+      order: 9,
       action: () => {
         // 打开/聚焦独立的日志窗口（单例）
         window.api?.ipc?.send('open-logs-window')

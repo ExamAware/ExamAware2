@@ -6,6 +6,7 @@ export interface ColorfulOptions {
   durationMs?: number;
   title?: string;
   themeBaseColor?: string;
+  forceWhiteText?: boolean;
 }
 
 export interface NormalOptions {

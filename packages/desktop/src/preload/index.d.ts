@@ -1,6 +1,14 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 import type { MessageBoxOptions, MessageBoxReturnValue } from 'electron'
-import type { PluginListItem, ServiceProviderRecord } from '../main/plugin/types'
+import type {
+  PluginListItem,
+  RegistryInstallProgress,
+  RegistryInstallResult,
+  RegistryReadmeResult,
+  ServiceProviderRecord,
+  PluginSourceFetchRequest,
+  PluginSourceFetchResult
+} from '../main/plugin/types'
 import type { HttpApiConfig } from '../main/http/httpApiService'
 import type { CastConfig } from '../main/cast/castService'
 
@@ -55,9 +63,22 @@ declare global {
         onState: (
           listener: (payload: { list: PluginListItem[]; services: ServiceProviderRecord[] }) => void
         ) => () => void
+        onRegistryProgress: (listener: (progress: RegistryInstallProgress) => void) => () => void
         onConfig: (name: string, listener: (config: Record<string, any>) => void) => () => void
         rendererEntry: (name: string) => Promise<string | undefined>
         readme: (name: string) => Promise<string | undefined>
+        fetchSourceIndex: (payload?: PluginSourceFetchRequest) => Promise<PluginSourceFetchResult>
+        installFromRegistry: (payload: {
+          pkg: string
+          versionRange?: string
+          registry?: string
+          requestId?: string
+        }) => Promise<RegistryInstallResult>
+        fetchRegistryReadme: (payload: {
+          pkg: string
+          version?: string
+          registry?: string
+        }) => Promise<RegistryReadmeResult>
         installPackage: (
           filePath: string
         ) => Promise<{ installedPath: string; list: PluginListItem[] }>
@@ -107,6 +128,15 @@ declare global {
         on: (channel: string, listener: (...args: any[]) => void) => void
         off: (channel: string, listener: (...args: any[]) => void) => void
         removeAllListeners: (channel: string) => void
+      }
+      windows: {
+        open: (payload?: {
+          id?: string
+          route?: string
+          options?: Electron.BrowserWindowConstructorOptions
+        }) => Promise<{ id: string; browserWindowId: number }>
+        close: (id: string) => Promise<void>
+        currentId: () => Promise<number | undefined>
       }
     }
   }

@@ -4,11 +4,19 @@ import type {
   PluginListItem,
   PluginModuleExport,
   PluginRuntimeContext,
+  PluginSourceFetchRequest,
+  PluginSourceFetchResult,
+  RegistryInstallOptions,
+  RegistryInstallProgress,
+  RegistryInstallResult,
+  RegistryReadmeResult,
   ServiceProviderRecord
 } from '../../../main/plugin/types'
 import type { AppContext } from '../app/types'
 import { DisposerGroup } from './disposable'
 import type { DesktopAPI } from './desktopApi'
+import { createEauiApi } from './eaui'
+import { JsonRpcClient, JsonRpcServer, createRpcProxy } from '@dsz-examaware/rpc'
 
 type AnyRecord = Record<string, any>
 
@@ -63,13 +71,20 @@ export interface RendererPluginHost {
   providers: Ref<ServiceProviderRecord[]>
   loading: Ref<boolean>
   error: Ref<string | null>
+  registryProgress: Ref<RegistryInstallProgress | null>
   refresh(): Promise<void>
   toggle(name: string, enabled: boolean): Promise<void>
   reload(name: string): Promise<void>
   uninstall(name: string): Promise<void>
   getReadme(name: string): Promise<string | undefined>
+  fetchRegistryReadme(
+    pkg: string,
+    options?: { version?: string; registry?: string }
+  ): Promise<RegistryReadmeResult>
   installPackage(filePath: string): Promise<{ installedPath: string; list: PluginListItem[] }>
   installDir(dirPath: string): Promise<{ installedPath: string; list: PluginListItem[] }>
+  installFromRegistry(pkg: string, options?: RegistryInstallOptions): Promise<RegistryInstallResult>
+  fetchSourceIndex(payload?: PluginSourceFetchRequest): Promise<PluginSourceFetchResult>
   getConfig<T = Record<string, any>>(name: string): Promise<T | undefined>
   setConfig<T = Record<string, any>>(name: string, config: T): Promise<T | undefined>
   patchConfig<T = Record<string, any>>(name: string, partial: Partial<T>): Promise<T | undefined>
@@ -84,6 +99,7 @@ export function createDesktopPluginHost(ctx: AppContext): RendererPluginHost {
   const providers = shallowRef<ServiceProviderRecord[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const registryProgress = ref<RegistryInstallProgress | null>(null)
   const listeners = new Set<(items: PluginListItem[]) => void>()
   const rendererRuntimes = new Map<string, RendererRuntimeRecord>()
   const bridge = window.api?.plugins
@@ -132,6 +148,13 @@ export function createDesktopPluginHost(ctx: AppContext): RendererPluginHost {
 
   const unsubscribe = bridge.onState((payload) => applyPayload(payload))
   ctx.effect?.(() => unsubscribe?.())
+
+  const unsubscribeRegistryProgress = bridge.onRegistryProgress?.(
+    (progress: RegistryInstallProgress) => {
+      registryProgress.value = progress
+    }
+  )
+  ctx.effect?.(() => unsubscribeRegistryProgress?.())
 
   const refresh = async () => {
     loading.value = true
@@ -240,6 +263,20 @@ export function createDesktopPluginHost(ctx: AppContext): RendererPluginHost {
 
   const getReadme = (name: string) => bridge.readme?.(name)
 
+  const fetchRegistryReadme = async (
+    pkg: string,
+    options?: { version?: string; registry?: string }
+  ): Promise<RegistryReadmeResult> => {
+    if (typeof bridge.fetchRegistryReadme !== 'function') {
+      throw new Error('当前版本不支持从注册表读取 README')
+    }
+    return bridge.fetchRegistryReadme({
+      pkg,
+      version: options?.version,
+      registry: options?.registry
+    })
+  }
+
   const installPackage = async (filePath: string) => {
     if (typeof bridge.installPackage !== 'function') {
       throw new Error('当前版本不支持安装插件包')
@@ -256,6 +293,28 @@ export function createDesktopPluginHost(ctx: AppContext): RendererPluginHost {
     const result = await bridge.installDir(dirPath)
     await refresh()
     return result
+  }
+
+  const installFromRegistry = async (pkg: string, options?: RegistryInstallOptions) => {
+    if (typeof bridge.installFromRegistry !== 'function') {
+      throw new Error('当前版本不支持从注册表安装插件')
+    }
+    const result = await bridge.installFromRegistry({
+      pkg,
+      versionRange: options?.versionRange,
+      registry: options?.registry,
+      requestId: options?.requestId
+    })
+    registryProgress.value = null
+    await refresh()
+    return result
+  }
+
+  const fetchSourceIndex = async (payload?: PluginSourceFetchRequest) => {
+    if (typeof bridge.fetchSourceIndex !== 'function') {
+      throw new Error('当前版本不支持获取插件源清单')
+    }
+    return bridge.fetchSourceIndex(payload)
   }
 
   const getConfig = <T = Record<string, any>>(name: string) => bridge.getConfig<T>(name)
@@ -301,13 +360,17 @@ export function createDesktopPluginHost(ctx: AppContext): RendererPluginHost {
     providers,
     loading,
     error,
+    registryProgress,
     refresh,
     toggle,
     reload,
     uninstall,
     getReadme,
+    fetchRegistryReadme,
     installPackage,
     installDir,
+    installFromRegistry,
+    fetchSourceIndex,
     getConfig,
     setConfig,
     patchConfig,
@@ -438,11 +501,39 @@ function createRendererRuntimeContext(
     }
   }
 
+  const rpcChannel = `plugin:rpc:${plugin.name}`
+  const rpcClient = new JsonRpcClient({
+    send: (message) => window.api.ipc.send(rpcChannel, message),
+    onMessage: (handler) => {
+      const listener = (_event: unknown, payload: string) => handler(payload)
+      window.api.ipc.on(rpcChannel, listener)
+      return () => window.api.ipc.off(rpcChannel, listener)
+    }
+  })
+  const rpcServer = new JsonRpcServer({
+    onMessage: (handler) => {
+      const listener = (_event: unknown, payload: string) =>
+        handler(payload, (response) => window.api.ipc.send(rpcChannel, response))
+      window.api.ipc.on(rpcChannel, listener)
+      return () => window.api.ipc.off(rpcChannel, listener)
+    }
+  })
+  group.add(() => rpcClient.dispose())
+  group.add(() => rpcServer.dispose())
+
   const runtimeCtx: PluginRuntimeContext = {
     app: 'renderer',
     logger,
     config: cloneConfig(currentConfig),
     settings,
+    rpc: {
+      get: <T extends Record<string, any> = Record<string, any>>(token: string) =>
+        createRpcProxy<T>(rpcClient, token),
+      expose: (token: string, service: Record<string, any>) =>
+        rpcServer.registerService(token, service),
+      notify: (token: string, method: string, ...args: any[]) =>
+        rpcClient.notify(`${token}.${method}`, args)
+    },
     effect,
     services: {
       provide: () => {
@@ -462,6 +553,9 @@ function createRendererRuntimeContext(
         }),
       has: (name: string, owner?: string) =>
         providers.value.some((svc) => svc.name === name && (!owner || svc.owner === owner))
+    },
+    ui: {
+      eaui: createEauiApi()
     }
   }
 
