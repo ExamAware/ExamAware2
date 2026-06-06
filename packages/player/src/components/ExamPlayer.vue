@@ -782,10 +782,9 @@ const displayFormattedExamInfos = computed(() => {
   return formatted;
 });
 
-// pending 状态时不显示剩余时间
-// 没用的屎山 我现在不敢删
+// 显示剩余时间（考前倒计时或考试倒计时）
 const displayedRemainingTime = computed(() => {
-  return examStatus.value?.status === 'pending' ? '' : remainingTime.value || '';
+  return remainingTime.value || '';
 });
 
 // 添加调试信息与本地存储同步
@@ -989,9 +988,7 @@ const ctxForCards = {
   currentExamTimeRange,
   examStatus,
   remainingTime,
-  displayedRemainingTime: computed(() =>
-    examStatus.value?.status === 'pending' ? '' : remainingTime.value || ''
-  ),
+  displayedRemainingTime,
   displayFormattedExamInfos,
   effectiveRoomNumber,
   uiDensity: densityState,

@@ -30,7 +30,7 @@ export interface ExamPlayerCtx {
   largeClockScale?: any;
   currentExam?: any;
   examStatus?: any;
-  displayedRemainingTime?: any;
+  remainingTime?: any;
 }
 const ctx = inject<ExamPlayerCtx>('ExamPlayerCtx')!;
 
@@ -50,9 +50,10 @@ const countdownLabel = computed(() => {
   return '考试倒计时';
 });
 
-// 倒计时值
+// 倒计时值，前面加"考试倒计时："前缀
 const countdownValue = computed(() => {
-  return ctx.displayedRemainingTime?.value || '00:00:00';
+  const time = ctx.remainingTime?.value || '00:00:00';
+  return `考试倒计时：${time}`;
 });
 </script>
 

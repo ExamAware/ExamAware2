@@ -53,7 +53,6 @@ export interface ExamPlayerCtx {
   currentExam: any;
   currentExamName: any;
   currentExamTimeRange: any;
-  displayedRemainingTime: any;
   examStatus?: any;
   examInfoLargeFont?: { value: boolean };
 }
