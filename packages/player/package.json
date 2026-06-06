@@ -1,0 +1,62 @@
+{
+  "name": "@dsz-examaware/player",
+  "version": "1.5.0",
+  "description": "ExamAware Player - 考试信息播放器组件",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./dist/player.css": "./dist/player.css"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "prepublishOnly": "pnpm run build",
+    "dev": "vite build --watch",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.vue",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "examaware",
+    "exam",
+    "player",
+    "display",
+    "vue"
+  ],
+  "author": "hello8693 <hello8693@hello8693.xyz>",
+  "license": "GPL-3.0-only",
+  "dependencies": {
+    "@dsz-examaware/core": "workspace:*",
+    "misans": "^4.1.0",
+    "ogl": "^1.0.11",
+    "simple-keyboard": "^3.8.93"
+  },
+  "peerDependencies": {
+    "tdesign-vue-next": "^1.15.5",
+    "vue": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "@vitejs/plugin-vue": "^6.0.3",
+    "eslint": "^9.39.2",
+    "rimraf": "^6.1.2",
+    "tdesign-vue-next": "^1.17.7",
+    "typescript": "~5.9.3",
+    "vite": "^7.3.0",
+    "vite-plugin-dts": "^4.5.4",
+    "vue": "^3.5.26"
+  }
+}

@@ -1,0 +1,235 @@
+import {
+  contextBridge,
+  ipcRenderer,
+  type MessageBoxOptions,
+  type MessageBoxReturnValue,
+  type OpenDialogOptions
+} from 'electron'
+import { electronAPI } from '@electron-toolkit/preload'
+import { fileApi } from '../main/fileUtils'
+import type { PluginSourceFetchRequest } from '../main/plugin/types'
+
+const LOG_COOLDOWN_MS = 50
+const lastLogSent: Partial<Record<'log' | 'info' | 'warn' | 'error' | 'debug', number>> = {}
+
+const sendLogThrottled = (level: 'log' | 'info' | 'warn' | 'error' | 'debug', message: string) => {
+  const now = Date.now()
+  const last = lastLogSent[level] ?? 0
+  if (now - last < LOG_COOLDOWN_MS) return
+  lastLogSent[level] = now
+  ipcRenderer.send('logs:renderer', { level, message })
+}
+
+// Custom APIs for renderer
+const api = {
+  fileApi,
+  readFile: (filePath: string) => ipcRenderer.invoke('read-file', filePath),
+  saveFile: (filePath: string, content: string) =>
+    ipcRenderer.invoke('save-file', filePath, content),
+  saveFileDialog: () => ipcRenderer.invoke('save-file-dialog'),
+  openFileDialog: (options?: OpenDialogOptions) => ipcRenderer.invoke('open-file-dialog', options),
+  config: {
+    all: () => ipcRenderer.invoke('config:all'),
+    get: (key?: string, def?: any) => ipcRenderer.invoke('config:get', key, def),
+    set: (key: string, value: any) => ipcRenderer.invoke('config:set', key, value),
+    patch: (partial: any) => ipcRenderer.invoke('config:patch', partial),
+    onChanged: (listener: (config: any) => void) => {
+      const wrapped = (_e: any, cfg: any) => listener(cfg)
+      ipcRenderer.on('config:changed', wrapped)
+      return () => ipcRenderer.off('config:changed', wrapped)
+    }
+  },
+  app: {
+    getVersion: () => ipcRenderer.invoke('app:get-version') as Promise<string>
+  },
+  system: {
+    autostart: {
+      get: () => ipcRenderer.invoke('autostart:get') as Promise<boolean>,
+      set: (enable: boolean) => ipcRenderer.invoke('autostart:set', enable) as Promise<boolean>
+    }
+  },
+  deeplink: {
+    onOpen: (listener: (payload: any) => void) => {
+      const wrapped = (_event: Electron.IpcRendererEvent, payload: any) => listener(payload)
+      ipcRenderer.on('deeplink:open', wrapped)
+      return () => ipcRenderer.off('deeplink:open', wrapped)
+    }
+  },
+  dialog: {
+    showMessageBox: (options: MessageBoxOptions) =>
+      ipcRenderer.invoke('dialog:show-message-box', options) as Promise<MessageBoxReturnValue>
+  },
+  player: {
+    openFromEditor: (data: string) => ipcRenderer.invoke('player:open-from-editor', data)
+  },
+  plugins: {
+    list: () => ipcRenderer.invoke('plugin:list'),
+    toggle: (name: string, enabled: boolean) => ipcRenderer.invoke('plugin:toggle', name, enabled),
+    reload: (name: string) => ipcRenderer.invoke('plugin:reload', name),
+    uninstall: (name: string) => ipcRenderer.invoke('plugin:uninstall', name),
+    services: () => ipcRenderer.invoke('plugin:services'),
+    service: (name: string, owner?: string) => ipcRenderer.invoke('plugin:service', name, owner),
+    getConfig: (name: string) => ipcRenderer.invoke('plugin:get-config', name),
+    setConfig: (name: string, config: Record<string, any>) =>
+      ipcRenderer.invoke('plugin:set-config', name, config),
+    patchConfig: (name: string, partial: Record<string, any>) =>
+      ipcRenderer.invoke('plugin:patch-config', name, partial),
+    onState: (listener: (payload: any) => void) => {
+      const wrapped = (_event: Electron.IpcRendererEvent, payload: any) => listener(payload)
+      ipcRenderer.on('plugin:state', wrapped)
+      return () => ipcRenderer.off('plugin:state', wrapped)
+    },
+    onConfig: (name: string, listener: (config: Record<string, any>) => void) => {
+      const wrapped = (
+        _event: Electron.IpcRendererEvent,
+        payload: { name: string; config: Record<string, any> }
+      ) => {
+        if (!payload || payload.name !== name) return
+        listener(payload.config ?? {})
+      }
+      ipcRenderer.on('plugin:config', wrapped)
+      return () => ipcRenderer.off('plugin:config', wrapped)
+    },
+    rendererEntry: (name: string) => ipcRenderer.invoke('plugin:renderer-entry', name),
+    readme: (name: string) => ipcRenderer.invoke('plugin:readme', name),
+    fetchSourceIndex: (payload?: PluginSourceFetchRequest) =>
+      ipcRenderer.invoke('plugin:fetch-source', payload),
+    installFromRegistry: (payload: {
+      pkg: string
+      versionRange?: string
+      registry?: string
+      requestId?: string
+    }) => ipcRenderer.invoke('plugin:install-registry', payload),
+    fetchRegistryReadme: (payload: { pkg: string; version?: string; registry?: string }) =>
+      ipcRenderer.invoke('plugin:registry-readme', payload),
+    installPackage: (filePath: string) => ipcRenderer.invoke('plugin:install-package', filePath),
+    installDir: (dirPath: string) => ipcRenderer.invoke('plugin:install-dir', dirPath),
+    onRegistryProgress: (listener: (progress: any) => void) => {
+      const wrapped = (_event: Electron.IpcRendererEvent, payload: any) => listener(payload)
+      ipcRenderer.on('plugin:registry-progress', wrapped)
+      return () => ipcRenderer.off('plugin:registry-progress', wrapped)
+    }
+  },
+  http: {
+    getConfig: () => ipcRenderer.invoke('http:get-config'),
+    setConfig: (cfg: any) => ipcRenderer.invoke('http:set-config', cfg),
+    restart: () => ipcRenderer.invoke('http:restart')
+  },
+  cast: {
+    getConfig: () => ipcRenderer.invoke('cast:get-config'),
+    setConfig: (cfg: any) => ipcRenderer.invoke('cast:set-config', cfg),
+    restart: () => ipcRenderer.invoke('cast:restart'),
+    listPeers: () => ipcRenderer.invoke('cast:list-peers'),
+    peerShares: (peerId: string) => ipcRenderer.invoke('cast:peer-shares', peerId),
+    localShares: () => ipcRenderer.invoke('cast:local-shares'),
+    sharedConfig: (id?: string) => ipcRenderer.invoke('cast:shared-config', id),
+    setShares: (shares: any[]) => ipcRenderer.invoke('cast:set-shares', shares),
+    upsertShare: (share: any) => ipcRenderer.invoke('cast:upsert-share', share),
+    peerConfig: (peerId: string, shareId?: string) =>
+      ipcRenderer.invoke('cast:peer-config', { peerId, shareId }),
+    send: (peerId: string, config: string) => ipcRenderer.invoke('cast:send', { peerId, config })
+  },
+  logging: {
+    getConfig: () => ipcRenderer.invoke('logging:get-config'),
+    setConfig: (cfg: any) => ipcRenderer.invoke('logging:set-config', cfg),
+    openDir: () => ipcRenderer.invoke('logging:open-dir'),
+    clearFiles: () => ipcRenderer.invoke('logging:clear-files')
+  },
+  ipc: {
+    send: (channel: string, ...args: any[]) => ipcRenderer.send(channel, ...args),
+    invoke: (channel: string, ...args: any[]) => ipcRenderer.invoke(channel, ...args),
+    on: (channel: string, listener: (...args: any[]) => void) => ipcRenderer.on(channel, listener),
+    off: (channel: string, listener: (...args: any[]) => void) =>
+      ipcRenderer.off(channel, listener),
+    removeAllListeners: (channel: string) => ipcRenderer.removeAllListeners(channel)
+  },
+  windows: {
+    open: (payload?: {
+      id?: string
+      route?: string
+      options?: Electron.BrowserWindowConstructorOptions
+    }) => ipcRenderer.invoke('window:open', payload),
+    close: (id: string) => ipcRenderer.invoke('window:close', id),
+    currentId: () => ipcRenderer.invoke('window:id') as Promise<number | undefined>
+  }
+}
+
+// 窗口控制 API
+const windowAPI = {
+  minimize: () => ipcRenderer.send('window-minimize'),
+  close: () => ipcRenderer.send('window-close'),
+  maximize: () => ipcRenderer.send('window-maximize'),
+  isMaximized: () => ipcRenderer.invoke('window-is-maximized'),
+  setupListeners: () => ipcRenderer.send('setup-window-listeners'),
+  platform: process.platform, // 在 preload 中可以安全访问 process
+  onOpenFileAtStartup: (callback: (filePath: string) => void) => {
+    ipcRenderer.on('open-file-at-startup', (_event, filePath) => callback(filePath))
+  },
+  setTitlebarTheme: (theme: 'light' | 'dark') => ipcRenderer.send('window-titlebar-theme', theme),
+  setNativeTheme: (source: 'light' | 'dark' | 'system') =>
+    ipcRenderer.send('native-theme:set', source)
+}
+
+// Use `contextBridge` APIs to expose Electron APIs to
+// renderer only if context isolation is enabled, otherwise
+// just add to the DOM global.
+if (process.contextIsolated) {
+  try {
+    contextBridge.exposeInMainWorld('electron', electronAPI)
+    contextBridge.exposeInMainWorld('electronAPI', windowAPI)
+    contextBridge.exposeInMainWorld('api', api)
+    // 拦截渲染进程 console，转发到主进程
+    const levels: Array<'log' | 'info' | 'warn' | 'error' | 'debug'> = [
+      'log',
+      'info',
+      'warn',
+      'error',
+      'debug'
+    ]
+    const original: any = {}
+    levels.forEach((lvl) => {
+      original[lvl] = console[lvl]
+      // @ts-ignore
+      console[lvl] = (...args: any[]) => {
+        try {
+          const message = args.map((a) => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ')
+          sendLogThrottled(lvl, message)
+        } catch {}
+        try {
+          original[lvl].apply(console, args as any)
+        } catch {}
+      }
+    })
+  } catch (error) {
+    console.error(error)
+  }
+} else {
+  // @ts-ignore (define in dts)
+  window.electron = electronAPI
+  // @ts-ignore (define in dts)
+  window.electronAPI = windowAPI
+  // @ts-ignore (define in dts)
+  window.api = api
+  // 非隔离模式也拦截 console
+  const levels: Array<'log' | 'info' | 'warn' | 'error' | 'debug'> = [
+    'log',
+    'info',
+    'warn',
+    'error',
+    'debug'
+  ]
+  const original: any = {}
+  levels.forEach((lvl) => {
+    original[lvl] = console[lvl]
+    // @ts-ignore
+    console[lvl] = (...args: any[]) => {
+      try {
+        const message = args.map((a) => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ')
+        sendLogThrottled(lvl, message)
+      } catch {}
+      try {
+        original[lvl].apply(console, args as any)
+      } catch {}
+    }
+  })
+}

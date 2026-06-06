@@ -1,0 +1,39 @@
+{
+  "extends": "@electron-toolkit/tsconfig/tsconfig.web.json",
+  "include": [
+    "src/renderer/src/env.d.ts",
+    "src/renderer/src/**/*",
+    "src/renderer/src/**/*.vue",
+    "src/preload/*.d.ts",
+    "src/main/plugin/**/*.ts",
+    "src/shared/**/*",
+    "../player/src/**/*"
+  ],
+  "module": "esnext",
+  "compilerOptions": {
+    "composite": true,
+    "baseUrl": ".",
+    "moduleResolution": "bundler",
+    "ignoreDeprecations": "5.0",
+    "paths": {
+      "@renderer/*": [
+        "src/renderer/src/*"
+      ],
+      "@dsz-examaware/player": [
+        "../player/src/index.ts"
+      ],
+      "@dsz-examaware/player/*": [
+        "../player/src/*"
+      ],
+      "@dsz-examaware/core": [
+        "../core/src/index.ts"
+      ],
+      "@dsz-examaware/core/*": [
+        "../core/src/*"
+      ],
+      "@app/package.json": [
+        "./package.json"
+      ]
+    }
+  }
+}

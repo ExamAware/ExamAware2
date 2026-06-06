@@ -1,0 +1,51 @@
+{
+  "name": "@dsz-examaware/plugin-demo",
+  "version": "0.1.1",
+  "private": false,
+  "type": "module",
+  "main": "./dist/main/index.cjs",
+  "module": "./dist/renderer/index.mjs",
+  "types": "./dist/main/index.d.ts",
+  "scripts": {
+    "dev": "run-p dev:renderer dev:main",
+    "dev:renderer": "vite build --watch --mode development --config vite.config.ts",
+    "dev:main": "vite build --watch --mode development --config vite.main.config.ts",
+    "build": "pnpm run build:renderer && pnpm run build:main && pnpm run build:types",
+    "build:renderer": "vite build --config vite.config.ts",
+    "build:main": "vite build --config vite.main.config.ts",
+    "build:types": "vue-tsc --declaration --emitDeclarationOnly --outDir dist",
+    "pack": "pnpm run build && pack-examaware-plugin",
+    "lint": "vue-tsc --noEmit"
+  },
+  "examaware": {
+    "displayName": "ExamAware Demo Plugin",
+    "description": "A starter plugin showing main + renderer wiring with a settings page.",
+    "targets": {
+      "main": "./dist/main/index.cjs",
+      "renderer": "./dist/renderer/index.mjs"
+    },
+    "services": {
+      "provide": [
+        "hello.message"
+      ],
+      "inject": []
+    },
+    "settings": {
+      "namespace": "examaware-plugin-template",
+      "schema": "./schema.json"
+    }
+  },
+  "dependencies": {
+    "vue": "^3.5.26",
+    "@dsz-examaware/plugin-sdk": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.27",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "npm-run-all2": "^7.0.2",
+    "run-p": "0.0.0",
+    "typescript": "~5.7.3",
+    "vite": "^6.4.1",
+    "vue-tsc": "^2.2.12"
+  }
+}

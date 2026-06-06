@@ -1,0 +1,16 @@
+node_modules
+dist
+out
+.DS_Store
+*.log*
+packages/core/tsconfig.tsbuildinfo
+packages/desktop/plugins/*
+
+node_modules/
+docs/.vuepress/.cache/
+docs/.vuepress/.temp/
+docs/.vuepress/dist/
+packages/desktop/docs/*
+ignore/
+
+packages/rpc/tsconfig.tsbuildinfo

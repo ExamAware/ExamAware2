@@ -1,0 +1,14 @@
+packages:
+  - packages/desktop
+  - packages/core
+  - packages/player
+  - packages/web
+  - packages/plugin-sdk
+  - packages/plugin-template
+  - packages/rpc
+  - packages/desktop/plugins/*
+
+onlyBuiltDependencies:
+  - electron
+  - esbuild
+  - vue-demi

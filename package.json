@@ -1,0 +1,66 @@
+{
+  "name": "examaware-workspace",
+  "private": true,
+  "description": "ExamAware 知试",
+  "scripts": {
+    "dev:prebuild": "pnpm rpc:build && pnpm core:build && pnpm player:build",
+    "dev:watch": "pnpm -r --parallel --filter @dsz-examaware/core --filter @dsz-examaware/player dev",
+    "dev": "pnpm --filter @dsz-examaware/desktop dev",
+    "desktop:dev": "pnpm --filter @dsz-examaware/desktop dev",
+    "build": "pnpm --filter @dsz-examaware/desktop build",
+    "preview": "pnpm --filter @dsz-examaware/desktop preview",
+    "core:build": "pnpm --filter @dsz-examaware/core build",
+    "core:dev": "pnpm --filter @dsz-examaware/core dev",
+    "rpc:build": "pnpm --filter @dsz-examaware/rpc build",
+    "rpc:dev": "pnpm --filter @dsz-examaware/rpc dev",
+    "player:build": "pnpm --filter @dsz-examaware/player build",
+    "player:dev": "pnpm --filter @dsz-examaware/player dev",
+    "web:build": "pnpm --filter @dsz-examaware/web build",
+    "web:dev": "pnpm --filter @dsz-examaware/web dev",
+    "desktop:build:win": "pnpm --filter @dsz-examaware/desktop build:win",
+    "desktop:build:mac": "pnpm --filter @dsz-examaware/desktop build:mac",
+    "desktop:build:linux": "pnpm --filter @dsz-examaware/desktop build:linux",
+    "desktop:build:linux:appimage": "pnpm --filter @dsz-examaware/desktop build:linux:appimage",
+    "desktop:build:linux:snap": "pnpm --filter @dsz-examaware/desktop build:linux:snap",
+    "desktop:build:linux:deb": "pnpm --filter @dsz-examaware/desktop build:linux:deb",
+    "desktop:build:all": "pnpm --filter @dsz-examaware/desktop build:all",
+    "desktop:dist": "pnpm --filter @dsz-examaware/desktop dist",
+    "lint": "pnpm -r lint",
+    "clean": "pnpm -r clean",
+    "format": "prettier --write .",
+    "prepare": "husky",
+    "docs:build": "vuepress-vite build docs",
+    "docs:clean-dev": "vuepress-vite dev docs --clean-cache",
+    "docs:dev": "vuepress-vite dev docs",
+    "docs:update-package": "pnpm dlx vp-update"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^20.2.0",
+    "@commitlint/config-conventional": "^20.2.0",
+    "@types/node": "^25.0.3",
+    "@vuepress/bundler-vite": "2.0.0-rc.26",
+    "eslint": "^9.39.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.7.4",
+    "sass-embedded": "^1.97.1",
+    "typescript": "~5.9.3",
+    "vue": "^3.5.26",
+    "vuepress": "2.0.0-rc.26",
+    "vuepress-theme-hope": "2.0.0-rc.101"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,vue,json,yaml,yml,md,css,scss,less,html,mcconfig}": "prettier --write"
+  },
+  "packageManager": "pnpm@10.18.2",
+  "author": "hello8693 <hello8693@hello8693.xyz>",
+  "license": "GPL-3.0-only",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "electron",
+      "esbuild",
+      "vue-demi"
+    ]
+  }
+}

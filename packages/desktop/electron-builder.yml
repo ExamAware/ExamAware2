@@ -1,0 +1,148 @@
+appId: org.examaware.desktop2
+productName: ExamAware
+directories:
+  buildResources: build
+  output: out
+files:
+  - 'dist/**/*'
+  - 'node_modules/**/*'
+  - 'package.json'
+  - 'resources/**'
+  - '!**/.vscode/*'
+  - '!src/*'
+  - '!electron.vite.config.{js,ts,mjs,cjs}'
+  - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
+  - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
+  - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+  - '!build/*'
+  - '!out/*'
+fileAssociations:
+  - ext: ea2
+    name: ExamAware 档案文件
+    description: ExamAware 考试档案文件
+    mimeType: application/json
+    role: Editor
+    icon: build/icon
+asarUnpack:
+  - resources/**
+win:
+  executableName: ExamAware
+  target:
+    - target: nsis
+      arch:
+        - x64
+        - ia32
+nsis:
+  artifactName: ${productName}-${version}-setup.${ext}
+  shortcutName: ${productName}
+  uninstallDisplayName: ${productName}
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  oneClick: false
+  perMachine: true
+  allowElevation: true
+  allowToChangeInstallationDirectory: true
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+  installerHeaderIcon: build/icon.ico
+  runAfterFinish: true
+  menuCategory: false
+  include: build/installer.nsh
+  license: build/license.txt
+  displayLanguageSelector: false
+  warningsAsErrors: false
+  installerLanguages:
+    - zh_CN
+    - en_US
+mac:
+  category: public.app-category.education
+  icon: build/icon.png
+  target:
+    - target: zip
+      arch:
+        - x64
+        - arm64
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+  entitlementsInherit: build/entitlements.mac.plist
+  extendInfo:
+    - NSCameraUsageDescription: 'ExamAware needs access to your camera for exam monitoring and verification purposes.'
+    - NSMicrophoneUsageDescription: 'ExamAware needs access to your microphone for exam monitoring and audio recording.'
+    - NSDocumentsFolderUsageDescription: 'ExamAware needs access to your Documents folder to save and load exam files.'
+    - NSDownloadsFolderUsageDescription: 'ExamAware needs access to your Downloads folder to import exam materials.'
+    - CFBundleURLTypes:
+        - CFBundleURLName: 'ExamAware Document'
+          CFBundleURLSchemes:
+            - 'examaware'
+  notarize: false
+  hardenedRuntime: true
+  gatekeeperAssess: false
+
+dmg:
+  artifactName: ${productName}-${version}-${arch}.${ext}
+  title: '${productName} ${version}'
+  icon: build/icon.png
+  background: build/dmg-background.png
+  window:
+    width: 540
+    height: 380
+  contents:
+    - x: 130
+      y: 220
+      type: file
+    - x: 410
+      y: 220
+      type: link
+      path: /Applications
+linux:
+  executableName: ExamAware
+  target:
+    - target: AppImage
+      arch: [x64]
+    - target: snap
+      arch: [x64]
+    - target: deb
+      arch: [x64]
+  maintainer: ExamAware Team <hello@examaware.cn>
+  category: Education
+  mimeTypes:
+    - application/x-examaware-examjson
+  icon: build/icon.png
+appImage:
+  artifactName: ${productName}-${version}.${ext}
+  category: Education
+snap:
+  artifactName: ${productName}-${version}-${arch}.${ext}
+  summary: Exam monitoring and management application
+  title: ExamAware
+  description: |
+    ExamAware is a comprehensive exam monitoring and management application
+    designed for educational institutions and certification bodies.
+  base: core22
+  grade: stable
+  confinement: strict
+  category: education
+  plugs:
+    - default
+    - home
+    - network
+    - removable-media
+    - camera
+    - audio-record
+    - desktop
+    - desktop-legacy
+    - wayland
+deb:
+  artifactName: ${productName}-${version}-${arch}.${ext}
+  depends:
+    - gconf2
+    - gconf-service
+    - libnotify4
+    - libappindicator1
+    - libxtst6
+    - libnss3
+npmRebuild: false
+electronDownload:
+  mirror: https://npmmirror.com/mirrors/electron/

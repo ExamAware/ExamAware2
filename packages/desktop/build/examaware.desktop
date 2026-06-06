@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=ExamAware
+Comment=考试信息显示工具
+Exec=AppRun %F
+Terminal=false
+Type=Application
+Icon=examaware
+StartupWMClass=ExamAware
+X-AppImage-Version=1.0.0
+Categories=Education;Office;
+MimeType=application/x-examaware-examjson;
