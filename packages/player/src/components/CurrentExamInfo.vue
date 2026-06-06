@@ -12,7 +12,7 @@
     <!-- 考试信息列表 -->
     <div class="exam-info-list" :class="{ 'is-scrollable': examInfos && examInfos.length > 5 }">
       <ExamInfoItem
-        v-for="exam in examInfos"
+        v-for="(exam, idx) in examInfos"
         :key="exam.name"
         :date="exam.date"
         :period="exam.period"
@@ -20,6 +20,7 @@
         :start-time="exam.startTime"
         :end-time="exam.endTime"
         :status="exam.statusText"
+        :is-current="idx === currentExamIndex"
       />
       <div v-if="!examInfos || examInfos.length === 0" class="empty-state">
         <span class="empty-text">暂无考试安排</span>
@@ -45,10 +46,12 @@ export interface FormattedExamInfo {
 
 export interface CurrentExamInfoProps {
   examInfos?: FormattedExamInfo[];
+  currentExamIndex?: number;
 }
 
 const props = withDefaults(defineProps<CurrentExamInfoProps>(), {
-  examInfos: () => []
+  examInfos: () => [],
+  currentExamIndex: 0
 });
 </script>
 

@@ -47,7 +47,7 @@ const countdownLabel = computed(() => {
   const status = ctx.examStatus?.value?.status;
   if (status === 'pending') return '考前倒计时';
   if (status === 'inProgress') return '考试倒计时';
-  return '考试倒计时';
+  return '';
 });
 
 // 倒计时值，根据状态显示不同前缀
@@ -55,7 +55,8 @@ const countdownValue = computed(() => {
   const time = ctx.remainingTime?.value || '00:00:00';
   const status = ctx.examStatus?.value?.status;
   if (status === 'pending') return `距离考试开始：${time}`;
-  return `考试倒计时：${time}`;
+  if (status === 'inProgress') return `考试倒计时：${time}`;
+  return '';
 });
 </script>
 

@@ -13,14 +13,26 @@
       <span class="material-text">共</span>
       <div class="number-control">
         <button class="num-btn" @click="decrease('paperPages')">-</button>
-        <span class="num-value">{{ paperPages }}</span>
+        <input
+          class="num-input"
+          type="number"
+          min="0"
+          :value="paperPages"
+          @change="setValue('paperPages', $event)"
+        />
         <button class="num-btn" @click="increase('paperPages')">+</button>
       </div>
       <span class="material-text">页</span>
       <span class="material-text">共</span>
       <div class="number-control">
         <button class="num-btn" @click="decrease('paperSheets')">-</button>
-        <span class="num-value">{{ paperSheets }}</span>
+        <input
+          class="num-input"
+          type="number"
+          min="0"
+          :value="paperSheets"
+          @change="setValue('paperSheets', $event)"
+        />
         <button class="num-btn" @click="increase('paperSheets')">+</button>
       </div>
       <span class="material-text">张</span>
@@ -32,14 +44,26 @@
       <span class="material-text">共</span>
       <div class="number-control">
         <button class="num-btn" @click="decrease('answerPages')">-</button>
-        <span class="num-value">{{ answerPages }}</span>
+        <input
+          class="num-input"
+          type="number"
+          min="0"
+          :value="answerPages"
+          @change="setValue('answerPages', $event)"
+        />
         <button class="num-btn" @click="increase('answerPages')">+</button>
       </div>
       <span class="material-text">页</span>
       <span class="material-text">共</span>
       <div class="number-control">
         <button class="num-btn" @click="decrease('answerSheets')">-</button>
-        <span class="num-value">{{ answerSheets }}</span>
+        <input
+          class="num-input"
+          type="number"
+          min="0"
+          :value="answerSheets"
+          @change="setValue('answerSheets', $event)"
+        />
         <button class="num-btn" @click="increase('answerSheets')">+</button>
       </div>
       <span class="material-text">张</span>
@@ -176,6 +200,25 @@ const decrease = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 'answerS
       break;
   }
 };
+
+const setValue = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 'answerSheets', event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const val = Math.max(0, Math.floor(Number(target.value)) || 0);
+  switch (field) {
+    case 'paperPages':
+      paperPages.value = val;
+      break;
+    case 'paperSheets':
+      paperSheets.value = val;
+      break;
+    case 'answerPages':
+      answerPages.value = val;
+      break;
+    case 'answerSheets':
+      answerSheets.value = val;
+      break;
+  }
+};
 </script>
 
 <style scoped>
@@ -282,12 +325,28 @@ const decrease = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 'answerS
   background: rgba(255, 255, 255, 0.08);
 }
 
-.num-value {
+.num-value,
+.num-input {
   color: #fff;
   font-size: calc(var(--ui-scale, 1) * 1.3rem);
   font-weight: 600;
   min-width: calc(var(--ui-scale, 1) * 1.8rem);
   text-align: center;
   font-family: 'TCloudNumber', 'MiSans', monospace;
+}
+
+.num-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  width: calc(var(--ui-scale, 1) * 2.5rem);
+  padding: 0;
+  -moz-appearance: textfield;
+}
+
+.num-input::-webkit-outer-spin-button,
+.num-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 </style>

@@ -277,6 +277,11 @@ const showExamReminder = (
   showColorfulOnce(`${kind}:${examKey}`, options);
 };
 
+// 重置已显示的提醒（用于配置更新后重新触发）
+const resetReminderShown = () => {
+  reminderShown.clear();
+};
+
 // 显式注册局部组件（<t-dialog> / <t-input>）
 // 在 <script setup> 中，import 即可自动可用，但为兼容性，保留命名引用
 const TDialogComp = TDialog;
@@ -390,6 +395,7 @@ watch(
   () => props.examConfig,
   (newConfig) => {
     console.log('ExamPlayer: 配置变化', newConfig);
+    resetReminderShown();
     examPlayer.updateConfig(newConfig);
   },
   { immediate: false, deep: true }
@@ -512,6 +518,8 @@ const handlePreCountdownMinutesChange = (minutes: number) => {
   preCountdownMinutesState.value = safe;
   emit('update:preCountdownMinutes', safe);
   emit('preCountdownMinutesChange', safe);
+  // 同步更新核心层的播放器配置，重新创建任务队列
+  examPlayer.updatePlayerConfig({ preCountdownMinutes: safe });
 };
 
 watch(
@@ -1001,7 +1009,8 @@ const ctxForCards = {
   largeClockEnabled: computed(() => largeClockState.value),
   largeClockScale: largeClockScaleState,
   examInfoLargeFont: computed(() => examInfoLargeFontState.value),
-  handleRoomNumberClick
+  handleRoomNumberClick,
+  currentExamIndex: computed(() => state.value.currentExamIndex)
 };
 provide('ExamPlayerCtx', ctxForCards);
 

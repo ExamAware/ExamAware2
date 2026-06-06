@@ -1,5 +1,5 @@
 <template>
-  <div class="exam-table-row">
+  <div class="exam-table-row" :class="{ 'is-current': isCurrent }">
     <div class="cell cell-date">
       <template v-if="date">{{ date }} {{ period }}</template>
     </div>
@@ -22,9 +22,12 @@ export interface ExamInfoItemProps {
   startTime: string;
   endTime: string;
   status: '已结束' | '进行中' | '未开始';
+  isCurrent?: boolean;
 }
 
-const props = defineProps<ExamInfoItemProps>();
+const props = withDefaults(defineProps<ExamInfoItemProps>(), {
+  isCurrent: false
+});
 
 const statusClass = computed(() => {
   switch (props.status) {
@@ -106,5 +109,17 @@ const statusClass = computed(() => {
 .status-pending {
   background: rgba(227, 115, 24, 0.2);
   color: #e37318;
+}
+
+.exam-table-row.is-current {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: calc(var(--ui-scale, 1) * 6px);
+  margin: 0 calc(var(--ui-scale, 1) * var(--density-scale, 1) * -0.5rem);
+  padding-left: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.5rem);
+  padding-right: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.5rem);
+}
+
+.exam-table-row.is-current .cell-subject {
+  color: #4dabf7;
 }
 </style>
