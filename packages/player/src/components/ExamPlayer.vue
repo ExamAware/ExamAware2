@@ -5,12 +5,8 @@
 
     <!-- 主要内容（可插拔卡片区域） -->
     <div class="content-wrapper">
-      <!-- 左侧列（默认布局） -->
-      <div class="left-column">
-        <slot name="left:logo">
-          <div class="logo-container"><span class="logo-text">DSZ ExamAware 知试</span></div>
-        </slot>
-
+      <!-- 顶部标题栏：考试标题+副标题（左）考场号（右） -->
+      <div class="top-header">
         <slot name="left:title">
           <div class="title-section">
             <h1 ref="mainTitleRef" class="main-title">
@@ -21,17 +17,26 @@
             </p>
           </div>
         </slot>
-
-        <div class="card-item"><component :is="resolvedCards.clock" /></div>
-        <div class="card-item">
-          <component :is="resolvedCards.examInfo" />
+        <div class="header-room">
+          <component :is="resolvedCards.room" />
         </div>
       </div>
 
-      <!-- 右侧列（默认布局） -->
-      <div class="right-column">
-        <div class="card-item"><component :is="resolvedCards.room" /></div>
-        <div class="card-item"><component :is="resolvedCards.list" /></div>
+      <!-- 中间大时钟区域 -->
+      <div class="clock-section">
+        <component :is="resolvedCards.clock" />
+      </div>
+
+      <!-- 底部左右分栏 -->
+      <div class="bottom-section">
+        <!-- 左侧：当前考试信息 -->
+        <div class="bottom-left">
+          <component :is="resolvedCards.examInfo" />
+        </div>
+        <!-- 右侧：考试列表表格 -->
+        <div class="bottom-right">
+          <component :is="resolvedCards.list" />
+        </div>
       </div>
     </div>
 
@@ -944,6 +949,8 @@ const ctxForCards = {
   currentExam,
   currentExamName,
   currentExamTimeRange,
+  examStatus,
+  remainingTime,
   displayedRemainingTime: computed(() =>
     examStatus.value?.status === 'pending' ? '' : remainingTime.value || ''
   ),
@@ -1075,25 +1082,58 @@ const resolvedCards = computed(() => ({
   z-index: 10;
   height: 100vh;
   display: flex;
+  flex-direction: column;
   padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem)
     calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem)
-    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 8rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 6rem)
     calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
-  gap: calc(100px * var(--ui-scale, 1) * var(--density-scale, 1));
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.5rem);
 }
 
-.left-column {
-  width: 50%;
-  min-width: 0; /* 允许收缩 */
-  padding-top: calc((40px * 100vh / 1080px) * var(--ui-scale, 1) * var(--density-scale, 1));
-  overflow: hidden; /* 防止内容溢出 */
+/* 顶部标题栏 */
+.top-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-shrink: 0;
 }
 
-.right-column {
-  width: 50%;
-  min-width: 0; /* 允许收缩 */
-  padding-top: calc((40px * 100vh / 1080px) * var(--ui-scale, 1) * var(--density-scale, 1));
-  overflow: hidden; /* 防止内容溢出 */
+.top-header .title-section {
+  flex: 1;
+  min-width: 0;
+}
+
+.top-header .header-room {
+  flex-shrink: 0;
+  margin-left: calc(var(--ui-scale, 1) * 2rem);
+}
+
+/* 中间大时钟区域 */
+.clock-section {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 底部左右分栏 */
+.bottom-section {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
+}
+
+.bottom-left {
+  width: 40%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.bottom-right {
+  width: 60%;
+  min-width: 0;
+  overflow: hidden;
 }
 
 /* 统一卡片间距（适配可插拔卡片） */

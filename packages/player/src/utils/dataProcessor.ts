@@ -6,6 +6,8 @@ export interface FormattedExamInfo {
   name: string;
   date: string;
   timeRange: string;
+  startTime: string;
+  endTime: string;
   status: 'pending' | 'inProgress' | 'completed';
   statusText: '未开始' | '进行中' | '已结束';
   rawData: ExamInfo;
@@ -67,6 +69,8 @@ export class ExamDataProcessor {
         name: exam.name,
         date: displayDate, // 可能为空字符串
         timeRange: `${this.formatHourMinute(startDate)} ~ ${this.formatHourMinute(endDate)}`,
+        startTime: this.formatHourMinute(startDate),
+        endTime: this.formatHourMinute(endDate),
         status,
         statusText,
         rawData: exam

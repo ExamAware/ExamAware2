@@ -1,8 +1,12 @@
 <template>
   <BaseCard custom-class="current-exam-info-card">
-    <!-- 标题 -->
-    <div class="card-header">
-      <h3 class="card-title">本次考试信息</h3>
+    <!-- 表头 -->
+    <div class="table-header">
+      <div class="header-cell" style="flex: 1">日期</div>
+      <div class="header-cell" style="flex: 2">科目</div>
+      <div class="header-cell" style="flex: 1.2">开始时间</div>
+      <div class="header-cell" style="flex: 1.2">结束时间</div>
+      <div class="header-cell" style="flex: 1; text-align: right">考试状态</div>
     </div>
 
     <!-- 考试信息列表 -->
@@ -12,7 +16,8 @@
         :key="exam.name"
         :date="exam.date"
         :subject="exam.name"
-        :time="exam.timeRange"
+        :start-time="exam.startTime"
+        :end-time="exam.endTime"
         :status="exam.statusText"
       />
       <div v-if="!examInfos || examInfos.length === 0" class="empty-state">
@@ -30,7 +35,8 @@ export interface FormattedExamInfo {
   index: number;
   name: string;
   date: string;
-  timeRange: string;
+  startTime: string;
+  endTime: string;
   status: string;
   statusText: '已结束' | '进行中' | '未开始';
   rawData: any;
@@ -46,22 +52,27 @@ const props = withDefaults(defineProps<CurrentExamInfoProps>(), {
 </script>
 
 <style scoped>
-.card-header {
-  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.5rem);
+.table-header {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.5rem);
+  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.5rem) 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.5rem);
 }
 
-.card-title {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: calc(var(--ui-scale, 1) * 1.4rem);
+.header-cell {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: calc(var(--ui-scale, 1) * 1.15rem);
   font-weight: 500;
-  margin: 0;
-  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .exam-info-list {
   display: flex;
   flex-direction: column;
-  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.75rem);
 }
 
 .empty-state {

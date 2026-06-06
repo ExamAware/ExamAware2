@@ -1,6 +1,7 @@
 <template>
   <BaseCard :custom-class="customCardClass">
     <div class="clock-content" :class="{ 'large-mode': isLargeClock }">
+      <div class="beijing-time-label">北京时间</div>
       <div
         class="time-display"
         :class="{ 'time-display-large': isLargeClock }"
@@ -8,9 +9,9 @@
       >
         {{ ctx.formattedCurrentTime.value }}
       </div>
-      <div v-if="!isLargeClock" class="time-note">
-        <div>{{ ctx.timeSyncStatus?.value || '电脑时间' }}仅供参考</div>
-        <div>以考场铃声为准</div>
+      <div class="countdown-display">
+        <div class="countdown-label">{{ countdownLabel }}</div>
+        <div class="countdown-value">{{ countdownValue }}</div>
       </div>
     </div>
   </BaseCard>
@@ -27,6 +28,9 @@ export interface ExamPlayerCtx {
   timeSyncStatus?: any;
   largeClockEnabled?: any;
   largeClockScale?: any;
+  currentExam?: any;
+  examStatus?: any;
+  displayedRemainingTime?: any;
 }
 const ctx = inject<ExamPlayerCtx>('ExamPlayerCtx')!;
 
@@ -37,22 +41,44 @@ const customCardClass = computed(() =>
 const timeDisplayStyle = computed(() => ({
   '--clock-scale': ctx.largeClockScale?.value ?? 1
 }));
+
+// 倒计时标签：考前倒计时 / 考试倒计时
+const countdownLabel = computed(() => {
+  const status = ctx.examStatus?.value?.status;
+  if (status === 'pending') return '考前倒计时';
+  if (status === 'inProgress') return '考试倒计时';
+  return '考试倒计时';
+});
+
+// 倒计时值
+const countdownValue = computed(() => {
+  return ctx.displayedRemainingTime?.value || '00:00:00';
+});
 </script>
 
 <style scoped>
 .clock-content {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: calc(var(--ui-scale, 1) * 2rem);
+  justify-content: center;
+  gap: calc(var(--ui-scale, 1) * 0.75rem);
+  padding: calc(var(--ui-scale, 1) * 1rem) 0;
 }
 
 .clock-content.large-mode {
-  justify-content: center;
-  gap: calc(var(--ui-scale, 1) * 1.5rem);
+  gap: calc(var(--ui-scale, 1) * 1rem);
+}
+
+.beijing-time-label {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: calc(var(--ui-scale, 1) * 2.5rem);
+  font-weight: 500;
+  letter-spacing: 0.1em;
 }
 
 .time-display {
-  font-size: calc(var(--ui-scale, 1) * 4rem);
+  font-size: calc(var(--ui-scale, 1) * 6rem);
   line-height: 1;
   color: #fff;
   text-shadow: 0 calc(var(--ui-scale, 1) * 0.167rem) calc(var(--ui-scale, 1) * 1.458rem)
@@ -64,12 +90,29 @@ const timeDisplayStyle = computed(() => ({
 
 .clock-card-large .time-display,
 .time-display-large {
-  font-size: calc(var(--ui-scale, 1) * var(--clock-scale, var(--large-clock-scale, 1)) * 8rem);
+  font-size: calc(var(--ui-scale, 1) * var(--clock-scale, var(--large-clock-scale, 1)) * 10rem);
 }
 
-.time-note {
+.countdown-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--ui-scale, 1) * 0.5rem);
+  margin-top: calc(var(--ui-scale, 1) * 0.5rem);
+}
+
+.countdown-label {
   color: rgba(255, 255, 255, 0.7);
-  font-size: calc(var(--ui-scale, 1) * 1.5rem);
-  line-height: calc(var(--ui-scale, 1) * 2rem);
+  font-size: calc(var(--ui-scale, 1) * 1.4rem);
+  font-weight: 400;
+}
+
+.countdown-value {
+  color: #fff;
+  font-size: calc(var(--ui-scale, 1) * 2.8rem);
+  font-weight: 600;
+  font-family: 'TCloudNumber', 'MiSans', monospace;
+  text-shadow: 0 calc(var(--ui-scale, 1) * 0.1rem) calc(var(--ui-scale, 1) * 0.8rem)
+    rgba(255, 255, 255, 0.25);
 }
 </style>

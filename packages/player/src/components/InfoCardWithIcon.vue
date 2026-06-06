@@ -73,10 +73,9 @@ defineEmits<{
 }
 
 .card-body {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: repeat(3, 1fr);
-  gap: calc(var(--ui-scale, 1) * 1rem) calc(var(--ui-scale, 1) * 2rem);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--ui-scale, 1) * 1rem);
 }
 
 .icon-svg {

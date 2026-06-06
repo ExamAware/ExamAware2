@@ -1,10 +1,11 @@
 <template>
-  <div class="exam-info-item">
-    <div class="exam-date">{{ date }}</div>
-    <div class="exam-details">
-      <div class="exam-subject">{{ subject }}</div>
-      <div class="exam-time">{{ time }}</div>
-      <div class="exam-status" :class="statusClass">{{ status }}</div>
+  <div class="exam-table-row">
+    <div class="cell cell-date">{{ date }}</div>
+    <div class="cell cell-subject">{{ subject }}</div>
+    <div class="cell cell-time">{{ startTime }}</div>
+    <div class="cell cell-time">{{ endTime }}</div>
+    <div class="cell cell-status">
+      <span class="status-badge" :class="statusClass">{{ status }}</span>
     </div>
   </div>
 </template>
@@ -15,7 +16,8 @@ import { computed } from 'vue';
 export interface ExamInfoItemProps {
   date: string;
   subject: string;
-  time: string;
+  startTime: string;
+  endTime: string;
   status: '已结束' | '进行中' | '未开始';
 }
 
@@ -36,55 +38,55 @@ const statusClass = computed(() => {
 </script>
 
 <style scoped>
-.exam-info-item {
+.exam-table-row {
   display: grid;
-  grid-template-columns: max-content minmax(0, 1fr) max-content max-content;
-  align-items: baseline;
-  column-gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1rem);
-  row-gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.25rem);
-  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.5rem) 0;
+  grid-template-columns: 1fr 2fr 1.2fr 1.2fr 1fr;
+  align-items: center;
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.5rem);
+  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.6rem) 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.exam-date {
-  color: rgba(255, 255, 255, 0.8);
-  font-family: 'MiSans', sans-serif;
-  font-size: calc(var(--ui-scale, 1) * 1.6rem);
-  font-weight: 600;
-  min-width: calc(var(--ui-scale, 1) * 88px);
-  justify-self: start;
+.exam-table-row:last-child {
+  border-bottom: none;
 }
 
-.exam-details {
-  display: contents;
-}
-
-.exam-subject {
-  color: #ffffff;
-  font-family: 'MiSans', sans-serif;
-  font-size: calc(var(--ui-scale, 1) * 1.65rem);
-  font-weight: 600;
-  min-width: 0;
-  line-height: 1.2;
-}
-
-.exam-time {
-  color: rgba(255, 255, 255, 0.85);
-  font-family: 'MiSans', sans-serif;
-  font-size: calc(var(--ui-scale, 1) * 1.5rem);
+.cell {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: calc(var(--ui-scale, 1) * 1.3rem);
   font-weight: 500;
-  min-width: calc(var(--ui-scale, 1) * 120px);
-  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.exam-status {
-  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.35rem)
-    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1rem);
-  border-radius: calc(var(--ui-scale, 1) * 6px);
-  font-family: 'MiSans', sans-serif;
-  font-size: calc(var(--ui-scale, 1) * 1rem);
+.cell-date {
+  color: rgba(255, 255, 255, 0.75);
+  font-family: 'TCloudNumber', 'MiSans', monospace;
+}
+
+.cell-subject {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.cell-time {
+  color: rgba(255, 255, 255, 0.8);
+  font-family: 'TCloudNumber', 'MiSans', monospace;
+}
+
+.cell-status {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.status-badge {
+  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.25rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.75rem);
+  border-radius: calc(var(--ui-scale, 1) * 4px);
+  font-size: calc(var(--ui-scale, 1) * 1.1rem);
   font-weight: 600;
   white-space: nowrap;
-  justify-self: end;
   line-height: 1.2;
 }
 
