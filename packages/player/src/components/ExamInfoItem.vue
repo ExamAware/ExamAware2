@@ -1,6 +1,8 @@
 <template>
   <div class="exam-table-row">
-    <div class="cell cell-date">{{ date }}</div>
+    <div class="cell cell-date">
+      <template v-if="date">{{ date }} {{ period }}</template>
+    </div>
     <div class="cell cell-subject">{{ subject }}</div>
     <div class="cell cell-time">{{ startTime }}</div>
     <div class="cell cell-time">{{ endTime }}</div>
@@ -15,6 +17,7 @@ import { computed } from 'vue';
 
 export interface ExamInfoItemProps {
   date: string;
+  period: string;
   subject: string;
   startTime: string;
   endTime: string;

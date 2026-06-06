@@ -15,6 +15,7 @@
         v-for="exam in examInfos"
         :key="exam.name"
         :date="exam.date"
+        :period="exam.period"
         :subject="exam.name"
         :start-time="exam.startTime"
         :end-time="exam.endTime"
