@@ -50,9 +50,11 @@ const countdownLabel = computed(() => {
   return '考试倒计时';
 });
 
-// 倒计时值，前面加"考试倒计时："前缀
+// 倒计时值，根据状态显示不同前缀
 const countdownValue = computed(() => {
   const time = ctx.remainingTime?.value || '00:00:00';
+  const status = ctx.examStatus?.value?.status;
+  if (status === 'pending') return `距离考试开始：${time}`;
   return `考试倒计时：${time}`;
 });
 </script>
@@ -79,7 +81,7 @@ const countdownValue = computed(() => {
 }
 
 .time-display {
-  font-size: calc(var(--ui-scale, 1) * 6rem);
+  font-size: calc(var(--ui-scale, 1) * clamp(3rem, 8vw, 6rem));
   line-height: 1;
   color: #fff;
   text-shadow: 0 calc(var(--ui-scale, 1) * 0.167rem) calc(var(--ui-scale, 1) * 1.458rem)
@@ -91,7 +93,7 @@ const countdownValue = computed(() => {
 
 .clock-card-large .time-display,
 .time-display-large {
-  font-size: calc(var(--ui-scale, 1) * var(--clock-scale, var(--large-clock-scale, 1)) * 10rem);
+  font-size: calc(var(--ui-scale, 1) * var(--clock-scale, var(--large-clock-scale, 1)) * clamp(5rem, 12vw, 10rem));
 }
 
 .countdown-display {

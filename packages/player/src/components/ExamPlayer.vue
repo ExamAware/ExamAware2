@@ -61,15 +61,17 @@
       @dev-reminder-hide="handleDevReminderHide"
     />
 
-    <!-- 彩色提醒：用于考试开始/即将结束/考试结束，淡入动画 -->
+    <!-- 彩色提醒：用于考试开始/即将结束/考试结束/即将开考，淡入动画，点击可关闭 -->
     <transition name="fade-soft">
       <div
         v-if="colorfulVisible"
         class="overlay colorful-overlay"
         :class="{ 'hdr-highlight': colorfulHdrActive }"
         :style="colorfulOverlayStyle"
+        @click="handleCloseColorfulAlert"
       >
         <div class="colorful-title">{{ colorfulTitle }}</div>
+        <div class="colorful-hint">点击任意位置关闭</div>
       </div>
     </transition>
 
@@ -543,6 +545,10 @@ const handleDevReminderTest = (payload: DevReminderPreset | DevReminderPayload) 
 };
 
 const handleDevReminderHide = () => {
+  reminder.hideColorfulAlert();
+};
+
+const handleCloseColorfulAlert = () => {
   reminder.hideColorfulAlert();
 };
 
@@ -1324,6 +1330,18 @@ const resolvedCards = computed(() => ({
   letter-spacing: 0.05em;
   text-shadow: var(--colorful-shadow, 0 6px 24px rgba(0, 0, 0, 0.35));
   text-align: center;
+}
+
+.colorful-hint {
+  position: absolute;
+  bottom: calc(var(--ui-scale, 1) * 3rem);
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--colorful-text, #fff);
+  font-size: calc(var(--ui-scale, 1) * 1.2rem);
+  opacity: 0.6;
+  text-align: center;
+  pointer-events: none;
 }
 
 @media (dynamic-range: high) {

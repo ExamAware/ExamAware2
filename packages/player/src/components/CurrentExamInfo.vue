@@ -10,7 +10,7 @@
     </div>
 
     <!-- 考试信息列表 -->
-    <div class="exam-info-list">
+    <div class="exam-info-list" :class="{ 'is-scrollable': examInfos && examInfos.length > 5 }">
       <ExamInfoItem
         v-for="exam in examInfos"
         :key="exam.name"
@@ -59,6 +59,7 @@ const props = withDefaults(defineProps<CurrentExamInfoProps>(), {
   padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.5rem) 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.5rem);
+  flex-shrink: 0;
 }
 
 .header-cell {
@@ -73,6 +74,31 @@ const props = withDefaults(defineProps<CurrentExamInfoProps>(), {
 .exam-info-list {
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  max-height: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 20rem);
+}
+
+.exam-info-list.is-scrollable {
+  padding-right: calc(var(--ui-scale, 1) * 0.5rem);
+}
+
+/* 自定义滚动条 */
+.exam-info-list::-webkit-scrollbar {
+  width: calc(var(--ui-scale, 1) * 0.3rem);
+}
+
+.exam-info-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: calc(var(--ui-scale, 1) * 4px);
+}
+
+.exam-info-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: calc(var(--ui-scale, 1) * 4px);
+}
+
+.exam-info-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .empty-state {
