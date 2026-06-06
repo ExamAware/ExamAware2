@@ -134,6 +134,12 @@ export class ExamPlayerCore {
     this.queue.stop();
   }
 
+  private playerConfig: PlayerConfig = { roomNumber: '01' };
+
+  setPlayerConfig(cfg: PlayerConfig) {
+    this.playerConfig = cfg;
+  }
+
   updateConfig(newConfig: ExamConfig | null): boolean {
     if (!newConfig) {
       this.state.value.error = '配置为空';
@@ -170,6 +176,10 @@ export class ExamPlayerCore {
     this.updateCurrentExam();
 
     this.queue.createTasksForConfig(newConfig, {
+      onPreExamStart: (exam: ExamInfo, preMinutes: number) => {
+        this.events.onPreExamStart?.(exam, preMinutes);
+        this.reminder?.showColorfulAlert({ title: `即将开考 · ${exam.name}`, themeBaseColor: '#3498db', forceWhiteText: true });
+      },
       onExamStart: (exam: ExamInfo) => {
         this.currentTime.value = this.timeProvider.getCurrentTime();
         this.updateCurrentExam();
@@ -187,7 +197,7 @@ export class ExamPlayerCore {
         this.reminder?.showColorfulAlert({ title: '考试即将结束', themeBaseColor: '#f1c40f' });
       },
       onExamSwitch: this.events.onExamSwitch
-    });
+    }, this.playerConfig.preCountdownMinutes);
 
     this.queue.start();
     return true;

@@ -29,6 +29,7 @@ export function useExamPlayer(
     getSortedConfig: getSortedExamConfig,
     parse: parseDateTime
   });
+  core.setPlayerConfig(playerConfig);
 
   const view = core.view();
   const currentExam = view.currentExam;

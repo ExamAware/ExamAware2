@@ -48,6 +48,7 @@
       :initial-large-clock-enabled="largeClockState"
       :initial-large-clock-scale="largeClockScaleState"
       :initial-exam-info-large-font="examInfoLargeFontState"
+      :initial-pre-countdown-minutes="preCountdownMinutesState"
       :extra-tools="toolbarTools"
       @exit="emit('exit')"
       @scale-change="emit('scaleChange', $event)"
@@ -55,6 +56,7 @@
       @large-clock-toggle="handleLargeClockToggle"
       @clock-scale-change="handleLargeClockScaleChange"
       @exam-info-large-font-toggle="handleExamInfoLargeFontToggle"
+      @pre-countdown-minutes-change="handlePreCountdownMinutesChange"
       @dev-reminder-test="handleDevReminderTest"
       @dev-reminder-hide="handleDevReminderHide"
     />
@@ -173,6 +175,8 @@ interface Props {
   uiDensity?: UIDensity;
   /** 本场考试信息是否使用大字体 */
   examInfoLargeFont?: boolean;
+  /** 考前倒计时分钟数 */
+  preCountdownMinutes?: number;
   /** 时间提供者 */
   timeProvider?: TimeProvider;
   /** 时间同步状态描述 */
@@ -207,15 +211,18 @@ interface Emits {
   (e: 'update:roomNumber', roomNumber: string): void;
   (e: 'update:largeClock', enabled: boolean): void;
   (e: 'update:examInfoLargeFont', enabled: boolean): void;
+  (e: 'update:preCountdownMinutes', minutes: number): void;
   (e: 'exit'): void;
   (e: 'scaleChange', scale: number): void;
   (e: 'largeClockToggle', enabled: boolean): void;
   (e: 'largeClockScaleChange', scale: number): void;
   (e: 'examInfoLargeFontToggle', enabled: boolean): void;
+  (e: 'preCountdownMinutesChange', minutes: number): void;
   (e: 'densityChange', density: UIDensity): void;
   (e: 'examStart', exam: any): void;
   (e: 'examEnd', exam: any): void;
   (e: 'examAlert', exam: any, alertTime: number): void;
+  (e: 'preExamStart', exam: any, preMinutes: number): void;
   (e: 'examSwitch', fromExam: any, toExam: any): void;
   (e: 'error', error: string): void;
 }
@@ -225,6 +232,7 @@ const props = withDefaults(defineProps<Props>(), {
   uiScale: undefined,
   largeClockScale: undefined,
   examInfoLargeFont: false,
+  preCountdownMinutes: 0,
   timeProvider: () => ({ getCurrentTime: () => Date.now() }),
   timeSyncStatus: '电脑时间',
   roomNumber: '01',
@@ -258,7 +266,7 @@ const showColorfulOnce = (
 };
 
 const showExamReminder = (
-  kind: 'start' | 'end' | 'alert',
+  kind: 'start' | 'end' | 'alert' | 'preStart',
   exam: any,
   options: { title: string; themeBaseColor: string; forceWhiteText?: boolean }
 ) => {
@@ -276,6 +284,16 @@ const TButtonComp = TButton;
 // 合并事件处理器
 const mergedEventHandlers: PlayerEventHandlers = {
   ...props.eventHandlers,
+  onPreExamStart: (exam: any, preMinutes: number) => {
+    props.eventHandlers?.onPreExamStart?.(exam, preMinutes);
+    emit('preExamStart', exam, preMinutes);
+    // 即将开考（蓝色）
+    showExamReminder('preStart', exam, {
+      title: `即将开考 · ${exam.name}`,
+      themeBaseColor: '#3498db',
+      forceWhiteText: true
+    });
+  },
   onExamStart: (exam: any) => {
     props.eventHandlers?.onExamStart?.(exam);
     emit('examStart', exam);
@@ -333,6 +351,8 @@ const largeClockScaleState = ref<number>(resolveInitialLargeClockScale());
 
 const examInfoLargeFontState = ref<boolean>(Boolean(props.examInfoLargeFont));
 
+const preCountdownMinutesState = ref<number>(Number(props.preCountdownMinutes) || 0);
+
 watch(
   () => props.largeClockScale,
   (value) => {
@@ -340,6 +360,17 @@ watch(
     const safe = clampLargeClockScale(value);
     if (safe !== largeClockScaleState.value) {
       largeClockScaleState.value = safe;
+    }
+  }
+);
+
+watch(
+  () => props.preCountdownMinutes,
+  (value) => {
+    if (value === undefined || value === null) return;
+    const safe = Math.min(60, Math.max(0, Math.round(Number(value))));
+    if (safe !== preCountdownMinutesState.value) {
+      preCountdownMinutesState.value = safe;
     }
   }
 );
@@ -472,6 +503,13 @@ const handleExamInfoLargeFontToggle = (enabled: boolean) => {
   examInfoLargeFontState.value = flag;
   emit('update:examInfoLargeFont', flag);
   emit('examInfoLargeFontToggle', flag);
+};
+
+const handlePreCountdownMinutesChange = (minutes: number) => {
+  const safe = Math.min(60, Math.max(0, Math.round(Number(minutes))));
+  preCountdownMinutesState.value = safe;
+  emit('update:preCountdownMinutes', safe);
+  emit('preCountdownMinutesChange', safe);
 };
 
 watch(

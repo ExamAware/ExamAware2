@@ -2,7 +2,7 @@ import type { ExamConfig } from '@dsz-examaware/core';
 import { parseDateTime } from '@dsz-examaware/core';
 import type { ExamInfo, TaskInfo, PlayerEventHandlers } from '../types';
 
-export type TaskType = 'exam-start' | 'exam-end' | 'exam-alert';
+export type TaskType = 'exam-start' | 'exam-end' | 'exam-alert' | 'pre-exam-start';
 
 export interface Task {
   id: string;
@@ -92,7 +92,7 @@ export class ExamTaskQueue {
   /**
    * 为考试配置创建任务
    */
-  createTasksForConfig(config: ExamConfig, eventHandlers: PlayerEventHandlers = {}) {
+  createTasksForConfig(config: ExamConfig, eventHandlers: PlayerEventHandlers = {}, preCountdownMinutes?: number) {
     this.clear();
 
     if (!config.examInfos || config.examInfos.length === 0) {
@@ -104,6 +104,17 @@ export class ExamTaskQueue {
     config.examInfos.forEach((exam: ExamInfo) => {
       const startTime = parseDateTime(exam.start).getTime();
       const endTime = parseDateTime(exam.end).getTime();
+
+      // 考前倒计时提醒任务（考前 N 分钟触发全屏提醒）
+      if (preCountdownMinutes && preCountdownMinutes > 0) {
+        const preStartTime = startTime - preCountdownMinutes * 60 * 1000;
+        if (preStartTime > now) {
+          this.addTask(preStartTime, 'pre-exam-start', exam, () => {
+            console.log(`即将开考: ${exam.name}，考前 ${preCountdownMinutes} 分钟提醒`);
+            eventHandlers.onPreExamStart?.(exam, preCountdownMinutes);
+          });
+        }
+      }
 
       // 考试开始任务
       if (startTime > now) {

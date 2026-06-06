@@ -14,6 +14,7 @@
       :large-clock="largeClockEnabled"
       :large-clock-scale="largeClockScaleSetting"
       :exam-info-large-font="examInfoLargeFontSetting"
+      :pre-countdown-minutes="preCountdownMinutesSetting"
       :hdr-highlight="hdrHighlightSetting"
       @exit="handleExit"
       @room-number-click="handleRoomNumberClick"
@@ -23,9 +24,11 @@
       @large-clock-toggle="handleLargeClockToggle"
       @large-clock-scale-change="handleLargeClockScaleChange"
       @exam-info-large-font-toggle="handleExamInfoLargeFontToggle"
+      @pre-countdown-minutes-change="handlePreCountdownMinutesChange"
       @exam-start="handleExamStart"
       @exam-end="handleExamEnd"
       @exam-alert="handleExamAlert"
+      @pre-exam-start="handlePreExamStart"
       @exam-switch="handleExamSwitch"
       @error="handleError"
     >
@@ -63,7 +66,8 @@ const {
   uiDensity: uiDensitySetting,
   largeClockEnabled: largeClockEnabledSetting,
   largeClockScale: largeClockScaleSetting,
-  examInfoLargeFont: examInfoLargeFontSetting
+  examInfoLargeFont: examInfoLargeFontSetting,
+  preCountdownMinutes: preCountdownMinutesSetting
 } = desktopApi.playback
 
 const defaultRoomSetting = computed(() => {
@@ -110,7 +114,8 @@ const playerConfig = computed<PlayerConfig>(() => ({
   roomNumber: roomNumber.value,
   fullscreen: true,
   timeSync: true,
-  refreshInterval: 1000
+  refreshInterval: 1000,
+  preCountdownMinutes: preCountdownMinutesSetting.value
 }))
 
 // 时间同步状态文本
@@ -170,6 +175,10 @@ const handleExamInfoLargeFontToggle = (enabled: boolean) => {
   examInfoLargeFontSetting.value = flag
 }
 
+const handlePreCountdownMinutesChange = (minutes: number) => {
+  desktopApi.playback.preCountdownMinutes.value = minutes
+}
+
 // 考试开始事件
 const handleExamStart = (exam: any) => {
   console.log('考试开始:', exam)
@@ -199,6 +208,18 @@ const handleExamAlert = (exam: any, alertTime: number) => {
   NotifyPlugin.warning({
     title: '考试提醒',
     content: `${exam.name} 将在 ${minutes} 分钟后${alertTime > 0 ? '开始' : '结束'}`,
+    placement: 'bottom-right',
+    closeBtn: true,
+    duration: 5000
+  })
+}
+
+// 考前倒计时开始事件
+const handlePreExamStart = (exam: any, preMinutes: number) => {
+  console.log('考前倒计时开始:', exam, preMinutes)
+  NotifyPlugin.info({
+    title: '即将开考',
+    content: `${exam.name} 将在 ${preMinutes} 分钟后开始`,
     placement: 'bottom-right',
     closeBtn: true,
     duration: 5000

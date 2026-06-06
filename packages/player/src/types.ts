@@ -14,6 +14,8 @@ export interface PlayerConfig {
   timeSync?: boolean;
   /** 自动刷新间隔（毫秒） */
   refreshInterval?: number;
+  /** 考前倒计时分钟数（考试开始前多久显示考前倒计时和全屏提醒，0表示禁用） */
+  preCountdownMinutes?: number;
 }
 
 export interface PlayerState {
@@ -39,7 +41,7 @@ export interface TaskInfo {
   /** 执行时间 */
   executeTime: number;
   /** 任务类型 */
-  type: 'exam-start' | 'exam-end' | 'exam-alert';
+  type: 'exam-start' | 'exam-end' | 'exam-alert' | 'pre-exam-start';
   /** 关联的考试信息 */
   examInfo: ExamInfo;
   /** 任务状态 */
@@ -53,6 +55,8 @@ export interface PlayerEventHandlers {
   onExamEnd?: (examInfo: ExamInfo) => void;
   /** 考试提醒事件 */
   onExamAlert?: (examInfo: ExamInfo, alertTime: number) => void;
+  /** 考前倒计时开始事件（考前 N 分钟触发） */
+  onPreExamStart?: (examInfo: ExamInfo, preCountdownMinutes: number) => void;
   /** 考试切换事件 */
   onExamSwitch?: (fromExam: ExamInfo | undefined, toExam: ExamInfo | undefined) => void;
   /** 错误事件 */
