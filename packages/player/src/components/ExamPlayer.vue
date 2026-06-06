@@ -1012,19 +1012,6 @@ const resolvedCards = computed(() => ({
   justify-content: flex-end; /* 右对齐 */
 }
 
-.logo-container {
-  position: relative;
-  margin-bottom: calc((40px * 100vh / 1080px) * var(--ui-scale, 1) * var(--density-scale, 1));
-  z-index: 20;
-}
-
-.logo-text {
-  color: #ffffff;
-  font-size: calc(var(--ui-scale, 1) * 1.25rem);
-  font-weight: 600;
-  letter-spacing: 0.025em;
-}
-
 .title-section {
   margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 3rem);
 }
