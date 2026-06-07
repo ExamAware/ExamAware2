@@ -21,8 +21,5 @@
     }
   },
   "include": ["src/**/*.ts", "shared/**/*.ts", "package.json"],
-  "exclude": ["dist", "node_modules", "**/*.test.ts"],
-  "references": [
-    { "path": "../desktop" }
-  ]
+  "exclude": ["dist", "node_modules", "**/*.test.ts"]
 }

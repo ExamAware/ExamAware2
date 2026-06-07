@@ -98,6 +98,7 @@
     :large-clock-enabled="tempLargeClockEnabled"
     :large-clock-scale="tempLargeClockScale"
     :exam-info-large-font="tempExamInfoLargeFont"
+    :pre-countdown-minutes="tempPreCountdownMinutes"
     :density-options="densityOptions"
     :format-scale="formatScale"
     :is-dev-mode="isDevMode"
@@ -107,6 +108,7 @@
     @update:largeClockEnabled="handleTempLargeClockEnabledUpdate"
     @update:largeClockScale="handleTempLargeClockScaleUpdate"
     @update:examInfoLargeFont="handleTempExamInfoLargeFontUpdate"
+    @update:preCountdownMinutes="handleTempPreCountdownMinutesUpdate"
     @close="handleSettingsClosed"
     @confirm="handleSettingsConfirm"
     @dev-reminder-test="triggerDevReminderTest"
@@ -132,6 +134,7 @@ const props = withDefaults(
     initialLargeClockScale?: number;
     initialLargeClockEnabled?: boolean;
     initialExamInfoLargeFont?: boolean;
+    initialPreCountdownMinutes?: number;
     extraTools?: readonly PlayerToolbarItem[];
   }>(),
   {
@@ -140,6 +143,7 @@ const props = withDefaults(
     initialLargeClockScale: 1,
     initialLargeClockEnabled: false,
     initialExamInfoLargeFont: false,
+    initialPreCountdownMinutes: 0,
     extraTools: () => []
   }
 );
@@ -150,6 +154,7 @@ const emit = defineEmits<{
   (e: 'clockScaleChange', scale: number): void;
   (e: 'largeClockToggle', enabled: boolean): void;
   (e: 'examInfoLargeFontToggle', enabled: boolean): void;
+  (e: 'preCountdownMinutesChange', minutes: number): void;
   (e: 'devReminderTest', preset: DevReminderPreset | DevReminderPayload): void;
   (e: 'devReminderHide'): void;
 }>();
@@ -216,6 +221,9 @@ const tempLargeClockEnabled = ref<boolean>(largeClockEnabled.value);
 const examInfoLargeFont = ref<boolean>(Boolean(props.initialExamInfoLargeFont));
 const tempExamInfoLargeFont = ref<boolean>(examInfoLargeFont.value);
 
+const preCountdownMinutes = ref<number>(Number(props.initialPreCountdownMinutes) || 0);
+const tempPreCountdownMinutes = ref<number>(preCountdownMinutes.value);
+
 const handleTempScaleUpdate = (value: number) => {
   tempScale.value = value;
 };
@@ -234,6 +242,10 @@ const handleTempLargeClockScaleUpdate = (value: number) => {
 
 const handleTempExamInfoLargeFontUpdate = (value: boolean) => {
   tempExamInfoLargeFont.value = value;
+};
+
+const handleTempPreCountdownMinutesUpdate = (value: number) => {
+  tempPreCountdownMinutes.value = value;
 };
 
 // 播放设置弹窗开关
@@ -449,6 +461,16 @@ watch(
   }
 );
 
+watch(
+  () => props.initialPreCountdownMinutes,
+  (value) => {
+    if (value === undefined || value === null) return;
+    const safe = Math.min(60, Math.max(0, Math.round(Number(value))));
+    preCountdownMinutes.value = safe;
+    tempPreCountdownMinutes.value = safe;
+  }
+);
+
 watch(uiScale, (newValue, oldValue) => {
   const safe = clampScale(newValue);
   if (safe !== newValue) {
@@ -554,6 +576,22 @@ watch(tempExamInfoLargeFont, (value) => {
   const flag = Boolean(value);
   if (examInfoLargeFont.value !== flag) {
     examInfoLargeFont.value = flag;
+  }
+});
+
+watch(
+  preCountdownMinutes,
+  (minutes, previous) => {
+    if (minutes === previous) return;
+    emit('preCountdownMinutesChange', minutes);
+  },
+  { immediate: true }
+);
+
+watch(tempPreCountdownMinutes, (value) => {
+  const safe = Math.min(60, Math.max(0, Math.round(Number(value))));
+  if (preCountdownMinutes.value !== safe) {
+    preCountdownMinutes.value = safe;
   }
 });
 
@@ -685,6 +723,7 @@ const handlePlaybackSettings = () => {
   tempLargeClockScale.value = largeClockScale.value;
   tempLargeClockEnabled.value = largeClockEnabled.value;
   tempExamInfoLargeFont.value = examInfoLargeFont.value;
+  tempPreCountdownMinutes.value = preCountdownMinutes.value;
   showSettings.value = true;
 };
 
@@ -697,6 +736,7 @@ const handleSettingsConfirm = () => {
   largeClockScale.value = clampClockScale(tempLargeClockScale.value);
   largeClockEnabled.value = Boolean(tempLargeClockEnabled.value);
   examInfoLargeFont.value = Boolean(tempExamInfoLargeFont.value);
+  preCountdownMinutes.value = Math.min(60, Math.max(0, Math.round(Number(tempPreCountdownMinutes.value))));
   showSettings.value = false;
 };
 
@@ -716,6 +756,7 @@ const handleSettingsVisibleChange = (visible: boolean) => {
     tempLargeClockScale.value = largeClockScale.value;
     tempLargeClockEnabled.value = largeClockEnabled.value;
     tempExamInfoLargeFont.value = examInfoLargeFont.value;
+    tempPreCountdownMinutes.value = preCountdownMinutes.value;
   }
 };
 
@@ -726,6 +767,7 @@ const handleSettingsClosed = () => {
   tempLargeClockScale.value = largeClockScale.value;
   tempLargeClockEnabled.value = largeClockEnabled.value;
   tempExamInfoLargeFont.value = examInfoLargeFont.value;
+  tempPreCountdownMinutes.value = preCountdownMinutes.value;
   scheduleCollapse();
 };
 

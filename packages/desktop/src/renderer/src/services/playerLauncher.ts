@@ -4,7 +4,7 @@ export interface PlayerOpenOptions {
 }
 
 export interface PlayerLauncher {
-  selectLocalAndOpen(): Promise<void>
+  selectLocalAndOpen(): Promise<string | undefined>
   openWith(options: PlayerOpenOptions): Promise<void>
 }
 
@@ -13,6 +13,7 @@ export function createPlayerLauncher(ipc = window.api.ipc): PlayerLauncher {
     async selectLocalAndOpen() {
       const p = await ipc.invoke('select-file')
       if (p) await this.openWith({ source: 'file', pathOrUrl: p })
+      return p || undefined
     },
     async openWith(options: PlayerOpenOptions) {
       if (options.source === 'file' && options.pathOrUrl) {

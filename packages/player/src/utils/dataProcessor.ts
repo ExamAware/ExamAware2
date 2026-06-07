@@ -5,7 +5,10 @@ export interface FormattedExamInfo {
   index: number;
   name: string;
   date: string;
+  period: string;
   timeRange: string;
+  startTime: string;
+  endTime: string;
   status: 'pending' | 'inProgress' | 'completed';
   statusText: '未开始' | '进行中' | '已结束';
   rawData: ExamInfo;
@@ -55,6 +58,17 @@ export class ExamDataProcessor {
         day: '2-digit'
       });
 
+      // 根据开始时间判断时段
+      const hour = startDate.getHours();
+      let period = '';
+      if (hour >= 5 && hour < 12) {
+        period = '上午';
+      } else if (hour >= 12 && hour < 18) {
+        period = '下午';
+      } else {
+        period = '晚上';
+      }
+
       // 决定是否显示日期：只有当前考试的日期与前一个考试不同时才显示
       let displayDate = '';
       if (dateString !== lastDisplayedDate) {
@@ -66,7 +80,10 @@ export class ExamDataProcessor {
         index,
         name: exam.name,
         date: displayDate, // 可能为空字符串
+        period,
         timeRange: `${this.formatHourMinute(startDate)} ~ ${this.formatHourMinute(endDate)}`,
+        startTime: this.formatHourMinute(startDate),
+        endTime: this.formatHourMinute(endDate),
         status,
         statusText,
         rawData: exam

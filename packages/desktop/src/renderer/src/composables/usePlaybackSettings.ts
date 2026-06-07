@@ -32,12 +32,21 @@ export const normalizeDensity = (value: unknown): UIDensity => {
   return 'comfortable'
 }
 
+export const clampPreCountdownMinutes = (value: number | string) => {
+  const num = Number(value)
+  if (!Number.isFinite(num)) {
+    return 0
+  }
+  return Math.min(60, Math.max(0, Math.round(num)))
+}
+
 export interface PlaybackSettingsRefs {
   uiScale: Ref<number>
   uiDensity: Ref<UIDensity>
   largeClockEnabled: Ref<boolean>
   largeClockScale: Ref<number>
   examInfoLargeFont: Ref<boolean>
+  preCountdownMinutes: Ref<number>
 }
 
 export const usePlaybackSettings = (): PlaybackSettingsRefs => {
@@ -66,12 +75,18 @@ export const usePlaybackSettings = (): PlaybackSettingsRefs => {
     mapOut: (val) => Boolean(val)
   })
 
+  const preCountdownMinutes = useSettingRef<number>('player.preCountdownMinutes', 0, {
+    mapIn: clampPreCountdownMinutes,
+    mapOut: clampPreCountdownMinutes
+  })
+
   return {
     uiScale,
     uiDensity,
     largeClockEnabled,
     largeClockScale,
-    examInfoLargeFont
+    examInfoLargeFont,
+    preCountdownMinutes
   }
 }
 

@@ -29,6 +29,7 @@ export function useExamPlayer(
     getSortedConfig: getSortedExamConfig,
     parse: parseDateTime
   });
+  core.setPlayerConfig(playerConfig);
 
   const view = core.view();
   const currentExam = view.currentExam;
@@ -45,6 +46,9 @@ export function useExamPlayer(
 
   // 更新配置
   const updateConfig = (newConfig: ExamConfig | null) => core.updateConfig(newConfig);
+
+  // 更新播放器配置（如考前倒计时分钟数）
+  const updatePlayerConfig = (cfg: Partial<PlayerConfig>) => core.updatePlayerConfig(cfg);
 
   // 智能更新当前考试
   const updateCurrentExam = () => core.updateCurrentExam();
@@ -88,6 +92,7 @@ export function useExamPlayer(
 
     // 方法
     updateConfig,
+    updatePlayerConfig,
     updateCurrentExam,
     switchToExam,
     startTimeUpdates,

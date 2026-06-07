@@ -5,12 +5,8 @@
 
     <!-- 主要内容（可插拔卡片区域） -->
     <div class="content-wrapper">
-      <!-- 左侧列（默认布局） -->
-      <div class="left-column">
-        <slot name="left:logo">
-          <div class="logo-container"><span class="logo-text">DSZ ExamAware 知试</span></div>
-        </slot>
-
+      <!-- 顶部标题栏：考试标题+副标题（左）考场号（右） -->
+      <div class="top-header">
         <slot name="left:title">
           <div class="title-section">
             <h1 ref="mainTitleRef" class="main-title">
@@ -21,17 +17,26 @@
             </p>
           </div>
         </slot>
-
-        <div class="card-item"><component :is="resolvedCards.clock" /></div>
-        <div class="card-item">
-          <component :is="resolvedCards.examInfo" />
+        <div class="header-room">
+          <component :is="resolvedCards.room" />
         </div>
       </div>
 
-      <!-- 右侧列（默认布局） -->
-      <div class="right-column">
-        <div class="card-item"><component :is="resolvedCards.room" /></div>
-        <div class="card-item"><component :is="resolvedCards.list" /></div>
+      <!-- 中间大时钟区域 -->
+      <div class="clock-section">
+        <component :is="resolvedCards.clock" />
+      </div>
+
+      <!-- 底部左右分栏 -->
+      <div class="bottom-section">
+        <!-- 左侧：当前考试信息 -->
+        <div class="bottom-left">
+          <component :is="resolvedCards.examInfo" />
+        </div>
+        <!-- 右侧：考试列表表格 -->
+        <div class="bottom-right">
+          <component :is="resolvedCards.list" />
+        </div>
       </div>
     </div>
 
@@ -43,6 +48,7 @@
       :initial-large-clock-enabled="largeClockState"
       :initial-large-clock-scale="largeClockScaleState"
       :initial-exam-info-large-font="examInfoLargeFontState"
+      :initial-pre-countdown-minutes="preCountdownMinutesState"
       :extra-tools="toolbarTools"
       @exit="emit('exit')"
       @scale-change="emit('scaleChange', $event)"
@@ -50,19 +56,22 @@
       @large-clock-toggle="handleLargeClockToggle"
       @clock-scale-change="handleLargeClockScaleChange"
       @exam-info-large-font-toggle="handleExamInfoLargeFontToggle"
+      @pre-countdown-minutes-change="handlePreCountdownMinutesChange"
       @dev-reminder-test="handleDevReminderTest"
       @dev-reminder-hide="handleDevReminderHide"
     />
 
-    <!-- 彩色提醒：用于考试开始/即将结束/考试结束，淡入动画 -->
+    <!-- 彩色提醒：用于考试开始/即将结束/考试结束/即将开考，淡入动画，点击可关闭 -->
     <transition name="fade-soft">
       <div
         v-if="colorfulVisible"
         class="overlay colorful-overlay"
         :class="{ 'hdr-highlight': colorfulHdrActive }"
         :style="colorfulOverlayStyle"
+        @click="handleCloseColorfulAlert"
       >
         <div class="colorful-title">{{ colorfulTitle }}</div>
+        <div class="colorful-hint">点击任意位置关闭</div>
       </div>
     </transition>
 
@@ -168,6 +177,8 @@ interface Props {
   uiDensity?: UIDensity;
   /** 本场考试信息是否使用大字体 */
   examInfoLargeFont?: boolean;
+  /** 考前倒计时分钟数 */
+  preCountdownMinutes?: number;
   /** 时间提供者 */
   timeProvider?: TimeProvider;
   /** 时间同步状态描述 */
@@ -202,15 +213,18 @@ interface Emits {
   (e: 'update:roomNumber', roomNumber: string): void;
   (e: 'update:largeClock', enabled: boolean): void;
   (e: 'update:examInfoLargeFont', enabled: boolean): void;
+  (e: 'update:preCountdownMinutes', minutes: number): void;
   (e: 'exit'): void;
   (e: 'scaleChange', scale: number): void;
   (e: 'largeClockToggle', enabled: boolean): void;
   (e: 'largeClockScaleChange', scale: number): void;
   (e: 'examInfoLargeFontToggle', enabled: boolean): void;
+  (e: 'preCountdownMinutesChange', minutes: number): void;
   (e: 'densityChange', density: UIDensity): void;
   (e: 'examStart', exam: any): void;
   (e: 'examEnd', exam: any): void;
   (e: 'examAlert', exam: any, alertTime: number): void;
+  (e: 'preExamStart', exam: any, preMinutes: number): void;
   (e: 'examSwitch', fromExam: any, toExam: any): void;
   (e: 'error', error: string): void;
 }
@@ -220,6 +234,7 @@ const props = withDefaults(defineProps<Props>(), {
   uiScale: undefined,
   largeClockScale: undefined,
   examInfoLargeFont: false,
+  preCountdownMinutes: 0,
   timeProvider: () => ({ getCurrentTime: () => Date.now() }),
   timeSyncStatus: '电脑时间',
   roomNumber: '01',
@@ -253,13 +268,18 @@ const showColorfulOnce = (
 };
 
 const showExamReminder = (
-  kind: 'start' | 'end' | 'alert',
+  kind: 'start' | 'end' | 'alert' | 'preStart',
   exam: any,
   options: { title: string; themeBaseColor: string; forceWhiteText?: boolean }
 ) => {
   const examKey = getExamKey(exam);
   if (!examKey) return;
   showColorfulOnce(`${kind}:${examKey}`, options);
+};
+
+// 重置已显示的提醒（用于配置更新后重新触发）
+const resetReminderShown = () => {
+  reminderShown.clear();
 };
 
 // 显式注册局部组件（<t-dialog> / <t-input>）
@@ -271,6 +291,16 @@ const TButtonComp = TButton;
 // 合并事件处理器
 const mergedEventHandlers: PlayerEventHandlers = {
   ...props.eventHandlers,
+  onPreExamStart: (exam: any, preMinutes: number) => {
+    props.eventHandlers?.onPreExamStart?.(exam, preMinutes);
+    emit('preExamStart', exam, preMinutes);
+    // 即将开考（蓝色）
+    showExamReminder('preStart', exam, {
+      title: `即将开考 · ${exam.name}`,
+      themeBaseColor: '#3498db',
+      forceWhiteText: true
+    });
+  },
   onExamStart: (exam: any) => {
     props.eventHandlers?.onExamStart?.(exam);
     emit('examStart', exam);
@@ -328,6 +358,8 @@ const largeClockScaleState = ref<number>(resolveInitialLargeClockScale());
 
 const examInfoLargeFontState = ref<boolean>(Boolean(props.examInfoLargeFont));
 
+const preCountdownMinutesState = ref<number>(Number(props.preCountdownMinutes) || 0);
+
 watch(
   () => props.largeClockScale,
   (value) => {
@@ -335,6 +367,17 @@ watch(
     const safe = clampLargeClockScale(value);
     if (safe !== largeClockScaleState.value) {
       largeClockScaleState.value = safe;
+    }
+  }
+);
+
+watch(
+  () => props.preCountdownMinutes,
+  (value) => {
+    if (value === undefined || value === null) return;
+    const safe = Math.min(60, Math.max(0, Math.round(Number(value))));
+    if (safe !== preCountdownMinutesState.value) {
+      preCountdownMinutesState.value = safe;
     }
   }
 );
@@ -352,6 +395,7 @@ watch(
   () => props.examConfig,
   (newConfig) => {
     console.log('ExamPlayer: 配置变化', newConfig);
+    resetReminderShown();
     examPlayer.updateConfig(newConfig);
   },
   { immediate: false, deep: true }
@@ -469,6 +513,15 @@ const handleExamInfoLargeFontToggle = (enabled: boolean) => {
   emit('examInfoLargeFontToggle', flag);
 };
 
+const handlePreCountdownMinutesChange = (minutes: number) => {
+  const safe = Math.min(60, Math.max(0, Math.round(Number(minutes))));
+  preCountdownMinutesState.value = safe;
+  emit('update:preCountdownMinutes', safe);
+  emit('preCountdownMinutesChange', safe);
+  // 同步更新核心层的播放器配置，重新创建任务队列
+  examPlayer.updatePlayerConfig({ preCountdownMinutes: safe });
+};
+
 watch(
   () => props.examInfoLargeFont,
   (next) => {
@@ -500,6 +553,10 @@ const handleDevReminderTest = (payload: DevReminderPreset | DevReminderPayload) 
 };
 
 const handleDevReminderHide = () => {
+  reminder.hideColorfulAlert();
+};
+
+const handleCloseColorfulAlert = () => {
   reminder.hideColorfulAlert();
 };
 
@@ -739,10 +796,9 @@ const displayFormattedExamInfos = computed(() => {
   return formatted;
 });
 
-// pending 状态时不显示剩余时间
-// 没用的屎山 我现在不敢删
+// 显示剩余时间（考前倒计时或考试倒计时）
 const displayedRemainingTime = computed(() => {
-  return examStatus.value?.status === 'pending' ? '' : remainingTime.value || '';
+  return remainingTime.value || '';
 });
 
 // 添加调试信息与本地存储同步
@@ -944,16 +1000,17 @@ const ctxForCards = {
   currentExam,
   currentExamName,
   currentExamTimeRange,
-  displayedRemainingTime: computed(() =>
-    examStatus.value?.status === 'pending' ? '' : remainingTime.value || ''
-  ),
+  examStatus,
+  remainingTime,
+  displayedRemainingTime,
   displayFormattedExamInfos,
   effectiveRoomNumber,
   uiDensity: densityState,
   largeClockEnabled: computed(() => largeClockState.value),
   largeClockScale: largeClockScaleState,
   examInfoLargeFont: computed(() => examInfoLargeFontState.value),
-  handleRoomNumberClick
+  handleRoomNumberClick,
+  currentExamIndex: computed(() => state.value.currentExamIndex)
 };
 provide('ExamPlayerCtx', ctxForCards);
 
@@ -1005,19 +1062,6 @@ const resolvedCards = computed(() => ({
   justify-content: flex-end; /* 右对齐 */
 }
 
-.logo-container {
-  position: relative;
-  margin-bottom: calc((40px * 100vh / 1080px) * var(--ui-scale, 1) * var(--density-scale, 1));
-  z-index: 20;
-}
-
-.logo-text {
-  color: #ffffff;
-  font-size: calc(var(--ui-scale, 1) * 1.25rem);
-  font-weight: 600;
-  letter-spacing: 0.025em;
-}
-
 .title-section {
   margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 3rem);
 }
@@ -1034,7 +1078,7 @@ const resolvedCards = computed(() => ({
 }
 
 .subtitle {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.75);
   font-weight: 400;
   line-height: 1.4;
 }
@@ -1075,25 +1119,62 @@ const resolvedCards = computed(() => ({
   z-index: 10;
   height: 100vh;
   display: flex;
+  flex-direction: column;
   padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem)
     calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem)
-    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 8rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 6rem)
     calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
-  gap: calc(100px * var(--ui-scale, 1) * var(--density-scale, 1));
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.5rem);
 }
 
-.left-column {
-  width: 50%;
-  min-width: 0; /* 允许收缩 */
-  padding-top: calc((40px * 100vh / 1080px) * var(--ui-scale, 1) * var(--density-scale, 1));
-  overflow: hidden; /* 防止内容溢出 */
+/* 顶部标题栏 */
+.top-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-shrink: 0;
 }
 
-.right-column {
-  width: 50%;
-  min-width: 0; /* 允许收缩 */
-  padding-top: calc((40px * 100vh / 1080px) * var(--ui-scale, 1) * var(--density-scale, 1));
-  overflow: hidden; /* 防止内容溢出 */
+.top-header .title-section {
+  flex: 1;
+  min-width: 0;
+}
+
+.top-header .header-room {
+  flex-shrink: 0;
+  margin-left: calc(var(--ui-scale, 1) * 2rem);
+}
+
+/* 中间大时钟区域 */
+.clock-section {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.clock-section > * {
+  width: 100%;
+}
+
+/* 底部左右分栏 */
+.bottom-section {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
+}
+
+.bottom-left {
+  width: 45%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.bottom-right {
+  width: 55%;
+  min-width: 0;
+  overflow: hidden;
 }
 
 /* 统一卡片间距（适配可插拔卡片） */
@@ -1262,6 +1343,18 @@ const resolvedCards = computed(() => ({
   letter-spacing: 0.05em;
   text-shadow: var(--colorful-shadow, 0 6px 24px rgba(0, 0, 0, 0.35));
   text-align: center;
+}
+
+.colorful-hint {
+  position: absolute;
+  bottom: calc(var(--ui-scale, 1) * 3rem);
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--colorful-text, #fff);
+  font-size: calc(var(--ui-scale, 1) * 1.2rem);
+  opacity: 0.6;
+  text-align: center;
+  pointer-events: none;
 }
 
 @media (dynamic-range: high) {
