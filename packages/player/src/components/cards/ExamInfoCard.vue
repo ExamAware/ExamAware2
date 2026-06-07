@@ -8,7 +8,7 @@
     </div>
 
     <!-- 试卷信息：共 X 页 共 Y 张 -->
-    <div class="material-row">
+    <div class="material-row" :style="materialScaleStyle">
       <span class="material-label">试卷:</span>
       <span class="material-text">共</span>
       <div class="number-control" :class="{ 'controls-hidden': !showControls.paperPages }">
@@ -49,7 +49,7 @@
     </div>
 
     <!-- 答题卡信息：共 X 页 共 Y 张 -->
-    <div class="material-row">
+    <div class="material-row" :style="materialScaleStyle">
       <span class="material-label">答题卡:</span>
       <span class="material-text">共</span>
       <div class="number-control" :class="{ 'controls-hidden': !showControls.answerPages }">
@@ -110,6 +110,7 @@ export interface ExamPlayerCtx {
   currentExamTimeRange: any;
   examStatus?: any;
   examInfoLargeFont?: { value: boolean };
+  materialFontScale?: { value: number };
 }
 const ctx = inject<ExamPlayerCtx>('ExamPlayerCtx')!;
 
@@ -118,6 +119,12 @@ const customClass = computed(() =>
     .filter(Boolean)
     .join(' ')
 );
+
+// 材料字体缩放
+const materialScaleStyle = computed(() => {
+  const scale = ctx.materialFontScale?.value ?? 1;
+  return { '--material-font-scale': scale };
+});
 
 // 考试状态文本和颜色
 const examStatusText = computed(() => {
@@ -393,14 +400,14 @@ const handleInputFocus = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 
 
 .material-label {
   color: rgba(255, 255, 255, 0.75);
-  font-size: calc(var(--ui-scale, 1) * 1.4rem);
+  font-size: calc(var(--material-font-scale, 1) * var(--ui-scale, 1) * 1.4rem);
   font-weight: 500;
-  min-width: calc(var(--ui-scale, 1) * 5rem);
+  min-width: calc(var(--material-font-scale, 1) * var(--ui-scale, 1) * 5rem);
 }
 
 .material-text {
   color: rgba(255, 255, 255, 0.75);
-  font-size: calc(var(--ui-scale, 1) * 1.3rem);
+  font-size: calc(var(--material-font-scale, 1) * var(--ui-scale, 1) * 1.3rem);
 }
 
 /* 数字加减控制器 */
@@ -422,8 +429,8 @@ const handleInputFocus = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 
 }
 
 .num-btn {
-  width: calc(var(--ui-scale, 1) * 1.6rem);
-  height: calc(var(--ui-scale, 1) * 1.6rem);
+  width: calc(var(--material-font-scale, 1) * var(--ui-scale, 1) * 1.6rem);
+  height: calc(var(--material-font-scale, 1) * var(--ui-scale, 1) * 1.6rem);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -431,7 +438,7 @@ const handleInputFocus = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 
   border: none;
   border-radius: calc(var(--ui-scale, 1) * 4px);
   color: #fff;
-  font-size: calc(var(--ui-scale, 1) * 1.1rem);
+  font-size: calc(var(--material-font-scale, 1) * var(--ui-scale, 1) * 1.1rem);
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s ease;
@@ -450,9 +457,9 @@ const handleInputFocus = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 
 .num-value,
 .num-input {
   color: #fff;
-  font-size: calc(var(--ui-scale, 1) * 1.3rem);
+  font-size: calc(var(--material-font-scale, 1) * var(--ui-scale, 1) * 1.3rem);
   font-weight: 600;
-  min-width: calc(var(--ui-scale, 1) * 1.8rem);
+  min-width: calc(var(--material-font-scale, 1) * var(--ui-scale, 1) * 1.8rem);
   text-align: center;
   font-family: 'TCloudNumber', 'MiSans', monospace;
 }
@@ -461,7 +468,7 @@ const handleInputFocus = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 
   background: transparent;
   border: none;
   outline: none;
-  width: calc(var(--ui-scale, 1) * 2.5rem);
+  width: calc(var(--material-font-scale, 1) * var(--ui-scale, 1) * 2.5rem);
   padding: 0;
   -moz-appearance: textfield;
 }

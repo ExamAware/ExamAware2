@@ -109,6 +109,22 @@
             <div class="settings-hint">控制悬浮窗中显示的信息项</div>
           </div>
         </div>
+        <div class="settings-group">
+          <div class="settings-label">试卷/答题卡字体大小</div>
+          <div class="settings-control">
+            <div class="slider-row">
+              <t-slider
+                v-model:value="materialFontScaleModel"
+                :min="1"
+                :max="3"
+                :step="0.1"
+              />
+            </div>
+            <div class="settings-hint">
+              调整左下角试卷和答题卡信息的字体大小，当前 {{ materialFontScaleModel.toFixed(1) }}x
+            </div>
+          </div>
+        </div>
         <div v-if="isDevMode" class="settings-group dev-reminder-tools">
           <div class="settings-label">调试 · 全屏提醒</div>
           <div class="settings-control">
@@ -170,13 +186,15 @@ const props = withDefaults(
     isDevMode?: boolean;
     pipShowRemaining?: boolean;
     pipShowCurrent?: boolean;
+    materialFontScale?: number;
   }>(),
   {
     isDevMode: false,
     examInfoLargeFont: false,
     preCountdownMinutes: 0,
     pipShowRemaining: true,
-    pipShowCurrent: false
+    pipShowCurrent: false,
+    materialFontScale: 1
   }
 );
 
@@ -190,6 +208,7 @@ const emit = defineEmits<{
   (e: 'update:preCountdownMinutes', value: number): void;
   (e: 'update:pipShowRemaining', value: boolean): void;
   (e: 'update:pipShowCurrent', value: boolean): void;
+  (e: 'update:materialFontScale', value: number): void;
   (e: 'confirm'): void;
   (e: 'close'): void;
   (e: 'devReminderTest', preset: DevReminderPreset): void;
@@ -236,6 +255,11 @@ const pipShowRemainingModel = computed({
 const pipShowCurrentModel = computed({
   get: () => props.pipShowCurrent,
   set: (value: boolean) => emit('update:pipShowCurrent', value)
+});
+
+const materialFontScaleModel = computed({
+  get: () => props.materialFontScale ?? 1,
+  set: (value: number) => emit('update:materialFontScale', value)
 });
 
 const handleVisibleChange = (value: boolean) => {

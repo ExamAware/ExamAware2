@@ -51,6 +51,7 @@
       :initial-pre-countdown-minutes="preCountdownMinutesState"
       :initial-pip-show-remaining="pipShowRemaining"
       :initial-pip-show-current="pipShowCurrent"
+      :initial-material-font-scale="materialFontScaleState"
       :extra-tools="toolbarTools"
       @exit="emit('exit')"
       @scale-change="emit('scaleChange', $event)"
@@ -62,13 +63,14 @@
       @dev-reminder-test="handleDevReminderTest"
       @dev-reminder-hide="handleDevReminderHide"
       @pip-toggle="handlePipToggle"
+      @material-font-scale-change="handleMaterialFontScaleChange"
     />
 
     <!-- 画中画悬浮窗 -->
     <PipOverlay
       :visible="pipVisible"
       :remaining-time="displayedRemainingTime"
-      :current-time="formattedCurrentTime.value"
+      :current-time="formattedCurrentTime"
       :show-remaining-time="pipShowRemaining"
       :show-current-time="pipShowCurrent"
       @close="pipVisible = false"
@@ -372,6 +374,8 @@ const largeClockScaleState = ref<number>(resolveInitialLargeClockScale());
 
 const examInfoLargeFontState = ref<boolean>(Boolean(props.examInfoLargeFont));
 
+const materialFontScaleState = ref<number>(1);
+
 const preCountdownMinutesState = ref<number>(Number(props.preCountdownMinutes) || 0);
 
 watch(
@@ -577,6 +581,11 @@ const pipShowCurrent = ref(false);
 
 const handlePipToggle = () => {
   pipVisible.value = !pipVisible.value;
+};
+
+const handleMaterialFontScaleChange = (scale: number) => {
+  const safe = Math.min(3, Math.max(1, Number(scale) || 1));
+  materialFontScaleState.value = safe;
 };
 
 const handleCloseColorfulAlert = () => {
@@ -1032,6 +1041,7 @@ const ctxForCards = {
   largeClockEnabled: computed(() => largeClockState.value),
   largeClockScale: largeClockScaleState,
   examInfoLargeFont: computed(() => examInfoLargeFontState.value),
+  materialFontScale: materialFontScaleState,
   handleRoomNumberClick,
   currentExamIndex: computed(() => state.value.currentExamIndex)
 };

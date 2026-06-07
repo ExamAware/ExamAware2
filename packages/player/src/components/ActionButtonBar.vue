@@ -52,7 +52,7 @@
       <!-- 画中画/最小化按钮 -->
       <button class="action-button" type="button" @click="handlePipToggle">
         <div class="button-icon">
-          <PictureInPictureIcon />
+          <WindowIcon />
         </div>
         <div class="button-text">悬浮窗</div>
       </button>
@@ -112,6 +112,7 @@
     :is-dev-mode="isDevMode"
     :pip-show-remaining="tempPipShowRemaining"
     :pip-show-current="tempPipShowCurrent"
+    :material-font-scale="tempMaterialFontScale"
     @update:visible="handleSettingsVisibleChange"
     @update:scale="handleTempScaleUpdate"
     @update:density="handleTempDensityUpdate"
@@ -121,6 +122,7 @@
     @update:preCountdownMinutes="handleTempPreCountdownMinutesUpdate"
     @update:pipShowRemaining="handleTempPipShowRemainingUpdate"
     @update:pipShowCurrent="handleTempPipShowCurrentUpdate"
+    @update:materialFontScale="handleTempMaterialFontScaleUpdate"
     @close="handleSettingsClosed"
     @confirm="handleSettingsConfirm"
     @dev-reminder-test="triggerDevReminderTest"
@@ -149,6 +151,7 @@ const props = withDefaults(
     initialPreCountdownMinutes?: number;
     initialPipShowRemaining?: boolean;
     initialPipShowCurrent?: boolean;
+    initialMaterialFontScale?: number;
     extraTools?: readonly PlayerToolbarItem[];
   }>(),
   {
@@ -160,6 +163,7 @@ const props = withDefaults(
     initialPreCountdownMinutes: 0,
     initialPipShowRemaining: true,
     initialPipShowCurrent: false,
+    initialMaterialFontScale: 1,
     extraTools: () => []
   }
 );
@@ -174,8 +178,9 @@ const emit = defineEmits<{
   (e: 'devReminderTest', preset: DevReminderPreset | DevReminderPayload): void;
   (e: 'devReminderHide'): void;
   (e: 'pipToggle'): void;
+  (e: 'materialFontScaleChange', scale: number): void;
 }>();
-import { LogoutIcon, SettingIcon, ChevronLeftIcon, ChevronRightIcon, PictureInPictureIcon } from 'tdesign-icons-vue-next';
+import { LogoutIcon, SettingIcon, ChevronLeftIcon, ChevronRightIcon, WindowIcon } from 'tdesign-icons-vue-next';
 
 const isDevMode = Boolean(import.meta.env?.DEV ?? false);
 
@@ -247,6 +252,9 @@ const tempPipShowRemaining = ref<boolean>(pipShowRemaining.value);
 const pipShowCurrent = ref<boolean>(Boolean(props.initialPipShowCurrent));
 const tempPipShowCurrent = ref<boolean>(pipShowCurrent.value);
 
+const materialFontScale = ref<number>(Number(props.initialMaterialFontScale) || 1);
+const tempMaterialFontScale = ref<number>(materialFontScale.value);
+
 const handleTempScaleUpdate = (value: number) => {
   tempScale.value = value;
 };
@@ -277,6 +285,10 @@ const handleTempPipShowRemainingUpdate = (value: boolean) => {
 
 const handleTempPipShowCurrentUpdate = (value: boolean) => {
   tempPipShowCurrent.value = value;
+};
+
+const handleTempMaterialFontScaleUpdate = (value: number) => {
+  tempMaterialFontScale.value = value;
 };
 
 // 播放设置弹窗开关
@@ -520,6 +532,16 @@ watch(
   }
 );
 
+watch(
+  () => props.initialMaterialFontScale,
+  (value) => {
+    if (value === undefined || value === null) return;
+    const safe = Math.min(3, Math.max(1, Number(value)));
+    materialFontScale.value = safe;
+    tempMaterialFontScale.value = safe;
+  }
+);
+
 watch(uiScale, (newValue, oldValue) => {
   const safe = clampScale(newValue);
   if (safe !== newValue) {
@@ -658,6 +680,22 @@ watch(tempPipShowCurrent, (value) => {
   }
 });
 
+watch(tempMaterialFontScale, (value) => {
+  const safe = Math.min(3, Math.max(1, Number(value) || 1));
+  if (materialFontScale.value !== safe) {
+    materialFontScale.value = safe;
+  }
+});
+
+watch(
+  materialFontScale,
+  (value, previous) => {
+    if (value === previous) return;
+    emit('materialFontScaleChange', value);
+  },
+  { immediate: true }
+);
+
 onUnmounted(() => {
   // 清理定时器和动画帧
   cancelLongPress();
@@ -789,6 +827,7 @@ const handlePlaybackSettings = () => {
   tempPreCountdownMinutes.value = preCountdownMinutes.value;
   tempPipShowRemaining.value = pipShowRemaining.value;
   tempPipShowCurrent.value = pipShowCurrent.value;
+  tempMaterialFontScale.value = materialFontScale.value;
   showSettings.value = true;
 };
 
@@ -809,6 +848,7 @@ const handleSettingsConfirm = () => {
   preCountdownMinutes.value = Math.min(60, Math.max(0, Math.round(Number(tempPreCountdownMinutes.value))));
   pipShowRemaining.value = Boolean(tempPipShowRemaining.value);
   pipShowCurrent.value = Boolean(tempPipShowCurrent.value);
+  materialFontScale.value = Math.min(3, Math.max(1, Number(tempMaterialFontScale.value) || 1));
   showSettings.value = false;
 };
 
@@ -831,6 +871,7 @@ const handleSettingsVisibleChange = (visible: boolean) => {
     tempPreCountdownMinutes.value = preCountdownMinutes.value;
     tempPipShowRemaining.value = pipShowRemaining.value;
     tempPipShowCurrent.value = pipShowCurrent.value;
+    tempMaterialFontScale.value = materialFontScale.value;
   }
 };
 
@@ -844,6 +885,7 @@ const handleSettingsClosed = () => {
   tempPreCountdownMinutes.value = preCountdownMinutes.value;
   tempPipShowRemaining.value = pipShowRemaining.value;
   tempPipShowCurrent.value = pipShowCurrent.value;
+  tempMaterialFontScale.value = materialFontScale.value;
   scheduleCollapse();
 };
 
