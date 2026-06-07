@@ -11,29 +11,39 @@
     <div class="material-row">
       <span class="material-label">试卷:</span>
       <span class="material-text">共</span>
-      <div class="number-control">
-        <button class="num-btn" @click="decrease('paperPages')">-</button>
+      <div class="number-control" :class="{ 'controls-hidden': !showControls.paperPages }">
+        <button v-show="showControls.paperPages" class="num-btn" @click="decrease('paperPages')">
+          -
+        </button>
         <input
           class="num-input"
           type="number"
           min="0"
           :value="paperPages"
           @change="setValue('paperPages', $event)"
+          @focus="handleInputFocus('paperPages')"
         />
-        <button class="num-btn" @click="increase('paperPages')">+</button>
+        <button v-show="showControls.paperPages" class="num-btn" @click="increase('paperPages')">
+          +
+        </button>
       </div>
       <span class="material-text">页</span>
       <span class="material-text">共</span>
-      <div class="number-control">
-        <button class="num-btn" @click="decrease('paperSheets')">-</button>
+      <div class="number-control" :class="{ 'controls-hidden': !showControls.paperSheets }">
+        <button v-show="showControls.paperSheets" class="num-btn" @click="decrease('paperSheets')">
+          -
+        </button>
         <input
           class="num-input"
           type="number"
           min="0"
           :value="paperSheets"
           @change="setValue('paperSheets', $event)"
+          @focus="handleInputFocus('paperSheets')"
         />
-        <button class="num-btn" @click="increase('paperSheets')">+</button>
+        <button v-show="showControls.paperSheets" class="num-btn" @click="increase('paperSheets')">
+          +
+        </button>
       </div>
       <span class="material-text">张</span>
     </div>
@@ -42,29 +52,47 @@
     <div class="material-row">
       <span class="material-label">答题卡:</span>
       <span class="material-text">共</span>
-      <div class="number-control">
-        <button class="num-btn" @click="decrease('answerPages')">-</button>
+      <div class="number-control" :class="{ 'controls-hidden': !showControls.answerPages }">
+        <button v-show="showControls.answerPages" class="num-btn" @click="decrease('answerPages')">
+          -
+        </button>
         <input
           class="num-input"
           type="number"
           min="0"
           :value="answerPages"
           @change="setValue('answerPages', $event)"
+          @focus="handleInputFocus('answerPages')"
         />
-        <button class="num-btn" @click="increase('answerPages')">+</button>
+        <button v-show="showControls.answerPages" class="num-btn" @click="increase('answerPages')">
+          +
+        </button>
       </div>
       <span class="material-text">页</span>
       <span class="material-text">共</span>
-      <div class="number-control">
-        <button class="num-btn" @click="decrease('answerSheets')">-</button>
+      <div class="number-control" :class="{ 'controls-hidden': !showControls.answerSheets }">
+        <button
+          v-show="showControls.answerSheets"
+          class="num-btn"
+          @click="decrease('answerSheets')"
+        >
+          -
+        </button>
         <input
           class="num-input"
           type="number"
           min="0"
           :value="answerSheets"
           @change="setValue('answerSheets', $event)"
+          @focus="handleInputFocus('answerSheets')"
         />
-        <button class="num-btn" @click="increase('answerSheets')">+</button>
+        <button
+          v-show="showControls.answerSheets"
+          class="num-btn"
+          @click="increase('answerSheets')"
+        >
+          +
+        </button>
       </div>
       <span class="material-text">张</span>
     </div>
@@ -179,6 +207,66 @@ watch(
   }
 );
 
+// ========== 加减按钮显隐控制 ==========
+// 每个字段的显隐状态：true=显示加减按钮，false=隐藏
+const showControls = ref({
+  paperPages: true,
+  paperSheets: true,
+  answerPages: true,
+  answerSheets: true
+});
+
+const hideTimers: Record<string, ReturnType<typeof setTimeout> | null> = {
+  paperPages: null,
+  paperSheets: null,
+  answerPages: null,
+  answerSheets: null
+};
+
+const clearHideTimer = (field: string) => {
+  if (hideTimers[field]) {
+    clearTimeout(hideTimers[field]!);
+    hideTimers[field] = null;
+  }
+};
+
+const scheduleHide = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 'answerSheets') => {
+  clearHideTimer(field);
+  hideTimers[field] = setTimeout(() => {
+    const val =
+      field === 'paperPages'
+        ? paperPages.value
+        : field === 'paperSheets'
+          ? paperSheets.value
+          : field === 'answerPages'
+            ? answerPages.value
+            : answerSheets.value;
+    // 值大于0时才隐藏，值为0时保持显示
+    if (val > 0) {
+      showControls.value[field] = false;
+    }
+  }, 10000);
+};
+
+const showControlsAndScheduleHide = (
+  field: 'paperPages' | 'paperSheets' | 'answerPages' | 'answerSheets'
+) => {
+  showControls.value[field] = true;
+  scheduleHide(field);
+};
+
+// 初始化：如果值大于0，启动10秒隐藏计时
+watch(
+  () => [paperPages.value, paperSheets.value, answerPages.value, answerSheets.value] as const,
+  ([pp, ps, ap, as]) => {
+    if (pp > 0 && showControls.value.paperPages) scheduleHide('paperPages');
+    if (ps > 0 && showControls.value.paperSheets) scheduleHide('paperSheets');
+    if (ap > 0 && showControls.value.answerPages) scheduleHide('answerPages');
+    if (as > 0 && showControls.value.answerSheets) scheduleHide('answerSheets');
+  },
+  { immediate: true }
+);
+
 const increase = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 'answerSheets') => {
   switch (field) {
     case 'paperPages':
@@ -194,6 +282,8 @@ const increase = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 'answerS
       answerSheets.value++;
       break;
   }
+  // 操作后重新计时
+  showControlsAndScheduleHide(field);
 };
 
 const decrease = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 'answerSheets') => {
@@ -211,6 +301,8 @@ const decrease = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 'answerS
       if (answerSheets.value > 0) answerSheets.value--;
       break;
   }
+  // 操作后重新计时
+  showControlsAndScheduleHide(field);
 };
 
 const setValue = (
@@ -233,6 +325,13 @@ const setValue = (
       answerSheets.value = val;
       break;
   }
+  // 输入后重新计时
+  showControlsAndScheduleHide(field);
+};
+
+// 点击数字输入框时重新显示加减按钮
+const handleInputFocus = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 'answerSheets') => {
+  showControlsAndScheduleHide(field);
 };
 </script>
 
@@ -312,6 +411,14 @@ const setValue = (
   background: rgba(255, 255, 255, 0.08);
   border-radius: calc(var(--ui-scale, 1) * 6px);
   padding: calc(var(--ui-scale, 1) * 0.2rem) calc(var(--ui-scale, 1) * 0.4rem);
+  transition:
+    background 0.3s ease,
+    padding 0.3s ease;
+}
+
+.number-control.controls-hidden {
+  background: transparent;
+  padding: calc(var(--ui-scale, 1) * 0.2rem) 0;
 }
 
 .num-btn {
