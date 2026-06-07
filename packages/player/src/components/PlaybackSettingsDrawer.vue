@@ -95,6 +95,20 @@
             </div>
           </div>
         </div>
+        <div class="settings-group">
+          <div class="settings-label">悬浮窗显示内容</div>
+          <div class="settings-control">
+            <div class="switch-row">
+              <t-switch v-model:value="pipShowRemainingModel" size="large" />
+              <span class="switch-label">考试倒计时</span>
+            </div>
+            <div class="switch-row">
+              <t-switch v-model:value="pipShowCurrentModel" size="large" />
+              <span class="switch-label">当前时间</span>
+            </div>
+            <div class="settings-hint">控制悬浮窗中显示的信息项</div>
+          </div>
+        </div>
         <div v-if="isDevMode" class="settings-group dev-reminder-tools">
           <div class="settings-label">调试 · 全屏提醒</div>
           <div class="settings-control">
@@ -154,11 +168,15 @@ const props = withDefaults(
     preCountdownMinutes: number;
     formatScale: (value: number | string) => string;
     isDevMode?: boolean;
+    pipShowRemaining?: boolean;
+    pipShowCurrent?: boolean;
   }>(),
   {
     isDevMode: false,
     examInfoLargeFont: false,
-    preCountdownMinutes: 0
+    preCountdownMinutes: 0,
+    pipShowRemaining: true,
+    pipShowCurrent: false
   }
 );
 
@@ -170,6 +188,8 @@ const emit = defineEmits<{
   (e: 'update:largeClockScale', value: number): void;
   (e: 'update:examInfoLargeFont', value: boolean): void;
   (e: 'update:preCountdownMinutes', value: number): void;
+  (e: 'update:pipShowRemaining', value: boolean): void;
+  (e: 'update:pipShowCurrent', value: boolean): void;
   (e: 'confirm'): void;
   (e: 'close'): void;
   (e: 'devReminderTest', preset: DevReminderPreset): void;
@@ -206,6 +226,16 @@ const examInfoLargeFontModel = computed({
 const preCountdownMinutesModel = computed({
   get: () => props.preCountdownMinutes,
   set: (value: number) => emit('update:preCountdownMinutes', value)
+});
+
+const pipShowRemainingModel = computed({
+  get: () => props.pipShowRemaining,
+  set: (value: boolean) => emit('update:pipShowRemaining', value)
+});
+
+const pipShowCurrentModel = computed({
+  get: () => props.pipShowCurrent,
+  set: (value: boolean) => emit('update:pipShowCurrent', value)
 });
 
 const handleVisibleChange = (value: boolean) => {

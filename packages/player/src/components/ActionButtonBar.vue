@@ -49,6 +49,14 @@
         <div class="button-text">播放设置</div>
       </button>
 
+      <!-- 画中画/最小化按钮 -->
+      <button class="action-button" type="button" @click="handlePipToggle">
+        <div class="button-icon">
+          <PictureInPictureIcon />
+        </div>
+        <div class="button-text">悬浮窗</div>
+      </button>
+
       <!-- 额外工具 -->
       <template v-for="tool in sortedExtraTools" :key="tool.id">
         <component
@@ -102,6 +110,8 @@
     :density-options="densityOptions"
     :format-scale="formatScale"
     :is-dev-mode="isDevMode"
+    :pip-show-remaining="tempPipShowRemaining"
+    :pip-show-current="tempPipShowCurrent"
     @update:visible="handleSettingsVisibleChange"
     @update:scale="handleTempScaleUpdate"
     @update:density="handleTempDensityUpdate"
@@ -109,6 +119,8 @@
     @update:largeClockScale="handleTempLargeClockScaleUpdate"
     @update:examInfoLargeFont="handleTempExamInfoLargeFontUpdate"
     @update:preCountdownMinutes="handleTempPreCountdownMinutesUpdate"
+    @update:pipShowRemaining="handleTempPipShowRemainingUpdate"
+    @update:pipShowCurrent="handleTempPipShowCurrentUpdate"
     @close="handleSettingsClosed"
     @confirm="handleSettingsConfirm"
     @dev-reminder-test="triggerDevReminderTest"
@@ -135,6 +147,8 @@ const props = withDefaults(
     initialLargeClockEnabled?: boolean;
     initialExamInfoLargeFont?: boolean;
     initialPreCountdownMinutes?: number;
+    initialPipShowRemaining?: boolean;
+    initialPipShowCurrent?: boolean;
     extraTools?: readonly PlayerToolbarItem[];
   }>(),
   {
@@ -144,6 +158,8 @@ const props = withDefaults(
     initialLargeClockEnabled: false,
     initialExamInfoLargeFont: false,
     initialPreCountdownMinutes: 0,
+    initialPipShowRemaining: true,
+    initialPipShowCurrent: false,
     extraTools: () => []
   }
 );
@@ -157,8 +173,9 @@ const emit = defineEmits<{
   (e: 'preCountdownMinutesChange', minutes: number): void;
   (e: 'devReminderTest', preset: DevReminderPreset | DevReminderPayload): void;
   (e: 'devReminderHide'): void;
+  (e: 'pipToggle'): void;
 }>();
-import { LogoutIcon, SettingIcon, ChevronLeftIcon, ChevronRightIcon } from 'tdesign-icons-vue-next';
+import { LogoutIcon, SettingIcon, ChevronLeftIcon, ChevronRightIcon, PictureInPictureIcon } from 'tdesign-icons-vue-next';
 
 const isDevMode = Boolean(import.meta.env?.DEV ?? false);
 
@@ -224,6 +241,12 @@ const tempExamInfoLargeFont = ref<boolean>(examInfoLargeFont.value);
 const preCountdownMinutes = ref<number>(Number(props.initialPreCountdownMinutes) || 0);
 const tempPreCountdownMinutes = ref<number>(preCountdownMinutes.value);
 
+const pipShowRemaining = ref<boolean>(Boolean(props.initialPipShowRemaining));
+const tempPipShowRemaining = ref<boolean>(pipShowRemaining.value);
+
+const pipShowCurrent = ref<boolean>(Boolean(props.initialPipShowCurrent));
+const tempPipShowCurrent = ref<boolean>(pipShowCurrent.value);
+
 const handleTempScaleUpdate = (value: number) => {
   tempScale.value = value;
 };
@@ -246,6 +269,14 @@ const handleTempExamInfoLargeFontUpdate = (value: boolean) => {
 
 const handleTempPreCountdownMinutesUpdate = (value: number) => {
   tempPreCountdownMinutes.value = value;
+};
+
+const handleTempPipShowRemainingUpdate = (value: boolean) => {
+  tempPipShowRemaining.value = value;
+};
+
+const handleTempPipShowCurrentUpdate = (value: boolean) => {
+  tempPipShowCurrent.value = value;
 };
 
 // 播放设置弹窗开关
@@ -471,6 +502,24 @@ watch(
   }
 );
 
+watch(
+  () => props.initialPipShowRemaining,
+  (value) => {
+    if (typeof value !== 'boolean') return;
+    pipShowRemaining.value = value;
+    tempPipShowRemaining.value = value;
+  }
+);
+
+watch(
+  () => props.initialPipShowCurrent,
+  (value) => {
+    if (typeof value !== 'boolean') return;
+    pipShowCurrent.value = value;
+    tempPipShowCurrent.value = value;
+  }
+);
+
 watch(uiScale, (newValue, oldValue) => {
   const safe = clampScale(newValue);
   if (safe !== newValue) {
@@ -592,6 +641,20 @@ watch(tempPreCountdownMinutes, (value) => {
   const safe = Math.min(60, Math.max(0, Math.round(Number(value))));
   if (preCountdownMinutes.value !== safe) {
     preCountdownMinutes.value = safe;
+  }
+});
+
+watch(tempPipShowRemaining, (value) => {
+  const flag = Boolean(value);
+  if (pipShowRemaining.value !== flag) {
+    pipShowRemaining.value = flag;
+  }
+});
+
+watch(tempPipShowCurrent, (value) => {
+  const flag = Boolean(value);
+  if (pipShowCurrent.value !== flag) {
+    pipShowCurrent.value = flag;
   }
 });
 
@@ -724,7 +787,14 @@ const handlePlaybackSettings = () => {
   tempLargeClockEnabled.value = largeClockEnabled.value;
   tempExamInfoLargeFont.value = examInfoLargeFont.value;
   tempPreCountdownMinutes.value = preCountdownMinutes.value;
+  tempPipShowRemaining.value = pipShowRemaining.value;
+  tempPipShowCurrent.value = pipShowCurrent.value;
   showSettings.value = true;
+};
+
+const handlePipToggle = () => {
+  handleUserActivity();
+  emit('pipToggle');
 };
 
 const handleSettingsConfirm = () => {
@@ -737,6 +807,8 @@ const handleSettingsConfirm = () => {
   largeClockEnabled.value = Boolean(tempLargeClockEnabled.value);
   examInfoLargeFont.value = Boolean(tempExamInfoLargeFont.value);
   preCountdownMinutes.value = Math.min(60, Math.max(0, Math.round(Number(tempPreCountdownMinutes.value))));
+  pipShowRemaining.value = Boolean(tempPipShowRemaining.value);
+  pipShowCurrent.value = Boolean(tempPipShowCurrent.value);
   showSettings.value = false;
 };
 
@@ -757,6 +829,8 @@ const handleSettingsVisibleChange = (visible: boolean) => {
     tempLargeClockEnabled.value = largeClockEnabled.value;
     tempExamInfoLargeFont.value = examInfoLargeFont.value;
     tempPreCountdownMinutes.value = preCountdownMinutes.value;
+    tempPipShowRemaining.value = pipShowRemaining.value;
+    tempPipShowCurrent.value = pipShowCurrent.value;
   }
 };
 
@@ -768,6 +842,8 @@ const handleSettingsClosed = () => {
   tempLargeClockEnabled.value = largeClockEnabled.value;
   tempExamInfoLargeFont.value = examInfoLargeFont.value;
   tempPreCountdownMinutes.value = preCountdownMinutes.value;
+  tempPipShowRemaining.value = pipShowRemaining.value;
+  tempPipShowCurrent.value = pipShowCurrent.value;
   scheduleCollapse();
 };
 

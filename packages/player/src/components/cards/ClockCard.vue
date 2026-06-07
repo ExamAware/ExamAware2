@@ -10,7 +10,7 @@
         {{ ctx.formattedCurrentTime.value }}
       </div>
       <div class="countdown-display">
-        <div class="countdown-value">{{ countdownValue }}</div>
+        <div class="countdown-value" :class="{ urgent: isUrgent, 'pre-countdown': isPreCountdown }">{{ countdownValue }}</div>
       </div>
     </div>
   </BaseCard>
@@ -56,6 +56,19 @@ const countdownValue = computed(() => {
   if (status === 'pending') return `距离考试开始：${time}`;
   if (status === 'inProgress') return `考试倒计时：${time}`;
   return '';
+});
+
+// 考前倒计时是否显示黄色
+const isPreCountdown = computed(() => {
+  return ctx.examStatus?.value?.status === 'pending';
+});
+
+// 是否剩余15分钟以内（仅考试进行中时）
+const isUrgent = computed(() => {
+  const status = ctx.examStatus?.value?.status;
+  const timeRemaining = ctx.examStatus?.value?.timeRemaining;
+  if (status !== 'inProgress' || typeof timeRemaining !== 'number') return false;
+  return timeRemaining <= 15 * 60 * 1000; // 15分钟
 });
 </script>
 
@@ -114,10 +127,24 @@ const countdownValue = computed(() => {
 
 .countdown-value {
   color: #fff;
-  font-size: calc(var(--ui-scale, 1) * 2.8rem);
+  font-size: calc(var(--ui-scale, 1) * 3.6rem);
   font-weight: 600;
   font-family: 'TCloudNumber', 'MiSans', monospace;
   text-shadow: 0 calc(var(--ui-scale, 1) * 0.1rem) calc(var(--ui-scale, 1) * 0.8rem)
     rgba(255, 255, 255, 0.25);
+  transition: color 0.5s ease, text-shadow 0.5s ease;
+  letter-spacing: 0.05em;
+}
+
+.countdown-value.urgent {
+  color: #ff3b30;
+  text-shadow: 0 calc(var(--ui-scale, 1) * 0.1rem) calc(var(--ui-scale, 1) * 0.8rem)
+    rgba(255, 59, 48, 0.4);
+}
+
+.countdown-value.pre-countdown {
+  color: #f1c40f;
+  text-shadow: 0 calc(var(--ui-scale, 1) * 0.1rem) calc(var(--ui-scale, 1) * 0.8rem)
+    rgba(241, 196, 15, 0.35);
 }
 </style>

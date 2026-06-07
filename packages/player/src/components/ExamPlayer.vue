@@ -49,6 +49,8 @@
       :initial-large-clock-scale="largeClockScaleState"
       :initial-exam-info-large-font="examInfoLargeFontState"
       :initial-pre-countdown-minutes="preCountdownMinutesState"
+      :initial-pip-show-remaining="pipShowRemaining"
+      :initial-pip-show-current="pipShowCurrent"
       :extra-tools="toolbarTools"
       @exit="emit('exit')"
       @scale-change="emit('scaleChange', $event)"
@@ -59,6 +61,17 @@
       @pre-countdown-minutes-change="handlePreCountdownMinutesChange"
       @dev-reminder-test="handleDevReminderTest"
       @dev-reminder-hide="handleDevReminderHide"
+      @pip-toggle="handlePipToggle"
+    />
+
+    <!-- 画中画悬浮窗 -->
+    <PipOverlay
+      :visible="pipVisible"
+      :remaining-time="displayedRemainingTime"
+      :current-time="formattedCurrentTime.value"
+      :show-remaining-time="pipShowRemaining"
+      :show-current-time="pipShowCurrent"
+      @close="pipVisible = false"
     />
 
     <!-- 彩色提醒：用于考试开始/即将结束/考试结束/即将开考，淡入动画，点击可关闭 -->
@@ -132,6 +145,7 @@ import ExamInfoCard from './cards/ExamInfoCard.vue';
 import ExamRoomCard from './cards/ExamRoomCard.vue';
 import CurrentListCard from './cards/CurrentListCard.vue';
 import ActionButtonBar from './ActionButtonBar.vue';
+import PipOverlay from './PipOverlay.vue';
 import { providePlayerToolbar } from '../composables/usePlayerToolbar';
 // 本地引入 TDesign 组件，确保不依赖宿主全局注册
 import { Dialog as TDialog, Input as TInput, Button as TButton } from 'tdesign-vue-next';
@@ -554,6 +568,15 @@ const handleDevReminderTest = (payload: DevReminderPreset | DevReminderPayload) 
 
 const handleDevReminderHide = () => {
   reminder.hideColorfulAlert();
+};
+
+// === 画中画悬浮窗 ===
+const pipVisible = ref(false);
+const pipShowRemaining = ref(true);
+const pipShowCurrent = ref(false);
+
+const handlePipToggle = () => {
+  pipVisible.value = !pipVisible.value;
 };
 
 const handleCloseColorfulAlert = () => {
@@ -1063,7 +1086,7 @@ const resolvedCards = computed(() => ({
 }
 
 .title-section {
-  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 3rem);
+  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1rem);
 }
 
 .main-title {
@@ -1120,11 +1143,11 @@ const resolvedCards = computed(() => ({
   height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem)
+  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1rem)
     calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem)
     calc(var(--ui-scale, 1) * var(--density-scale, 1) * 6rem)
     calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
-  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.5rem);
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1rem);
 }
 
 /* 顶部标题栏 */

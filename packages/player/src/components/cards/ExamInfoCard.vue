@@ -3,7 +3,7 @@
     <InfoItem label="当前科目" :value="ctx.currentExamName.value" />
     <InfoItem label="考试时间" :value="ctx.currentExamTimeRange.value" />
     <div class="info-row">
-      <span class="info-label">考试状态:</span>
+      <span class="info-label">考试状态：</span>
       <span class="info-value" :class="statusColorClass">{{ examStatusText }}</span>
     </div>
 
@@ -245,7 +245,7 @@ const scheduleHide = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 'ans
     if (val > 0) {
       showControls.value[field] = false;
     }
-  }, 10000);
+  }, 5000);
 };
 
 const showControlsAndScheduleHide = (
@@ -372,7 +372,7 @@ const handleInputFocus = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 
 }
 
 .status-pending {
-  color: #e37318;
+  color: #f1c40f;
 }
 
 .status-ongoing {

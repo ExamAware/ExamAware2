@@ -10,18 +10,24 @@
     </div>
 
     <!-- 考试信息列表 -->
-    <div class="exam-info-list" :class="{ 'is-scrollable': examInfos && examInfos.length > 5 }">
-      <ExamInfoItem
-        v-for="(exam, idx) in examInfos"
-        :key="exam.name"
-        :date="exam.date"
-        :period="exam.period"
-        :subject="exam.name"
-        :start-time="exam.startTime"
-        :end-time="exam.endTime"
-        :status="exam.statusText"
-        :is-current="idx === currentExamIndex"
-      />
+    <div
+      ref="listRef"
+      class="exam-info-list"
+      :class="{ 'is-scrollable': examInfos && examInfos.length > 5, 'auto-scroll': shouldAutoScroll }"
+    >
+      <div ref="listInnerRef" class="exam-info-list-inner">
+        <ExamInfoItem
+          v-for="(exam, idx) in examInfos"
+          :key="exam.name"
+          :date="exam.date"
+          :period="exam.period"
+          :subject="exam.name"
+          :start-time="exam.startTime"
+          :end-time="exam.endTime"
+          :status="exam.statusText"
+          :is-current="idx === currentExamIndex"
+        />
+      </div>
       <div v-if="!examInfos || examInfos.length === 0" class="empty-state">
         <span class="empty-text">暂无考试安排</span>
       </div>
@@ -30,6 +36,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import BaseCard from './BaseCard.vue';
 import ExamInfoItem from './ExamInfoItem.vue';
 
@@ -53,6 +60,100 @@ export interface CurrentExamInfoProps {
 const props = withDefaults(defineProps<CurrentExamInfoProps>(), {
   examInfos: () => [],
   currentExamIndex: 0
+});
+
+const listRef = ref<HTMLElement | null>(null);
+const listInnerRef = ref<HTMLElement | null>(null);
+
+// 判断是否需要自动滚动
+const shouldAutoScroll = computed(() => {
+  return props.examInfos && props.examInfos.length > 5;
+});
+
+let scrollAnimationId: number | null = null;
+let isPaused = false;
+
+const startAutoScroll = () => {
+  if (scrollAnimationId) {
+    cancelAnimationFrame(scrollAnimationId);
+    scrollAnimationId = null;
+  }
+
+  const container = listRef.value;
+  const inner = listInnerRef.value;
+  if (!container || !inner) return;
+
+  const containerHeight = container.clientHeight;
+  const innerHeight = inner.scrollHeight;
+  const maxScroll = Math.max(0, innerHeight - containerHeight);
+  if (maxScroll <= 0) return;
+
+  let scrollTop = 0;
+  let direction = 1; // 1 = down, -1 = up
+  let lastTimestamp: number | null = null;
+  const scrollSpeed = 30; // pixels per second (slow)
+  const pauseDuration = 2000; // ms pause at ends
+  let pauseUntil = 0;
+
+  const animate = (timestamp: number) => {
+    if (!container || !inner) return;
+    if (lastTimestamp === null) lastTimestamp = timestamp;
+    const delta = timestamp - lastTimestamp;
+    lastTimestamp = timestamp;
+
+    if (isPaused) {
+      scrollAnimationId = requestAnimationFrame(animate);
+      return;
+    }
+
+    if (Date.now() < pauseUntil) {
+      scrollAnimationId = requestAnimationFrame(animate);
+      return;
+    }
+
+    scrollTop += (scrollSpeed * delta / 1000) * direction;
+
+    if (scrollTop >= maxScroll) {
+      scrollTop = maxScroll;
+      direction = -1;
+      pauseUntil = Date.now() + pauseDuration;
+    } else if (scrollTop <= 0) {
+      scrollTop = 0;
+      direction = 1;
+      pauseUntil = Date.now() + pauseDuration;
+    }
+
+    container.scrollTop = scrollTop;
+    scrollAnimationId = requestAnimationFrame(animate);
+  };
+
+  scrollAnimationId = requestAnimationFrame(animate);
+};
+
+const stopAutoScroll = () => {
+  if (scrollAnimationId) {
+    cancelAnimationFrame(scrollAnimationId);
+    scrollAnimationId = null;
+  }
+};
+
+watch(() => props.examInfos, async () => {
+  await nextTick();
+  if (shouldAutoScroll.value) {
+    startAutoScroll();
+  } else {
+    stopAutoScroll();
+  }
+}, { deep: true });
+
+onMounted(() => {
+  if (shouldAutoScroll.value) {
+    startAutoScroll();
+  }
+});
+
+onUnmounted(() => {
+  stopAutoScroll();
 });
 </script>
 
@@ -81,6 +182,15 @@ const props = withDefaults(defineProps<CurrentExamInfoProps>(), {
   flex-direction: column;
   overflow-y: auto;
   max-height: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 20rem);
+}
+
+.exam-info-list.auto-scroll {
+  overflow: hidden;
+}
+
+.exam-info-list-inner {
+  display: flex;
+  flex-direction: column;
 }
 
 .exam-info-list.is-scrollable {
