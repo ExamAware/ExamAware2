@@ -37,6 +37,7 @@ export interface FormattedExamInfo {
   index: number;
   name: string;
   date: string;
+  period: string;
   startTime: string;
   endTime: string;
   status: string;
