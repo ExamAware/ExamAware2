@@ -10,7 +10,6 @@
         {{ ctx.formattedCurrentTime.value }}
       </div>
       <div class="countdown-display">
-        <div class="countdown-label">{{ countdownLabel }}</div>
         <div class="countdown-value">{{ countdownValue }}</div>
       </div>
     </div>
