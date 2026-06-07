@@ -1153,6 +1153,10 @@ const resolvedCards = computed(() => ({
   align-items: center;
 }
 
+.clock-section > * {
+  width: 100%;
+}
+
 /* 底部左右分栏 */
 .bottom-section {
   flex: 1;

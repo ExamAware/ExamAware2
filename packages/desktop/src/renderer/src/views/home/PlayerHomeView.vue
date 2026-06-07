@@ -28,23 +28,87 @@
         </t-card>
       </t-col> -->
     </t-row>
+
+    <!-- 上次放映的文件 -->
+    <div v-if="lastFilePath" class="last-file-section">
+      <t-divider />
+      <p class="last-file-title">上次放映</p>
+      <t-card class="card-button last-file-card" @click="playLastFile">
+        <div class="card-content last-file-content">
+          <t-icon name="history" size="32px" class="card-button-icon"></t-icon>
+          <div class="last-file-info">
+            <p class="last-file-name">{{ lastFileName }}</p>
+            <p class="last-file-path">{{ lastFilePath }}</p>
+          </div>
+          <t-button theme="primary" size="small" @click.stop="playLastFile">
+            <template #icon><t-icon name="play-circle" /></template>
+            放映
+          </t-button>
+        </div>
+      </t-card>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
 import { createPlayerLauncher } from '@renderer/services/playerLauncher'
+import { MessagePlugin } from 'tdesign-vue-next'
+
+const LAST_FILE_KEY = 'examaware:last-played-file'
 
 const launcher = createPlayerLauncher()
 const router = useRouter()
+const lastFilePath = ref('')
+
+const lastFileName = computed(() => {
+  if (!lastFilePath.value) return ''
+  const parts = lastFilePath.value.split(/[\\/]/)
+  return parts[parts.length - 1] || lastFilePath.value
+})
+
+const loadLastFile = () => {
+  try {
+    const stored = localStorage.getItem(LAST_FILE_KEY)
+    if (stored) lastFilePath.value = stored
+  } catch {}
+}
+
+const saveLastFile = (path: string) => {
+  try {
+    localStorage.setItem(LAST_FILE_KEY, path)
+  } catch {}
+}
 
 const selectFile = async () => {
-  await launcher.selectLocalAndOpen()
+  const path = await launcher.selectLocalAndOpen()
+  if (path) {
+    saveLastFile(path)
+    lastFilePath.value = path
+  }
+}
+
+const playLastFile = async () => {
+  if (!lastFilePath.value) {
+    MessagePlugin.warning('没有上次放映的记录')
+    return
+  }
+  try {
+    await launcher.openWith({ source: 'file', pathOrUrl: lastFilePath.value })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '打开失败'
+    MessagePlugin.error(message)
+  }
 }
 
 const openUrl = async () => {
   await router.push('/playerhome/url')
 }
+
+onMounted(() => {
+  loadLastFile()
+})
 </script>
 
 <style scoped>
@@ -81,5 +145,57 @@ p {
 
 .card-button-icon {
   padding-bottom: 15px;
+}
+
+/* 上次放映 */
+.last-file-section {
+  margin-top: 10px;
+}
+
+.last-file-title {
+  font-size: 14px;
+  color: var(--td-text-color-secondary);
+  margin-bottom: 12px;
+}
+
+.last-file-card {
+  text-align: left;
+}
+
+.last-file-content {
+  flex-direction: row;
+  gap: 12px;
+  align-items: center;
+  padding: 8px;
+}
+
+.last-file-content .card-button-icon {
+  padding-bottom: 0;
+  flex-shrink: 0;
+}
+
+.last-file-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.last-file-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--td-text-color-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.last-file-path {
+  font-size: 12px;
+  color: var(--td-text-color-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>
