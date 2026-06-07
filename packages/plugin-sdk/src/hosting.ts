@@ -4,19 +4,19 @@ export {
   createPluginHostBuilder,
   Host,
   defineExamAwarePlugin
-} from '../../desktop/src/main/plugin/hosting/hostBuilder';
-export { createEauiWindowForPlugin } from '../../desktop/src/main/plugin/hosting/eauiWindowHelper';
+} from '../../desktop/src/main/plugin/hosting/hostBuilder'
+export { createEauiWindowForPlugin } from '../../desktop/src/main/plugin/hosting/eauiWindowHelper'
 export {
   ServiceCollection,
   ServiceProvider
-} from '../../desktop/src/main/plugin/hosting/serviceCollection';
+} from '../../desktop/src/main/plugin/hosting/serviceCollection'
 export {
   PluginContextToken,
   PluginLoggerToken,
   PluginSettingsToken,
   DesktopApiToken,
   HostApplicationLifetimeToken
-} from '../../desktop/src/main/plugin/hosting/tokens';
+} from '../../desktop/src/main/plugin/hosting/tokens'
 export type {
   PluginRuntimeContext,
   PluginLogger,
@@ -64,4 +64,4 @@ export type {
   TDesignCheckboxGroup,
   TDesignCheckboxGroupOptions,
   TDesignCheckboxOption
-} from '../../desktop/src/main/plugin/hosting/types';
+} from '../../desktop/src/main/plugin/hosting/types'
