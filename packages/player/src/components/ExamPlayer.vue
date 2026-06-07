@@ -581,6 +581,12 @@ const pipShowCurrent = ref(false);
 
 const handlePipToggle = () => {
   pipVisible.value = !pipVisible.value;
+  // 打开悬浮窗时最小化主窗口，关闭时恢复
+  if (pipVisible.value) {
+    try {
+      (window as any).electronAPI?.minimize?.();
+    } catch {}
+  }
 };
 
 const handleMaterialFontScaleChange = (scale: number) => {

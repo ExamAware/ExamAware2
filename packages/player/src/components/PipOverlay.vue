@@ -1,12 +1,6 @@
 <template>
   <Teleport to="body">
-    <div
-      v-if="visible"
-      ref="pipRef"
-      class="pip-overlay"
-      :style="pipStyle"
-      @mousedown="startDrag"
-    >
+    <div v-if="visible" ref="pipRef" class="pip-overlay" :style="pipStyle" @mousedown="startDrag">
       <div class="pip-content">
         <div v-if="showRemainingTime" class="pip-time">{{ remainingTimeText }}</div>
         <div v-if="showCurrentTime" class="pip-time pip-current">{{ currentTimeText }}</div>
@@ -86,13 +80,13 @@ onUnmounted(() => {
   z-index: 9999;
   background: rgba(4, 14, 21, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 16px;
-  padding: 12px 16px;
+  border-radius: 20px;
+  padding: 20px 28px;
   cursor: grab;
   user-select: none;
   backdrop-filter: blur(8px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  min-width: 140px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  min-width: 200px;
 }
 
 .pip-overlay:active {
@@ -109,23 +103,23 @@ onUnmounted(() => {
 .pip-time {
   color: #fff;
   font-family: 'TCloudNumber', 'MiSans', monospace;
-  font-size: 28px;
+  font-size: 42px;
   font-weight: 600;
   line-height: 1.2;
-  text-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
+  text-shadow: 0 2px 12px rgba(255, 255, 255, 0.25);
 }
 
 .pip-current {
-  font-size: 18px;
+  font-size: 24px;
   color: rgba(255, 255, 255, 0.7);
 }
 
 .pip-close {
   position: absolute;
-  top: -8px;
-  right: -8px;
-  width: 22px;
-  height: 22px;
+  top: -10px;
+  right: -10px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   border: none;
   background: rgba(255, 59, 48, 0.9);
@@ -134,7 +128,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 14px;
   opacity: 0;
   transition: opacity 0.2s ease;
   padding: 0;
