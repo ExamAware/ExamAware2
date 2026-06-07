@@ -10,6 +10,10 @@ where pnpm >nul 2>nul
 if %errorlevel% neq 0 (
     echo [错误] 未找到 pnpm，请先安装：
     echo   npm install -g pnpm@10.18.2
+    echo.
+    echo 或者使用 corepack 启用：
+    echo   corepack enable
+    echo   corepack prepare pnpm@10.18.2 --activate
     pause
     exit /b 1
 )
