@@ -1,6 +1,6 @@
 <template>
   <div class="info-item">
-    <div class="info-label">{{ label }}</div>
+    <div class="info-label">{{ label }}：</div>
     <div class="info-value">{{ value }}</div>
   </div>
 </template>
@@ -23,7 +23,7 @@ defineProps<InfoItemProps>();
 }
 
 .info-label {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.75);
   font-size: calc(var(--ui-scale, 1) * 1.4rem);
   font-weight: 500;
   line-height: normal;

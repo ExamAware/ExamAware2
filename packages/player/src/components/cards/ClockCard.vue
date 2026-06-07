@@ -76,7 +76,7 @@ const countdownValue = computed(() => {
 
 .beijing-time-label {
   color: rgba(255, 255, 255, 0.85);
-  font-size: calc(var(--ui-scale, 1) * 2.5rem);
+  font-size: calc(var(--ui-scale, 1) * 1.25rem);
   font-weight: 500;
   letter-spacing: 0.1em;
 }
@@ -94,7 +94,9 @@ const countdownValue = computed(() => {
 
 .clock-card-large .time-display,
 .time-display-large {
-  font-size: calc(var(--ui-scale, 1) * var(--clock-scale, var(--large-clock-scale, 1)) * clamp(5rem, 12vw, 10rem));
+  font-size: calc(
+    var(--ui-scale, 1) * var(--clock-scale, var(--large-clock-scale, 1)) * clamp(5rem, 12vw, 10rem)
+  );
 }
 
 .countdown-display {

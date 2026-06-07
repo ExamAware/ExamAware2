@@ -1078,7 +1078,7 @@ const resolvedCards = computed(() => ({
 }
 
 .subtitle {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.75);
   font-weight: 400;
   line-height: 1.4;
 }
@@ -1162,13 +1162,13 @@ const resolvedCards = computed(() => ({
 }
 
 .bottom-left {
-  width: 40%;
+  width: 45%;
   min-width: 0;
   overflow: hidden;
 }
 
 .bottom-right {
-  width: 60%;
+  width: 55%;
   min-width: 0;
   overflow: hidden;
 }

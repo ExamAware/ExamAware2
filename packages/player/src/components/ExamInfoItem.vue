@@ -77,7 +77,7 @@ const statusClass = computed(() => {
 }
 
 .cell-time {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.75);
   font-family: 'TCloudNumber', 'MiSans', monospace;
 }
 

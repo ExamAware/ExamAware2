@@ -149,23 +149,35 @@ const answerPages = ref(stored?.answerPages ?? 0);
 const answerSheets = ref(stored?.answerSheets ?? 0);
 
 // 监听变化并持久化
-watch([paperPages, paperSheets, answerPages, answerSheets], ([pp, ps, ap, as]) => {
-  saveCounts({ paperPages: pp, paperSheets: ps, answerPages: ap, answerSheets: as });
-}, { deep: true });
+watch(
+  [paperPages, paperSheets, answerPages, answerSheets],
+  ([pp, ps, ap, as]) => {
+    saveCounts({ paperPages: pp, paperSheets: ps, answerPages: ap, answerSheets: as });
+  },
+  { deep: true }
+);
 
 // 考试结束后自动重置
 const lastExamKey = ref<string>('');
-watch(() => ctx.examStatus?.value?.status, (status, prevStatus) => {
-  const examKey = ctx.currentExam?.value?.id || ctx.currentExam?.value?.name || '';
-  if (status === 'completed' && prevStatus === 'inProgress' && examKey && lastExamKey.value !== examKey) {
-    lastExamKey.value = examKey;
-    paperPages.value = 0;
-    paperSheets.value = 0;
-    answerPages.value = 0;
-    answerSheets.value = 0;
-    saveCounts({ paperPages: 0, paperSheets: 0, answerPages: 0, answerSheets: 0 });
+watch(
+  () => ctx.examStatus?.value?.status,
+  (status, prevStatus) => {
+    const examKey = ctx.currentExam?.value?.id || ctx.currentExam?.value?.name || '';
+    if (
+      status === 'completed' &&
+      prevStatus === 'inProgress' &&
+      examKey &&
+      lastExamKey.value !== examKey
+    ) {
+      lastExamKey.value = examKey;
+      paperPages.value = 0;
+      paperSheets.value = 0;
+      answerPages.value = 0;
+      answerSheets.value = 0;
+      saveCounts({ paperPages: 0, paperSheets: 0, answerPages: 0, answerSheets: 0 });
+    }
   }
-});
+);
 
 const increase = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 'answerSheets') => {
   switch (field) {
@@ -201,7 +213,10 @@ const decrease = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 'answerS
   }
 };
 
-const setValue = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 'answerSheets', event: Event) => {
+const setValue = (
+  field: 'paperPages' | 'paperSheets' | 'answerPages' | 'answerSheets',
+  event: Event
+) => {
   const target = event.target as HTMLInputElement;
   const val = Math.max(0, Math.floor(Number(target.value)) || 0);
   switch (field) {
@@ -245,7 +260,7 @@ const setValue = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 'answerS
 }
 
 .info-label {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.75);
   font-size: calc(var(--ui-scale, 1) * 1.4rem);
   font-weight: 500;
   min-width: calc(var(--ui-scale, 1) * 6rem);
@@ -278,14 +293,14 @@ const setValue = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 'answerS
 }
 
 .material-label {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.75);
   font-size: calc(var(--ui-scale, 1) * 1.4rem);
   font-weight: 500;
   min-width: calc(var(--ui-scale, 1) * 5rem);
 }
 
 .material-text {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.75);
   font-size: calc(var(--ui-scale, 1) * 1.3rem);
 }
 
