@@ -66,16 +66,6 @@
       @material-font-scale-change="handleMaterialFontScaleChange"
     />
 
-    <!-- 画中画悬浮窗 -->
-    <PipOverlay
-      :visible="pipVisible"
-      :remaining-time="displayedRemainingTime"
-      :current-time="formattedCurrentTime"
-      :show-remaining-time="pipShowRemaining"
-      :show-current-time="pipShowCurrent"
-      @close="pipVisible = false"
-    />
-
     <!-- 彩色提醒：用于考试开始/即将结束/考试结束/即将开考，淡入动画，点击可关闭 -->
     <transition name="fade-soft">
       <div
@@ -147,7 +137,6 @@ import ExamInfoCard from './cards/ExamInfoCard.vue';
 import ExamRoomCard from './cards/ExamRoomCard.vue';
 import CurrentListCard from './cards/CurrentListCard.vue';
 import ActionButtonBar from './ActionButtonBar.vue';
-import PipOverlay from './PipOverlay.vue';
 import { providePlayerToolbar } from '../composables/usePlayerToolbar';
 // 本地引入 TDesign 组件，确保不依赖宿主全局注册
 import { Dialog as TDialog, Input as TInput, Button as TButton } from 'tdesign-vue-next';
@@ -574,20 +563,43 @@ const handleDevReminderHide = () => {
   reminder.hideColorfulAlert();
 };
 
-// === 画中画悬浮窗 ===
-const pipVisible = ref(false);
+// === 画中画悬浮窗（独立窗口模式） ===
 const pipShowRemaining = ref(true);
 const pipShowCurrent = ref(false);
 
 const handlePipToggle = () => {
-  pipVisible.value = !pipVisible.value;
-  // 打开悬浮窗时最小化主窗口，关闭时恢复
-  if (pipVisible.value) {
+  try {
+    const ipc = (window as any).api?.ipc;
+    if (ipc) {
+      ipc.send('pip:toggle', {
+        showRemaining: pipShowRemaining.value,
+        showCurrent: pipShowCurrent.value
+      });
+    }
+  } catch {}
+};
+
+// 监听时间变化，通过 IPC 发送给独立悬浮窗
+let lastPipRemaining = '';
+let lastPipCurrent = '';
+watch(displayedRemainingTime, (val) => {
+  if (val && val !== lastPipRemaining) {
+    lastPipRemaining = val;
     try {
-      (window as any).electronAPI?.minimize?.();
+      const ipc = (window as any).api?.ipc;
+      if (ipc) ipc.send('pip:update', { remainingTime: val });
     } catch {}
   }
-};
+});
+watch(formattedCurrentTime, (val) => {
+  if (val && val !== lastPipCurrent) {
+    lastPipCurrent = val;
+    try {
+      const ipc = (window as any).api?.ipc;
+      if (ipc) ipc.send('pip:update', { currentTime: val });
+    } catch {}
+  }
+});
 
 const handleMaterialFontScaleChange = (scale: number) => {
   const safe = Math.min(3, Math.max(1, Number(scale) || 1));

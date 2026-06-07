@@ -6,6 +6,7 @@ import { createMainWindow } from './windows/mainWindow'
 import { createEditorWindow } from './windows/editorWindow'
 import { createSettingsWindow } from './windows/settingsWindow'
 import { createPlayerWindow } from './windows/playerWindow'
+import { setupPipIpc } from './windows/pipWindow'
 import { windowManager } from './windows/windowManager'
 import { registerIpcHandlers } from './ipcHandlers'
 import { patchConsoleWithLogger, appLogger, initLoggingConfig } from './logging/winstonLogger'
@@ -177,6 +178,7 @@ app.whenReady().then(async () => {
   })
 
   const disposeIpc = registerIpcHandlers(_mainCtx)
+  const disposePipIpc = setupPipIpc()
   // macOS 常用快捷键：Command+逗号 打开设置（聚焦“关于”页可由二级逻辑决定，这里默认普通设置首页）
   try {
     globalShortcut.register('CommandOrControl+,', () => {
@@ -406,6 +408,9 @@ app.whenReady().then(async () => {
     } catch {}
     try {
       disposeIpc()
+    } catch {}
+    try {
+      disposePipIpc()
     } catch {}
     try {
       void httpApiService.dispose()

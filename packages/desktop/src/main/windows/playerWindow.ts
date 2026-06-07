@@ -4,6 +4,7 @@ import { is } from '@electron-toolkit/utils'
 import { windowManager } from './windowManager'
 import { appLogger } from '../logging/winstonLogger'
 import { setSharedConfig } from '../state/sharedConfigStore'
+import { closePipWindow } from './pipWindow'
 
 export function createPlayerWindow(configPath: string): BrowserWindow {
   return windowManager.open(({ commonOptions }) => ({
@@ -81,9 +82,15 @@ export function createPlayerWindow(configPath: string): BrowserWindow {
         }, 1000)
       })
 
+      // 播放器关闭时同时关闭悬浮窗
+      playerWindow.on('closed', () => {
+        closePipWindow()
+      })
+
       // 返回清理函数供 WindowManager 调用
       return () => {
         ipcMain.off(exitChannel, onRendererExit)
+        closePipWindow()
       }
     }
   })) as unknown as BrowserWindow
