@@ -58,11 +58,17 @@ body {
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   font-family: 'Segoe UI', 'MiSans', sans-serif;
-  cursor: grab;
+  cursor: default;
   user-select: none;
+}
+#drag-handle {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 40px;
+  cursor: grab;
   -webkit-app-region: drag;
 }
-body:active { cursor: grabbing; }
+#drag-handle:active { cursor: grabbing; }
 #time {
   color: #fff;
   font-size: 96px;
@@ -93,6 +99,7 @@ body:hover #close { opacity: 1; }
 </style>
 </head>
 <body>
+<div id="drag-handle"></div>
 <div id="time">00:00</div>
 <div id="current"></div>
 <button id="close">×</button>
@@ -100,6 +107,7 @@ body:hover #close { opacity: 1; }
 const timeEl = document.getElementById('time');
 const currentEl = document.getElementById('current');
 const closeBtn = document.getElementById('close');
+const dragHandle = document.getElementById('drag-handle');
 
 let showRemaining = true;
 let showCurrent = false;
@@ -127,12 +135,17 @@ closeBtn.addEventListener('click', () => {
   ipcRenderer.send('pip:toggle');
 });
 
-// 拖拽逻辑
+// 点击非拖拽区域返回播放页
+document.body.addEventListener('click', (e) => {
+  if (e.target === closeBtn || e.target === dragHandle || dragHandle.contains(e.target)) return;
+  ipcRenderer.send('pip:toggle');
+});
+
+// 拖拽逻辑（仅拖拽手柄）
 let dragging = false;
 let dragOffset = { x: 0, y: 0 };
 
-document.body.addEventListener('mousedown', (e) => {
-  if (e.target === closeBtn) return;
+dragHandle.addEventListener('mousedown', (e) => {
   dragging = true;
   dragOffset.x = e.screenX - window.screenX;
   dragOffset.y = e.screenY - window.screenY;
