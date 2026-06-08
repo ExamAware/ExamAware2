@@ -58,17 +58,10 @@ body {
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   font-family: 'Segoe UI', 'MiSans', sans-serif;
-  cursor: default;
+  cursor: grab;
   user-select: none;
 }
-#drag-handle {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 40px;
-  cursor: grab;
-  -webkit-app-region: drag;
-}
-#drag-handle:active { cursor: grabbing; }
+body:active { cursor: grabbing; }
 #time {
   color: #fff;
   font-size: 96px;
@@ -99,7 +92,6 @@ body:hover #close { opacity: 1; }
 </style>
 </head>
 <body>
-<div id="drag-handle"></div>
 <div id="time">00:00</div>
 <div id="current"></div>
 <button id="close">×</button>
@@ -135,17 +127,18 @@ closeBtn.addEventListener('click', () => {
   ipcRenderer.send('pip:toggle');
 });
 
-// 点击非拖拽区域返回播放页
-document.body.addEventListener('click', (e) => {
-  if (e.target === closeBtn || e.target === dragHandle || dragHandle.contains(e.target)) return;
-  ipcRenderer.send('pip:toggle');
-});
-
-// 拖拽逻辑（仅拖拽手柄）
+// 全窗口可拖拽 + 点击返回播放页（拖动时不返回）
+let dragStartTime = 0;
+let dragStartPos = { x: 0, y: 0 };
+let hasMoved = false;
 let dragging = false;
 let dragOffset = { x: 0, y: 0 };
 
-dragHandle.addEventListener('mousedown', (e) => {
+document.body.addEventListener('mousedown', (e) => {
+  if (e.target === closeBtn) return;
+  dragStartTime = Date.now();
+  dragStartPos = { x: e.screenX, y: e.screenY };
+  hasMoved = false;
   dragging = true;
   dragOffset.x = e.screenX - window.screenX;
   dragOffset.y = e.screenY - window.screenY;
@@ -153,11 +146,22 @@ dragHandle.addEventListener('mousedown', (e) => {
 
 document.addEventListener('mousemove', (e) => {
   if (!dragging) return;
+  const dx = e.screenX - dragStartPos.x;
+  const dy = e.screenY - dragStartPos.y;
+  if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+    hasMoved = true;
+  }
   window.moveTo(e.screenX - dragOffset.x, e.screenY - dragOffset.y);
 });
 
-document.addEventListener('mouseup', () => {
+document.addEventListener('mouseup', (e) => {
   dragging = false;
+  if (e.target === closeBtn) return;
+  const duration = Date.now() - dragStartTime;
+  // 短按（< 200ms）且没有明显移动 = 点击，返回播放页
+  if (duration < 200 && !hasMoved) {
+    ipcRenderer.send('pip:toggle');
+  }
 });
 </script>
 </body>
