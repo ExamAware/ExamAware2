@@ -16,8 +16,8 @@ export function createPipWindow(parentWindow: BrowserWindow): BrowserWindow {
   }
 
   pipWindow = new BrowserWindow({
-    width: 320,
-    height: 120,
+    width: 520,
+    height: 280,
     frame: false,
     skipTaskbar: true,
     resizable: false,
@@ -30,6 +30,7 @@ export function createPipWindow(parentWindow: BrowserWindow): BrowserWindow {
     parent: parentWindow,
     x: 20,
     y: 20,
+    roundedCorners: true,
     webPreferences: {
       preload: undefined,
       nodeIntegration: false,
@@ -46,15 +47,17 @@ export function createPipWindow(parentWindow: BrowserWindow): BrowserWindow {
 <meta charset="UTF-8">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+}
 body {
   background: rgba(4, 14, 21, 0.92);
   border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 16px;
-  width: 320px; height: 120px;
+  border-radius: 24px;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   font-family: 'Segoe UI', 'MiSans', sans-serif;
-  overflow: hidden;
   cursor: grab;
   user-select: none;
   -webkit-app-region: drag;
@@ -62,25 +65,25 @@ body {
 body:active { cursor: grabbing; }
 #time {
   color: #fff;
-  font-size: 48px;
+  font-size: 96px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   text-shadow: 0 2px 8px rgba(0,0,0,0.5);
 }
 #current {
   color: rgba(255,255,255,0.6);
-  font-size: 16px;
-  margin-top: 4px;
+  font-size: 28px;
+  margin-top: 8px;
 }
 #close {
   position: absolute;
-  top: -8px; right: -8px;
-  width: 24px; height: 24px;
+  top: -10px; right: -10px;
+  width: 32px; height: 32px;
   border-radius: 50%;
   border: none;
   background: rgba(255,59,48,0.9);
   color: #fff;
-  font-size: 14px;
+  font-size: 18px;
   cursor: pointer;
   opacity: 0;
   transition: opacity 0.2s;
