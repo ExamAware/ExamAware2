@@ -1,0 +1,32 @@
+import { SizeUnit } from './types';
+export declare const IMAGE_REGEXP: RegExp;
+export declare const IMAGE_ALL_REGEXP: RegExp;
+export declare const FILE_PDF_REGEXP: RegExp;
+export declare const FILE_EXCEL_REGEXP: RegExp;
+export declare const FILE_WORD_REGEXP: RegExp;
+export declare const FILE_PPT_REGEXP: RegExp;
+export declare const VIDEO_REGEXP: RegExp;
+export declare const AUDIO_REGEXP: RegExp;
+export declare const SIZE_MAP: {
+    B: number;
+    KB: number;
+    MB: number;
+    GB: number;
+};
+export declare function returnFileSize(number: number): string;
+export declare function getCurrentDate(needTime?: boolean): string;
+export declare function abridgeName(inputName: string, leftCount?: number, rightCount?: number): string;
+export declare function getFileSizeText(number: number): string;
+export declare function isOverSizeLimit(fileSize: number, sizeLimit: number, unit: SizeUnit): boolean;
+export declare function isOverSizeLimit1(fileSize: number, sizeLimit: number, unit: SizeUnit): boolean;
+export declare const urlCreator: () => {
+    new (url: string | URL, base?: string | URL): URL;
+    prototype: URL;
+    canParse(url: string | URL, base?: string | URL): boolean;
+    createObjectURL(obj: Blob | MediaSource): string;
+    parse(url: string | URL, base?: string | URL): URL | null;
+    revokeObjectURL(url: string): void;
+};
+export declare function getFileUrlByFileRaw(fileRaw: File): Promise<string>;
+export declare function validateFileType(accept: string, fileType: string, fileName?: string): boolean;
+export declare function getFileList(files: FileList, accept?: string): File[];

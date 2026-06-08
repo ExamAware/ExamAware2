@@ -1,0 +1,37 @@
+{
+  "name": "ora",
+  "version": "9.0.0",
+  "requiresBuild": false,
+  "files": {
+    "license": {
+      "checkedAt": 1780883824971,
+      "integrity": "sha512-0fM2/ycrxrltyaBKfQ748Ck23VlPUUBgNAR47ldf4B1V/HoXTfWBSk+vcshGKwEpmOynu4mOP5o+hyBfuRNa8g==",
+      "mode": 420,
+      "size": 1117
+    },
+    "index.js": {
+      "checkedAt": 1780883861848,
+      "integrity": "sha512-nEi+N09/+70/rX9JkmS5eOckFFG1i3EfDQXMdO1DWS4LgOKfUqAmjT+ABbLwf5Csh1+pO9pSoqkwMgRPlKVaEw==",
+      "mode": 420,
+      "size": 11144
+    },
+    "package.json": {
+      "checkedAt": 1780883861848,
+      "integrity": "sha512-qhq02SPbSkxYAJyHBgX2EcZy10bVKeMVIOpQ3MXYpajAkWo2DBbWEe1jpSwob5ONbR54ErzaqUNFg8N95jSz7A==",
+      "mode": 420,
+      "size": 1209
+    },
+    "readme.md": {
+      "checkedAt": 1780883861848,
+      "integrity": "sha512-kAxXZiegzkq4fRunZhGuqj3nCnrY91UpR/0eIwn2uZfZ1yOFxumSAmYBm9TP5y4QQl1+oR74T9jQZhz9nPN/9A==",
+      "mode": 420,
+      "size": 9436
+    },
+    "index.d.ts": {
+      "checkedAt": 1780883861849,
+      "integrity": "sha512-IP14bxqUEYfi8ajdFh7+mFLKuvMTaa7bTqDkNy6LUMFG6eUrYAIlemKIBQVUlqk2ZR8/hc9OXOFTNkVMf8tosA==",
+      "mode": 420,
+      "size": 7444
+    }
+  }
+}

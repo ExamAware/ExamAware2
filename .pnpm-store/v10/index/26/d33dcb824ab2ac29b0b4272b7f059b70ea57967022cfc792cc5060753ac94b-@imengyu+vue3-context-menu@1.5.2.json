@@ -1,0 +1,169 @@
+{
+  "name": "@imengyu/vue3-context-menu",
+  "version": "1.5.2",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883835667,
+      "integrity": "sha512-ARzLfVSruOaplvamNRH3+K6baxiHD2hSh8NtOk/0h7cxAXCuvobmF2xY6kfFwNEpP1COP7620bSTYSlncX7Szw==",
+      "mode": 420,
+      "size": 1084
+    },
+    "lib/vue3-context-menu.css": {
+      "checkedAt": 1780883835667,
+      "integrity": "sha512-1U/IbdwKuJx8uDgt/IFxpn7kOrNvKMR3G8ugBQgvC6Tosv9sBYsYKl5SohOFjLajZ8PF7Xj3wUaloTHyYJoHzQ==",
+      "mode": 420,
+      "size": 15015
+    },
+    "lib/vue3-context-menu.es.js": {
+      "checkedAt": 1780883835667,
+      "integrity": "sha512-UZ12FWQ5h1loz+mkRyZCCRDFem8OYW3znyM2gr6zatYhE6+4OrylVLCWYOmR0lpji921xrr5aJpytsXNq/mLfw==",
+      "mode": 420,
+      "size": 56583
+    },
+    "lib/vue3-context-menu.umd.js": {
+      "checkedAt": 1780883835668,
+      "integrity": "sha512-VCdAzZcvg77uz+pKfA8km7M2KzE1Hw3XzfZro+Dfh73QQgNsadwTAJfuMIUC2gS0rf7SdObE8R2B8HrfppamJA==",
+      "mode": 420,
+      "size": 36029
+    },
+    "package.json": {
+      "checkedAt": 1780883835668,
+      "integrity": "sha512-tv0h8+3q3e0bRXdrHkPJlDN4OJTy/hePBANSZYdXwqBLhggtaIbLNPl9o9UEKsu3kh16+nmiLfHqLyOV+wPGig==",
+      "mode": 420,
+      "size": 1681
+    },
+    "lib/vue3-context-menu.es.js.map": {
+      "checkedAt": 1780883835669,
+      "integrity": "sha512-m8j4uaU2nhL6QNtaPOy5uWY/aLMaMZ8vd0DUXenO5//cAwTdguuql1SwqXplGYyjDZGL3YoTMACS1a61YC5diA==",
+      "mode": 420,
+      "size": 138084
+    },
+    "lib/vue3-context-menu.umd.js.map": {
+      "checkedAt": 1780883835669,
+      "integrity": "sha512-HG7FZWeevb931ZuRXaWviISDkGY1efnpXhp8zqR6VuPSDZCpbfG4hmJOhTQ25yxDjlxnKdRm8G6FH7klODFzBA==",
+      "mode": 420,
+      "size": 133253
+    },
+    "README.CN.md": {
+      "checkedAt": 1780883835670,
+      "integrity": "sha512-EXOcaXfsWAs1tmDb+C4P1GiBp4gm7hGdy436bu3jaIK/T6JQOYt6qCU7bbw0KD8e/D7vK29eai3ZnFpCpCJAJA==",
+      "mode": 420,
+      "size": 3469
+    },
+    "README.md": {
+      "checkedAt": 1780883835670,
+      "integrity": "sha512-cycRaZxSowz0/yvvS/IhLNi+c0USVpdW9IKwbqdleoosB9pGSlywAhw90auHtXtGPSwbrH+Olf7I8cDCXm5Afw==",
+      "mode": 420,
+      "size": 4513
+    },
+    "lib/ContextMenu.vue.d.ts": {
+      "checkedAt": 1780883835670,
+      "integrity": "sha512-m4Y2vGq0/34eW/HJbpmq1/f+EYXuAWG4h7E4Etnzl2Z4cbMoM1dm7fORIBf5B5pYz3ZrVmKvGG9hUK1+sWVuTQ==",
+      "mode": 420,
+      "size": 1612
+    },
+    "lib/ContextMenuDefine.d.ts": {
+      "checkedAt": 1780883835670,
+      "integrity": "sha512-9kwRM8IIRPcRBKU+FA92OQRg94ZYUY0OqEkAT7D8Da6Ru01OFsm4Mre2JLIlOcRqNNgMnN1j/Cns7BXga8XxfQ==",
+      "mode": 420,
+      "size": 17685
+    },
+    "lib/ContextMenuGroup.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-MI1PUam0nC6pTaFA8X0AAvTPhlHn8ejN5+EtbBNWPORtK1aVksMmx6i2Z0Imvv7XrlHKOjD1qK0ALlhj5V90hg==",
+      "mode": 420,
+      "size": 7344
+    },
+    "lib/ContextMenuIconCheck.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/ContextMenuIconRight.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/ContextMenuInstance.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-g1YwkHa0G+PcgRCuFtgFzx5GTn4IJZEycPO67uL0aH920WeuFGJWXeaZ0JtoQ5IWmQR9ZEU4qkHKYPmlu8k3Hg==",
+      "mode": 420,
+      "size": 2685
+    },
+    "lib/ContextMenuItem.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-xZY1ieoexJ8oiu08Th80ysAUqU76648032RvvwkJz/d8xvN1eONBpOdlaYBe8WRSHtSD+dhQDW4oUSA+WBIbhw==",
+      "mode": 420,
+      "size": 8171
+    },
+    "lib/ContextMenuMutex.d.ts": {
+      "checkedAt": 1780883835672,
+      "integrity": "sha512-psnKNR0py4qbS6qwoUKV5Xsy9JvjO5CVyrRf7gEiUbpyTcQuRXyOLx4c+d70e45or5BcR+Cfkex/lJOVFew74w==",
+      "mode": 420,
+      "size": 375
+    },
+    "lib/ContextMenuSeparator.vue.d.ts": {
+      "checkedAt": 1780883835672,
+      "integrity": "sha512-q6HoVrcEKx2lLx0wtSvxUWdGW1OQvWRvWgxjwVHgjHifSZh9UNdJ6t75fVIR7bziYeheDDh1TkUi68Wj9gQucg==",
+      "mode": 420,
+      "size": 426
+    },
+    "lib/ContextMenuUtils.d.ts": {
+      "checkedAt": 1780883835672,
+      "integrity": "sha512-L0Als15io8x11vhhPjl3+ySlCyzW0vOwTj+3r4X49dvv17ZeptgqUxxAokhKEyIos1ia2buRsy0ETJ8vc8HJhA==",
+      "mode": 420,
+      "size": 3225
+    },
+    "lib/ContextSubMenu.vue.d.ts": {
+      "checkedAt": 1780883835672,
+      "integrity": "sha512-97Jnhu7dCz0F1xkc9rdeAIFzS8v7RvQzyqN5eDOUt49KoQuZVMldueQ7KFvVaE+w/BOdmDdNF3IVqOmRB2ieVQ==",
+      "mode": 420,
+      "size": 5186
+    },
+    "lib/ContextSubMenuWrapper.vue.d.ts": {
+      "checkedAt": 1780883835673,
+      "integrity": "sha512-7I45JnJEnW8WLLOxPDBy6p9hUywLRiK+r+n8psTjILg+BV8oBe05kgPOKlpdTee8JgplRPY0vTBJxLDIephAgg==",
+      "mode": 420,
+      "size": 2313
+    },
+    "index.d.ts": {
+      "checkedAt": 1780883835673,
+      "integrity": "sha512-/uLwhtqCM7OP+JXqU+g6ZKkvWiOM2FPjinVp3FmDl7FtJDUcVQyeEfddwr5pqhGWF+QINNHo43x4gtEh/9erLQ==",
+      "mode": 420,
+      "size": 775
+    },
+    "lib/index.d.ts": {
+      "checkedAt": 1780883835673,
+      "integrity": "sha512-npv2ntxuipvJFJVySIhtNHKTMOFAV66YYIhy6DegKTUzsgeyWNwKb5FbaA+152HP7cEZ9qcs57r/xqu/84sCfw==",
+      "mode": 420,
+      "size": 473
+    },
+    "lib/MenuBar.d.ts": {
+      "checkedAt": 1780883835673,
+      "integrity": "sha512-QSoB1Wp5WFaMkt5jrTZhTlWdK6r9p2t/rkc8GrvP0boNClWlnF0IRfOqge15svOuQKVnCr1YxnZ76mTydGMa+Q==",
+      "mode": 420,
+      "size": 478
+    },
+    "lib/MenuBar.vue.d.ts": {
+      "checkedAt": 1780883835674,
+      "integrity": "sha512-2xTSuO9cazm55BHgajRjHNSQfzYQdUiLeeIyVlcuCiUbDVSnHRIuj/dIEK6Ev8wpmH2KWdPl0+e7rOSH2LW8pA==",
+      "mode": 420,
+      "size": 828
+    },
+    "lib/MenuBarIconMenu.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/vite.config.d.ts": {
+      "checkedAt": 1780883835674,
+      "integrity": "sha512-4ktAkWMQzuOWDjIEcOhdzso+o3IUeVHBdZIg6Dvwi6f0mmpPWGTrxZAPk9Cc3mtV+xiFaEPb/35aZI81HssQJw==",
+      "mode": 420,
+      "size": 76
+    }
+  }
+}

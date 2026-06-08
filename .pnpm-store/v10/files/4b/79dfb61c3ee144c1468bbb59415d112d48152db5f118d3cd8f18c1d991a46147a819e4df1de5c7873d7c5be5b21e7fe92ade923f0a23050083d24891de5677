@@ -1,0 +1,71 @@
+import type { PropType } from 'vue';
+import type { CodeLayoutActionButton } from './CodeLayout';
+declare const _default: import("vue").DefineComponent<{
+    draggable: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    showIconSmall: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    actions: {
+        type: PropType<CodeLayoutActionButton[]>;
+        default: null;
+    };
+    title: {
+        type: StringConstructor;
+        default: string;
+    };
+    tooltip: {
+        type: StringConstructor;
+        default: string;
+    };
+    iconSmall: {
+        type: null;
+        default: string;
+    };
+}, {}, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+    click: (...args: any[]) => void;
+    contextmenu: (...args: any[]) => void;
+    dragend: (...args: any[]) => void;
+    dragstart: (...args: any[]) => void;
+}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
+    draggable: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    showIconSmall: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    actions: {
+        type: PropType<CodeLayoutActionButton[]>;
+        default: null;
+    };
+    title: {
+        type: StringConstructor;
+        default: string;
+    };
+    tooltip: {
+        type: StringConstructor;
+        default: string;
+    };
+    iconSmall: {
+        type: null;
+        default: string;
+    };
+}>> & {
+    onClick?: ((...args: any[]) => any) | undefined;
+    onDragend?: ((...args: any[]) => any) | undefined;
+    onDragstart?: ((...args: any[]) => any) | undefined;
+    onContextmenu?: ((...args: any[]) => any) | undefined;
+}, {
+    title: string;
+    tooltip: string;
+    draggable: boolean;
+    iconSmall: any;
+    actions: CodeLayoutActionButton[];
+    showIconSmall: boolean;
+}, {}>;
+export default _default;

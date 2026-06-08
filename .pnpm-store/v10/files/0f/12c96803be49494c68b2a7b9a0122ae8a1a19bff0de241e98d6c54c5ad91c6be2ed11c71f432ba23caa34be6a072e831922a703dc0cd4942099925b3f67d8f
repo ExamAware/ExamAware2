@@ -1,0 +1,1 @@
+{"version":3,"sourceRoot":"","sources":["../../../src/client/styles/vars.css"],"names":[],"mappings":"AAAA,MACE,kCACA","file":"vars.css","sourcesContent":[":root {\n  --nprogress-c: var(--vp-c-accent);\n  --nprogress-z-index: 1031;\n}\n"]}

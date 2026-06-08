@@ -1,0 +1,32 @@
+import { inject } from 'vue';
+export const themeLocaleDataSymbol = Symbol(__VUEPRESS_DEV__ ? 'themeLocaleData' : '');
+/**
+ * Use theme locale data
+ *
+ * 使用主题多语言数据
+ *
+ * @returns Theme locale data ref object / 主题多语言数据响应式引用对象
+ */
+export const useThemeLocaleData = () => {
+    const themeLocaleData = inject(themeLocaleDataSymbol);
+    if (!themeLocaleData) {
+        throw new Error('useThemeLocaleData() is called without provider.');
+    }
+    return themeLocaleData;
+};
+/**
+ * Merge the locales fields to the root fields according to the route path
+ *
+ * 根据路由路径将多语言字段合并到根字段
+ *
+ * @param theme - Theme data object / 主题数据对象
+ * @param routeLocale - Route locale / 路由多语言配置
+ * @returns Merged theme data / 合并后的主题数据
+ */
+export const resolveThemeLocaleData = (theme, routeLocale) => {
+    const { locales, ...baseOptions } = theme;
+    return {
+        ...baseOptions,
+        ...locales?.[routeLocale],
+    };
+};

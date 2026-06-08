@@ -1,0 +1,67 @@
+.t-message {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  width: fit-content;
+  outline: 0;
+  border-radius: var(--td-radius-medium);
+  background-color: var(--td-bg-color-container);
+  box-shadow: var(--td-shadow-3), var(--td-shadow-inset-top), var(--td-shadow-inset-right), var(--td-shadow-inset-bottom), var(--td-shadow-inset-left);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  color: var(--td-text-color-primary);
+  font: var(--td-font-body-medium);
+  padding: var(--td-comp-paddingTB-m) var(--td-comp-paddingLR-l);
+}
+.t-message > .t-icon,
+.t-message > [data-t-icon] > .t-icon,
+.t-message .t-loading {
+  color: var(--td-brand-color);
+  margin-right: var(--td-comp-margin-s);
+  flex-shrink: 0;
+  font-size: calc(var(--td-font-size-body-medium) + 6px);
+}
+.t-message.t-is-success > .t-icon,
+.t-message.t-is-success > [data-t-icon] > .t-icon,
+.t-message.t-is-success .t-loading {
+  color: var(--td-success-color);
+}
+.t-message.t-is-warning > .t-icon,
+.t-message.t-is-warning > [data-t-icon] > .t-icon,
+.t-message.t-is-warning .t-loading {
+  color: var(--td-warning-color);
+}
+.t-message.t-is-error > .t-icon,
+.t-message.t-is-error > [data-t-icon] > .t-icon,
+.t-message.t-is-error .t-loading {
+  color: var(--td-error-color);
+}
+.t-message.t-is-closable .t-message__close {
+  display: inline-flex;
+  margin-right: 0;
+  margin-left: var(--td-comp-margin-xxl);
+  cursor: pointer;
+  color: var(--td-text-color-secondary);
+}
+.t-message.t-is-closable .t-message__close .t-icon-close {
+  font-size: calc(var(--td-font-size-body-medium) + 2px);
+  border-radius: var(--td-radius-default);
+  transition: all 0.2s linear;
+}
+.t-message.t-is-closable .t-message__close .t-icon-close:hover {
+  background: var(--td-bg-color-container-hover);
+}
+.t-message.t-is-closable .t-message__close .t-icon-close:active {
+  background: var(--td-bg-color-container-active);
+}
+.t-message__list {
+  position: fixed;
+  z-index: 6000;
+  pointer-events: none;
+}
+.t-message__list .t-message {
+  margin-bottom: var(--td-comp-margin-s);
+  word-break: break-all;
+  pointer-events: auto;
+}

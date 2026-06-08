@@ -1,0 +1,99 @@
+/* stylelint-disable scss/operator-no-newline-after */
+@use "sass:color";
+@use "@sass-palette/helper";
+@use "@sass-palette/hope-config";
+@use "@temp/theme-hope/highlighter";
+
+#content {
+  @media (max-width: hope-config.$mobile) {
+    --code-border-radius: 0;
+    --tab-border-radius: 0;
+
+    // code block
+    > div[class*="language-"],
+    > .code-block-with-title > div[class*="language-"] {
+      margin-inline: -1.5rem;
+    }
+
+    // code block title bar
+    .code-block-title-bar {
+      margin-inline: -1.5rem;
+    }
+
+    // code tabs
+    > .vp-code-tabs {
+      .vp-code-tabs-nav {
+        margin-inline: -1.5rem;
+        border-radius: 0;
+      }
+
+      div[class*="language-"] {
+        margin-inline: -1.5rem;
+      }
+    }
+
+    // tabs
+    > .vp-tabs {
+      margin-inline: -1.5rem;
+      border-inline: none;
+    }
+
+    // reveal.js
+    .vp-reveal {
+      width: calc(100% + 3rem);
+      margin: 0 -1.5rem;
+    }
+  }
+}
+
+div[class*="language-"] {
+  pre code {
+    @media print {
+      padding: 0.5rem;
+    }
+  }
+}
+
+@function whiteness($color) {
+  @return color.channel($color, "whiteness", $space: hwb);
+}
+
+@mixin code-vars($code-color, $code-bg-color) {
+  --code-c-text: #{$code-color};
+  --code-c-bg: #{$code-bg-color};
+  --code-c-highlight-bg: #{color.scale(
+      $code-bg-color,
+      $saturation: if(whiteness($code-bg-color) < 50%, 5%, 10%),
+      $lightness: if(whiteness($code-bg-color) < 50%, 5%, -5%)
+    )};
+  --code-c-line-number: #{color.scale($code-color, $alpha: -33%)};
+}
+
+@if highlighter.$highlighter == "shiki" {
+  @if helper.get-color(hope-config.$code-color) ==
+    helper.get-dark-color(hope-config.$code-color) and
+    helper.get-color(hope-config.$code-bg-color) ==
+    helper.get-dark-color(hope-config.$code-bg-color)
+  {
+    :root {
+      @include code-vars(
+        $code-color: hope-config.$code-color,
+        $code-bg-color: hope-config.$code-bg-color
+      );
+    }
+  } @else {
+    :root {
+      @include code-vars(
+        $code-color: helper.get-color(hope-config.$code-color),
+        $code-bg-color: helper.get-color(hope-config.$code-bg-color)
+      );
+    }
+
+    [data-theme="dark"] {
+      @include code-vars(
+        $code-color: helper.get-dark-color(hope-config.$code-color),
+        $code-bg-color: helper.get-dark-color(hope-config.$code-bg-color)
+      );
+    }
+  }
+}

@@ -1,0 +1,1 @@
+{"version":3,"file":"noopModule.js","sources":["../../src/client/noopModule.ts"],"sourcesContent":["/**\n * Noop module\n *\n * 空模块\n */\nexport default {}\n"],"names":["noopModule"],"mappings":"AAKA,IAAAA,EAAe,CAAA"}

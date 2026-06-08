@@ -1,0 +1,121 @@
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+var defineProperty = require('../_chunks/dep-23fc4c9b.js');
+var vue = require('vue');
+var utils_renderFn = require('../utils/render-fn.js');
+var utils_useSizeProps = require('../utils/use-size-props.js');
+require('../utils/use-common-classname.js');
+require('../utils/config-context.js');
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { defineProperty._defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var element = {
+  "tag": "svg",
+  "attrs": {
+    "fill": "none",
+    "viewBox": "0 0 24 24",
+    "width": "1em",
+    "height": "1em"
+  },
+  "children": [{
+    "tag": "g",
+    "attrs": {
+      "id": "grape"
+    },
+    "children": [{
+      "tag": "path",
+      "attrs": {
+        "id": "fill1",
+        "fill": "props.fillColor1",
+        "d": "M3 17.8235C3 19.5778 4.42215 21 6.17647 21C7.51516 21 8.67399 20.0966 9.14152 18.9247C9.72164 19.5499 10.5504 19.9412 11.4706 19.9412C13.1458 19.9412 14.5305 18.6626 14.6509 17.0181C15.2125 17.5191 15.953 17.8235 16.7647 17.8235C18.519 17.8235 19.9412 16.4014 19.9412 14.6471C19.9412 14.0821 19.8064 13.5396 19.5478 13.0799C20.4217 12.514 21 11.5304 21 10.4118C21 8.65745 19.5778 7.23529 17.8235 7.23529C17.3176 7.23529 16.8393 7.35358 16.4147 7.564C16.6186 7.14478 16.7647 6.67398 16.7647 6.17647C16.7647 4.42215 15.3425 3 13.5882 3C12.4655 3 11.4789 3.58243 10.9139 4.46162C10.4556 4.20508 9.91548 4.05884 9.35292 4.05884C7.59861 4.05884 6.17645 5.48099 6.17645 7.23531C6.17645 8.05677 6.48827 8.80539 7 9.36929C5.35557 9.4897 4.05884 10.8542 4.05884 12.5294C4.05884 13.4492 4.44975 14.2776 5.07449 14.8577C3.86335 15.3057 3 16.4567 3 17.8235Z"
+      }
+    }, {
+      "tag": "path",
+      "attrs": {
+        "id": "stroke1",
+        "stroke": "props.strokeColor1",
+        "d": "M10.914 4.46157C10.4557 4.20503 9.91549 4.05879 9.35294 4.05879C7.59862 4.05879 6.17646 5.48094 6.17646 7.23526C6.17646 8.05672 6.48828 8.80535 7.00001 9.36924C7.58114 10.0096 8.42008 10.4117 9.35294 10.4117M19.5478 13.0799C19.8064 13.5396 19.9412 14.0821 19.9412 14.6471C19.9412 16.4014 18.519 17.8235 16.7647 17.8235C15.953 17.8235 15.2124 17.5191 14.6509 17.0181C13.0953 15.6303 13.2928 13.1102 15.072 12M16.8573 7.05C18.1762 5.54668 19.587 4.22182 21.5 3.5M6.5 9.446C5.10023 9.77645 4.05884 11.0282 4.05884 12.5294C4.05884 13.4491 4.44975 14.2776 5.07449 14.8577C5.64136 15.384 6.40075 15.7059 7.23531 15.7059C7.53505 15.7059 7.82509 15.6643 8.1 15.5867M9.85 14.0536C8.89899 14.6187 8.29414 15.6369 8.29414 16.7647C8.29414 18.519 9.7163 19.9411 11.4706 19.9411C12.9781 19.9411 14.2504 18.9057 14.5778 17.5M4.55 15.1078C3.62168 15.6592 3 16.6636 3 17.8235C3 19.5778 4.42215 20.9999 6.17647 20.9999C7.16955 20.9999 8.06366 20.5028 8.65 19.7676M13.1 14.596C12.1267 14.7725 11.1007 14.4761 10.373 13.8029C9.74571 13.2227 9.35297 12.3925 9.35297 11.4706C9.35297 10.2865 9.99312 9.26751 10.9517 8.72501M13.5882 3C15.3425 3 16.7647 4.42215 16.7647 6.17647C16.7647 6.67398 16.6186 7.14478 16.4147 7.564C15.7829 7.87717 15.2701 8.39443 14.9627 9.02959C14.5468 9.22953 14.0806 9.35294 13.5882 9.35294C11.8339 9.35294 10.4117 7.93079 10.4117 6.17647C10.4117 5.54484 10.5961 4.95626 10.9139 4.46162C11.4789 3.58243 12.4655 3 13.5882 3ZM21 10.4117C21 8.65741 19.5778 7.23525 17.8235 7.23525C16.0692 7.23525 14.647 8.65741 14.647 10.4117C14.647 12.166 16.0692 13.5882 17.8235 13.5882C19.5778 13.5882 21 12.166 21 10.4117Z",
+        "strokeLinecap": "square",
+        "strokeWidth": "props.strokeWidth"
+      }
+    }]
+  }]
+};
+var grape = vue.defineComponent({
+  name: "GrapeIcon",
+  props: {
+    size: {
+      type: String
+    },
+    onClick: {
+      type: Function
+    },
+    fillColor: {
+      type: [Array, String]
+    },
+    strokeColor: {
+      type: [Array, String]
+    },
+    strokeWidth: {
+      type: Number
+    }
+  },
+  setup(props, _ref) {
+    var {
+      attrs
+    } = _ref;
+    var propsSize = vue.computed(() => props.size);
+    var strokeColor1 = vue.computed(() => {
+      if (!props.strokeColor) return "currentColor";
+      return Array.isArray(props.strokeColor) ? props.strokeColor[0] : props.strokeColor;
+    });
+    var strokeColor2 = vue.computed(() => {
+      var _props$strokeColor$;
+      if (!props.strokeColor) return "currentColor";
+      return Array.isArray(props.strokeColor) ? (_props$strokeColor$ = props.strokeColor[1]) !== null && _props$strokeColor$ !== void 0 ? _props$strokeColor$ : props.strokeColor[0] : props.strokeColor;
+    });
+    var fillColor1 = vue.computed(() => {
+      if (!props.fillColor) return "transparent";
+      return Array.isArray(props.fillColor) ? props.fillColor[0] : props.fillColor;
+    });
+    var fillColor2 = vue.computed(() => {
+      var _props$fillColor$;
+      if (!props.fillColor) return "transparent";
+      return Array.isArray(props.fillColor) ? (_props$fillColor$ = props.fillColor[1]) !== null && _props$fillColor$ !== void 0 ? _props$fillColor$ : props.fillColor[0] : props.fillColor;
+    });
+    var filledColor = vue.computed(() => {
+      if (!props.fillColor) return "currentColor";
+      return Array.isArray(props.fillColor) ? props.fillColor[0] : props.fillColor;
+    });
+    var {
+      className,
+      style
+    } = utils_useSizeProps['default'](propsSize);
+    var finalCls = vue.computed(() => ["t-icon", "t-icon-grape", className.value]);
+    var finalStyle = vue.computed(() => _objectSpread(_objectSpread({
+      fill: "none"
+    }, style.value), attrs.style));
+    var finalProps = vue.computed(() => ({
+      class: finalCls.value,
+      style: finalStyle.value,
+      onClick: e => {
+        var _props$onClick;
+        return (_props$onClick = props.onClick) === null || _props$onClick === void 0 ? void 0 : _props$onClick.call(props, {
+          e
+        });
+      },
+      strokeColor1: strokeColor1.value,
+      strokeColor2: strokeColor2.value,
+      fillColor1: fillColor1.value,
+      fillColor2: fillColor2.value,
+      strokeWidth: props.strokeWidth || 2,
+      filledColor: filledColor.value
+    }));
+    return () => utils_renderFn['default'](element, finalProps.value);
+  }
+});
+
+exports.default = grape;
+//# sourceMappingURL=grape.js.map

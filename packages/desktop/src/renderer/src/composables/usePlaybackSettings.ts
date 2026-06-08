@@ -47,6 +47,9 @@ export interface PlaybackSettingsRefs {
   largeClockScale: Ref<number>
   examInfoLargeFont: Ref<boolean>
   preCountdownMinutes: Ref<number>
+  pipShowRemaining: Ref<boolean>
+  pipShowCurrent: Ref<boolean>
+  materialFontScale: Ref<number>
 }
 
 export const usePlaybackSettings = (): PlaybackSettingsRefs => {
@@ -80,13 +83,31 @@ export const usePlaybackSettings = (): PlaybackSettingsRefs => {
     mapOut: clampPreCountdownMinutes
   })
 
+  const pipShowRemaining = useSettingRef<boolean>('player.pipShowRemaining', true, {
+    mapIn: (raw) => Boolean(raw),
+    mapOut: (val) => Boolean(val)
+  })
+
+  const pipShowCurrent = useSettingRef<boolean>('player.pipShowCurrent', false, {
+    mapIn: (raw) => Boolean(raw),
+    mapOut: (val) => Boolean(val)
+  })
+
+  const materialFontScale = useSettingRef<number>('player.materialFontScale', 1, {
+    mapIn: (raw) => Math.min(3, Math.max(1, Number(raw) || 1)),
+    mapOut: (val) => Math.min(3, Math.max(1, Number(val) || 1))
+  })
+
   return {
     uiScale,
     uiDensity,
     largeClockEnabled,
     largeClockScale,
     examInfoLargeFont,
-    preCountdownMinutes
+    preCountdownMinutes,
+    pipShowRemaining,
+    pipShowCurrent,
+    materialFontScale
   }
 }
 

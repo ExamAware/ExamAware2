@@ -1,0 +1,67 @@
+{
+  "name": "utf8-byte-length",
+  "version": "1.0.5",
+  "requiresBuild": false,
+  "files": {
+    ".gitmodules": {
+      "checkedAt": 1780883842429,
+      "integrity": "sha512-VCv8rfTc6A7YqiDLe/ZctozfyBaus0wWG2wequyzv+tMXoskICQRQkg0W1rQkgCAUUyHkW88ndotDOjAA5Ua4w==",
+      "mode": 420,
+      "size": 160
+    },
+    "AUTHORS": {
+      "checkedAt": 1780883842429,
+      "integrity": "sha512-Nr92xxUEOa9QUYCxybrklmnFsMIsn6xAYADBc0iMXN2TZJ67+NYuTasFnE7lVlLUs0DfQrHy/1XTcEPsFypUDg==",
+      "mode": 420,
+      "size": 71
+    },
+    "browser.js": {
+      "checkedAt": 1780883842429,
+      "integrity": "sha512-3kWfJbU5P1SpZAVToRpTblFJFC6NLB552NWTdlAzhsd2HNXXpyb0H2weD3uH6ltg1I4m0S1StDioHICMHHm8Vw==",
+      "mode": 420,
+      "size": 1174
+    },
+    "index.js": {
+      "checkedAt": 1780883842430,
+      "integrity": "sha512-1pcvHD6uN3UT6T9y7e/FvtpcNCz/ryP0n5gBEZI481CwYhxqroezar3wIZqka2Oiddl6PwEl+Pnbh/RkoxBuRg==",
+      "mode": 420,
+      "size": 197
+    },
+    "test.js": {
+      "checkedAt": 1780883842430,
+      "integrity": "sha512-GSeKW5cIzejz61mDuerZXJMBTt2o/FnMAFwcWsgJDY3VbWrQGuQ7Hf0LB5dI/pjwoj0Gm0GUKmaBu1H2n2WH/A==",
+      "mode": 420,
+      "size": 1649
+    },
+    "package.json": {
+      "checkedAt": 1780883842431,
+      "integrity": "sha512-JvcQSUvpQLUOVFLAGgYrpIvZKS46M2LIbc1gchkjD3DNc3QWCWyd0RSvMT6aUPKqed2C+Jnl+c7YEwaDGidv0A==",
+      "mode": 420,
+      "size": 617
+    },
+    "README.md": {
+      "checkedAt": 1780883842431,
+      "integrity": "sha512-k/CmmedtlgyI9y7lRcuBhfc+V0QfpngG0TEsDLxBMJIsb1jhjXqeJD3x4EK6WWl0Y83EncfqOe8tKaF9koPfKA==",
+      "mode": 420,
+      "size": 844
+    },
+    "LICENSE.MIT.txt": {
+      "checkedAt": 1780883842431,
+      "integrity": "sha512-EX+SpN+2JwJoQmfO7Nb1p1Ajy1TAmjNW02GS0vaW7ns+hsnRMqlBgKDt+r6GPn8N+/3pnVpz/fHbMRzjvCqbpg==",
+      "mode": 420,
+      "size": 1079
+    },
+    "LICENSE.WTFPL.txt": {
+      "checkedAt": 1780883842431,
+      "integrity": "sha512-322YJxjYRGu1abPY9EWt9B2vOwQFvaKljv28ZJlUkc2dM1s//RBdo4UwMnbOIBt7fgRZsJxTKjAgWptVz7Txrw==",
+      "mode": 420,
+      "size": 480
+    },
+    ".travis.yml": {
+      "checkedAt": 1780883842432,
+      "integrity": "sha512-9AcWiu/c7J2RelRfHXsOyx+CNYumh/KoTVIAJtEHDRObOtIOYaB2sLTRdIrxEoRCzwtYYrnztEKtGDnib2zejg==",
+      "mode": 420,
+      "size": 81
+    }
+  }
+}

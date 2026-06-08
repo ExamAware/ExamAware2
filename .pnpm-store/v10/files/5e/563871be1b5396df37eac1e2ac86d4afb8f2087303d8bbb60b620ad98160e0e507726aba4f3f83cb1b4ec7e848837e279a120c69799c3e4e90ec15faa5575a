@@ -1,0 +1,2 @@
+import{defineClientConfig as o}from"vuepress/client";import"./styles/vars.css";import{u as e,i}from"./usePhotoSwipe-w7wkUXvx.js";import"@vuepress/helper/client";import"@vueuse/core";import"vue";import"photoswipe/dist/photoswipe.css";import"./styles/photo-swipe.css";const t=__PS_SELECTOR__,r=__PS_LOCALES__,p=__PS_DOWNLOAD__,S=__PS_FULLSCREEN__,l=__PS_SCROLL_TO_CLOSE__;var n=o({enhance:({app:_})=>{i(_)},setup:()=>{e({selector:t,locales:r,download:p,fullscreen:S,scrollToClose:l})}});export{n as default};
+//# sourceMappingURL=config.js.map

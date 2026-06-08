@@ -1,0 +1,402 @@
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
+new URL(".", import.meta.url).pathname;
+const { readFileSync } = require("node:fs");
+let nativeBinding = null;
+const loadErrors = [], isMusl = () => {
+	let musl = !1;
+	return process.platform === "linux" && (musl = isMuslFromFilesystem(), musl === null && (musl = isMuslFromReport()), musl === null && (musl = isMuslFromChildProcess())), musl;
+}, isFileMusl = (f) => f.includes("libc.musl-") || f.includes("ld-musl-"), isMuslFromFilesystem = () => {
+	try {
+		return readFileSync("/usr/bin/ldd", "utf-8").includes("musl");
+	} catch {
+		return null;
+	}
+}, isMuslFromReport = () => {
+	let report = null;
+	return typeof process.report?.getReport == "function" && (process.report.excludeNetwork = !0, report = process.report.getReport()), report ? report.header && report.header.glibcVersionRuntime ? !1 : !!(Array.isArray(report.sharedObjects) && report.sharedObjects.some(isFileMusl)) : null;
+}, isMuslFromChildProcess = () => {
+	try {
+		return require("child_process").execSync("ldd --version", { encoding: "utf8" }).includes("musl");
+	} catch {
+		return !1;
+	}
+};
+function requireNative() {
+	if (process.env.NAPI_RS_NATIVE_LIBRARY_PATH) try {
+		return require(process.env.NAPI_RS_NATIVE_LIBRARY_PATH);
+	} catch (err) {
+		loadErrors.push(err);
+	}
+	else if (process.platform === "android") if (process.arch === "arm64") {
+		try {
+			return require("./oxlint.android-arm64.node");
+		} catch (e) {
+			loadErrors.push(e);
+		}
+		try {
+			let binding = require("@oxlint/android-arm64"), bindingPackageVersion = require("@oxlint/android-arm64/package.json").version;
+			if (bindingPackageVersion !== "1.36.0" && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== "0") throw Error(`Native binding package version mismatch, expected 1.36.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`);
+			return binding;
+		} catch (e) {
+			loadErrors.push(e);
+		}
+	} else if (process.arch === "arm") {
+		try {
+			return require("./oxlint.android-arm-eabi.node");
+		} catch (e) {
+			loadErrors.push(e);
+		}
+		try {
+			let binding = require("@oxlint/android-arm-eabi"), bindingPackageVersion = require("@oxlint/android-arm-eabi/package.json").version;
+			if (bindingPackageVersion !== "1.36.0" && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== "0") throw Error(`Native binding package version mismatch, expected 1.36.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`);
+			return binding;
+		} catch (e) {
+			loadErrors.push(e);
+		}
+	} else loadErrors.push(/* @__PURE__ */ Error(`Unsupported architecture on Android ${process.arch}`));
+	else if (process.platform === "win32") if (process.arch === "x64") if (process.config?.variables?.shlib_suffix === "dll.a" || process.config?.variables?.node_target_type === "shared_library") {
+		try {
+			return require("./oxlint.win32-x64-gnu.node");
+		} catch (e) {
+			loadErrors.push(e);
+		}
+		try {
+			let binding = require("@oxlint/win32-x64-gnu"), bindingPackageVersion = require("@oxlint/win32-x64-gnu/package.json").version;
+			if (bindingPackageVersion !== "1.36.0" && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== "0") throw Error(`Native binding package version mismatch, expected 1.36.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`);
+			return binding;
+		} catch (e) {
+			loadErrors.push(e);
+		}
+	} else {
+		try {
+			return require("./oxlint.win32-x64-msvc.node");
+		} catch (e) {
+			loadErrors.push(e);
+		}
+		try {
+			let binding = require("@oxlint/win32-x64"), bindingPackageVersion = require("@oxlint/win32-x64/package.json").version;
+			if (bindingPackageVersion !== "1.36.0" && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== "0") throw Error(`Native binding package version mismatch, expected 1.36.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`);
+			return binding;
+		} catch (e) {
+			loadErrors.push(e);
+		}
+	}
+	else if (process.arch === "ia32") {
+		try {
+			return require("./oxlint.win32-ia32-msvc.node");
+		} catch (e) {
+			loadErrors.push(e);
+		}
+		try {
+			let binding = require("@oxlint/win32-ia32"), bindingPackageVersion = require("@oxlint/win32-ia32/package.json").version;
+			if (bindingPackageVersion !== "1.36.0" && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== "0") throw Error(`Native binding package version mismatch, expected 1.36.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`);
+			return binding;
+		} catch (e) {
+			loadErrors.push(e);
+		}
+	} else if (process.arch === "arm64") {
+		try {
+			return require("./oxlint.win32-arm64-msvc.node");
+		} catch (e) {
+			loadErrors.push(e);
+		}
+		try {
+			let binding = require("@oxlint/win32-arm64"), bindingPackageVersion = require("@oxlint/win32-arm64/package.json").version;
+			if (bindingPackageVersion !== "1.36.0" && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== "0") throw Error(`Native binding package version mismatch, expected 1.36.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`);
+			return binding;
+		} catch (e) {
+			loadErrors.push(e);
+		}
+	} else loadErrors.push(/* @__PURE__ */ Error(`Unsupported architecture on Windows: ${process.arch}`));
+	else if (process.platform === "darwin") {
+		try {
+			return require("./oxlint.darwin-universal.node");
+		} catch (e) {
+			loadErrors.push(e);
+		}
+		try {
+			let binding = require("@oxlint/darwin-universal"), bindingPackageVersion = require("@oxlint/darwin-universal/package.json").version;
+			if (bindingPackageVersion !== "1.36.0" && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== "0") throw Error(`Native binding package version mismatch, expected 1.36.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`);
+			return binding;
+		} catch (e) {
+			loadErrors.push(e);
+		}
+		if (process.arch === "x64") {
+			try {
+				return require("./oxlint.darwin-x64.node");
+			} catch (e) {
+				loadErrors.push(e);
+			}
+			try {
+				let binding = require("@oxlint/darwin-x64"), bindingPackageVersion = require("@oxlint/darwin-x64/package.json").version;
+				if (bindingPackageVersion !== "1.36.0" && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== "0") throw Error(`Native binding package version mismatch, expected 1.36.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`);
+				return binding;
+			} catch (e) {
+				loadErrors.push(e);
+			}
+		} else if (process.arch === "arm64") {
+			try {
+				return require("./oxlint.darwin-arm64.node");
+			} catch (e) {
+				loadErrors.push(e);
+			}
+			try {
+				let binding = require("@oxlint/darwin-arm64"), bindingPackageVersion = require("@oxlint/darwin-arm64/package.json").version;
+				if (bindingPackageVersion !== "1.36.0" && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== "0") throw Error(`Native binding package version mismatch, expected 1.36.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`);
+				return binding;
+			} catch (e) {
+				loadErrors.push(e);
+			}
+		} else loadErrors.push(/* @__PURE__ */ Error(`Unsupported architecture on macOS: ${process.arch}`));
+	} else if (process.platform === "freebsd") if (process.arch === "x64") {
+		try {
+			return require("./oxlint.freebsd-x64.node");
+		} catch (e) {
+			loadErrors.push(e);
+		}
+		try {
+			let binding = require("@oxlint/freebsd-x64"), bindingPackageVersion = require("@oxlint/freebsd-x64/package.json").version;
+			if (bindingPackageVersion !== "1.36.0" && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== "0") throw Error(`Native binding package version mismatch, expected 1.36.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`);
+			return binding;
+		} catch (e) {
+			loadErrors.push(e);
+		}
+	} else if (process.arch === "arm64") {
+		try {
+			return require("./oxlint.freebsd-arm64.node");
+		} catch (e) {
+			loadErrors.push(e);
+		}
+		try {
+			let binding = require("@oxlint/freebsd-arm64"), bindingPackageVersion = require("@oxlint/freebsd-arm64/package.json").version;
+			if (bindingPackageVersion !== "1.36.0" && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== "0") throw Error(`Native binding package version mismatch, expected 1.36.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`);
+			return binding;
+		} catch (e) {
+			loadErrors.push(e);
+		}
+	} else loadErrors.push(/* @__PURE__ */ Error(`Unsupported architecture on FreeBSD: ${process.arch}`));
+	else if (process.platform === "linux") if (process.arch === "x64") if (isMusl()) {
+		try {
+			return require("./oxlint.linux-x64-musl.node");
+		} catch (e) {
+			loadErrors.push(e);
+		}
+		try {
+			let binding = require("@oxlint/linux-x64-musl"), bindingPackageVersion = require("@oxlint/linux-x64-musl/package.json").version;
+			if (bindingPackageVersion !== "1.36.0" && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== "0") throw Error(`Native binding package version mismatch, expected 1.36.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`);
+			return binding;
+		} catch (e) {
+			loadErrors.push(e);
+		}
+	} else {
+		try {
+			return require("./oxlint.linux-x64-gnu.node");
+		} catch (e) {
+			loadErrors.push(e);
+		}
+		try {
+			let binding = require("@oxlint/linux-x64-gnu"), bindingPackageVersion = require("@oxlint/linux-x64-gnu/package.json").version;
+			if (bindingPackageVersion !== "1.36.0" && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== "0") throw Error(`Native binding package version mismatch, expected 1.36.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`);
+			return binding;
+		} catch (e) {
+			loadErrors.push(e);
+		}
+	}
+	else if (process.arch === "arm64") if (isMusl()) {
+		try {
+			return require("./oxlint.linux-arm64-musl.node");
+		} catch (e) {
+			loadErrors.push(e);
+		}
+		try {
+			let binding = require("@oxlint/linux-arm64-musl"), bindingPackageVersion = require("@oxlint/linux-arm64-musl/package.json").version;
+			if (bindingPackageVersion !== "1.36.0" && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== "0") throw Error(`Native binding package version mismatch, expected 1.36.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`);
+			return binding;
+		} catch (e) {
+			loadErrors.push(e);
+		}
+	} else {
+		try {
+			return require("./oxlint.linux-arm64-gnu.node");
+		} catch (e) {
+			loadErrors.push(e);
+		}
+		try {
+			let binding = require("@oxlint/linux-arm64-gnu"), bindingPackageVersion = require("@oxlint/linux-arm64-gnu/package.json").version;
+			if (bindingPackageVersion !== "1.36.0" && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== "0") throw Error(`Native binding package version mismatch, expected 1.36.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`);
+			return binding;
+		} catch (e) {
+			loadErrors.push(e);
+		}
+	}
+	else if (process.arch === "arm") if (isMusl()) {
+		try {
+			return require("./oxlint.linux-arm-musleabihf.node");
+		} catch (e) {
+			loadErrors.push(e);
+		}
+		try {
+			let binding = require("@oxlint/linux-arm-musleabihf"), bindingPackageVersion = require("@oxlint/linux-arm-musleabihf/package.json").version;
+			if (bindingPackageVersion !== "1.36.0" && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== "0") throw Error(`Native binding package version mismatch, expected 1.36.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`);
+			return binding;
+		} catch (e) {
+			loadErrors.push(e);
+		}
+	} else {
+		try {
+			return require("./oxlint.linux-arm-gnueabihf.node");
+		} catch (e) {
+			loadErrors.push(e);
+		}
+		try {
+			let binding = require("@oxlint/linux-arm-gnueabihf"), bindingPackageVersion = require("@oxlint/linux-arm-gnueabihf/package.json").version;
+			if (bindingPackageVersion !== "1.36.0" && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== "0") throw Error(`Native binding package version mismatch, expected 1.36.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`);
+			return binding;
+		} catch (e) {
+			loadErrors.push(e);
+		}
+	}
+	else if (process.arch === "loong64") if (isMusl()) {
+		try {
+			return require("./oxlint.linux-loong64-musl.node");
+		} catch (e) {
+			loadErrors.push(e);
+		}
+		try {
+			let binding = require("@oxlint/linux-loong64-musl"), bindingPackageVersion = require("@oxlint/linux-loong64-musl/package.json").version;
+			if (bindingPackageVersion !== "1.36.0" && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== "0") throw Error(`Native binding package version mismatch, expected 1.36.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`);
+			return binding;
+		} catch (e) {
+			loadErrors.push(e);
+		}
+	} else {
+		try {
+			return require("./oxlint.linux-loong64-gnu.node");
+		} catch (e) {
+			loadErrors.push(e);
+		}
+		try {
+			let binding = require("@oxlint/linux-loong64-gnu"), bindingPackageVersion = require("@oxlint/linux-loong64-gnu/package.json").version;
+			if (bindingPackageVersion !== "1.36.0" && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== "0") throw Error(`Native binding package version mismatch, expected 1.36.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`);
+			return binding;
+		} catch (e) {
+			loadErrors.push(e);
+		}
+	}
+	else if (process.arch === "riscv64") if (isMusl()) {
+		try {
+			return require("./oxlint.linux-riscv64-musl.node");
+		} catch (e) {
+			loadErrors.push(e);
+		}
+		try {
+			let binding = require("@oxlint/linux-riscv64-musl"), bindingPackageVersion = require("@oxlint/linux-riscv64-musl/package.json").version;
+			if (bindingPackageVersion !== "1.36.0" && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== "0") throw Error(`Native binding package version mismatch, expected 1.36.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`);
+			return binding;
+		} catch (e) {
+			loadErrors.push(e);
+		}
+	} else {
+		try {
+			return require("./oxlint.linux-riscv64-gnu.node");
+		} catch (e) {
+			loadErrors.push(e);
+		}
+		try {
+			let binding = require("@oxlint/linux-riscv64-gnu"), bindingPackageVersion = require("@oxlint/linux-riscv64-gnu/package.json").version;
+			if (bindingPackageVersion !== "1.36.0" && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== "0") throw Error(`Native binding package version mismatch, expected 1.36.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`);
+			return binding;
+		} catch (e) {
+			loadErrors.push(e);
+		}
+	}
+	else if (process.arch === "ppc64") {
+		try {
+			return require("./oxlint.linux-ppc64-gnu.node");
+		} catch (e) {
+			loadErrors.push(e);
+		}
+		try {
+			let binding = require("@oxlint/linux-ppc64-gnu"), bindingPackageVersion = require("@oxlint/linux-ppc64-gnu/package.json").version;
+			if (bindingPackageVersion !== "1.36.0" && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== "0") throw Error(`Native binding package version mismatch, expected 1.36.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`);
+			return binding;
+		} catch (e) {
+			loadErrors.push(e);
+		}
+	} else if (process.arch === "s390x") {
+		try {
+			return require("./oxlint.linux-s390x-gnu.node");
+		} catch (e) {
+			loadErrors.push(e);
+		}
+		try {
+			let binding = require("@oxlint/linux-s390x-gnu"), bindingPackageVersion = require("@oxlint/linux-s390x-gnu/package.json").version;
+			if (bindingPackageVersion !== "1.36.0" && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== "0") throw Error(`Native binding package version mismatch, expected 1.36.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`);
+			return binding;
+		} catch (e) {
+			loadErrors.push(e);
+		}
+	} else loadErrors.push(/* @__PURE__ */ Error(`Unsupported architecture on Linux: ${process.arch}`));
+	else if (process.platform === "openharmony") if (process.arch === "arm64") {
+		try {
+			return require("./oxlint.openharmony-arm64.node");
+		} catch (e) {
+			loadErrors.push(e);
+		}
+		try {
+			let binding = require("@oxlint/openharmony-arm64"), bindingPackageVersion = require("@oxlint/openharmony-arm64/package.json").version;
+			if (bindingPackageVersion !== "1.36.0" && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== "0") throw Error(`Native binding package version mismatch, expected 1.36.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`);
+			return binding;
+		} catch (e) {
+			loadErrors.push(e);
+		}
+	} else if (process.arch === "x64") {
+		try {
+			return require("./oxlint.openharmony-x64.node");
+		} catch (e) {
+			loadErrors.push(e);
+		}
+		try {
+			let binding = require("@oxlint/openharmony-x64"), bindingPackageVersion = require("@oxlint/openharmony-x64/package.json").version;
+			if (bindingPackageVersion !== "1.36.0" && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== "0") throw Error(`Native binding package version mismatch, expected 1.36.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`);
+			return binding;
+		} catch (e) {
+			loadErrors.push(e);
+		}
+	} else if (process.arch === "arm") {
+		try {
+			return require("./oxlint.openharmony-arm.node");
+		} catch (e) {
+			loadErrors.push(e);
+		}
+		try {
+			let binding = require("@oxlint/openharmony-arm"), bindingPackageVersion = require("@oxlint/openharmony-arm/package.json").version;
+			if (bindingPackageVersion !== "1.36.0" && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== "0") throw Error(`Native binding package version mismatch, expected 1.36.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`);
+			return binding;
+		} catch (e) {
+			loadErrors.push(e);
+		}
+	} else loadErrors.push(/* @__PURE__ */ Error(`Unsupported architecture on OpenHarmony: ${process.arch}`));
+	else loadErrors.push(/* @__PURE__ */ Error(`Unsupported OS: ${process.platform}, architecture: ${process.arch}`));
+}
+if (nativeBinding = requireNative(), !nativeBinding || process.env.NAPI_RS_FORCE_WASI) {
+	let wasiBinding = null, wasiBindingError = null;
+	try {
+		wasiBinding = require("./oxlint.wasi.cjs"), nativeBinding = wasiBinding;
+	} catch (err) {
+		process.env.NAPI_RS_FORCE_WASI && (wasiBindingError = err);
+	}
+	if (!nativeBinding) try {
+		wasiBinding = require("@oxlint/wasm32-wasi"), nativeBinding = wasiBinding;
+	} catch (err) {
+		process.env.NAPI_RS_FORCE_WASI && (wasiBindingError.cause = err, loadErrors.push(err));
+	}
+	if (process.env.NAPI_RS_FORCE_WASI === "error" && !wasiBinding) {
+		let error = /* @__PURE__ */ Error("WASI binding not found and NAPI_RS_FORCE_WASI is set to error");
+		throw error.cause = wasiBindingError, error;
+	}
+}
+if (!nativeBinding) throw loadErrors.length > 0 ? Error("Cannot find native binding. npm has a bug related to optional dependencies (https://github.com/npm/cli/issues/4828). Please try `npm i` again after removing both package-lock.json and node_modules directory.", { cause: loadErrors.reduce((err, cur) => (cur.cause = err, cur)) }) : Error("Failed to load native binding");
+const { Severity, getBufferOffset, lint, parseRawSync, rawTransferSupported } = nativeBinding;
+export { rawTransferSupported as i, lint as n, parseRawSync as r, getBufferOffset as t };

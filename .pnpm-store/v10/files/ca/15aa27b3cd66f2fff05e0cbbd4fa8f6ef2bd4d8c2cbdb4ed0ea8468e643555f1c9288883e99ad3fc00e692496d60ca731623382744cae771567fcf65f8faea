@@ -1,0 +1,1 @@
+{"version":3,"file":"noop.js","sources":["../../../src/client/pageview/noop.ts"],"sourcesContent":["import type { UpdatePageview } from './typings.js'\n\nexport const isSupported: boolean = false\n\nexport const usePageview = (): UpdatePageview => () => {\n  // do nothing\n}\n"],"names":["isSupported","usePageview"],"mappings":"AAEO,MAAMA,EAAuB,GAEvBC,EAAc,IAAsB,IAAM,CAEvD"}

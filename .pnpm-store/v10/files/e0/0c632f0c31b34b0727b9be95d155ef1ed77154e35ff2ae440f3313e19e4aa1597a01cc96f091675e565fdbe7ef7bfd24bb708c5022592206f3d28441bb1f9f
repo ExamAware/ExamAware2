@@ -1,0 +1,75 @@
+import { aliasPluginNames } from '../constants.js';
+import * as allRulesObjects from '../generated/rules-by-category.js';
+import {
+  BuildFromOxlintConfigOptions,
+  OxlintConfig,
+  OxlintConfigCategories,
+  OxlintConfigPlugins,
+} from './types.js';
+import { isObject } from './utilities.js';
+
+// default categories, see <https://github.com/oxc-project/oxc/blob/0acca58/crates/oxc_linter/src/builder.rs#L82>
+export const defaultCategories: OxlintConfigCategories = {
+  correctness: 'warn',
+};
+
+/**
+ * appends all rules which are enabled by a plugin and falls into a specific category
+ */
+export const handleCategoriesScope = (
+  plugins: OxlintConfigPlugins,
+  categories: OxlintConfigCategories,
+  rules: Record<string, 'off'>,
+  options: BuildFromOxlintConfigOptions = {}
+): void => {
+  for (const category in categories) {
+    const configName = `${category}Rules`;
+
+    // Skip nursery category unless explicitly enabled
+    if (category === 'nursery' && !options.withNursery) {
+      continue;
+    }
+
+    // category is not enabled or not in found categories
+    if (categories[category] === 'off' || !(configName in allRulesObjects)) {
+      continue;
+    }
+
+    const possibleRules: string[] = [];
+    // Correct lookup for type-aware rules export: e.g., correctnessTypeAwareRules
+    const typeAwareConfigName = `${category}TypeAwareRules`;
+    if (options.typeAware && typeAwareConfigName in allRulesObjects) {
+      // @ts-expect-error -- come on TS, we are checking if the configName exists in the allRulesObjects
+      possibleRules.push(...Object.keys(allRulesObjects[typeAwareConfigName]));
+    }
+    // @ts-expect-error -- come on TS, we are checking if the configName exists in the allRulesObjects
+    possibleRules.push(...Object.keys(allRulesObjects[configName]));
+
+    // iterate to each rule to check if the rule can be appended, because the plugin is activated
+    for (const rule of possibleRules) {
+      for (const plugin of plugins) {
+        const pluginPrefix = plugin in aliasPluginNames ? aliasPluginNames[plugin] : plugin;
+
+        // the rule has no prefix, so it is a eslint one
+        if (pluginPrefix === '' && !rule.includes('/')) {
+          rules[rule] = 'off';
+          // other rules with a prefix like @typescript-eslint/
+        } else if (rule.startsWith(`${pluginPrefix}/`)) {
+          rules[rule] = 'off';
+        }
+      }
+    }
+  }
+};
+
+/**
+ * tries to return the "categories" section from the config.
+ * it returns `undefined` when not found or invalid.
+ */
+export const readCategoriesFromConfig = (
+  config: OxlintConfig
+): OxlintConfigCategories | undefined => {
+  return 'categories' in config && isObject(config.categories)
+    ? (config.categories as OxlintConfigCategories)
+    : undefined;
+};

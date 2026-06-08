@@ -1,0 +1,43 @@
+import { type MenuItem } from "@imengyu/vue3-context-menu";
+import type { CodeLayoutConfig, CodeLayoutContext, CodeLayoutPanelInternal } from "../CodeLayout";
+import { type CodeLayoutLangDefine } from "../Language";
+import { type Ref } from "vue";
+export declare const PanelMenuBuiltins: Record<string, PanelMenuRegistryItem>;
+export type PanelMenuRegistryItem = {
+    /**
+     * Create menu callback.
+     * @param panel Panel instance.
+     * @param t Language format function.
+     * @param data External data.
+     * @returns
+     */
+    create: (panel: CodeLayoutPanelInternal, t: (key: keyof CodeLayoutLangDefine) => string, data: {
+        /**
+         * Top context.
+         */
+        context: CodeLayoutContext;
+        /**
+         * CodeLayoutConfig.
+         */
+        layoutConfig: Ref<CodeLayoutConfig>;
+        /**
+         * Parent panel instance.
+         */
+        parent: CodeLayoutPanelInternal;
+        /**
+         * The array of this panel's parent.
+         */
+        parentArray: CodeLayoutPanelInternal[];
+        /**
+         * Visible panels count.
+         */
+        showCount: number;
+    }) => MenuItem[];
+    /**
+     * Insert index, default is push to end.
+     */
+    insertIndex?: number;
+};
+export declare function usePanelMenuControl(): {
+    onContextMenu: (panel: CodeLayoutPanelInternal | null, e: MouseEvent) => void;
+};

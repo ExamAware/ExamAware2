@@ -1,0 +1,41 @@
+interface ModeOption {
+    value: string;
+    label: string;
+}
+export declare const COMPONENT_NAME = "calendar";
+export declare const INVALID_DATE = "Invalid Date";
+export declare const MIN_YEAR = 1970;
+export declare const FIRST_MONTH_OF_YEAR = 1;
+export declare const LAST_MONTH_OF_YEAR = 12;
+export declare const DEFAULT_DATE_FORMAT = "YYYY-MM-DD";
+export declare const DEFAULT_MODE = "month";
+export declare const DEFAULT_FIRST_DAY_OF_WEEK = 1;
+export declare const DEFAULT_THEME = "full";
+export declare const DEFAULT_YEAR_CELL_NUMINROW = 4;
+export declare const THEME_LIST: string[];
+export declare const MODE_LIST: string[];
+export declare const MODE_OPTION_LIST: ModeOption[];
+export declare const FIRST_DAY_OF_WEEK_LIST: number[];
+export declare const TEXT_MAP: Record<string, string>;
+export declare const DAY_CN_MAP: Record<string, string>;
+export declare const MONTH_CN_MAP: Record<string, string>;
+declare const _default: {
+    COMPONENT_NAME: string;
+    INVALID_DATE: string;
+    MIN_YEAR: number;
+    FIRST_MONTH_OF_YEAR: number;
+    LAST_MONTH_OF_YEAR: number;
+    DEFAULT_DATE_FORMAT: string;
+    DEFAULT_MODE: string;
+    DEFAULT_FIRST_DAY_OF_WEEK: number;
+    DEFAULT_THEME: string;
+    DEFAULT_YEAR_CELL_NUMINROW: number;
+    TEXT_MAP: Record<string, string>;
+    MODE_LIST: string[];
+    MODE_OPTION_LIST: ModeOption[];
+    FIRST_DAY_OF_WEEK_LIST: number[];
+    THEME_LIST: string[];
+    DAY_CN_MAP: Record<string, string>;
+    MONTH_CN_MAP: Record<string, string>;
+};
+export default _default;

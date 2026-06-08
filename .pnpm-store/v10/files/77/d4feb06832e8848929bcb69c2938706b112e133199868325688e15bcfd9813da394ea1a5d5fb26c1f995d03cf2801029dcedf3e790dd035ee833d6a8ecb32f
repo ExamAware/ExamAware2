@@ -1,0 +1,158 @@
+@use "vuepress-shared/styles/arrow";
+@use "vuepress-shared/styles/reset";
+@use "container-common";
+
+.vp-code-demo {
+  transition: all 0.2s;
+
+  &:hover {
+    box-shadow: 0 2px 12px var(--vp-c-shadow);
+  }
+
+  .vp-container-header {
+    justify-content: space-between;
+  }
+
+  .vp-container-title {
+    vertical-align: top;
+
+    &:first-child {
+      margin-inline-start: 0.5rem;
+    }
+  }
+}
+
+.codepen-button,
+.jsfiddle-button {
+  @include reset.button;
+  position: relative;
+
+  box-sizing: content-box;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0 4px;
+  padding: 4px;
+  border-radius: 50%;
+
+  background: var(--vp-c-control);
+  outline: none;
+
+  transition: background var(--vp-t-color);
+
+  @media print {
+    display: none;
+  }
+
+  svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    transition: fill var(--vp-t-color);
+    fill: var(--vp-c-text-mute);
+  }
+
+  &:hover {
+    background: var(--vp-c-control-hover);
+  }
+}
+
+.vp-code-demo-toggle-button {
+  @include reset.button;
+  @include arrow.arrow;
+
+  & {
+    position: relative;
+
+    margin: 8px 12px 8px 8px;
+    padding: 0;
+    border-color: transparent;
+    border-radius: 50%;
+
+    background-color: #ccc;
+    outline: none;
+
+    font-size: 24px;
+
+    cursor: pointer;
+  }
+
+  @media print {
+    display: none;
+  }
+
+  [data-theme="dark"] & {
+    background-color: #555;
+  }
+
+  &:hover {
+    background-color: #aaa;
+
+    [data-theme="dark"] & {
+      background-color: #777;
+    }
+  }
+}
+
+.vp-code-demo-loading {
+  color: var(--vp-c-accent-bg);
+}
+
+.vp-code-demo-display {
+  position: relative;
+
+  overflow: auto;
+
+  max-height: 400px;
+  padding: 20px;
+  border-bottom: 1px solid var(--vp-c-border);
+
+  @media print {
+    break-inside: avoid;
+  }
+}
+
+.vp-code-demo-code-wrapper {
+  overflow: hidden;
+  transition: height 0.5s;
+
+  @media print {
+    height: auto !important;
+  }
+}
+
+.vp-code-demo-codes {
+  > p {
+    margin: 0.75rem;
+  }
+
+  > div[class*="language-"] {
+    border-radius: 0;
+
+    @media (max-width: hope-config.$mobile) {
+      margin: 0.8rem 0;
+
+      &.line-numbers-mode::after {
+        display: none;
+      }
+
+      .line-numbers-wrapper {
+        display: none;
+      }
+
+      pre[class*="language-"] {
+        padding: 1.25rem 1.25rem 1rem;
+      }
+    }
+
+    &:first-child pre {
+      margin-top: 0 !important;
+    }
+
+    &.language-json {
+      display: none;
+    }
+
+    &.line-numbers-mode::after {
+      border-radius: 0;
+    }
+  }
+}

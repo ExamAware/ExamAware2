@@ -1,0 +1,73 @@
+{
+  "name": "@vuepress/plugin-links-check",
+  "version": "2.0.0-rc.121",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883861285,
+      "integrity": "sha512-yu3nmzRem/6ZswYlICcbNbUetGNJj7XCiB8wzw/dIJeEcIyppzAhmT7rEi+Lnitnwo5Er6nJOnf43G14mhj2yw==",
+      "mode": 420,
+      "size": 1094
+    },
+    "lib/node/checkMarkdownLink.js": {
+      "checkedAt": 1780883872397,
+      "integrity": "sha512-pCAOywDNidhbW2+Bogcizx0JIZp9u6sZY5xkGrKv0HKjDglLRx1FEjM7JrKMcjXxe2mK84gEW73hrLL9eGhJEw==",
+      "mode": 420,
+      "size": 1728
+    },
+    "lib/node/index.js": {
+      "checkedAt": 1780883872397,
+      "integrity": "sha512-jrXZLuf3B/tueOJKBG3ryvD9H84mjR4pCbbDbnYHwocWguGDWxLBf0T1qfw6lj82pJCuK83kl1d2vIG4zd0FnQ==",
+      "mode": 420,
+      "size": 79
+    },
+    "lib/node/linksCheckPlugin.js": {
+      "checkedAt": 1780883872397,
+      "integrity": "sha512-Qe8szYBiR0FDTHee3oHCaai2BxiVPxuF7v9AxCT9g9n7LXgUzK1L+jPzD+Y3SJKJKXfD7DhOtBkQ8QlMt/GD5Q==",
+      "mode": 420,
+      "size": 1996
+    },
+    "lib/node/options.js": {
+      "checkedAt": 1780883830734,
+      "integrity": "sha512-TuHIj4w/TkzTTLbAAzm/nW0Db/St469J6HHMiWa4THKdi3VJKsxkE8mmZKwApXlYIjrBPEIp2oxi6+alPk94Pw==",
+      "mode": 420,
+      "size": 11
+    },
+    "package.json": {
+      "checkedAt": 1780883872398,
+      "integrity": "sha512-mD5F75fljwOtpLnaa/gdLGoECbDEHbeduHIUp9zy2ToZfAOZ7krnZt7ELAswwGmUB+ETu8+co7AWLOyLquwWUQ==",
+      "mode": 420,
+      "size": 1104
+    },
+    "lib/node/index.js.map": {
+      "checkedAt": 1780883872398,
+      "integrity": "sha512-u79qvoXvXaGpovCgUmvcQQKbH1Oov1Ufxg+ByloR5OSxDS9RIizv7e2c8SieG3cn6Lx/FkOJ2mK6FwkIMVEyRw==",
+      "mode": 420,
+      "size": 6136
+    },
+    "lib/node/checkMarkdownLink.d.ts": {
+      "checkedAt": 1780883872398,
+      "integrity": "sha512-1oYNYqZSKgaauZ+MTMvCAbBtn/KpzBD4ejiJVoPVj0t6zXSmu4bKW+mgUsNxZnmN02ZOR0+VqE2xI2xpcr470g==",
+      "mode": 420,
+      "size": 601
+    },
+    "lib/node/index.d.ts": {
+      "checkedAt": 1780883872398,
+      "integrity": "sha512-QE81eAlUuj53h2WwK54mJe6AqHUox7pM91SSY9J6wVKde2y+jFTlhxDjrreWgskr3UoJyXbbmi+PrqN0cRuX/A==",
+      "mode": 420,
+      "size": 114
+    },
+    "lib/node/linksCheckPlugin.d.ts": {
+      "checkedAt": 1780883872399,
+      "integrity": "sha512-RafJ51VzzvBDyK8TJ5fItPyLUgAl1xV1ahMLy0Zo79vhiF7MOekFs7jFjCYlmL5oLGd4LQsYktM3pvjxkaBYHA==",
+      "mode": 420,
+      "size": 903
+    },
+    "lib/node/options.d.ts": {
+      "checkedAt": 1780883872399,
+      "integrity": "sha512-GQV6prHAMn9QcvhSmGDATqEu9fxanbHL6+kMCIQHoH6EXJfHHmYviweLR5+olPogjMNsZofc60HqNhIpnggTNw==",
+      "mode": 420,
+      "size": 774
+    }
+  }
+}

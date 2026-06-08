@@ -1,0 +1,1 @@
+{"version":3,"file":"sidebar.d.ts","sourceRoot":"","sources":["../../../src/client/typings/sidebar.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EACV,mBAAmB,EACnB,kBAAkB,EACnB,MAAM,uBAAuB,CAAC;AAE/B,MAAM,MAAM,eAAe,GAAG,kBAAkB,CAAC;AAEjD,MAAM,WAAW,gBAAiB,SAAQ,mBAAmB;IAC3D,MAAM,EAAE,MAAM,CAAC;IACf,QAAQ,EAAE,WAAW,EAAE,CAAC;CACzB;AAED,MAAM,MAAM,WAAW,GAAG,eAAe,GAAG,gBAAgB,CAAC"}

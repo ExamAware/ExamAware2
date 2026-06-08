@@ -1,0 +1,16 @@
+// navbar
+$navbar-height: 3.75rem !default;
+$navbar-padding-x: 1.5rem !default;
+$navbar-padding-y: 0.7rem !default;
+$navbar-mobile-height: 3.25rem !default;
+$navbar-mobile-padding-x: 1rem !default;
+$navbar-mobile-padding-y: 0.5rem !default;
+
+// sidebar
+$sidebar-width: 18rem !default;
+$sidebar-mobile-width: 16rem !default;
+
+// content
+$content-width: 780px !default;
+$wide-content-width: 980px !default;
+$home-page-width: 1160px !default;

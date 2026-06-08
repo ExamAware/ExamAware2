@@ -1,0 +1,1 @@
+[data-theme=light] figure:has(img[data-mode=darkmode-only]),[data-theme=light] img[data-mode=darkmode-only]{display:none !important}[data-theme=dark] figure:has(img[data-mode=lightmode-only]),[data-theme=dark] img[data-mode=lightmode-only]{display:none !important}/*# sourceMappingURL=mark.css.map */

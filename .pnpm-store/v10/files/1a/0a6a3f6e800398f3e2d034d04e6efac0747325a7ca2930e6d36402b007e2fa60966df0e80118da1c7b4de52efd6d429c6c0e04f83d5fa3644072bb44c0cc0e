@@ -1,0 +1,130 @@
+import { type PropType } from 'vue';
+import { CodeLayoutPanelInternal, type CodeLayoutConfig, type CodeLayoutGrid, CodeLayoutGridInternal, type CodeLayoutLangConfig } from './CodeLayout';
+import { type MenuOptions } from '@imengyu/vue3-context-menu';
+import type { CodeLayoutPanel } from './CodeLayout';
+import { CodeLayoutSplitNGridInternal } from './SplitLayout/SplitN';
+declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<{
+    /**
+     * Base layout config
+     */
+    layoutConfig: {
+        type: PropType<CodeLayoutConfig>;
+        default: () => CodeLayoutConfig;
+    };
+    /**
+     * Language config
+     */
+    langConfig: {
+        type: PropType<CodeLayoutLangConfig>;
+        default: () => {
+            lang: string;
+        };
+    };
+    /**
+     * Main menu (in top left) config
+     */
+    mainMenuConfig: {
+        type: PropType<MenuOptions>;
+        default: null;
+    };
+    /**
+     * The empty text when no panel in the group
+     */
+    emptyText: {
+        type: StringConstructor;
+        default: string;
+    };
+    /**
+     * Should the canSaveLayout event be triggered when window. beforeupload
+     */
+    saveBeforeUnload: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+}, {
+    getPanelByName(name: string): CodeLayoutPanelInternal | undefined;
+    addGroup: (panel: CodeLayoutPanel, target: CodeLayoutGrid) => CodeLayoutPanelInternal;
+    removeGroup(panel: CodeLayoutPanelInternal): void;
+    getRootGrid(target: CodeLayoutGrid): CodeLayoutGridInternal;
+    relayoutAll: () => void;
+    relayoutGroup(name: string): void;
+    saveLayout(): any;
+    clearLayout(): void;
+    loadLayout(json: any, instantiatePanelCallback: (data: CodeLayoutPanel) => CodeLayoutPanel): void;
+}, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+    canLoadLayout: (...args: any[]) => void;
+    canSaveLayout: (...args: any[]) => void;
+    baseLayoutChange: (...args: any[]) => void;
+}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
+    /**
+     * Base layout config
+     */
+    layoutConfig: {
+        type: PropType<CodeLayoutConfig>;
+        default: () => CodeLayoutConfig;
+    };
+    /**
+     * Language config
+     */
+    langConfig: {
+        type: PropType<CodeLayoutLangConfig>;
+        default: () => {
+            lang: string;
+        };
+    };
+    /**
+     * Main menu (in top left) config
+     */
+    mainMenuConfig: {
+        type: PropType<MenuOptions>;
+        default: null;
+    };
+    /**
+     * The empty text when no panel in the group
+     */
+    emptyText: {
+        type: StringConstructor;
+        default: string;
+    };
+    /**
+     * Should the canSaveLayout event be triggered when window. beforeupload
+     */
+    saveBeforeUnload: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+}>> & {
+    onCanLoadLayout?: ((...args: any[]) => any) | undefined;
+    onCanSaveLayout?: ((...args: any[]) => any) | undefined;
+    onBaseLayoutChange?: ((...args: any[]) => any) | undefined;
+}, {
+    saveBeforeUnload: boolean;
+    layoutConfig: CodeLayoutConfig;
+    langConfig: CodeLayoutLangConfig;
+    mainMenuConfig: MenuOptions;
+    emptyText: string;
+}, {}>, {
+    titleBarBottom?(_: {}): any;
+    titleBarTop?(_: {}): any;
+    titleBarIcon?(_: {}): any;
+    titleBarMenu?(_: {}): any;
+    titleBarCenter?(_: {}): any;
+    titleBarRight?(_: {}): any;
+    activityBarTopBar?(_: {}): any;
+    activityBarBottom?(_: {}): any;
+    activityBarSecondaryTopBar?(_: {}): any;
+    activityBarSecondaryBottom?(_: {}): any;
+    panelRender?(_: any): any;
+    emptyGroup?(_: {
+        panel: CodeLayoutSplitNGridInternal;
+        grid: string;
+    }): any;
+    centerArea?(_: {}): any;
+    statusBar?(_: {}): any;
+}>;
+export default _default;
+type __VLS_WithTemplateSlots<T, S> = T & {
+    new (): {
+        $slots: S;
+    };
+};

@@ -1,0 +1,109 @@
+{
+  "name": "@vuepress/plugin-notice",
+  "version": "2.0.0-rc.121",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883861285,
+      "integrity": "sha512-yu3nmzRem/6ZswYlICcbNbUetGNJj7XCiB8wzw/dIJeEcIyppzAhmT7rEi+Lnitnwo5Er6nJOnf43G14mhj2yw==",
+      "mode": 420,
+      "size": 1094
+    },
+    "lib/client/styles/notice.css": {
+      "checkedAt": 1780883867261,
+      "integrity": "sha512-/fIdgnAeGbSy6WQfhIc9rg/BOlENf7nSpeXMzdRvd7RAVOGx56Kltvq+3gi+J2DB68TB+fN1cD7HE4pCEeUv7g==",
+      "mode": 420,
+      "size": 1614
+    },
+    "lib/client/styles/vars.css": {
+      "checkedAt": 1780883867261,
+      "integrity": "sha512-+z0keNjW1ctVvlbGWccig4gcW1juDJiAjNftbGWR/iP2SdMKDfviFlD4Y9Vm/apItVb/lJfy8a8iUx7g8rCXeg==",
+      "mode": 420,
+      "size": 428
+    },
+    "lib/client/config.js": {
+      "checkedAt": 1780883867261,
+      "integrity": "sha512-SY5SdNFu/b8fligMHG3kV7n86EdJai6qSvPteWEKneMDuFSr7Fvu3+tGhGTLbdD/JFjSoP2GPIcaaAHekly8AA==",
+      "mode": 420,
+      "size": 402
+    },
+    "lib/client/index.js": {
+      "checkedAt": 1780883867262,
+      "integrity": "sha512-PWBO+k3B3narm5af54UwS0c/Yy0RwILFkne97ofwIVSjKt8AzDMzTbs4SmAP3xuHsREjl6qJguJySVdFVWh7nA==",
+      "mode": 420,
+      "size": 351
+    },
+    "lib/node/index.js": {
+      "checkedAt": 1780883867262,
+      "integrity": "sha512-79cyWyCcB50rBD4RSmE2pFgwv+v21QMCIHCBLe2Davb9RcpwPTH2Uy+CZYRTxcxntSJDC9WkEDL/leqOSYiJDA==",
+      "mode": 420,
+      "size": 1980
+    },
+    "lib/client/Notice-D-vUrWEH.js": {
+      "checkedAt": 1780883867262,
+      "integrity": "sha512-TeSu1yvZR8NbkIJNMr9wpRDYOmS0TKF6CEWQq8Ib2skEATjz1Vv0Za4RkG0CkKfOh+gtNz4c3xMUOiJruipj3w==",
+      "mode": 420,
+      "size": 2515
+    },
+    "package.json": {
+      "checkedAt": 1780883867263,
+      "integrity": "sha512-pmwrGNXLKOyYsQmktaAP1wF+gGaAqHjTqlRvDDu0guO2Bhvp1jvC5y/l1Tg2VruFDqXRIMwTWmWrebLp5lFksw==",
+      "mode": 420,
+      "size": 1111
+    },
+    "lib/client/config.js.map": {
+      "checkedAt": 1780883867263,
+      "integrity": "sha512-DzGZi6BPQvpA/YyFCZFpWuVNdzph14p0MmGdDwy1hF+/VmASHPUy8ESshlW1BPVEV3a3KVhbUUkXHzbWrNUErQ==",
+      "mode": 420,
+      "size": 473
+    },
+    "lib/client/index.js.map": {
+      "checkedAt": 1780883863371,
+      "integrity": "sha512-YQKVY9LU+3B7577X8rvvx/78xBf/YOTunRJXIPbHy1r9cjaIQF9xnkmY8vzk4ldBshM3N56VLONpOPnf1P4lvA==",
+      "mode": 420,
+      "size": 89
+    },
+    "lib/node/index.js.map": {
+      "checkedAt": 1780883867263,
+      "integrity": "sha512-mmILZTHr5XUObeqgtYnohPHqghlA9lyHU0X7HVI8EwpL9k2dFrUysK5PLTUOYWLbxq2GkgqZi0bPixtD8nmMUA==",
+      "mode": 420,
+      "size": 8382
+    },
+    "lib/client/Notice-D-vUrWEH.js.map": {
+      "checkedAt": 1780883867264,
+      "integrity": "sha512-fdMFbQpe9G1iNUIgNihggf71XfYs8A2Ikaup4TAE3dVpYrUCy+6XYzb+hWNDsAemYJtyX/sWqqhks9zhsg9zlQ==",
+      "mode": 420,
+      "size": 8391
+    },
+    "lib/client/styles/notice.css.map": {
+      "checkedAt": 1780883867264,
+      "integrity": "sha512-bDlo0hiCm+TAI1+yMw/lRT8YpFx06HLWM8K2PWSfsc3Cu9jPsNIP3oZ+7VHM8vQ7S1wj0fW7H5Pkcn6LoPAnBA==",
+      "mode": 420,
+      "size": 2453
+    },
+    "lib/client/styles/vars.css.map": {
+      "checkedAt": 1780883867264,
+      "integrity": "sha512-dAY8LXnLX25A8K5YafwUiUn82NM6C3isPgK+q0GuJPRLFJZuMBJAG16jhgl9NhTWC1jxdYrEBZr8srPGsR1rAw==",
+      "mode": 420,
+      "size": 644
+    },
+    "lib/client/config.d.ts": {
+      "checkedAt": 1780883863973,
+      "integrity": "sha512-LWeAJENp2w9V6CDuDmhFRkBSAGOeJcJ1mOZO8TUOQJlM3iCRlNxShqtSSe1wrNWTabQivKTWXQ6CDWhk5SW51w==",
+      "mode": 420,
+      "size": 140
+    },
+    "lib/client/index.d.ts": {
+      "checkedAt": 1780883867264,
+      "integrity": "sha512-RhqBqtQerMJvN10fRskHcvEFFtqamvJn1uRC47oLqQaW5F9zWWFau5j+BoQvlXUU5Ue6AvOKoGKiwhgMuAmepA==",
+      "mode": 420,
+      "size": 3140
+    },
+    "lib/node/index.d.ts": {
+      "checkedAt": 1780883867265,
+      "integrity": "sha512-9e4JaXHNx+vS1+UP15fkqcHr4cy7GHoGdCuvruUtS5H7a20lNqYjloWDU86tEf4BZ8FcAucAfo4vplZC6TGmbg==",
+      "mode": 420,
+      "size": 3592
+    }
+  }
+}

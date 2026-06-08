@@ -1,0 +1,10 @@
+import type { VNode } from 'vue';
+declare const NO_PROPS_MARKER: unique symbol;
+type NoPropsMarker = typeof NO_PROPS_MARKER;
+export type SlotContent = VNode | VNode[] | string | null | undefined;
+export type RequiredSlotContent = NonNullable<SlotContent>;
+export type SingleSlotContent = VNode | string | null | undefined;
+export type Slot<Props = NoPropsMarker> = Props extends NoPropsMarker ? () => SlotContent : (props: Props) => SlotContent;
+export type RequiredSlot<Props = NoPropsMarker> = Props extends NoPropsMarker ? () => RequiredSlotContent : (props: Props) => RequiredSlotContent;
+export type SingleSlot<Props = NoPropsMarker> = Props extends NoPropsMarker ? () => SingleSlotContent : (props: Props) => SingleSlotContent;
+export {};

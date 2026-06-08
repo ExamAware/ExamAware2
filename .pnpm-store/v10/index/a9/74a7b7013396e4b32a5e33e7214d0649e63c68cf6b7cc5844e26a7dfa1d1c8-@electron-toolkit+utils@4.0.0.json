@@ -1,0 +1,55 @@
+{
+  "name": "@electron-toolkit/utils",
+  "version": "4.0.0",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883824989,
+      "integrity": "sha512-Y3cSW3sO/lW3DVzRfbDTe4eBPnWTkQUXToEKiU2rn+Ru8gNy97aezhQPZDl3IyAgQ4+deZMHNd2LCKi/kGJIcw==",
+      "mode": 420,
+      "size": 1074
+    },
+    "dist/index.cjs": {
+      "checkedAt": 1780883826563,
+      "integrity": "sha512-XNm97IXNCk2sDn+a6wK6hrag+0B3I4Ns+EV4DslJrK34tGFnSTDLnCDiJVU5GWHOTxD3S1Vk70LUduHLssFvqg==",
+      "mode": 420,
+      "size": 3021
+    },
+    "dist/index.d.cts": {
+      "checkedAt": 1780883826564,
+      "integrity": "sha512-nhxbrHbDWo/Nnfjg+xZjZr4dLCYPHIEvb979NoabgF7jNQGQguPDyM0lDUzvUC+K26F/Bh+fcQqVNGU63iDOwA==",
+      "mode": 420,
+      "size": 2373
+    },
+    "package.json": {
+      "checkedAt": 1780883826564,
+      "integrity": "sha512-wA1HG0I+B3ZoaY7posR4scEFtepKJB+KfzpZtAsX99xqKk8L0YaXzTBJAuofYE9tgVMvwNpt1RFZEVSlB3VU+w==",
+      "mode": 420,
+      "size": 941
+    },
+    "README.md": {
+      "checkedAt": 1780883826564,
+      "integrity": "sha512-4QIuI8GEkpbSYcq6/UN8AyZcWzjmjVWl+14z0Y6YfcxTs2vP3g1WxcslBXdlrGrAHeIzX1Sv8op1/fxstN8c0w==",
+      "mode": 420,
+      "size": 2441
+    },
+    "dist/index.mjs": {
+      "checkedAt": 1780883826565,
+      "integrity": "sha512-5344H9BktNWSMndrpSmJ1UqI+WlKfjoPuTHjv8o8j4C+4gFYTIsgahfMKoryIjYG3/oCxb+zVf3HapH08X/eFw==",
+      "mode": 420,
+      "size": 2907
+    },
+    "dist/index.d.mts": {
+      "checkedAt": 1780883826564,
+      "integrity": "sha512-nhxbrHbDWo/Nnfjg+xZjZr4dLCYPHIEvb979NoabgF7jNQGQguPDyM0lDUzvUC+K26F/Bh+fcQqVNGU63iDOwA==",
+      "mode": 420,
+      "size": 2373
+    },
+    "dist/index.d.ts": {
+      "checkedAt": 1780883826564,
+      "integrity": "sha512-nhxbrHbDWo/Nnfjg+xZjZr4dLCYPHIEvb979NoabgF7jNQGQguPDyM0lDUzvUC+K26F/Bh+fcQqVNGU63iDOwA==",
+      "mode": 420,
+      "size": 2373
+    }
+  }
+}

@@ -1,0 +1,11 @@
+import { TypeVNode, TypeSetupContext } from './adapt';
+import { TreeProps, TypeTreeStore, TypeTreeNode, TypeMark, TypeLineModel, TypeTNodeProp, TypeGetTNodeOption, TypeTargetNode } from '../types';
+export declare function emitEvent<T extends any[]>(props: TreeProps & Record<string, any>, context: TypeSetupContext, evtName: string, ...args: T): void;
+export declare function getParentsToRoot(element?: HTMLElement, root?: HTMLElement): HTMLElement[];
+export declare function getParentMarks(name: string, element?: HTMLElement, root?: HTMLElement): TypeMark[];
+export declare function getMark(name: string, element?: HTMLElement, root?: HTMLElement): TypeMark;
+export declare function pathMatchClass(name: string, element?: HTMLElement, root?: HTMLElement): boolean;
+export declare function getTNode(prop: TypeTNodeProp, options: TypeGetTNodeOption): string | TypeVNode;
+export declare function getLineModel(nodes: TypeTreeNode[], node: TypeTreeNode, index: number): TypeLineModel;
+export declare function isTreeNodeValue(item: unknown): boolean;
+export declare function getNode(store: TypeTreeStore, item: TypeTargetNode): TypeTreeNode;

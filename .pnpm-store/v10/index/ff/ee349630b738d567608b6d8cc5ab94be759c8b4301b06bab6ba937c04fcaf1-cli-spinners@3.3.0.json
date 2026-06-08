@@ -1,0 +1,43 @@
+{
+  "name": "cli-spinners",
+  "version": "3.3.0",
+  "requiresBuild": false,
+  "files": {
+    "license": {
+      "checkedAt": 1780883824971,
+      "integrity": "sha512-0fM2/ycrxrltyaBKfQ748Ck23VlPUUBgNAR47ldf4B1V/HoXTfWBSk+vcshGKwEpmOynu4mOP5o+hyBfuRNa8g==",
+      "mode": 420,
+      "size": 1117
+    },
+    "index.js": {
+      "checkedAt": 1780883862183,
+      "integrity": "sha512-uMR5n/tyZp+kbgjeQjDAdGhIyUu2OE9UwrmU5NwlfRLBFaEo2UwNrRDXFNmXYR+tn0RW7ZFudv8s5c/rN7hF6w==",
+      "mode": 420,
+      "size": 317
+    },
+    "package.json": {
+      "checkedAt": 1780883862184,
+      "integrity": "sha512-G/zu3aD8M+DMdJcgdvBvxOZrMoMRa3xROTHl3J33xBVD3KbNqTIZ+XhaiDJHzP3/YzjmgGmUoakwN2cxHzTxfg==",
+      "mode": 420,
+      "size": 1100
+    },
+    "spinners.json": {
+      "checkedAt": 1780883862184,
+      "integrity": "sha512-1m8QBwVnpvN9TzwNsSAt8DalPUaSVUG+PP1ZEZNnoybC2s0RI+32HUkw1CoEZryxS+ywOSFwhkLZPO04Ws4Onw==",
+      "mode": 420,
+      "size": 26776
+    },
+    "readme.md": {
+      "checkedAt": 1780883862184,
+      "integrity": "sha512-3AZMGeQLB6rbVy9KDcUo7F6ywZO3g+loU4lExWoTIch4T5/Hf+SA33P2C2apiK6tzxEEOTzpdfQpzIXFDPHtqw==",
+      "mode": 420,
+      "size": 1757
+    },
+    "index.d.ts": {
+      "checkedAt": 1780883862185,
+      "integrity": "sha512-tRi0VpfywA9hLfkNAVp1B7dFTGhqbEKO14tM4Y0LvmwoAk5GGoufqpIXQ2b6dQOZKa/x+2y2W+PBZnxpJcmGBg==",
+      "mode": 420,
+      "size": 2099
+    }
+  }
+}

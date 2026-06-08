@@ -1,0 +1,71 @@
+{
+  "name": "@mdit/plugin-mathjax-slim",
+  "version": "0.24.1",
+  "description": "mathjax plugin for MarkdownIt",
+  "keywords": [
+    "markdown-it",
+    "markdown-it-plugin",
+    "mathjax"
+  ],
+  "homepage": "https://mdit-plugins.github.io/mathjax.html",
+  "bugs": {
+    "url": "https://github.com/mdit-plugins/mdit-plugins/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mdit-plugins/mdit-plugins.git",
+    "directory": "packages/mathjax"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Mr.Hope",
+    "email": "mister-hope@outlook.com",
+    "url": "https://mister-hope.com"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "type": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./sync": {
+      "type": "./lib/sync.d.ts",
+      "default": "./lib/sync.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "files": [
+    "lib"
+  ],
+  "dependencies": {
+    "@types/markdown-it": "^14.1.2",
+    "@mdit/plugin-tex": "0.23.0"
+  },
+  "devDependencies": {
+    "@mathjax/src": "4.0.0"
+  },
+  "peerDependencies": {
+    "@mathjax/src": "^4.0.0",
+    "markdown-it": "^14.1.0"
+  },
+  "peerDependenciesMeta": {
+    "@mathjax/src": {
+      "optional": true
+    },
+    "markdown-it": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">= 18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "rollup -c rollup.config.ts --configPlugin esbuild",
+    "clean": "rimraf ./lib"
+  }
+}

@@ -1,0 +1,667 @@
+{
+  "name": "katex",
+  "version": "0.6.0",
+  "requiresBuild": false,
+  "files": {
+    "package.json": {
+      "checkedAt": 1780883830883,
+      "integrity": "sha512-5b71J4our3pgue5jDTa3H1w6D8em6jX0UCQeYa/68r4G2DcrHkz0Rj6vReD5DVsg8YZv4OAKOu62Bn7DPF5vAw==",
+      "mode": 420,
+      "size": 844
+    },
+    "README.md": {
+      "checkedAt": 1780883830884,
+      "integrity": "sha512-xAJQ2fvsUQWhReq5R/gdtGQppSJ4Vm+ozhqdEnT3E6F3onjr08ygD7JvLVyh+l9F+/wff9KxFcgIbJZB+gs0tQ==",
+      "mode": 420,
+      "size": 3689
+    },
+    "cli.js": {
+      "checkedAt": 1780883830884,
+      "integrity": "sha512-TPkulazwUwuRff0qZ/O8G6G134ZERragD6MO4Uc7dBpn+HH0CU3HrPcDnlB1Vpofc7qeXevp5mUqnjsDJVPlKw==",
+      "mode": 493,
+      "size": 927
+    },
+    "katex.js": {
+      "checkedAt": 1780883830884,
+      "integrity": "sha512-ZbbjlM75uFzR0e8Mt7IerMFMd91guwtTI9EwwiynnLu8FAfjQeqr5LRIA5kFmjOVS6u62QAEjVSXlan6U05n8g==",
+      "mode": 420,
+      "size": 2223
+    },
+    "LICENSE.txt": {
+      "checkedAt": 1780883830884,
+      "integrity": "sha512-W76/pZg9sxH8ekPUCXOySf6WEd9Q0Bb3OP2nMacbVUvkbrfbNOEwHB0cf/nAxU/RAU4QzgbwQj2MDL7rua5FZA==",
+      "mode": 420,
+      "size": 1289
+    },
+    "dist/README.md": {
+      "checkedAt": 1780883830884,
+      "integrity": "sha512-xAJQ2fvsUQWhReq5R/gdtGQppSJ4Vm+ozhqdEnT3E6F3onjr08ygD7JvLVyh+l9F+/wff9KxFcgIbJZB+gs0tQ==",
+      "mode": 420,
+      "size": 3689
+    },
+    "dist/katex.min.js": {
+      "checkedAt": 1780883830885,
+      "integrity": "sha512-e5yMAgy/ixcj8LhT2bnNbMhW0ds3QhoDvQPrJ0o7vGH4GV3P5pg3KrPdav0HqJSg6IpQ91DjxTDXAtiI7AtR3A==",
+      "mode": 420,
+      "size": 116278
+    },
+    "dist/contrib/auto-render.min.js": {
+      "checkedAt": 1780883830885,
+      "integrity": "sha512-1C86pJGWX0yuRLmd/EFxYP+8ESZgxY4p5AtUFOJE8e+3RjVqtnjttgOxArgWBU0HcmTbvzi6bxNO0o8MpwIC5w==",
+      "mode": 420,
+      "size": 3042
+    },
+    "dist/fonts/KaTeX_Math-Regular.eot": {
+      "checkedAt": 1780883830885,
+      "integrity": "sha512-r7AdnHoFFrUzdxOj47D4YN2btNzaS+7KAGL2+GC9+Eoihgwaz9srRhpjYeePWWNPRkzc/6BdL6lVmgupofoVqg==",
+      "mode": 420,
+      "size": 41536
+    },
+    "dist/fonts/KaTeX_AMS-Regular.eot": {
+      "checkedAt": 1780883830886,
+      "integrity": "sha512-etEt02/GegfjxtTdhnJUIHV/EyUbffTUyjQXSapWPM5qIvU7cf3JwW6rgilwlilpXcGTvTnaVxKph7plTHV57A==",
+      "mode": 420,
+      "size": 71656
+    },
+    "dist/fonts/KaTeX_AMS-Regular.woff": {
+      "checkedAt": 1780883830886,
+      "integrity": "sha512-V/mVAo72Ohq6Lreoq1oNdgfW3Lyga8h9HfInBUUPLLXf2mhoDDsz6hpzxnT7WpFOdDRaFbkJIj7uE1I/EMuBFg==",
+      "mode": 420,
+      "size": 40200
+    },
+    "dist/fonts/KaTeX_AMS-Regular.woff2": {
+      "checkedAt": 1780883830887,
+      "integrity": "sha512-x/r5OjsEZnecHwANONbT+5Oa4Nck0xCPvMxUbolag7FvWXNT6UZzuKT8FywbMfeg02wYs4so5G+1/KqiJEklLQ==",
+      "mode": 420,
+      "size": 33188
+    },
+    "dist/fonts/KaTeX_Caligraphic-Bold.eot": {
+      "checkedAt": 1780883830887,
+      "integrity": "sha512-+tHF49+BlVh8TQsptrli6gDH55s8MCHlgYRaZbmUx5cjkT2IS+QdwjcukAT8T6XGyikUPmZ1kHiAEuXgOtD+Yg==",
+      "mode": 420,
+      "size": 19836
+    },
+    "dist/fonts/KaTeX_Caligraphic-Bold.ttf": {
+      "checkedAt": 1780883830887,
+      "integrity": "sha512-Gm56ggftTN6Et+CNPCqzhJd+t/Q6I7gUgQhgs1TGMSDik7v5rz91MJs5hlR3SVJBtodJFKw8h4hnPWiwDrKO2A==",
+      "mode": 420,
+      "size": 19588
+    },
+    "dist/fonts/KaTeX_Caligraphic-Bold.woff": {
+      "checkedAt": 1780883830887,
+      "integrity": "sha512-twrJzSiKARJth0WZsNKv2XvR3kzSAuexuVVuBfiuOqqm3MMdZ4lIQrqf0GUckX1VMDdYGlrg8Y083q7NgUW9PQ==",
+      "mode": 420,
+      "size": 12136
+    },
+    "dist/fonts/KaTeX_Caligraphic-Bold.woff2": {
+      "checkedAt": 1780883830888,
+      "integrity": "sha512-ygfd0AiIvn0S4E+evhJEuXhu4zauT8b6sRxvPp0nn9uYr2dXeN6yFKUmBsd/GDW9vLPpCAbVN8pCZtQCy+wTpQ==",
+      "mode": 420,
+      "size": 10604
+    },
+    "dist/fonts/KaTeX_Caligraphic-Regular.eot": {
+      "checkedAt": 1780883830888,
+      "integrity": "sha512-xpoLSXHLEJK3OnAxxMH1KRFXLhD337Mno75VhaSZykfRxHtQVyprB3EfbA/DD9zxWpyX7K1/tP0Zwo7b+LgqPA==",
+      "mode": 420,
+      "size": 19220
+    },
+    "dist/fonts/KaTeX_Caligraphic-Regular.ttf": {
+      "checkedAt": 1780883830888,
+      "integrity": "sha512-mT+syt1fXH6JKPpK9MXcOgj5inOVa7w/0Db4uQBCB3EyyZQG6QFUDtx+Fargdsv0Zh3l9JPH53iacoV74WAhjQ==",
+      "mode": 420,
+      "size": 18960
+    },
+    "dist/fonts/KaTeX_Caligraphic-Regular.woff": {
+      "checkedAt": 1780883830889,
+      "integrity": "sha512-y1MnH4/+8GNlCk/SCiVarXeyU7ceoWoPBILXe9K5KVNfUCYBIJMDilitnbeqZTSeK0Du/cLfDhdbdxl2exYkzw==",
+      "mode": 420,
+      "size": 11868
+    },
+    "dist/fonts/KaTeX_Caligraphic-Regular.woff2": {
+      "checkedAt": 1780883830889,
+      "integrity": "sha512-rh+llJ4FWYVptyVKFi/sQPM8wehfwZld9+w2YeCEc2K+P8tTc0UDzESXfLb3K7SvnARJcJtj1umkrSc4hHsvkQ==",
+      "mode": 420,
+      "size": 10396
+    },
+    "dist/fonts/KaTeX_Fraktur-Bold.eot": {
+      "checkedAt": 1780883830889,
+      "integrity": "sha512-+UkTXYBeqMJXBK+7nDh8itTtNG6IzK+SuPuKlR1Vo5GtdLsyIYuh7LG6RbHzcOsXOyiS2eDNxxJX8eQ2RCBgsA==",
+      "mode": 420,
+      "size": 36200
+    },
+    "dist/fonts/KaTeX_Fraktur-Bold.ttf": {
+      "checkedAt": 1780883830889,
+      "integrity": "sha512-PlZt/MXygfrtKnxbSfypViAQCLxfEv4k0yYPowEL20bB6k+Lx3/eFFsjcdMfkW8Xa+DMl3YmH4uHkZHqXPk8kw==",
+      "mode": 420,
+      "size": 35968
+    },
+    "dist/fonts/KaTeX_Fraktur-Bold.woff": {
+      "checkedAt": 1780883830890,
+      "integrity": "sha512-EJ1WvHbJH7rTKvPEFljuyCm8FzTiP0l83cLgakpZPoNVYckynEtOcAUPqao/7BeKiCYPiEI2sX65gXrDrrnf5Q==",
+      "mode": 420,
+      "size": 23388
+    },
+    "dist/fonts/KaTeX_Fraktur-Bold.woff2": {
+      "checkedAt": 1780883830890,
+      "integrity": "sha512-9s5x1ZPdT0qWStCQCFb52cntpbayC5EafO33EjsN33zot1KQozTaGLQBv3zItKZpaqJ1x88DxRyrkJ2raklq/w==",
+      "mode": 420,
+      "size": 20476
+    },
+    "dist/fonts/KaTeX_Fraktur-Regular.eot": {
+      "checkedAt": 1780883830890,
+      "integrity": "sha512-d1I00ZuBjYAO5q547HXx/EG2Y1jAKIR2eD7NMfv+QgqFZAefVg9+9DDhbM0CqOIe3qWPjAazeLJTcs2Pfo1B2A==",
+      "mode": 420,
+      "size": 34896
+    },
+    "dist/fonts/KaTeX_Fraktur-Regular.ttf": {
+      "checkedAt": 1780883830891,
+      "integrity": "sha512-qE5ulOnBWPreNTBv0VY6RMRHuyHSyivS7VlOTK8zRGqlf3zM/PDpIJ7dvYIMM8kzXPcS1VJTpJ9Zyu1E6JhFSg==",
+      "mode": 420,
+      "size": 34652
+    },
+    "dist/fonts/KaTeX_Fraktur-Regular.woff": {
+      "checkedAt": 1780883830891,
+      "integrity": "sha512-EnEAAEzNFM9kVYlGcMzCELtI9WRPLBx3QhTArKWIL40tka8B4GxlEv1q78VB5ucu+COb+QRxP3SNnNP6Pk9S3Q==",
+      "mode": 420,
+      "size": 22844
+    },
+    "dist/fonts/KaTeX_Fraktur-Regular.woff2": {
+      "checkedAt": 1780883830891,
+      "integrity": "sha512-lWvjfqLftI/0q71bgZWYYag61e9IY1ndapuQswiN6Gno8R619cpuhWD7tm8I2/KBHqXZGsvhBa+0ljgSJHGAjw==",
+      "mode": 420,
+      "size": 19868
+    },
+    "dist/fonts/KaTeX_Main-Bold.eot": {
+      "checkedAt": 1780883830892,
+      "integrity": "sha512-MJmTi0XNOlslWQKWLO52RX8B1YxtCZlNLE/tVjSyWebt9HMZ7LWkNMUDm9SYgy63r0bPSn48KUdz8ZxpJTAdYg==",
+      "mode": 420,
+      "size": 60688
+    },
+    "dist/fonts/KaTeX_Main-Bold.ttf": {
+      "checkedAt": 1780883830892,
+      "integrity": "sha512-prm8RQXUuOJuoQ/t14QxEF6KlEPCal9KaR8rAOxZtGFR6gtXFHnSX65gVJ50jUjMGyjEPIlJRrnf2pqh/x389A==",
+      "mode": 420,
+      "size": 60468
+    },
+    "dist/fonts/KaTeX_Main-Bold.woff": {
+      "checkedAt": 1780883830892,
+      "integrity": "sha512-2eZhfkEtpMRPlTD+laArMP/Bwfg8eq6fh4e0cs3SREY4LLvXHNq8TbaImdJgLM8W8rffxhNd25hS8AG9A8IAsg==",
+      "mode": 420,
+      "size": 35480
+    },
+    "dist/fonts/KaTeX_Main-Bold.woff2": {
+      "checkedAt": 1780883830893,
+      "integrity": "sha512-gCXnR2kr8ThaQbydPEPgfrqqGJS3ehTh1YIC3Rgyj2uVjEI0U/av0IEzEeBaJsr86HbQatvnFFb2uzOmPGFDNQ==",
+      "mode": 420,
+      "size": 29492
+    },
+    "dist/fonts/KaTeX_Main-Italic.eot": {
+      "checkedAt": 1780883830893,
+      "integrity": "sha512-Sa3Xx/qqdjWDbJISmt95F82vbxAJZzSFZ2NbAWzwjGk2gTZI+OeFUlI2s1LgEPPJ8LMjramksuNVvuVMNyxYsA==",
+      "mode": 420,
+      "size": 44132
+    },
+    "dist/fonts/KaTeX_Main-Italic.ttf": {
+      "checkedAt": 1780883830894,
+      "integrity": "sha512-56fpSlJJY9qXSDuv+QbX4NuVrlnrhM9sj6FNBSm035qSFC2WEHU2Z6HraeCACuWYLcaL9rUXfweCorgDn4PYpQ==",
+      "mode": 420,
+      "size": 43904
+    },
+    "dist/fonts/KaTeX_Main-Italic.woff": {
+      "checkedAt": 1780883830894,
+      "integrity": "sha512-eF//FXTKqoKw8/42kNleLY7yTrPfyYFDiBZoM1SXo7T0thGuDgIbcJNxdGMYDxQiXWylT18NUPJZR344BhT8kg==",
+      "mode": 420,
+      "size": 24880
+    },
+    "dist/fonts/KaTeX_Main-Italic.woff2": {
+      "checkedAt": 1780883830894,
+      "integrity": "sha512-3Gm2mQ6THvRptp3E1gwnZvYirnqeVyzbhxU6nrPfvWocr8x9QXp3/KQG5b0G2CjQ4Q2+viEYOTSiSvo/1j86lg==",
+      "mode": 420,
+      "size": 21032
+    },
+    "dist/fonts/KaTeX_Main-Regular.eot": {
+      "checkedAt": 1780883830895,
+      "integrity": "sha512-Ipnb4uCtJoOQ3NLT+Z2MTCeluQhSAIpSz3N6GYLz2nR86y58hOgukmp3YQZQ7l/YPa2mpOiqW2pM2xpMW/8uvA==",
+      "mode": 420,
+      "size": 68228
+    },
+    "dist/fonts/KaTeX_Main-Regular.ttf": {
+      "checkedAt": 1780883830895,
+      "integrity": "sha512-xgbgwkC0EYNEJ+5nntwfYUu9dmFnFIKnvE3knz4a7X9zHc9FAKKLHB+YzpYS0fFE/+H6ph7osYG6mwwWj8PALA==",
+      "mode": 420,
+      "size": 67996
+    },
+    "dist/fonts/KaTeX_Main-Regular.woff": {
+      "checkedAt": 1780883830895,
+      "integrity": "sha512-3ZuH1lrMuym3syGLyCDI0y61knVctJV90qT5q11+vHnG0hf7ia8Znp6HlacQBen4W30/Iy5U1S9UVbqpK7Fh+Q==",
+      "mode": 420,
+      "size": 37620
+    },
+    "dist/fonts/KaTeX_Main-Regular.woff2": {
+      "checkedAt": 1780883830896,
+      "integrity": "sha512-dp4MoX0Smo6N13wUJlJvYwqnsV3Gxlkq3rM9VziU0SgjmP7ARCKfAO2d8hv6OQrVZ2lewO/oFOvJLGP8uoXvKQ==",
+      "mode": 420,
+      "size": 31220
+    },
+    "dist/fonts/KaTeX_Math-BoldItalic.eot": {
+      "checkedAt": 1780883830896,
+      "integrity": "sha512-enXt1xhFcPPEtbiYNiCQDg469D+VVw2L2oQTfucEVkODOJQ577DRauXSNM8Fffu9m+y3PXtnfnatFK56KIf9dA==",
+      "mode": 420,
+      "size": 39990
+    },
+    "dist/fonts/KaTeX_Math-BoldItalic.ttf": {
+      "checkedAt": 1780883830896,
+      "integrity": "sha512-87HAXw62zj5P+d+8fYq40VXOTaPAuswwKd6xNBRXN5QBN4hm8HQ98laSFomcAV+b+dZuFJ1x2SqBra/gLGADLQ==",
+      "mode": 420,
+      "size": 39744
+    },
+    "dist/fonts/KaTeX_Math-BoldItalic.woff": {
+      "checkedAt": 1780883830897,
+      "integrity": "sha512-95dlrq4nvuL+S0bD4ugf+T4MA6Q/nwMA3pCJE4qpQOKjkYxFi6rQkyiWWN9nSPXcQhBRJR2UuqPL7oeCBxOa8Q==",
+      "mode": 420,
+      "size": 23192
+    },
+    "dist/fonts/KaTeX_Math-BoldItalic.woff2": {
+      "checkedAt": 1780883830897,
+      "integrity": "sha512-3SrO6F6h+RuzWQ9Y07149ifg020crPA3G1Co8DkNWp2iwk+hAlSHEOOs+VDazZwwN7Jz/3lTvfNkeMZzotdIzw==",
+      "mode": 420,
+      "size": 20036
+    },
+    "dist/fonts/KaTeX_Math-Italic.eot": {
+      "checkedAt": 1780883830897,
+      "integrity": "sha512-0y5M4HVYSA6MthfKk5/gzWxdFOSiyTalCNEbzozC6+V/2t6lBVsHwahnsuZGIYps32DYrXsAvVp2NlDeZmrhdQ==",
+      "mode": 420,
+      "size": 41676
+    },
+    "dist/fonts/KaTeX_Math-Italic.ttf": {
+      "checkedAt": 1780883830898,
+      "integrity": "sha512-tcf1MRn59NiC7yvZ7CxtAk5vDvFr64sdUXWc6x40zN13vW2zSeB6esOdnU9zqbKF3sOaSjfwEqlNTRpquh4ZSA==",
+      "mode": 420,
+      "size": 41448
+    },
+    "dist/fonts/KaTeX_Math-Italic.woff": {
+      "checkedAt": 1780883830898,
+      "integrity": "sha512-NecN75NZzSPmRnDrjuMGJUUVeKX//g5CcLvTVfHmFllZnM2MdrtdgAHRTQ7PXpY2ToM3vUL5myyyxGIFDM9mTA==",
+      "mode": 420,
+      "size": 23820
+    },
+    "dist/fonts/KaTeX_Math-Italic.woff2": {
+      "checkedAt": 1780883830898,
+      "integrity": "sha512-xwSfsPXbSwO6zfpBIbkkHSfILNm+Ps1sVEPybbVoc0hLOW35H2AVY9S1ePR1PQWP04RqckFJ3YNaFKaBJ51x9A==",
+      "mode": 420,
+      "size": 20432
+    },
+    "dist/fonts/KaTeX_AMS-Regular.ttf": {
+      "checkedAt": 1780883830899,
+      "integrity": "sha512-cyFIIk4FtIA+tXneJoZDdENXT4bc/Mxq+RE9rwCWHMtyrhUdr4NJyQFlGrTVd6PYm/6os1YUQ/8Nu9SBGViFXQ==",
+      "mode": 420,
+      "size": 71428
+    },
+    "dist/fonts/KaTeX_Math-Regular.ttf": {
+      "checkedAt": 1780883830899,
+      "integrity": "sha512-/1gcw9ihUJdSkytHfsGu0ENbI5i4BjSMLyfoKyBm4UDlVTVCjgPezTCEB/hbqaTT1BWchtbgrRZ3+7QT/TXlGQ==",
+      "mode": 420,
+      "size": 41304
+    },
+    "dist/fonts/KaTeX_Math-Regular.woff": {
+      "checkedAt": 1780883830899,
+      "integrity": "sha512-cEpb1ilur3t6h8JQEnF0tiGGQovZIFxrXMabNhZQttAK5UUZ4lWNlO2GVkcdQRtIUm0c4iULAk1GHcVu9s6cVw==",
+      "mode": 420,
+      "size": 23712
+    },
+    "dist/fonts/KaTeX_Math-Regular.woff2": {
+      "checkedAt": 1780883830899,
+      "integrity": "sha512-eSZA9OytgeIO+FXp/qFZwz0GKVximgclkEBMPk2aiAmdWutStp6aG4684P66djQL1JUH3SYgL9Uh7JLhwThB3w==",
+      "mode": 420,
+      "size": 20344
+    },
+    "dist/fonts/KaTeX_SansSerif-Bold.eot": {
+      "checkedAt": 1780883830900,
+      "integrity": "sha512-PgW7AL3P1+yAaelFiDgFcONgE0HkgOPHmT01v/Ly8WVns/g1EVd8tKk6+G9ZqXQFh+kv96a5q5JOBQt/cZKTBw==",
+      "mode": 420,
+      "size": 34204
+    },
+    "dist/fonts/KaTeX_SansSerif-Bold.ttf": {
+      "checkedAt": 1780883830900,
+      "integrity": "sha512-IX69RzEJKG9bNknIfANvAkfqcd8iyhe2cn/8VDATkjqWe+sbe0x8CWza5zCvIg5t1qGYiiJGQPL0RtpCJOg1YA==",
+      "mode": 420,
+      "size": 33964
+    },
+    "dist/fonts/KaTeX_SansSerif-Bold.woff": {
+      "checkedAt": 1780883830900,
+      "integrity": "sha512-LeNNWu9Od/YgeOvEcXwB5SvY1SFK44iAW96MawKy6kQCDrHtOaY/KP6vYJHkLQUYIe/tPnww3EKuMRN0MrYKQw==",
+      "mode": 420,
+      "size": 19196
+    },
+    "dist/fonts/KaTeX_SansSerif-Bold.woff2": {
+      "checkedAt": 1780883830901,
+      "integrity": "sha512-3F6+Rrg+gjnGgTnQzzAJIlWMuL7ueNuho3Z9pa5Bnw/huqPRGMzADpAhjSb6XuZM9jTxzEUtxURQ8qoOexEtTw==",
+      "mode": 420,
+      "size": 16020
+    },
+    "dist/fonts/KaTeX_SansSerif-Italic.eot": {
+      "checkedAt": 1780883830901,
+      "integrity": "sha512-ccIhzUA6nvT6xy/Tqpl2I3NyFqxQzNzLFuGGtslKD8vOTJy5mkie9YxI5HJzy/1A6gmsaKAxeodZSNS+BhUp7g==",
+      "mode": 420,
+      "size": 31320
+    },
+    "dist/fonts/KaTeX_SansSerif-Italic.ttf": {
+      "checkedAt": 1780883830901,
+      "integrity": "sha512-8tHT0uWWpkyRF//agzvIG5eCQYdYdHIt5ZvOkQ4XZmfVpZN+E8r/JOPiR1bshNgfyFXy7FhYMjeUIFOCFAItUQ==",
+      "mode": 420,
+      "size": 31072
+    },
+    "dist/fonts/KaTeX_SansSerif-Italic.woff": {
+      "checkedAt": 1780883830901,
+      "integrity": "sha512-byWhVuWz1ApzhaBZeVUxhL18cdB4mEGy/LKA5RfNDrCyh1FGwtrw2T6v04GhDvHL7qafUmOMAvnDpstqyUx92g==",
+      "mode": 420,
+      "size": 18080
+    },
+    "dist/fonts/KaTeX_SansSerif-Italic.woff2": {
+      "checkedAt": 1780883830902,
+      "integrity": "sha512-rKMGTkIOW1CJFk9C8YxZAMpIYxpQ8liiSBoOy1nsJ7Ngm4GMVl+9UHop2D/mnQ18sC9/QPvE7vNDa19SC+6XVA==",
+      "mode": 420,
+      "size": 15152
+    },
+    "dist/fonts/KaTeX_SansSerif-Regular.eot": {
+      "checkedAt": 1780883830902,
+      "integrity": "sha512-ymSh46YJQgYlCgDjsvVVDNOACQeONuy2QFOjdyWJ2Dj8g0D7MaHOUMJtTxMaXE80P/ikjJPYuXGtlLgX7vkM/g==",
+      "mode": 420,
+      "size": 30212
+    },
+    "dist/fonts/KaTeX_SansSerif-Regular.ttf": {
+      "checkedAt": 1780883830902,
+      "integrity": "sha512-yip/cDrHklyjWPHz41P8gGSdoCHbJbKG4PrX1VJHqRlaaknn3bhX1+9bXMKKEZet7fye1k+8IDtTmCny0mt7rQ==",
+      "mode": 420,
+      "size": 29960
+    },
+    "dist/fonts/KaTeX_SansSerif-Regular.woff": {
+      "checkedAt": 1780883830903,
+      "integrity": "sha512-mn+6NHAYIqoPZmgXyYTKH8ZhGKRWvTins6QLiQiyIKc93foCKcLS/jdQKHJ4qnuh3JEywFoy8pfg9BzfeVWYdA==",
+      "mode": 420,
+      "size": 16744
+    },
+    "dist/fonts/KaTeX_SansSerif-Regular.woff2": {
+      "checkedAt": 1780883830903,
+      "integrity": "sha512-pAT22/gnvXg4z979+UGZhqJPuPtBdBjtfDM1LvTM0eQGKpfFLUxX9Ox7//Rlsuc+fntJUQ9j9vnUjM438RLVjQ==",
+      "mode": 420,
+      "size": 13908
+    },
+    "dist/fonts/KaTeX_Script-Regular.eot": {
+      "checkedAt": 1780883830903,
+      "integrity": "sha512-1iyK970CWfwp52GxavCb+YmFmuoNImRQjxLYKkgXScRaZnaPXJ0mYbFwUANolIHw1UUPa8+/z253s5tAUHQyOg==",
+      "mode": 420,
+      "size": 25104
+    },
+    "dist/fonts/KaTeX_Script-Regular.ttf": {
+      "checkedAt": 1780883830904,
+      "integrity": "sha512-4HcjlTWkKnGuiVCUYCpOCoVigCzh9Iqnxy6O829Hr179fnSgdZCM/kMrXKzg2OmGc99TWmMBO1/uKZXTqlSvpg==",
+      "mode": 420,
+      "size": 24864
+    },
+    "dist/fonts/KaTeX_Script-Regular.woff": {
+      "checkedAt": 1780883830904,
+      "integrity": "sha512-iWy+mtOR9VWH76/MioqWBK33i/8h5YMGooSJuhLl5R4rBdKgaCZrNK0vzYSdi/FmjY8sKbs2hbrReuJWmF1Upg==",
+      "mode": 420,
+      "size": 13856
+    },
+    "dist/fonts/KaTeX_Script-Regular.woff2": {
+      "checkedAt": 1780883830904,
+      "integrity": "sha512-gBSIYyPlJrJKv1aVzc5zn8XGL8gq3HZpNHrJjtbomhxJDToatGjxgE8vcpBO1Xje/njTzr0ydQH8m8KTy5iu0Q==",
+      "mode": 420,
+      "size": 12276
+    },
+    "dist/fonts/KaTeX_Size1-Regular.eot": {
+      "checkedAt": 1780883830904,
+      "integrity": "sha512-QW1dGpotPILh9nlv1wF6Li0q1mMSTwawVR0GKK8MauZDEcTwPzKAnZtN2GsMocHkjzKgcPKSweMRIQAQmD1MNw==",
+      "mode": 420,
+      "size": 13408
+    },
+    "dist/fonts/KaTeX_Size1-Regular.ttf": {
+      "checkedAt": 1780883830905,
+      "integrity": "sha512-wbaHaY8oi7ZPi/go6T8zbLd5AMSElidR/eTYEMRJOwdGdDkKDq/o7TGX4GIChXjQEu/JLhyfOq1Zdri0WQRZ9A==",
+      "mode": 420,
+      "size": 13172
+    },
+    "dist/fonts/KaTeX_Size1-Regular.woff": {
+      "checkedAt": 1780883830905,
+      "integrity": "sha512-TIdOGyxwet194QifYvb6gT58ogIittV3ass0b3r21ll49NxAEFkge/quT2c49A4irVOKc9W6s4rmbW4ZSXxW6w==",
+      "mode": 420,
+      "size": 6980
+    },
+    "dist/fonts/KaTeX_Size1-Regular.woff2": {
+      "checkedAt": 1780883830905,
+      "integrity": "sha512-HMu0ZXr9JqyLdMg/CmRxYX1wwzTFff5dvJP8SxePqvxa/DiHQ1wqMVh+txLjiaxnX2VFyw6XcPkwIjiS4I7/wQ==",
+      "mode": 420,
+      "size": 5820
+    },
+    "dist/fonts/KaTeX_Size2-Regular.eot": {
+      "checkedAt": 1780883830905,
+      "integrity": "sha512-OoVPR5xBTHsCAr3tUE9EXQz9NQSrS2VU6JDI+T1csMJbg4DOFupL2N59F6yQFPbpCwfh/LKPVOT/0hR7/cpwaw==",
+      "mode": 420,
+      "size": 12648
+    },
+    "dist/fonts/KaTeX_Size2-Regular.ttf": {
+      "checkedAt": 1780883830906,
+      "integrity": "sha512-NlexvlbWpE/YESNox0VaPkQV97XcqgxOEyciLjgVurk1QEImOisW8tF/EZszeM1NPk9azsj2i9rpez7EC4xXqQ==",
+      "mode": 420,
+      "size": 12412
+    },
+    "dist/fonts/KaTeX_Size2-Regular.woff": {
+      "checkedAt": 1780883830906,
+      "integrity": "sha512-PTCQOGAKtJrMEuEgfKQlm4vXVFQ8KoMAHnFI+Svu2UobCKUkL1g5sf5kb/J/9pdtrScqr/gL2Z0BpFSj/8/ETA==",
+      "mode": 420,
+      "size": 6684
+    },
+    "dist/fonts/KaTeX_Size2-Regular.woff2": {
+      "checkedAt": 1780883830906,
+      "integrity": "sha512-awMISlJU4gygj0oPKI5fTazSnNVMYD17pzqPmCfpdhx2hu/qxoK4mxOjnMpvKtVPX6rRWKv1Pe1pHPsi/78fFw==",
+      "mode": 420,
+      "size": 5560
+    },
+    "dist/fonts/KaTeX_Size3-Regular.eot": {
+      "checkedAt": 1780883830906,
+      "integrity": "sha512-jnOyePZ50xIxBdadFSLVR31SebAqEimb0KCEwkRJI1kuswfNHz67ATSZQilvrjzpyd3oNYPL61LtoMzvz7dO7w==",
+      "mode": 420,
+      "size": 8596
+    },
+    "dist/fonts/KaTeX_Size3-Regular.ttf": {
+      "checkedAt": 1780883830906,
+      "integrity": "sha512-pRQx2EoBiP8jNrx3B6gfpc4ib6BJd0iHQmGq0e8DR3xpFY9jW6iCR1o3olCjA/rCkZb9GzT4CC0wfZvERU13QQ==",
+      "mode": 420,
+      "size": 8360
+    },
+    "dist/fonts/KaTeX_Size3-Regular.woff": {
+      "checkedAt": 1780883830907,
+      "integrity": "sha512-2BvhTbrhZxqjN3zefeIWtzbCuRg+Uoz7wbBCpNoOXIWF1iTQ2DCOVLqy1ghvC1ru0+noNXgDg7+LR5uAxykmVw==",
+      "mode": 420,
+      "size": 4776
+    },
+    "dist/fonts/KaTeX_Size3-Regular.woff2": {
+      "checkedAt": 1780883830907,
+      "integrity": "sha512-6nyr8igRdJaa1o5+blkuJLzFI9dTv5W61jXCldfAWsPvVbdd1u6k/oawlU/IQUBuUgz4GI1VFS0Ru2VeU0fqqg==",
+      "mode": 420,
+      "size": 3856
+    },
+    "dist/fonts/KaTeX_Size4-Regular.eot": {
+      "checkedAt": 1780883830907,
+      "integrity": "sha512-7q6bAYTPlR2WGjdPvMA/z6xWdIkvzRrfKJ9qhtq66tvqWKNQG5WBFRLudEZx/FsYej26m9xM9vSSiuJomrAogQ==",
+      "mode": 420,
+      "size": 11520
+    },
+    "dist/fonts/KaTeX_Size4-Regular.ttf": {
+      "checkedAt": 1780883830907,
+      "integrity": "sha512-e1I3SbIqj0cpSL7O1MkPqBcJ29ePXCPvNHh8dcQaYFk4xI5uQYvgkrgytn+cN82BPT4hpjdRKDY1wrBRljIuog==",
+      "mode": 420,
+      "size": 11284
+    },
+    "dist/fonts/KaTeX_Size4-Regular.woff": {
+      "checkedAt": 1780883830908,
+      "integrity": "sha512-dpDozPRAWZ9A5dt4lMfXy49IyflJRzttBblUSWR4RQumZvWJgzx67gr33WYR4jVTDQ2xWHXxomVDd/T/BfeRYQ==",
+      "mode": 420,
+      "size": 6456
+    },
+    "dist/fonts/KaTeX_Size4-Regular.woff2": {
+      "checkedAt": 1780883830908,
+      "integrity": "sha512-WdtsOoGYfGHxLsMFr3PbV76cYkn3DOSIwyJqR3RmsX7UwhlSf+4PMd/ITHYGx/rWZXzdlUaHc+GH/wVegPXf3A==",
+      "mode": 420,
+      "size": 5172
+    },
+    "dist/fonts/KaTeX_Typewriter-Regular.eot": {
+      "checkedAt": 1780883830908,
+      "integrity": "sha512-C5MYdRZqoUKI6mZR76ziIT7U28i/vUROFXaJr4/oFXlDyyGDn2YAS5KuFGp340nDT8ewbb1bkEAZdinpOYK6dQ==",
+      "mode": 420,
+      "size": 35784
+    },
+    "dist/fonts/KaTeX_Typewriter-Regular.ttf": {
+      "checkedAt": 1780883830908,
+      "integrity": "sha512-T/T+T5J4P0ZxfWs3Jj+3OOUyahjuLdod8K6pDgyrz2qM41xO6HLZFSN2DKquLxdIUYWcwVvHIwhzVArG7fbxkw==",
+      "mode": 420,
+      "size": 35528
+    },
+    "dist/fonts/KaTeX_Typewriter-Regular.woff": {
+      "checkedAt": 1780883830909,
+      "integrity": "sha512-XW5k0ogYgjc80rkuiduuSOkzypkf3hRIosjXoeqjtmKSBXwPO1+1xvadJRNobfRv5qt3sRdeACBGySyYCD4C9w==",
+      "mode": 420,
+      "size": 20712
+    },
+    "dist/fonts/KaTeX_Typewriter-Regular.woff2": {
+      "checkedAt": 1780883830909,
+      "integrity": "sha512-OE5lbTaybZVgX52p5ODQ/0oeiE2oXqSkXL2o4OHj7W1iHlTeeZ0poMLtpVe9fMb94A9xOmKsxZud+UBzgNNOTQ==",
+      "mode": 420,
+      "size": 17344
+    },
+    "dist/katex.min.css": {
+      "checkedAt": 1780883830909,
+      "integrity": "sha512-XOScSN6BAeEnXHXVTbobTasRcHu87NTjLJqjkCvB0MJibII913+i2s1wbJjtScqGWwRSKwU87MxaPDlUhKI4+w==",
+      "mode": 420,
+      "size": 21121
+    },
+    "src/Lexer.js": {
+      "checkedAt": 1780883830910,
+      "integrity": "sha512-GNGLuSPMtQpu3ea10vlu6Cm0DZO1aYandhNu+LWxz5mUROUMfJAcjBWrAXP2cao1ihdHMZrvX1tQsrOuh3H/kw==",
+      "mode": 420,
+      "size": 5285
+    },
+    "src/buildHTML.js": {
+      "checkedAt": 1780883830910,
+      "integrity": "sha512-mt3WoHCooU/Oo8ONDA8HX9pDSrN/aY5gyuQ9jZc0TarjL2OK32Unkp6KU0kmFkr4ScDIbYRsdBy7qESI6vHiag==",
+      "mode": 420,
+      "size": 49168
+    },
+    "src/buildMathML.js": {
+      "checkedAt": 1780883830910,
+      "integrity": "sha512-G+X/xOU8oYK0odqATZO2A0nEinNSchaCDzDQUQOemmmY3g+8uvyy9wdQ0XqjuaYQNhLYOboGo4EuOD2Ymyh1VQ==",
+      "mode": 420,
+      "size": 14472
+    },
+    "src/buildTree.js": {
+      "checkedAt": 1780883830911,
+      "integrity": "sha512-ebSTBP9X+lgqytAkNIbDGP/qMTJDth5n4W/Hc5CnXv7Ok4sub+D5EL7ThhrU5t/NwvcXTbNtAURB7rmapBvXNQ==",
+      "mode": 420,
+      "size": 1090
+    },
+    "src/buildCommon.js": {
+      "checkedAt": 1780883830911,
+      "integrity": "sha512-ULDULzlvMzYLI5oOYJxrhsVvVxhQiHja2dZ6b/bnQ/v2TNirht9es64UXQ+z+fvxiyAKuX6W9bvgHjylwZpDkQ==",
+      "mode": 420,
+      "size": 14362
+    },
+    "src/domTree.js": {
+      "checkedAt": 1780883830911,
+      "integrity": "sha512-Bc+T5Z2w5tF5oN9birNZPiMrB25WU3OMqdfjQl5F56m8xwZq2XnfZ3jery8JvikMmVsq1B/rf0JXCGpev6Bxcg==",
+      "mode": 420,
+      "size": 7224
+    },
+    "src/environments.js": {
+      "checkedAt": 1780883830911,
+      "integrity": "sha512-pr1VFREGw7S4ODcSCvYOKG4gR2y8ykn4g32VvRzhJZOLewQ1BcpVtlj+3abtEA9NvsVut5Js26rp3kl15TVcBA==",
+      "mode": 420,
+      "size": 6741
+    },
+    "src/fontMetrics.js": {
+      "checkedAt": 1780883830912,
+      "integrity": "sha512-t+pXXyYRedxMWlVrdwQQAySTuyD0WKpekjY90aDx04ty732KTo93EvM1SNclXjPN7APk+d83NgIDncNQ5QEAUA==",
+      "mode": 420,
+      "size": 4274
+    },
+    "src/fontMetricsData.js": {
+      "checkedAt": 1780883830912,
+      "integrity": "sha512-KWiM4rIH5UzjYJ/sB+WqFE3IV1FVqN/lE+MiTySp07fsXG4EuW3YRr/FEapUhckXP9BWwL4ojulH09tytOhrXg==",
+      "mode": 420,
+      "size": 67282
+    },
+    "src/functions.js": {
+      "checkedAt": 1780883830912,
+      "integrity": "sha512-cNU1tcS8N754reqepGrzFh8h50gasDOvb3nxiAxCljxmj09DgI7DnGq57BVYPQSg8cK46INZ9pAQeC2L0kXWMw==",
+      "mode": 420,
+      "size": 16420
+    },
+    "src/Style.js": {
+      "checkedAt": 1780883830912,
+      "integrity": "sha512-509nja9Nv8Wg3ua8YKy9QeiOz/big/MQoHV78/s3nBNNO7xsxxldY+1F7E5LYGI6WeZasGD1EKWQQKJXafUoQg==",
+      "mode": 420,
+      "size": 3199
+    },
+    "src/mathMLTree.js": {
+      "checkedAt": 1780883830913,
+      "integrity": "sha512-cPb/3onnP+xkeE7tUqWhFNy7nTKKtD7+MOh3v/xZs4Gnrs30K3uTybyJbr1O+cPBMXAq9olAwMg9jRtDPv4wVQ==",
+      "mode": 420,
+      "size": 2694
+    },
+    "src/Settings.js": {
+      "checkedAt": 1780883830913,
+      "integrity": "sha512-hlDH43oWDuhC76gYLmMURShj2tt/iAv1Gw0N8euhRG/a1FqkiGmuHhVezOb3fTd7GvbbYhIx6B5Bz7GPIA4/zA==",
+      "mode": 420,
+      "size": 783
+    },
+    "src/parseData.js": {
+      "checkedAt": 1780883830913,
+      "integrity": "sha512-x4iX88Ug1NAHK8RHpJSCuphG95Tt1VSkQcbL1vEf6TNZkmovALaygFwyDdwwyqj+1filU4EgNzZ8xWPg6X2dHQ==",
+      "mode": 420,
+      "size": 221
+    },
+    "src/Parser.js": {
+      "checkedAt": 1780883830913,
+      "integrity": "sha512-u0KLQKZWR+MGfB9ZjB9LHHVMufdNLmqRLB5zUCMoJQ/9Q7i0gDla7u+LrsFyXijxABmK1uw7Fa28HaxSOYyOtQ==",
+      "mode": 420,
+      "size": 24203
+    },
+    "src/parseTree.js": {
+      "checkedAt": 1780883830914,
+      "integrity": "sha512-4GoURe5ZkZm5qhuMqt1COfXFS8hNGrKgQK3wkxqGxJtjhemfxCrHjoqCg7qzVSngl35WMv12ZYN6E8zlJNuAcg==",
+      "mode": 420,
+      "size": 377
+    },
+    "src/ParseError.js": {
+      "checkedAt": 1780883830914,
+      "integrity": "sha512-o5BXldMutohui8kFYYtkDvPenda/1C9kJkV9fs9Vd5wJL7dEfpWWhHkFxZhY1ZjPhvtYSqyOzv5J0yXsmKyM9w==",
+      "mode": 420,
+      "size": 1322
+    },
+    "src/symbols.js": {
+      "checkedAt": 1780883830914,
+      "integrity": "sha512-q4/nmG0LxdrCgih8vv+HDPWkZ68sNq0/Cs0OW3HW0U1bdFpE2UE+MuTigjEdCxXL7d0kucIGVu7ZbWlk41m8ag==",
+      "mode": 420,
+      "size": 30027
+    },
+    "src/Options.js": {
+      "checkedAt": 1780883830914,
+      "integrity": "sha512-RZY1JNQGCIVg9Tyxx59jtLovxvuLwN9rKlFsXcT7XNhz669G5pRC2xaN+55AH+fGG2FMKix+ciI1jCTaBP0pNA==",
+      "mode": 420,
+      "size": 4911
+    },
+    "src/utils.js": {
+      "checkedAt": 1780883830914,
+      "integrity": "sha512-N5tvRQb2MY3oFQ4FT8bp8VMZnV6T7vgFV5Pzn/+zX6g+MWpYLGqn6e3IuEL+rBrESw/BJXUCCnQ9WP5r3yFxoQ==",
+      "mode": 420,
+      "size": 2330
+    },
+    "src/delimiter.js": {
+      "checkedAt": 1780883830915,
+      "integrity": "sha512-mUmv4Rr7+IFcSTmvcHyrs9h9ZOSnhiLWmoHKT3V9OrRu5xWXV94UwgPzVaf8SIAgEwmkHwO7bHNc1R/j333ZDg==",
+      "mode": 420,
+      "size": 18988
+    }
+  }
+}

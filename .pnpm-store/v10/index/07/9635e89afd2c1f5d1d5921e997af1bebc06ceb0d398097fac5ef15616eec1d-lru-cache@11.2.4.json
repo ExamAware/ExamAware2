@@ -1,0 +1,109 @@
+{
+  "name": "lru-cache",
+  "version": "11.2.4",
+  "requiresBuild": false,
+  "files": {
+    "dist/commonjs/index.js": {
+      "checkedAt": 1780883858014,
+      "integrity": "sha512-/g2FawIIwMGQF0Iq8T+7mqgh87kmQRmMt1hnA9BvY0wGxebMmt/AgaGXapOj6zCBSna8r2gZXIcCr9yisLf5fw==",
+      "mode": 420,
+      "size": 57186
+    },
+    "dist/esm/index.js": {
+      "checkedAt": 1780883858015,
+      "integrity": "sha512-wuTW9SfHPEzP5ZDXh/HEE7Ne9A95MMsCEggYml3anGGcPnv97hLuDpshZMnV+JxQHiyhElw3Im/PQ4mHTJ8Zmg==",
+      "mode": 420,
+      "size": 57060
+    },
+    "dist/commonjs/index.min.js": {
+      "checkedAt": 1780883858015,
+      "integrity": "sha512-PzH/NiGSc4661K1M38VS0xtGF6kFnxZz80wmQkt04JWFPiMS+gftlIYEDMIhqsxaWO8WmiFqbeKfrjh5v4nd3w==",
+      "mode": 420,
+      "size": 17449
+    },
+    "dist/esm/index.min.js": {
+      "checkedAt": 1780883858015,
+      "integrity": "sha512-inXGlHxpWhqG0m4KGcbypa8lhe3ekSs2ZtsklyFEGQjYYipeF7D/clfHTlrZkJycDvUsnugcdjxuUJNII7/+Ug==",
+      "mode": 420,
+      "size": 17360
+    },
+    "dist/commonjs/package.json": {
+      "checkedAt": 1780883827419,
+      "integrity": "sha512-bFiTnaWPm3Fik6gyj3o2SbbiQr8jX64ABVoMx5+yeI5Kmd+qQi4M+tvoTg1eM7g29oYn5qQJZUh37cRDuU0ExA==",
+      "mode": 420,
+      "size": 25
+    },
+    "dist/esm/package.json": {
+      "checkedAt": 1780883827419,
+      "integrity": "sha512-nTI0IMxjxr7nncxdtfDxj2uOBz2q+P+lRZ4R8t5ZqfXowXjXf6kq/J3dNSYj3sNixi//hZxxovq5Px4hcsSYfw==",
+      "mode": 420,
+      "size": 23
+    },
+    "package.json": {
+      "checkedAt": 1780883858016,
+      "integrity": "sha512-+FPdbZp3l/I8/WYt+xWEKqs9PlZ+D4n+sSc9hpYxQZidvGVmsBE+PawzBvZkgFsSz0g2W6ApAWwNyBw7wsPEaw==",
+      "mode": 420,
+      "size": 2476
+    },
+    "dist/commonjs/index.d.ts.map": {
+      "checkedAt": 1780883858016,
+      "integrity": "sha512-ScbkI+dWIPprD51U24Poe408beYNW/m51A2UgWsbwYEVvA8B0eshlkVUTrFAj3klTE9vN+dQ+0Mt1Ygr8oLOlQ==",
+      "mode": 420,
+      "size": 14375
+    },
+    "dist/esm/index.d.ts.map": {
+      "checkedAt": 1780883858016,
+      "integrity": "sha512-ScbkI+dWIPprD51U24Poe408beYNW/m51A2UgWsbwYEVvA8B0eshlkVUTrFAj3klTE9vN+dQ+0Mt1Ygr8oLOlQ==",
+      "mode": 420,
+      "size": 14375
+    },
+    "dist/commonjs/index.js.map": {
+      "checkedAt": 1780883858016,
+      "integrity": "sha512-vJ4v8/GaycbhgEen0zAf0u3Uz2oqTD5Ndt2wSQ/Zr5/NuJDNKzLVkU7/8Ygtvv69ydMko8JsUYn/hZf/SXu9WA==",
+      "mode": 420,
+      "size": 143149
+    },
+    "dist/esm/index.js.map": {
+      "checkedAt": 1780883858017,
+      "integrity": "sha512-XrfDKlKdGHk546C7IFmOyyjzJo34GvBQNVv3avk37nxwz9bn61D8oBBFDKqR9tu2uOwJB0e8zdNVEucQzb42bQ==",
+      "mode": 420,
+      "size": 143136
+    },
+    "dist/commonjs/index.min.js.map": {
+      "checkedAt": 1780883858017,
+      "integrity": "sha512-eI0js1sl6uVfc/SfHyKspiATrSvOMXYuFfa1vR92KIUjPZMMyd/Dld6EHULH7aSw6GrCzOu+KJWibb5tBc/EnA==",
+      "mode": 420,
+      "size": 122935
+    },
+    "dist/esm/index.min.js.map": {
+      "checkedAt": 1780883858018,
+      "integrity": "sha512-CiH5IN73OfCwSC0XrGXnYAzkkuQUvqDrrEXvgtfSlr7L2lOIsJ9Z2GaCQWaur/UQTXaPu51g4EVeOLIEJWbhWQ==",
+      "mode": 420,
+      "size": 122915
+    },
+    "LICENSE.md": {
+      "checkedAt": 1780883828291,
+      "integrity": "sha512-seCH7G9uShObBDyZsgPXWsGtEMIxSN8UF7GR3DgmSdB2wF0Or2QPZnucix6+DQ8YXgPw2fPW1n1Yd27CjpDwxA==",
+      "mode": 420,
+      "size": 1552
+    },
+    "README.md": {
+      "checkedAt": 1780883858018,
+      "integrity": "sha512-sLweQdHhx3wqs3TVTB+uimJNMEWcGCpKXdY6qo5EfBaywuUIaxOiXiQmdmrRyFPOXSddvNZshskIkv32hFqy3g==",
+      "mode": 420,
+      "size": 11356
+    },
+    "dist/commonjs/index.d.ts": {
+      "checkedAt": 1780883858018,
+      "integrity": "sha512-zfd/7xtbQIzi3Dti0SulJSCZG2eWdxnygWarR6S1mEcL+0cweKAa8HsXRinzdSQluzC0ozaHrLund5Zjmle5UQ==",
+      "mode": 420,
+      "size": 56244
+    },
+    "dist/esm/index.d.ts": {
+      "checkedAt": 1780883858018,
+      "integrity": "sha512-zfd/7xtbQIzi3Dti0SulJSCZG2eWdxnygWarR6S1mEcL+0cweKAa8HsXRinzdSQluzC0ozaHrLund5Zjmle5UQ==",
+      "mode": 420,
+      "size": 56244
+    }
+  }
+}

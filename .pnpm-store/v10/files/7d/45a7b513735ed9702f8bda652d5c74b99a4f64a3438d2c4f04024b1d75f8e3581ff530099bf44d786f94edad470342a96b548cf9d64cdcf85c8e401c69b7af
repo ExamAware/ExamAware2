@@ -1,0 +1,163 @@
+// FIXME: https://github.com/stylelint-scss/stylelint-scss/issues/1212
+/* stylelint-disable scss/dollar-variable-no-missing-interpolation */
+/* stylelint-disable scss/operator-no-newline-before */
+@use "sass:color";
+@use "sass:list";
+@use "sass:map";
+@use "sass:meta";
+@use "@sass-palette/helper";
+@use "@sass-palette/hope-config";
+
+$has-multiple-theme-colors: meta.type-of(
+    map.get(meta.module-variables("hope-config"), "theme-color")
+  )
+  == list;
+
+.vp-theme-color-picker {
+  display: flex;
+
+  margin: 0;
+  padding: 0;
+
+  list-style-type: none;
+
+  font-size: 14px;
+
+  li {
+    span {
+      display: inline-block;
+      vertical-align: middle;
+
+      width: 15px;
+      height: 15px;
+      margin: 0 2px;
+      border-radius: 2px;
+
+      // original theme-color
+      &.theme-color {
+        background: helper.get-color(hope-palette.$vp-c-accent-bg);
+
+        /* stylelint-disable-next-line max-nesting-depth */
+        [data-theme="dark"] {
+          background: helper.get-dark-color(hope-palette.$vp-c-accent-bg);
+        }
+      }
+    }
+  }
+}
+
+@if $has-multiple-theme-colors {
+  // omit the first color as it's the primary color
+  @for $index from 2 through list.length(hope-config.$theme-color) {
+    $color: list.nth(hope-config.$theme-color, $index);
+
+    @if meta.type-of($color) == color {
+      :root.theme-#{$index} {
+        --vp-c-accent: #{color.change($color, $lightness: 35%, $alpha: 1)};
+        --vp-c-accent-bg: #{color.change($color, $lightness: 45%, $alpha: 1)};
+        --vp-c-accent-hover: #{color.change(
+            $color,
+            $lightness: 50%,
+            $alpha: 1
+          )};
+        --vp-c-accent-soft: #{color.change(
+            $color,
+            $lightness: 40%,
+            $saturation: 80%,
+            $alpha: 0.15
+          )};
+      }
+    } @else if meta.type-of($color) == map {
+      $light-color: map.get($color, "light");
+      $dark-color: map.get($color, "dark");
+
+      @if $light-color and $dark-color {
+        @if $light-color == $dark-color {
+          :root.theme-#{$index} {
+            --vp-c-accent: #{color.change(
+                $light-color,
+                $lightness: 35%,
+                $alpha: 1
+              )};
+            --vp-c-accent-bg: #{color.change(
+                $light-color,
+                $lightness: 45%,
+                $alpha: 1
+              )};
+            --vp-c-accent-hover: #{color.change(
+                $light-color,
+                $lightness: 50%,
+                $alpha: 1
+              )};
+            --vp-c-accent-soft: #{color.change(
+                $light-color,
+                $lightness: 40%,
+                $saturation: 80%,
+                $alpha: 0.15
+              )};
+          }
+
+          [data-theme="dark"].theme-#{$index} {
+            --vp-c-accent: #{color.change(
+                $light-color,
+                $lightness: 55%,
+                $alpha: 1
+              )};
+            --vp-c-accent-bg: #{color.change(
+                $light-color,
+                $lightness: 47.5%,
+                $alpha: 1
+              )};
+            --vp-c-accent-hover: #{color.change(
+                $light-color,
+                $lightness: 45%,
+                $alpha: 1
+              )};
+          }
+        } @else {
+          :root.theme-#{$index} {
+            --vp-c-accent: #{color.change(
+                $light-color,
+                $lightness: 35%,
+                $alpha: 1
+              )};
+            --vp-c-accent-bg: #{color.change(
+                $light-color,
+                $lightness: 45%,
+                $alpha: 1
+              )};
+            --vp-c-accent-hover: #{color.change(
+                $light-color,
+                $lightness: 50%,
+                $alpha: 1
+              )};
+            --vp-c-accent-soft: #{color.change(
+                $light-color,
+                $lightness: 40%,
+                $saturation: 80%,
+                $alpha: 0.15
+              )};
+          }
+
+          [data-theme="dark"].theme-#{$index} {
+            --vp-c-accent: #{color.change(
+                $dark-color,
+                $lightness: 55%,
+                $alpha: 1
+              )};
+            --vp-c-accent-bg: #{color.change(
+                $dark-color,
+                $lightness: 47.5%,
+                $alpha: 1
+              )};
+            --vp-c-accent-hover: #{color.change(
+                $dark-color,
+                $lightness: 45%,
+                $alpha: 1
+              )};
+          }
+        }
+      }
+    }
+  }
+}

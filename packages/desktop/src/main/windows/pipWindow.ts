@@ -50,16 +50,19 @@ export function createPipWindow(parentWindow: BrowserWindow): BrowserWindow {
 html, body {
   width: 100%; height: 100%;
   overflow: hidden;
+  border-radius: 16px;
 }
 body {
-  background: rgba(4, 14, 21, 0.92);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 24px;
+  background: rgba(32, 32, 32, 0.85);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   font-family: 'Segoe UI', 'MiSans', sans-serif;
   cursor: grab;
   user-select: none;
+  -webkit-app-region: drag;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
 }
 body:active { cursor: grabbing; }
 #time {
@@ -68,37 +71,22 @@ body:active { cursor: grabbing; }
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  pointer-events: none;
 }
 #current {
   color: rgba(255,255,255,0.6);
   font-size: 28px;
   margin-top: 8px;
+  pointer-events: none;
 }
-#close {
-  position: absolute;
-  top: -10px; right: -10px;
-  width: 32px; height: 32px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(255,59,48,0.9);
-  color: #fff;
-  font-size: 18px;
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.2s;
-  -webkit-app-region: no-drag;
-}
-body:hover #close { opacity: 1; }
 </style>
 </head>
 <body>
 <div id="time">00:00</div>
 <div id="current"></div>
-<button id="close">×</button>
 <script>
 const timeEl = document.getElementById('time');
 const currentEl = document.getElementById('current');
-const closeBtn = document.getElementById('close');
 
 let showRemaining = true;
 let showCurrent = false;
@@ -122,50 +110,9 @@ ipcRenderer.on('pip:init', (_, opts) => {
   if (!showCurrent) currentEl.style.display = 'none';
 });
 
-closeBtn.addEventListener('click', () => {
+// 点击返回播放页（body 有 -webkit-app-region: drag，所以用 click 事件）
+document.body.addEventListener('click', () => {
   ipcRenderer.send('pip:toggle');
-});
-
-// 全窗口可拖拽 + 点击返回播放页（拖动时不返回）
-let dragStartTime = 0;
-let dragStartPos = { x: 0, y: 0 };
-let hasMoved = false;
-let dragging = false;
-let dragOffset = { x: 0, y: 0 };
-let mouseDownTarget = null;
-
-document.body.addEventListener('mousedown', (e) => {
-  if (e.target === closeBtn) return;
-  mouseDownTarget = e.target;
-  dragStartTime = Date.now();
-  dragStartPos = { x: e.screenX, y: e.screenY };
-  hasMoved = false;
-  dragging = true;
-  dragOffset.x = e.screenX - window.screenX;
-  dragOffset.y = e.screenY - window.screenY;
-});
-
-document.addEventListener('mousemove', (e) => {
-  if (!dragging) return;
-  const dx = e.screenX - dragStartPos.x;
-  const dy = e.screenY - dragStartPos.y;
-  if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
-    hasMoved = true;
-  }
-  if (hasMoved) {
-    window.moveTo(e.screenX - dragOffset.x, e.screenY - dragOffset.y);
-  }
-});
-
-document.addEventListener('mouseup', (e) => {
-  if (!dragging) return;
-  dragging = false;
-  if (e.target === closeBtn) return;
-  const duration = Date.now() - dragStartTime;
-  // 短按（< 300ms）且没有明显移动 = 点击，返回播放页
-  if (duration < 300 && !hasMoved) {
-    ipcRenderer.send('pip:toggle');
-  }
 });
 </script>
 </body>

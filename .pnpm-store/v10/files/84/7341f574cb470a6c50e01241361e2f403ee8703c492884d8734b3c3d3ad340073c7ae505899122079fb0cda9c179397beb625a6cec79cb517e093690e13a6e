@@ -1,0 +1,34 @@
+import { TreeNode } from './tree-node';
+import { OptionData } from '../common';
+import { TreeNodeValue, TypeTreeNodeModel, TypeTreeNodeData, TypeTreeItem } from './types';
+export declare const nodeKey = "__tdesign_tree-node__";
+export declare class TreeNodeModel {
+    private [nodeKey];
+    constructor(node: TreeNode);
+    get value(): string;
+    get label(): string;
+    get data(): TypeTreeNodeData;
+    get actived(): boolean;
+    get expanded(): boolean;
+    get checked(): boolean;
+    get indeterminate(): boolean;
+    get loading(): boolean;
+    get disabled(): boolean;
+    getLevel(): number;
+    getIndex(): number;
+    isFirst(): boolean;
+    isLast(): boolean;
+    isLeaf(): boolean;
+    insertBefore(newData: TypeTreeItem): void;
+    insertAfter(newData: TypeTreeItem): void;
+    appendData(data: TypeTreeNodeData | TypeTreeNodeData[]): void;
+    getPath(): TypeTreeNodeModel[];
+    getParent(): TypeTreeNodeModel;
+    getParents(): TypeTreeNodeModel[];
+    getRoot(): TypeTreeNodeModel;
+    getSiblings(): TypeTreeNodeModel[];
+    getChildren(deep?: boolean): boolean | TypeTreeNodeModel[];
+    remove(value?: TreeNodeValue): void;
+    setData(data: OptionData): void;
+}
+export declare function createNodeModel(node: TreeNode): TypeTreeNodeModel;

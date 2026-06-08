@@ -1,0 +1,49 @@
+import { type PropType } from 'vue';
+import type { CodeLayoutSplitNGridInternal } from './SplitN';
+declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<{
+    grid: {
+        type: PropType<CodeLayoutSplitNGridInternal>;
+        default: null;
+    };
+}, {}, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+    tabItemContextMenu: (...args: any[]) => void;
+    tabActive: (...args: any[]) => void;
+}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
+    grid: {
+        type: PropType<CodeLayoutSplitNGridInternal>;
+        default: null;
+    };
+}>> & {
+    onTabItemContextMenu?: ((...args: any[]) => any) | undefined;
+    onTabActive?: ((...args: any[]) => any) | undefined;
+}, {
+    grid: CodeLayoutSplitNGridInternal;
+}, {}>, {
+    tabHeaderRender?(_: {}): any;
+    tabItemRender?(_: {
+        key: string;
+        panel: import("..").CodeLayoutPanelInternal;
+        index: number;
+        active: boolean;
+        onTabClick: () => void;
+        onContextMenu: (e: MouseEvent) => void;
+    }): any;
+    tabHeaderEndRender?(_: {
+        grid: CodeLayoutSplitNGridInternal;
+    }): any;
+    tabHeaderExtraRender?(_: {
+        grid: CodeLayoutSplitNGridInternal;
+    }): any;
+    tabContentRender?(_: {
+        panel: import("..").CodeLayoutPanelInternal;
+    }): any;
+    tabEmptyContentRender?(_: {
+        grid: CodeLayoutSplitNGridInternal;
+    }): any;
+}>;
+export default _default;
+type __VLS_WithTemplateSlots<T, S> = T & {
+    new (): {
+        $slots: S;
+    };
+};

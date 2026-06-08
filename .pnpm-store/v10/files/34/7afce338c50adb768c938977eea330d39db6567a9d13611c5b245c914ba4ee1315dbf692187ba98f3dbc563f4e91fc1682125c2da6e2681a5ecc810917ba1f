@@ -1,0 +1,45 @@
+{
+  "name": "@electron-toolkit/eslint-config-prettier",
+  "version": "3.0.0",
+  "description": "ESLint config with Prettier support for Electron projects.",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    }
+  },
+  "files": [
+    "index.js",
+    "index.d.ts"
+  ],
+  "author": "Alex Wei<https://github.com/alex8088>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alex8088/electron-toolkit.git",
+    "directory": "packages/eslint-config-prettier"
+  },
+  "bugs": {
+    "url": "https://github.com/alex8088/electron-toolkit/issues"
+  },
+  "homepage": "https://github.com/alex8088/electron-toolkit/tree/master/packages/eslint-config-prettier#readme",
+  "keywords": [
+    "electron",
+    "eslint",
+    "prettier"
+  ],
+  "dependencies": {
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.3"
+  },
+  "devDependencies": {
+    "eslint": "^9.18.0",
+    "prettier": "^3.4.2"
+  },
+  "peerDependencies": {
+    "eslint": ">= 9.0.0",
+    "prettier": ">= 3.0.0"
+  }
+}

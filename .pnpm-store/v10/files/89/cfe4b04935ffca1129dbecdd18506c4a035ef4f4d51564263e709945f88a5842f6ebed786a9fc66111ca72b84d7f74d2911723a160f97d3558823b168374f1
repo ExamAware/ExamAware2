@@ -1,0 +1,1 @@
+{"version":3,"file":"useAppearanceLocale.d.ts","sourceRoot":"","sources":["../../../../src/client/composables/appearance/useAppearanceLocale.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,WAAW,EAAE,MAAM,KAAK,CAAC;AAKvC,OAAO,KAAK,EAAE,iBAAiB,EAAE,MAAM,0BAA0B,CAAC;AAElE,eAAO,MAAM,mBAAmB,QAAO,WAAW,CAAC,iBAAiB,CAInE,CAAC"}

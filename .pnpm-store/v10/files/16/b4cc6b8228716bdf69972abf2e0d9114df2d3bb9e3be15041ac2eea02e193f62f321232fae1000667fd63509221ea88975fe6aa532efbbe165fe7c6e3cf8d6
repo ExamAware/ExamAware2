@@ -1,0 +1,44 @@
+import type { CodeLayoutSplitNGridInternal } from './SplitN';
+import { type PropType } from 'vue';
+declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<{
+    grid: {
+        type: PropType<CodeLayoutSplitNGridInternal>;
+        default: null;
+    };
+    indexOfParent: {
+        type: NumberConstructor;
+        default: number;
+    };
+    isLastOfParent: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+}, {}, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
+    grid: {
+        type: PropType<CodeLayoutSplitNGridInternal>;
+        default: null;
+    };
+    indexOfParent: {
+        type: NumberConstructor;
+        default: number;
+    };
+    isLastOfParent: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+}>>, {
+    grid: CodeLayoutSplitNGridInternal;
+    indexOfParent: number;
+    isLastOfParent: boolean;
+}, {}>, {
+    grid?(_: {
+        grid: CodeLayoutSplitNGridInternal;
+        index: number;
+    }): any;
+}>;
+export default _default;
+type __VLS_WithTemplateSlots<T, S> = T & {
+    new (): {
+        $slots: S;
+    };
+};

@@ -1,0 +1,21 @@
+export declare class SimpleDelay<T = any> {
+    private executor;
+    private interval;
+    private data;
+    private timer;
+    constructor(data: T, executor: (d: T) => void, interval: number);
+    isWaiting(): boolean;
+    start(): void;
+    stop(): void;
+}
+export declare class SimpleTimer<T = any> {
+    private executor;
+    private interval;
+    private data;
+    private timer;
+    private executorTimeLimitWarnCount;
+    private lasExecuteTime;
+    constructor(data: T, executor: (d: T) => void, interval: number);
+    start(): void;
+    stop(): void;
+}

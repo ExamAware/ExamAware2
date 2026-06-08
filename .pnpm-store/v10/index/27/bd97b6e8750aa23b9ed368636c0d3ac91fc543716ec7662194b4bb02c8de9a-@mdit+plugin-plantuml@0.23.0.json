@@ -1,0 +1,55 @@
+{
+  "name": "@mdit/plugin-plantuml",
+  "version": "0.23.0",
+  "requiresBuild": false,
+  "files": {
+    "lib/browser.js": {
+      "checkedAt": 1780883866012,
+      "integrity": "sha512-rm/UiVXZ/HYSHiElY4LYFZIqOd2NlARNiRIfCFBl3r2uusIyH0MS8Ayb77XDsSIAIe59ZqJMhjOx0w5dEcWLgw==",
+      "mode": 420,
+      "size": 31594
+    },
+    "lib/index.js": {
+      "checkedAt": 1780883866013,
+      "integrity": "sha512-TbvIBiwE9UmkbflAK969vns4hFiUW8j3gso0hKAW9WasDx06qM2EqaL6UFYA0L4Im0dCFtYWTRd7YemFS5T+cw==",
+      "mode": 420,
+      "size": 1248
+    },
+    "package.json": {
+      "checkedAt": 1780883866013,
+      "integrity": "sha512-o1r6IabDpbVBkItW89PsY04D30PZR3bO+aqX6EQ9OYOx0Bp/ONvBm1TGljTx8+baKHUtIf7fdOS38d7j6ZCLCA==",
+      "mode": 420,
+      "size": 1422
+    },
+    "lib/browser.js.map": {
+      "checkedAt": 1780883866014,
+      "integrity": "sha512-a1AR1n6u8wHZh0KnsdhDSMwNfH0h89bNnTeAkAWDDlVmI45Iz0ANNx6osHcaSDqHXSZbVMAUxFSD+sTcWnCTnw==",
+      "mode": 420,
+      "size": 198626
+    },
+    "lib/index.js.map": {
+      "checkedAt": 1780883866014,
+      "integrity": "sha512-5mp7DM4Yg4M+gcPH+6a3v3ykuuQhBp9bpflAs1zy1cGTkOZA+234+MSQXCCwJW/WKelEsXmMyBCh+3zvs2SIFQ==",
+      "mode": 420,
+      "size": 6229
+    },
+    "README.md": {
+      "checkedAt": 1780883866014,
+      "integrity": "sha512-hw0rfAKtefHSKhU2MEZVXW2PNELlfXLce/vQsQFMbHUFA9sVtGEQ6egja/oSXDghyE1ncB+u3Dw9BVcO37xkoA==",
+      "mode": 420,
+      "size": 555
+    },
+    "lib/index.d.ts": {
+      "checkedAt": 1780883866014,
+      "integrity": "sha512-ltEybPmrmJp5T6eay8zvzSjQf5yjfu9PPL+WoeeIwVKn3zuw65seZgq+y1+ZMJrSWEa3SzR9QVeUjlXpqdgAIw==",
+      "mode": 420,
+      "size": 2110
+    },
+    "LICENSE": {
+      "checkedAt": 1780883865939,
+      "integrity": "sha512-VlY99YrCNeXrqXQ8DGYSJSluiPuj/4Ac4UCaTeECwLyDxOz4jRhyezKzPgjH46a+X4kwP9GBhbGsG3jdix79Ig==",
+      "mode": 420,
+      "size": 1086
+    }
+  }
+}

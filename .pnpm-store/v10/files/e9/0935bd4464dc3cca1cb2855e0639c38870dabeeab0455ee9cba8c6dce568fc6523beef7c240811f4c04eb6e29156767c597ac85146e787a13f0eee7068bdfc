@@ -1,0 +1,103 @@
+.t-anchor {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  --td-anchor-space-base: var(--td-size-6);
+  position: relative;
+  background: var(--td-bg-color-container);
+  width: 200px;
+  color: var(--td-text-color-primary);
+  font: var(--td-font-body-medium);
+}
+.t-anchor .t-is-active > a {
+  color: var(--td-brand-color);
+}
+.t-anchor__line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 100%;
+  background-color: var(--td-component-stroke);
+  cursor: pointer;
+}
+.t-anchor__line-cursor-wrapper {
+  position: absolute;
+  display: block;
+  height: 0;
+  opacity: 0;
+  transition: all 0.2s cubic-bezier(0.24, 0.41, 0.51, 0.9);
+}
+.t-anchor__line-cursor-wrapper .t-anchor__line-cursor {
+  width: 1px;
+  height: 100%;
+  background-color: var(--td-brand-color);
+}
+.t-anchor__item {
+  padding: var(--td-comp-paddingTB-xxs) var(--td-comp-paddingTB-l);
+  --level: 1;
+  padding-left: calc(var(--level) * var(--td-anchor-space-base));
+  display: flex;
+  flex-direction: column;
+}
+.t-anchor__item.t-is-active {
+  font-weight: 500;
+}
+.t-anchor__item-link {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  word-break: break-all;
+  color: var(--td-text-color-primary);
+  text-decoration: none;
+  text-align: justify;
+}
+.t-anchor a {
+  transition: color 0.2s linear;
+}
+.t-anchor a:hover {
+  color: var(--td-brand-color);
+  cursor: pointer;
+}
+.t-anchor a:active {
+  color: var(--td-brand-color-active);
+}
+.t-anchor.t-size-s {
+  width: 120px;
+}
+.t-anchor.t-size-l {
+  width: 320px;
+}
+.t-anchor__target {
+  cursor: pointer;
+  font: var(--td-font-body-medium);
+  color: var(--td-text-color-primary);
+}
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    display: none;
+  }
+}
+.t-anchor__target .t-anchor__copy {
+  display: none;
+  margin: 0 0 0 var(--td-comp-margin-xs);
+}
+.t-anchor__target:hover .t-anchor__copy {
+  display: inline-block;
+}
+.t-anchor__target:target::after {
+  display: inline-block;
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: var(--td-radius-circle);
+  background-color: var(--td-brand-color);
+  vertical-align: middle;
+  animation: fadeOut 2s 2s linear 1;
+  animation-fill-mode: forwards;
+}

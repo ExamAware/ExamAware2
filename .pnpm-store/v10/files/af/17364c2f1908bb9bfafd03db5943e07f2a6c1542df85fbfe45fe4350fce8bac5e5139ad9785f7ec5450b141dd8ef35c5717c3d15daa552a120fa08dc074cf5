@@ -1,0 +1,1 @@
+{"version":3,"file":"isActiveItem.d.ts","sourceRoot":"","sources":["../../../src/client/utils/isActiveItem.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,6BAA6B,EAAE,MAAM,iBAAiB,CAAC;AAGrE,OAAO,KAAK,EAAE,eAAe,EAAE,MAAM,qBAAqB,CAAC;AAE3D,eAAO,MAAM,YAAY,GACvB,OAAO,6BAA6B,EACpC,MAAM,OAAO,CAAC,eAAe,CAAC,KAC7B,OAGiC,CAAC"}

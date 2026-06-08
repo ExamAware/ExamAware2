@@ -1,0 +1,31 @@
+{
+  "name": "@types/tinycolor2",
+  "version": "1.4.6",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883824973,
+      "integrity": "sha512-HQaIQk9pwOcyKutyDk4o2a87WnotwYuLGYFW43emGm4FvIJFKPyg+OYaw5sTegKAKf+C5SKa1ACjzCLivbaHrQ==",
+      "mode": 420,
+      "size": 1141
+    },
+    "README.md": {
+      "checkedAt": 1780883853066,
+      "integrity": "sha512-bPa9sx5/7agCAPwfUmByPJnzlWFJsjzltlDBl7PJf8ORRemV/Uwqz9BCdwoCD/0EqFkUv3xmmnyl6pQR5ZxlWg==",
+      "mode": 420,
+      "size": 572
+    },
+    "index.d.ts": {
+      "checkedAt": 1780883853066,
+      "integrity": "sha512-1GJoRXC5s1QYLIHRDSEbYNOhql7OkLG/JX8ugXrKuvy7AEHetkADeqKoflrCyEPY1sw3kkuM+HNhj0qbsP3JZw==",
+      "mode": 420,
+      "size": 20880
+    },
+    "package.json": {
+      "checkedAt": 1780883853066,
+      "integrity": "sha512-0twfXhJf1/2a9xt2BugFyqGDD1qpPvu1t6p1vF6o1jrwzeIwKb9YQlSYD2+LJZi2Ejufxg0A8XC6Aq4wBUJ4ug==",
+      "mode": 420,
+      "size": 1094
+    }
+  }
+}

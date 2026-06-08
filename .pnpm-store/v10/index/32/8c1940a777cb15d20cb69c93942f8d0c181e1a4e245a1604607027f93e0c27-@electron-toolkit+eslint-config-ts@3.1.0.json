@@ -1,0 +1,61 @@
+{
+  "name": "@electron-toolkit/eslint-config-ts",
+  "version": "3.1.0",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883824989,
+      "integrity": "sha512-Y3cSW3sO/lW3DVzRfbDTe4eBPnWTkQUXToEKiU2rn+Ru8gNy97aezhQPZDl3IyAgQ4+deZMHNd2LCKi/kGJIcw==",
+      "mode": 420,
+      "size": 1074
+    },
+    "eslint-base.js": {
+      "checkedAt": 1780883834782,
+      "integrity": "sha512-vdH0XQ92YarZdZZZUs/Ivtm5pp8in9HHht1b5zOo4Dy+IDIrw95uvvRfTRGqXLFbDNBjXOVlm8v/2KaXH8Vm5A==",
+      "mode": 420,
+      "size": 522
+    },
+    "eslint-recommended-type-checked.js": {
+      "checkedAt": 1780883834782,
+      "integrity": "sha512-13kqj62kr1Nw34sIfSapBgSQW1cjZYHRPEk++YT+/znQ2u+Mzgm3HXziTR1StSbiPjs1A5P1PiTr+1ILdQ0CEA==",
+      "mode": 420,
+      "size": 266
+    },
+    "eslint-recommended.js": {
+      "checkedAt": 1780883834782,
+      "integrity": "sha512-lp8mzxq1dDk/0LFCDO3kQAGqVZ1YcApjtxhGFWkrE2DxUWRrGz4UfvKA5kkUiQ1WQ6gPXDUvWGho6dYy1o9j1w==",
+      "mode": 420,
+      "size": 254
+    },
+    "eslint-typescript.js": {
+      "checkedAt": 1780883834783,
+      "integrity": "sha512-r8ufTHK+FxrU9Y+bWH25rtfK3inmisVf+GZlc51/OGgC2m4PUCGgM+z3aHKjImCJA42Qa1CtPzFBs9t9z/qfeA==",
+      "mode": 420,
+      "size": 1195
+    },
+    "index.js": {
+      "checkedAt": 1780883834783,
+      "integrity": "sha512-P3ce92gpqs3lqJN6Y2WRuJpcETFwcpJT68f8WSK/ys4SKddM4AZYVrUHDCfq7CG/Rw2FOOlORuyRaK5XXDmCIg==",
+      "mode": 420,
+      "size": 325
+    },
+    "package.json": {
+      "checkedAt": 1780883834783,
+      "integrity": "sha512-3xPiWVY9ZmEXFiM2aAZ/Tw+xro/36rA9PQ8pRm5Iu7Um36StynJ1F23To7VSI6lDQ/FeC5j+yl0Kar/xci7MMw==",
+      "mode": 420,
+      "size": 1301
+    },
+    "README.md": {
+      "checkedAt": 1780883834784,
+      "integrity": "sha512-Ufcn5sMH6Swoq7u25UJj+s+NYL9XuMcmG+ihv/ZDb6s8SGx0wWq5+M4vTeYIdNrnpHLDDS3in2EjYSUO3MXFhQ==",
+      "mode": 420,
+      "size": 1221
+    },
+    "index.d.ts": {
+      "checkedAt": 1780883834784,
+      "integrity": "sha512-fkxNwyTuQquZq4u0nU34eo/6nvw5h0/KjC18DIdpgJSkF8G/na3CUkFJ2Wdc7C5qkECq0QvXrIv8IAtfRWF4YA==",
+      "mode": 420,
+      "size": 351
+    }
+  }
+}

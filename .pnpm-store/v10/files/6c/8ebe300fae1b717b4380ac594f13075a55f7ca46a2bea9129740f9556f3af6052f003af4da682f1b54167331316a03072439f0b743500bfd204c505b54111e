@@ -1,0 +1,111 @@
+import { type PropType } from 'vue';
+import { type CodeLayoutPanelInternal, type CodeLayoutGrid } from '../CodeLayout';
+import { CodeLayoutSplitNGridInternal, type CodeLayoutSplitNConfig } from './SplitN';
+declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<{
+    /**
+     * Specify the type of the root grid, usually used to set different types in multiple components to restrict mutual dragging
+     */
+    rootGridType: {
+        type: PropType<CodeLayoutGrid>;
+        default: string;
+    };
+    /**
+     * Whether to display Tab components. When it is `true`, it supports multiple sub panels in one grid, and the components should be rendered in the tabContentRender slot; When it is `false`, only grid segmentation is supported and panel and drag functions are not supported. You should render the content yourself in gridRender.
+     */
+    showTabHeader: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    /**
+     * Should save layout in window.beforeunload
+     */
+    saveBeforeUnload: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    /**
+     * Base layout config
+     */
+    layoutConfig: {
+        type: PropType<CodeLayoutSplitNConfig>;
+        default: () => CodeLayoutSplitNConfig;
+    };
+}, {
+    getRootGrid(): CodeLayoutSplitNGridInternal;
+    getPanelByName(name: string): CodeLayoutPanelInternal | undefined;
+    getGridByName(name: string): CodeLayoutSplitNGridInternal | undefined;
+    getActiveGird(): CodeLayoutSplitNGridInternal | undefined;
+    getGridTreeDebugText(): string;
+    activePanel(name: string): void;
+    clearLayout(): void;
+    saveLayout(): any;
+    loadLayout(json: any, instantiatePanelCallback: (data: import("./SplitN").CodeLayoutSplitNPanel) => import("./SplitN").CodeLayoutSplitNPanel): void;
+}, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+    panelClose: (...args: any[]) => void;
+    panelContextMenu: (...args: any[]) => void;
+    panelActive: (...args: any[]) => void;
+    panelDrop: (...args: any[]) => void;
+    gridActive: (...args: any[]) => void;
+    canLoadLayout: (...args: any[]) => void;
+    canSaveLayout: (...args: any[]) => void;
+}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
+    /**
+     * Specify the type of the root grid, usually used to set different types in multiple components to restrict mutual dragging
+     */
+    rootGridType: {
+        type: PropType<CodeLayoutGrid>;
+        default: string;
+    };
+    /**
+     * Whether to display Tab components. When it is `true`, it supports multiple sub panels in one grid, and the components should be rendered in the tabContentRender slot; When it is `false`, only grid segmentation is supported and panel and drag functions are not supported. You should render the content yourself in gridRender.
+     */
+    showTabHeader: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    /**
+     * Should save layout in window.beforeunload
+     */
+    saveBeforeUnload: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    /**
+     * Base layout config
+     */
+    layoutConfig: {
+        type: PropType<CodeLayoutSplitNConfig>;
+        default: () => CodeLayoutSplitNConfig;
+    };
+}>> & {
+    onPanelClose?: ((...args: any[]) => any) | undefined;
+    onPanelContextMenu?: ((...args: any[]) => any) | undefined;
+    onPanelActive?: ((...args: any[]) => any) | undefined;
+    onPanelDrop?: ((...args: any[]) => any) | undefined;
+    onGridActive?: ((...args: any[]) => any) | undefined;
+    onCanLoadLayout?: ((...args: any[]) => any) | undefined;
+    onCanSaveLayout?: ((...args: any[]) => any) | undefined;
+}, {
+    rootGridType: CodeLayoutGrid;
+    showTabHeader: boolean;
+    saveBeforeUnload: boolean;
+    layoutConfig: CodeLayoutSplitNConfig;
+}, {}>, {
+    tabRender?(_: {
+        grid: any;
+    }): any;
+    tabContentRender?(_: any): any;
+    tabEmptyContentRender?(_: any): any;
+    tabHeaderExtraRender?(_: any): any;
+    tabHeaderEndRender?(_: any): any;
+    tabItemRender?(_: any): any;
+    gridRender?(_: {
+        grid: any;
+    }): any;
+}>;
+export default _default;
+type __VLS_WithTemplateSlots<T, S> = T & {
+    new (): {
+        $slots: S;
+    };
+};

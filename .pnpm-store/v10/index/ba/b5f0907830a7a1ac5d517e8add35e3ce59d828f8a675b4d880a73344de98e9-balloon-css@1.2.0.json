@@ -1,0 +1,55 @@
+{
+  "name": "balloon-css",
+  "version": "1.2.0",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883871981,
+      "integrity": "sha512-LXKdE8x/iQ7g8C133E65mf4K3a/0iUOzrxgbpBrcqbQ1tRMg3udIEoQfn3y4jSMWt9dKZxfZh8+02mKTtI0u/Q==",
+      "mode": 420,
+      "size": 1082
+    },
+    "balloon.css": {
+      "checkedAt": 1780883871981,
+      "integrity": "sha512-0EeUVcqQfqgoHPhMQo5bCOHrK72R4UwXEaCI4cFM5yk4ZP0aAxy1RbSDQiUsN1qe7ZUcYjY5TIPvsAEmQzi/+A==",
+      "mode": 420,
+      "size": 7573
+    },
+    "balloon.min.css": {
+      "checkedAt": 1780883871981,
+      "integrity": "sha512-6jHrqOB5TcbWsW52kWP9TTx06FHzpj7eTOnuxQrKaqSvpcML2HTDR2/wWWPOh/YvcQQBGdomHL/x+V1Hn+AWCA==",
+      "mode": 420,
+      "size": 6765
+    },
+    "package.json": {
+      "checkedAt": 1780883871981,
+      "integrity": "sha512-EvaAFj3PnNdE23CFBQw5CpKD5tUTcPkxq69Co3gD3SMpOXVzWb22FXVXh1lLEx39rUfRxi2nhU6OTxWuqSpEfA==",
+      "mode": 420,
+      "size": 712
+    },
+    "readme.md": {
+      "checkedAt": 1780883871982,
+      "integrity": "sha512-2SzrtRFdo02n6J45jGkibec7zEIysI5UO+87msel9pDcDANgO01Agjb01AHUy+GYRrZ8EP1LbCs0J/EvQTf1lQ==",
+      "mode": 420,
+      "size": 4770
+    },
+    "src/_mixins.scss": {
+      "checkedAt": 1780883871982,
+      "integrity": "sha512-nyyuv2IU9hFH9gssBpMb5TnbIJ+Q5vX/3+4nnO8sUyEzxF3RM89rdcwh7k/lTTcg+F3S85Pw6qbEF+1r0yqz7w==",
+      "mode": 420,
+      "size": 891
+    },
+    "src/_variables.scss": {
+      "checkedAt": 1780883871982,
+      "integrity": "sha512-XE97lHKFgia+skE6z+W7uuVFevJdKCbxodL2uJE/iv9BsQKHVAJ+BtbYnGsvyJE4+angGWU6e7dOdwywemwmMQ==",
+      "mode": 420,
+      "size": 173
+    },
+    "src/balloon.scss": {
+      "checkedAt": 1780883871982,
+      "integrity": "sha512-6+D039hzjw+LL2yRuViCkmtY3Pp+BonLD/XCO+X5HUCzrGknOITMHhZYsTCj4bXXxb6tfR6gsW+WOS0BS5yb5g==",
+      "mode": 420,
+      "size": 4753
+    }
+  }
+}

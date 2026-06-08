@@ -1,0 +1,115 @@
+{
+  "name": "simple-keyboard",
+  "version": "3.8.93",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883830777,
+      "integrity": "sha512-dVIzy9FAF8i+rgizTg89dAbWBKvKdolr6z2llkNM/9nUrYdJRd6jTOzvETTsfa9mJEGEiZANnHGolG1gNs5PMg==",
+      "mode": 420,
+      "size": 1098
+    },
+    "build/css/index.css": {
+      "checkedAt": 1780883830778,
+      "integrity": "sha512-/ZAfSrkNvtAtWlNQG+2qepBo0Z01uHYBkzebzGO0n1ucoJOi5RTGfijI8Oup2a9YTxNshKmkJDD2BAQFFFf4xQ==",
+      "mode": 420,
+      "size": 3245
+    },
+    "build/index.js": {
+      "checkedAt": 1780883830778,
+      "integrity": "sha512-LmOWMAi4HT8MQj8CqOw1qFfDz0CohbvbHRzsDjQJs6JmDhrvwEa20fSdEFAf2IhMoxpqxtEhyQgyF8hTw45fmg==",
+      "mode": 420,
+      "size": 106776
+    },
+    "build/index.modern.esm.js": {
+      "checkedAt": 1780883830779,
+      "integrity": "sha512-KTS4/9wwpAYJu/7ljP4byaB8r0FgutSvQXGz4NMgGDI+MeLsNFWKM1AcsoM608eKqwVzOe/V2lRaTNuls4zXLg==",
+      "mode": 420,
+      "size": 45242
+    },
+    "build/index.modern.js": {
+      "checkedAt": 1780883830780,
+      "integrity": "sha512-IFW/2pxN9kfaxJ4iPh1w1ih+UStOSbjxw4HBReCpatwyST3VgVkzav3y3+TgJ6WH+kZOflonIJZ68PCrhkZZYg==",
+      "mode": 420,
+      "size": 45890
+    },
+    "package.json": {
+      "checkedAt": 1780883830780,
+      "integrity": "sha512-tWeKDT/2x/1Tl3hrfgjRnudI5VBemGpP+a5mPkGce7Usmw4YpQ7Hzja40OLieuFDs20MdV3RKasd/to7Ipkh5g==",
+      "mode": 420,
+      "size": 3252
+    },
+    "build/index.modern.esm.js.map": {
+      "checkedAt": 1780883830781,
+      "integrity": "sha512-SmGs71KfUI77A7QkD7cc71hOeIDdTZW8ZrJteHaOCIGCq9pQR2lCtnsiynpsolJBCKsMVurj/NUG0lpuoR76Jw==",
+      "mode": 420,
+      "size": 139505
+    },
+    "build/index.modern.js.map": {
+      "checkedAt": 1780883830781,
+      "integrity": "sha512-MCqWqsIYxgjT+MrnOdJkOi3TiDGBhB+6+HSCLdylcbL2ZIw/3etSl7zuudVK+ua1O7zaf4MwfbzEqiIZjkudtg==",
+      "mode": 420,
+      "size": 141857
+    },
+    "README.md": {
+      "checkedAt": 1780883830782,
+      "integrity": "sha512-3vY58vjTOgguym4rohDNwK9qjW11yZekhQp6FLR9h6xWNZS7ZzqMlGxhX1LA5VYpLq7jWQQULQj2NcbH8l33sQ==",
+      "mode": 420,
+      "size": 3509
+    },
+    "build/components/CandidateBox.d.ts": {
+      "checkedAt": 1780883830782,
+      "integrity": "sha512-NllSBKNNgAFA7OmIbtDkotWg3Y4vLM3icntDl5piHdwTu/3tr9ScYZBz4N6q/Wju4kZK8bZyIFNCu3E71legCw==",
+      "mode": 420,
+      "size": 695
+    },
+    "build/index.d.ts": {
+      "checkedAt": 1780883830782,
+      "integrity": "sha512-WbT3UNCj5qA6MR5cHYPGqFFIyTTWK2qr5Vw91TZfPGN8nTRFHC6yfjooyDG5NS8XJUbWFVXl8ry385TyMZhWlg==",
+      "mode": 420,
+      "size": 162
+    },
+    "build/index.modern.d.ts": {
+      "checkedAt": 1780883830782,
+      "integrity": "sha512-DWP4d/QGAuza9UU2OKpxY2vwoybWp7HH4bfIzG0FPDZaqWxGZvjW7itpsFvvUj/CfHiFl66G2chZW0XPBkyfwg==",
+      "mode": 420,
+      "size": 110
+    },
+    "build/interfaces.d.ts": {
+      "checkedAt": 1780883830783,
+      "integrity": "sha512-LZ/nFfOIyJZpaqzpDY7WMGPBW1kNfKlaYSia/oEi9fdAPFBTghahTpUIE3d4a6mT6hoBRQ+SkprXUb5Xu4awzA==",
+      "mode": 420,
+      "size": 8419
+    },
+    "build/components/Keyboard.d.ts": {
+      "checkedAt": 1780883830783,
+      "integrity": "sha512-lFdJZ9uWYc+cGSC3x9BnCLMiwoWIOafCj1D6aKAHuDRwfd+eBrPsxN5leR+yUNCOoXvDN6GKCdIys95yvT3B8A==",
+      "mode": 420,
+      "size": 10086
+    },
+    "build/services/KeyboardLayout.d.ts": {
+      "checkedAt": 1780883830783,
+      "integrity": "sha512-fFHPRnzTlZ8NrD2Kq+LnUAleNtxIDt+YGeIjxpQX8/GVQ5cY18qnqdVggeH8ap8BOs56KGZTkw6C6cl1dGs3gg==",
+      "mode": 420,
+      "size": 121
+    },
+    "build/services/PhysicalKeyboard.d.ts": {
+      "checkedAt": 1780883830783,
+      "integrity": "sha512-Py2l3IdVM3MQBbLJVqAR5TmBGLnbe5T+0is/JsWRLTo4aACwmAZSNrhbd9/4Fu+VOJZVh9EoMJq6F8zZ7m3C8g==",
+      "mode": 420,
+      "size": 831
+    },
+    "build/polyfills.d.ts": {
+      "checkedAt": 1780883830784,
+      "integrity": "sha512-z4PhNX7vuL3xVChQ1m2AB9Yg5AULVxXcg/SpIdNs6c5H0NE8XYXysP+DGNKHfuwvY7kxvUdBeoGlODJ6+SfaPg==",
+      "mode": 420,
+      "size": 0
+    },
+    "build/services/Utilities.d.ts": {
+      "checkedAt": 1780883830784,
+      "integrity": "sha512-jVqDoPTnZrpzsRo8DzVYecx+zmv+whnirl0NfrWzc0a6EwSH/TZU6hpfG9Ccza9ZcVJoBGKS3Ud/DxacsZ6R4g==",
+      "mode": 420,
+      "size": 7007
+    }
+  }
+}

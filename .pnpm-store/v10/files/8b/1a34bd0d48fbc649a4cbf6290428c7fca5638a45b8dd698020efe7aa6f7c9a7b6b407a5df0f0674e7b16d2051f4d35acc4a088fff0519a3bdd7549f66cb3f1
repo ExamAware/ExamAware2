@@ -1,0 +1,111 @@
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+var defineProperty = require('../_chunks/dep-23fc4c9b.js');
+var vue = require('vue');
+var utils_renderFn = require('../utils/render-fn.js');
+var utils_useSizeProps = require('../utils/use-size-props.js');
+require('../utils/use-common-classname.js');
+require('../utils/config-context.js');
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { defineProperty._defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var element = {
+  "tag": "svg",
+  "attrs": {
+    "fill": "none",
+    "viewBox": "0 0 24 24",
+    "width": "1em",
+    "height": "1em"
+  },
+  "children": [{
+    "tag": "path",
+    "attrs": {
+      "fill": "props.filledColor",
+      "d": "M21.5 2H7.5V9.84233C7.80877 9.78054 8.12366 9.74947 8.44006 9.75001H13.125C14.2853 9.75001 15.3981 10.2109 16.2186 11.0314C16.6621 11.4749 17.0006 12.0039 17.218 12.5796L19.1823 12.1278C19.7653 11.9779 20.3747 11.9595 20.9662 12.0743C21.1477 12.1096 21.326 12.1571 21.5 12.2163V2ZM12.5 4H16.5V8L14.5 6.5L12.5 8V4Z"
+    }
+  }, {
+    "tag": "path",
+    "attrs": {
+      "fill": "props.filledColor",
+      "d": "M19.5394 13.5848L15.9866 14.402C15.9955 14.3103 16 14.2179 16 14.125C16 13.3625 15.6971 12.6312 15.1579 12.0921C14.6188 11.5529 13.8875 11.25 13.125 11.25H8.43868C8.01192 11.2491 7.58917 11.3323 7.19455 11.4948C6.79953 11.6574 6.44046 11.8964 6.13787 12.1979L4.08579 14.25H0V21.5H11.3731L17.5695 19.9509L21.3093 18.3556L21.336 18.3422C21.761 18.13 22.1185 17.8036 22.3682 17.3996C22.618 16.9956 22.7502 16.5292 22.75 16.0542C22.7495 15.6609 22.6584 15.2731 22.4837 14.9209C22.309 14.5686 22.0554 14.2614 21.7426 14.0231C21.4298 13.7848 21.0663 13.6218 20.6803 13.5468C20.3019 13.4734 19.9119 13.4864 19.5394 13.5848ZM7.95605 13.3442C8.10798 13.2816 8.27075 13.2496 8.43505 13.25L13.125 13.25C13.3571 13.25 13.5796 13.3422 13.7437 13.5063C13.9078 13.6704 14 13.8929 14 14.125C14 14.3571 13.9078 14.5796 13.7437 14.7437C13.5796 14.9078 13.3571 15 13.125 15H10V17L13.6135 17L20.0256 15.5252L20.0455 15.5198C20.1282 15.4971 20.2149 15.4938 20.299 15.5102C20.3831 15.5265 20.4623 15.562 20.5305 15.6139C20.5986 15.6659 20.6539 15.7328 20.692 15.8096C20.73 15.8863 20.7499 15.9708 20.75 16.0565C20.7499 16.1594 20.7212 16.2604 20.667 16.348C20.6167 16.4294 20.5462 16.4963 20.4625 16.5424L16.9305 18.0491L11.1269 19.5H5.5V15.6642L7.55011 13.6141C7.66639 13.4984 7.80432 13.4066 7.95605 13.3442ZM2 16.25H3.5V19.5H2V16.25Z"
+    }
+  }]
+};
+var undertakeDeliveryFilled = vue.defineComponent({
+  name: "UndertakeDeliveryFilledIcon",
+  props: {
+    size: {
+      type: String
+    },
+    onClick: {
+      type: Function
+    },
+    fillColor: {
+      type: [Array, String]
+    },
+    strokeColor: {
+      type: [Array, String]
+    },
+    strokeWidth: {
+      type: Number
+    }
+  },
+  setup(props, _ref) {
+    var {
+      attrs
+    } = _ref;
+    var propsSize = vue.computed(() => props.size);
+    var strokeColor1 = vue.computed(() => {
+      if (!props.strokeColor) return "currentColor";
+      return Array.isArray(props.strokeColor) ? props.strokeColor[0] : props.strokeColor;
+    });
+    var strokeColor2 = vue.computed(() => {
+      var _props$strokeColor$;
+      if (!props.strokeColor) return "currentColor";
+      return Array.isArray(props.strokeColor) ? (_props$strokeColor$ = props.strokeColor[1]) !== null && _props$strokeColor$ !== void 0 ? _props$strokeColor$ : props.strokeColor[0] : props.strokeColor;
+    });
+    var fillColor1 = vue.computed(() => {
+      if (!props.fillColor) return "transparent";
+      return Array.isArray(props.fillColor) ? props.fillColor[0] : props.fillColor;
+    });
+    var fillColor2 = vue.computed(() => {
+      var _props$fillColor$;
+      if (!props.fillColor) return "transparent";
+      return Array.isArray(props.fillColor) ? (_props$fillColor$ = props.fillColor[1]) !== null && _props$fillColor$ !== void 0 ? _props$fillColor$ : props.fillColor[0] : props.fillColor;
+    });
+    var filledColor = vue.computed(() => {
+      if (!props.fillColor) return "currentColor";
+      return Array.isArray(props.fillColor) ? props.fillColor[0] : props.fillColor;
+    });
+    var {
+      className,
+      style
+    } = utils_useSizeProps['default'](propsSize);
+    var finalCls = vue.computed(() => ["t-icon", "t-icon-undertake-delivery-filled", className.value]);
+    var finalStyle = vue.computed(() => _objectSpread(_objectSpread({
+      fill: "none"
+    }, style.value), attrs.style));
+    var finalProps = vue.computed(() => ({
+      class: finalCls.value,
+      style: finalStyle.value,
+      onClick: e => {
+        var _props$onClick;
+        return (_props$onClick = props.onClick) === null || _props$onClick === void 0 ? void 0 : _props$onClick.call(props, {
+          e
+        });
+      },
+      strokeColor1: strokeColor1.value,
+      strokeColor2: strokeColor2.value,
+      fillColor1: fillColor1.value,
+      fillColor2: fillColor2.value,
+      strokeWidth: props.strokeWidth || 2,
+      filledColor: filledColor.value
+    }));
+    return () => utils_renderFn['default'](element, finalProps.value);
+  }
+});
+
+exports.default = undertakeDeliveryFilled;
+//# sourceMappingURL=undertake-delivery-filled.js.map

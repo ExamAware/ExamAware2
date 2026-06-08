@@ -1,0 +1,37 @@
+import { type PropType } from 'vue';
+import type { CodeLayoutPanelInternal } from './CodeLayout';
+declare const _default: import("vue").DefineComponent<{
+    item: {
+        type: PropType<CodeLayoutPanelInternal>;
+        required: true;
+    };
+    active: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    direction: {
+        type: PropType<"left" | "right">;
+        default: string;
+    };
+}, {}, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+    activeItem: (...args: any[]) => void;
+}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
+    item: {
+        type: PropType<CodeLayoutPanelInternal>;
+        required: true;
+    };
+    active: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    direction: {
+        type: PropType<"left" | "right">;
+        default: string;
+    };
+}>> & {
+    onActiveItem?: ((...args: any[]) => any) | undefined;
+}, {
+    direction: "left" | "right";
+    active: boolean;
+}, {}>;
+export default _default;

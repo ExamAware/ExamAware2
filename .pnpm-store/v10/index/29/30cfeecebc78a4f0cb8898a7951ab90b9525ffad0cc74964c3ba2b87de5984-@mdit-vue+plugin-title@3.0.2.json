@@ -1,0 +1,37 @@
+{
+  "name": "@mdit-vue/plugin-title",
+  "version": "3.0.2",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883861386,
+      "integrity": "sha512-V8jrj3epJ9iyYRbA3BKBtHI1jl97sBfd2Ptft3tGw2/zpuH+NPTWxThRR/JULqT5zc+aI4GKS8rbkSXruwWzfw==",
+      "mode": 420,
+      "size": 1097
+    },
+    "dist/index.js": {
+      "checkedAt": 1780883862119,
+      "integrity": "sha512-/vnCX7zXVk4oLWq4IBW35OM35JovSqu0ryEXTxZUGD951Vvw6c8hp1ooBW6ZC6+hK6aMq743PohGmG8Fmxu3Kw==",
+      "mode": 420,
+      "size": 577
+    },
+    "package.json": {
+      "checkedAt": 1780883862120,
+      "integrity": "sha512-4yeP/NuC0dMlqGO1YZs52Oc6txS1LcXBhEzF7h09H+NetT6Y4ra2G4xa0FMEqLqii9qZ34v7X81HiXZ+Suxvug==",
+      "mode": 420,
+      "size": 1289
+    },
+    "README.md": {
+      "checkedAt": 1780883862120,
+      "integrity": "sha512-ui0xPEHEJWcT5/FcBkBbOeY+x6UJFLpyWS6hCHQTD0Z4ruiJ1Ev1glBNNcq2tiOANJJ5rPhinldk/kuGCsDF6Q==",
+      "mode": 420,
+      "size": 835
+    },
+    "dist/index.d.ts": {
+      "checkedAt": 1780883862120,
+      "integrity": "sha512-1a2d2EHwxwe8dnD8mTCpXWRT0vKRJBLwBz7NoUZVFfMnOLXTufYcEI6v2yL4zqLHtDwvyh2cHMQu5em3LM1IvA==",
+      "mode": 420,
+      "size": 424
+    }
+  }
+}

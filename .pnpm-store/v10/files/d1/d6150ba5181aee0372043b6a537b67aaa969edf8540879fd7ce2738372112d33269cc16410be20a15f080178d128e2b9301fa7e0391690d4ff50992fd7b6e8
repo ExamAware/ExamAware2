@@ -1,0 +1,52 @@
+import { type PropType } from 'vue';
+import type { CodeLayoutPanelInternal } from './CodeLayout';
+declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<{
+    group: {
+        type: PropType<CodeLayoutPanelInternal>;
+        required: true;
+    };
+    horizontal: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    show: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    type: {
+        type: PropType<"" | "bottom" | "primary" | "secondary">;
+        default: string;
+    };
+}, {
+    forceUpdate(): void;
+}, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
+    group: {
+        type: PropType<CodeLayoutPanelInternal>;
+        required: true;
+    };
+    horizontal: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    show: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    type: {
+        type: PropType<"" | "bottom" | "primary" | "secondary">;
+        default: string;
+    };
+}>>, {
+    show: boolean;
+    horizontal: boolean;
+    type: "" | "bottom" | "primary" | "secondary";
+}, {}>, {
+    panelRender?(_: any): any;
+    emptyTabRender?(_: {}): any;
+}>;
+export default _default;
+type __VLS_WithTemplateSlots<T, S> = T & {
+    new (): {
+        $slots: S;
+    };
+};

@@ -1,0 +1,129 @@
+import { type PropType } from 'vue';
+import type { CodeLayoutPanelInternal } from './CodeLayout';
+declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<{
+    panel: {
+        type: PropType<CodeLayoutPanelInternal>;
+        required: true;
+    };
+    selected: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    /**
+     * Only my self? Id true, do not show header
+     */
+    alone: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    open: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    dragResizeable: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    dragResizeStartHandler: {
+        type: PropType<(panel: CodeLayoutPanelInternal, mousePx: number) => unknown>;
+        default: null;
+    };
+    dragResizeHandler: {
+        type: PropType<(panel: CodeLayoutPanelInternal, data: unknown, mousePx: number) => void>;
+        default: null;
+    };
+    horizontal: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    collapsedSize: {
+        type: NumberConstructor;
+        default: number;
+    };
+    resizeDragging: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    opening: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+}, {}, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+    "update:open": (...args: any[]) => void;
+    "update:resizeDragging": (...args: any[]) => void;
+    toggleHandler: (...args: any[]) => void;
+}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
+    panel: {
+        type: PropType<CodeLayoutPanelInternal>;
+        required: true;
+    };
+    selected: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    /**
+     * Only my self? Id true, do not show header
+     */
+    alone: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    open: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    dragResizeable: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    dragResizeStartHandler: {
+        type: PropType<(panel: CodeLayoutPanelInternal, mousePx: number) => unknown>;
+        default: null;
+    };
+    dragResizeHandler: {
+        type: PropType<(panel: CodeLayoutPanelInternal, data: unknown, mousePx: number) => void>;
+        default: null;
+    };
+    horizontal: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    collapsedSize: {
+        type: NumberConstructor;
+        default: number;
+    };
+    resizeDragging: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    opening: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+}>> & {
+    "onUpdate:open"?: ((...args: any[]) => any) | undefined;
+    "onUpdate:resizeDragging"?: ((...args: any[]) => any) | undefined;
+    onToggleHandler?: ((...args: any[]) => any) | undefined;
+}, {
+    open: boolean;
+    horizontal: boolean;
+    selected: boolean;
+    alone: boolean;
+    dragResizeable: boolean;
+    dragResizeStartHandler: (panel: CodeLayoutPanelInternal, mousePx: number) => unknown;
+    dragResizeHandler: (panel: CodeLayoutPanelInternal, data: unknown, mousePx: number) => void;
+    collapsedSize: number;
+    resizeDragging: boolean;
+    opening: boolean;
+}, {}>, {
+    default?(_: {
+        panel: CodeLayoutPanelInternal;
+        open: true;
+    }): any;
+}>;
+export default _default;
+type __VLS_WithTemplateSlots<T, S> = T & {
+    new (): {
+        $slots: S;
+    };
+};

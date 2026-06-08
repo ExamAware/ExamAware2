@@ -15,6 +15,9 @@
       :large-clock-scale="largeClockScaleSetting"
       :exam-info-large-font="examInfoLargeFontSetting"
       :pre-countdown-minutes="preCountdownMinutesSetting"
+      :pip-show-remaining="pipShowRemainingSetting"
+      :pip-show-current="pipShowCurrentSetting"
+      :material-font-scale="materialFontScaleSetting"
       :hdr-highlight="hdrHighlightSetting"
       @exit="handleExit"
       @room-number-click="handleRoomNumberClick"
@@ -25,6 +28,9 @@
       @large-clock-scale-change="handleLargeClockScaleChange"
       @exam-info-large-font-toggle="handleExamInfoLargeFontToggle"
       @pre-countdown-minutes-change="handlePreCountdownMinutesChange"
+      @pip-show-remaining-change="handlePipShowRemainingChange"
+      @pip-show-current-change="handlePipShowCurrentChange"
+      @material-font-scale-change="handleMaterialFontScaleChange"
       @exam-start="handleExamStart"
       @exam-end="handleExamEnd"
       @exam-alert="handleExamAlert"
@@ -67,7 +73,10 @@ const {
   largeClockEnabled: largeClockEnabledSetting,
   largeClockScale: largeClockScaleSetting,
   examInfoLargeFont: examInfoLargeFontSetting,
-  preCountdownMinutes: preCountdownMinutesSetting
+  preCountdownMinutes: preCountdownMinutesSetting,
+  pipShowRemaining: pipShowRemainingSetting,
+  pipShowCurrent: pipShowCurrentSetting,
+  materialFontScale: materialFontScaleSetting
 } = desktopApi.playback
 
 const defaultRoomSetting = computed(() => {
@@ -177,6 +186,19 @@ const handleExamInfoLargeFontToggle = (enabled: boolean) => {
 
 const handlePreCountdownMinutesChange = (minutes: number) => {
   desktopApi.playback.preCountdownMinutes.value = minutes
+}
+
+const handlePipShowRemainingChange = (value: boolean) => {
+  pipShowRemainingSetting.value = Boolean(value)
+}
+
+const handlePipShowCurrentChange = (value: boolean) => {
+  pipShowCurrentSetting.value = Boolean(value)
+}
+
+const handleMaterialFontScaleChange = (scale: number) => {
+  const safe = Math.min(3, Math.max(1, Number(scale) || 1))
+  materialFontScaleSetting.value = safe
 }
 
 // 考试开始事件

@@ -1,0 +1,1 @@
+{"version":3,"file":"navbar.d.ts","sourceRoot":"","sources":["../../../src/client/typings/navbar.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,eAAe,EAAE,QAAQ,EAAE,MAAM,uBAAuB,CAAC;AAEvE,MAAM,MAAM,cAAc,GAAG,eAAe,CAAC;AAE7C,MAAM,MAAM,UAAU,GAClB,cAAc,GACd,QAAQ,CAAC,eAAe,GAAG,QAAQ,CAAC,cAAc,CAAC,CAAC,CAAC"}

@@ -1,0 +1,37 @@
+{
+  "name": "@shikijs/transformers",
+  "version": "3.20.0",
+  "requiresBuild": false,
+  "files": {
+    "package.json": {
+      "checkedAt": 1780883867300,
+      "integrity": "sha512-EGFsY2t0OD3N+QnYvNB8ssyj5ZMP0ygDYwC7FuZfMWzU5pOcJCYy+5R3dAIG0ZTjOz2SsA/Q6K/OKdozGUsEOg==",
+      "mode": 420,
+      "size": 895
+    },
+    "README.md": {
+      "checkedAt": 1780883867300,
+      "integrity": "sha512-84b/9Je6qM9v/g/lNS2ENuc/AOd85PgS+fJ0up49JQBc43F3sjlc5Y7AJnBlS/IQkTin9Xnhzgbv1obLA+6/cA==",
+      "mode": 420,
+      "size": 246
+    },
+    "dist/index.mjs": {
+      "checkedAt": 1780883867301,
+      "integrity": "sha512-dERP6/zSgcjZcpvKh5mpSNp0r3NklXFThGpBoAcAcVcec+KvrF1ZleD1xEO4EG/Jdr3f97Qybb9U2I8PUREWGg==",
+      "mode": 420,
+      "size": 26168
+    },
+    "dist/index.d.mts": {
+      "checkedAt": 1780883867301,
+      "integrity": "sha512-PTVSS4duQGqm7mNYJqOHmIJPItYxDjObRt2/Eh0XKI7CQtPUz7yx3C4qyO28FC/RIhG1HsYP3X5c8ITsGcqthA==",
+      "mode": 420,
+      "size": 8900
+    },
+    "LICENSE": {
+      "checkedAt": 1780883867174,
+      "integrity": "sha512-5Oyi8HU/tGbhNDzTBpEbXlDP/g0HnJ+Apx3ZgV/SLjr25kzEDWWBkjuJ9jA1oOpl9+t7JW3RLaiSrWU9mz8XIg==",
+      "mode": 420,
+      "size": 1121
+    }
+  }
+}

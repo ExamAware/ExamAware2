@@ -1,0 +1,17 @@
+declare const eslintRules: Record<string, 'off'>;
+declare const importRules: Record<string, 'off'>;
+declare const jestRules: Record<string, 'off'>;
+declare const jsdocRules: Record<string, 'off'>;
+declare const jsxA11yRules: Record<string, 'off'>;
+declare const nextjsRules: Record<string, 'off'>;
+declare const nodeRules: Record<string, 'off'>;
+declare const promiseRules: Record<string, 'off'>;
+declare const reactRules: Record<string, 'off'>;
+declare const reactHooksRules: Record<string, 'off'>;
+declare const reactPerfRules: Record<string, 'off'>;
+declare const typescriptRules: Record<string, 'off'>;
+declare const unicornRules: Record<string, 'off'>;
+declare const vitestRules: Record<string, 'off'>;
+declare const vueRules: Record<string, 'off'>;
+declare const typescriptTypeAwareRules: Record<string, 'off'>;
+export { eslintRules, importRules, jestRules, jsdocRules, jsxA11yRules, nextjsRules, nodeRules, promiseRules, reactRules, reactHooksRules, reactPerfRules, typescriptRules, unicornRules, vitestRules, vueRules, typescriptTypeAwareRules, };

@@ -1,0 +1,31 @@
+{
+  "name": "@types/emscripten",
+  "version": "1.41.5",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883824973,
+      "integrity": "sha512-HQaIQk9pwOcyKutyDk4o2a87WnotwYuLGYFW43emGm4FvIJFKPyg+OYaw5sTegKAKf+C5SKa1ACjzCLivbaHrQ==",
+      "mode": 420,
+      "size": 1141
+    },
+    "README.md": {
+      "checkedAt": 1780883830985,
+      "integrity": "sha512-7j4mkFKM0jh6HzqkK/CB8tv+jJmo5vOe+7cbOzAFksVmz7LjE+WRbRbt12EIYKoKEgRNFBc6KaFAxWy0P8u/cw==",
+      "mode": 420,
+      "size": 670
+    },
+    "index.d.ts": {
+      "checkedAt": 1780883830985,
+      "integrity": "sha512-v1a91BKTGm+na8rH6G4MyysGBkL04VOIY/OFltR1Vd2Yoz6cOgpuxswwa8HoDIUu7spMtQHo1yepdIDRv6JnoA==",
+      "mode": 420,
+      "size": 17294
+    },
+    "package.json": {
+      "checkedAt": 1780883830985,
+      "integrity": "sha512-2VoJuu4yLDE7FuhEU78tYGGGoZNp4leDyRn5xECDiWW/iZHvrw3wss8z8Tg7aab1Ufa8mkKabNEnZ6S5+u5+Ew==",
+      "mode": 420,
+      "size": 1446
+    }
+  }
+}

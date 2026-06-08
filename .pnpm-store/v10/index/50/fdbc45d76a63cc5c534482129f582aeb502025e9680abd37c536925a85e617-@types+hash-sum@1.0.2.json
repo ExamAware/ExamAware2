@@ -1,0 +1,31 @@
+{
+  "name": "@types/hash-sum",
+  "version": "1.0.2",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883824973,
+      "integrity": "sha512-HQaIQk9pwOcyKutyDk4o2a87WnotwYuLGYFW43emGm4FvIJFKPyg+OYaw5sTegKAKf+C5SKa1ACjzCLivbaHrQ==",
+      "mode": 420,
+      "size": 1141
+    },
+    "README.md": {
+      "checkedAt": 1780883862006,
+      "integrity": "sha512-+9EDWdgciPDEtQvrZ9cAF5/TEinT1ct1Zvuo/bUIvZJW0szyoTHURv6diSelf+qEFe/0V2wthvKHFK0NNJsgQw==",
+      "mode": 420,
+      "size": 675
+    },
+    "index.d.ts": {
+      "checkedAt": 1780883862006,
+      "integrity": "sha512-GGiD7rG1OieY7FyHXHP8HAUQfq2miDZgVTec7soxQxE676RmZKs23WIqitp2AH45ee7P/uhUmrY5E8d+pd5qxA==",
+      "mode": 420,
+      "size": 67
+    },
+    "package.json": {
+      "checkedAt": 1780883862007,
+      "integrity": "sha512-rq9EIO/hxHNnlV2CHbazRuf/QeoDHDFi4VfEgxFaSdy8eXVXwX/LJSGffD5Nm+w9qr+eSgd2Irm9W/oCRq6avw==",
+      "mode": 420,
+      "size": 814
+    }
+  }
+}

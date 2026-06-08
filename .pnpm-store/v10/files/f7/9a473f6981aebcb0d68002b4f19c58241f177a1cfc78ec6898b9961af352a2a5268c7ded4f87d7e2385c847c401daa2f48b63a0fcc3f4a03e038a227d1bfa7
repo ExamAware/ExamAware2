@@ -1,0 +1,1 @@
+{"version":3,"file":"config.js","sources":["../src/config.ts"],"sourcesContent":["export const prefix = 't';\n\nexport default {\n  prefix,\n};\n"],"names":["prefix"],"mappings":";;;;IAAaA,SAAS;AAEtB,aAAe;EACbA;AAAA;;;;;"}

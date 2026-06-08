@@ -1,0 +1,42 @@
+@use "@sass-palette/hope-config";
+@use "fonts/crimson.css";
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  font-family: var(--vp-font);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--vp-font-heading);
+}
+
+h1 {
+  // narrow mobile
+  @media (max-width: hope-config.$mobile) {
+    font-size: 1.9rem;
+  }
+}
+
+code {
+  font-family: var(--vp-font-mono);
+}
+
+@media print {
+  @page {
+    --vp-c-bg: #fff !important;
+    --vp-c-text: #000 !important;
+  }
+
+  // ensure line numbers and ext hint are placed at right place
+  div[class*="language-"] {
+    position: relative !important;
+  }
+}

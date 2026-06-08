@@ -1,0 +1,25 @@
+{
+  "name": "bluebird-lst",
+  "version": "1.0.9",
+  "requiresBuild": false,
+  "files": {
+    "package.json": {
+      "checkedAt": 1780883843166,
+      "integrity": "sha512-SzbHZS6w8OM9Ggognt4JHabbDclsQ5MJHDOsNuZMaPxFyqtKTz6Os7H6CR4WVrf6W5KPPjOXgrUaXECR0CRNeg==",
+      "mode": 420,
+      "size": 385
+    },
+    "index.d.ts": {
+      "checkedAt": 1780883843167,
+      "integrity": "sha512-YocWvkoBWwYsJ3HwhDKznsH5WK0H7UX/y1WTO4qxQUJO80xCobqNpS8YMJfepDnxIw05wqDXBAN9ztb4WtDuEQ==",
+      "mode": 420,
+      "size": 60624
+    },
+    "index.js": {
+      "checkedAt": 1780883843168,
+      "integrity": "sha512-0vjLySNcaMJzYRLz9kUazRXMkskk7Ai9G2tAk6EN1vgxD3jiCae5KxgQtj4pNIKt4wxhuGNCxtaFnb4LINNgNA==",
+      "mode": 420,
+      "size": 192
+    }
+  }
+}

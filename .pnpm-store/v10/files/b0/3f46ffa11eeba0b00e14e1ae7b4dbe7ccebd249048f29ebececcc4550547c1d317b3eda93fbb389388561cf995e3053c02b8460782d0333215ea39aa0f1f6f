@@ -1,0 +1,1 @@
+{"version":3,"file":"helpers.js","sourceRoot":"","sources":["../../../src/shared/options/helpers.ts"],"names":[],"mappings":"","sourcesContent":["export type LocaleDataToOption<LocaleData> = {\n  [Key in keyof LocaleData]?: Partial<LocaleData[Key]>;\n};\n"]}

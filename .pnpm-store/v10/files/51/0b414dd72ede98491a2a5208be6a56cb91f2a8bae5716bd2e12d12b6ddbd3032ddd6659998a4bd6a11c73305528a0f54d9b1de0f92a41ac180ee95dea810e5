@@ -1,0 +1,267 @@
+/**
+ * tdesign v1.17.7
+ * (c) 2025 tdesign
+ * @license MIT
+ */
+
+import { defineComponent, ref, reactive, onMounted, nextTick, onUnmounted, watchEffect, provide, createVNode, mergeProps, isVNode } from 'vue';
+import _asyncToGenerator from '@babel/runtime/helpers/asyncToGenerator';
+import _regeneratorRuntime from '@babel/runtime/regenerator';
+import { getOffsetTop, ANCHOR_SHARP_REGEXP } from './utils/index.js';
+import { c as off, i as isServer, b as getScrollContainer, o as on, d as getScroll, s as scrollTo } from '../_chunks/dep-16bcfabc.js';
+import 'lodash-es';
+import props from './props.js';
+import '@babel/runtime/helpers/toConsumableArray';
+import '@babel/runtime/helpers/typeof';
+import { u as useTNodeJSX } from '../_chunks/dep-2accc95a.js';
+import { u as useCommonClassName } from '../_chunks/dep-4f8b6591.js';
+import { u as usePrefixClass } from '../_chunks/dep-9e6d8a78.js';
+import '@babel/runtime/helpers/slicedToArray';
+import '../_chunks/dep-880d05b9.js';
+import '@babel/runtime/helpers/defineProperty';
+import { Affix } from '../affix/index.js';
+import { AnchorInjectionKey } from './consts/index.js';
+import '../_chunks/dep-81b01cae.js';
+import '../_chunks/dep-fe23be6e.js';
+import '../_chunks/dep-fb805f69.js';
+import '../config-provider/hooks/useConfig.js';
+import '../config-provider/utils/context.js';
+import '../_chunks/dep-938cd955.js';
+import 'dayjs';
+import '@babel/runtime/helpers/createClass';
+import '@babel/runtime/helpers/classCallCheck';
+import '../affix/affix.js';
+import '../affix/props.js';
+import '../_chunks/dep-664b8b22.js';
+
+function _isSlot(s) {
+  return typeof s === 'function' || Object.prototype.toString.call(s) === '[object Object]' && !isVNode(s);
+}
+var _Anchor = defineComponent({
+  name: "TAnchor",
+  inheritAttrs: false,
+  props: props,
+  setup: function setup(props2, _ref) {
+    var attrs = _ref.attrs;
+    var anchorRef = ref(null);
+    var links = ref([]);
+    var active = ref("");
+    var scrollContainer = ref(null);
+    var handleScrollLock = ref(false);
+    var activeLineStyle = reactive({});
+    var COMPONENT_NAME = usePrefixClass("anchor");
+    var ANCHOR_LINE_CLASSNAME = usePrefixClass("anchor__line");
+    var ANCHOR_LINE_CURSOR_CLASSNAME = usePrefixClass("anchor__line-cursor");
+    var _useCommonClassName = useCommonClassName(),
+      STATUS = _useCommonClassName.STATUS,
+      SIZE = _useCommonClassName.SIZE;
+    var renderTNodeJSX = useTNodeJSX();
+    var getScrollContainer$1 = function getScrollContainer$1() {
+      if (isServer) {
+        return;
+      }
+      var container = props2.container;
+      scrollContainer.value = getScrollContainer(container);
+      on(scrollContainer.value, "scroll", handleScroll);
+      handleScroll();
+    };
+    var handleScroll = function handleScroll() {
+      if (handleScrollLock.value) return;
+      var bounds = props2.bounds,
+        targetOffset = props2.targetOffset;
+      var filters = [];
+      var active2 = "";
+      links.value.forEach(function (link) {
+        var anchor = getAnchorTarget(link);
+        if (!anchor) {
+          return;
+        }
+        var top = getOffsetTop(anchor, scrollContainer.value);
+        if (top < bounds + targetOffset) {
+          filters.push({
+            link: link,
+            top: top
+          });
+        }
+      });
+      if (filters.length) {
+        var latest = filters.reduce(function (prev, cur) {
+          return prev.top > cur.top ? prev : cur;
+        });
+        active2 = latest.link;
+      }
+      setCurrentActiveLink(active2);
+    };
+    var getAnchorTarget = function getAnchorTarget(link) {
+      var matcher = link.match(ANCHOR_SHARP_REGEXP);
+      if (!matcher) {
+        return;
+      }
+      var anchor = document.getElementById(matcher[1]);
+      if (!anchor) {
+        return;
+      }
+      return anchor;
+    };
+    var registerLink = function registerLink(link) {
+      if (!ANCHOR_SHARP_REGEXP.test(link) || links.value.indexOf(link) !== -1) {
+        return;
+      }
+      links.value.push(link);
+    };
+    var unregisterLink = function unregisterLink(link) {
+      links.value = links.value.filter(function (each) {
+        return each !== link;
+      });
+    };
+    var setCurrentActiveLink = /*#__PURE__*/function () {
+      var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime.mark(function _callee(link) {
+        var _props2$onChange;
+        return _regeneratorRuntime.wrap(function (_context) {
+          while (1) switch (_context.prev = _context.next) {
+            case 0:
+              if (!(active.value === link)) {
+                _context.next = 1;
+                break;
+              }
+              return _context.abrupt("return");
+            case 1:
+              active.value = link;
+              (_props2$onChange = props2.onChange) === null || _props2$onChange === void 0 || _props2$onChange.call(props2, link, active.value);
+              _context.next = 2;
+              return nextTick();
+            case 2:
+              updateActiveLine();
+            case 3:
+            case "end":
+              return _context.stop();
+          }
+        }, _callee);
+      }));
+      return function setCurrentActiveLink(_x) {
+        return _ref2.apply(this, arguments);
+      };
+    }();
+    var updateActiveLine = function updateActiveLine() {
+      var _anchorRef$value;
+      var ele = (_anchorRef$value = anchorRef.value) === null || _anchorRef$value === void 0 ? void 0 : _anchorRef$value.querySelector(".".concat(STATUS.value.active, ">a"));
+      if (!ele) {
+        Object.assign(activeLineStyle, {});
+        return;
+      }
+      var top = ele.offsetTop,
+        height = ele.offsetHeight;
+      Object.assign(activeLineStyle, {
+        top: "".concat(top, "px"),
+        height: "".concat(height, "px"),
+        opacity: 1
+      });
+    };
+    var handleLinkClick = function handleLinkClick(link) {
+      var _props2$onClick;
+      (_props2$onClick = props2.onClick) === null || _props2$onClick === void 0 || _props2$onClick.call(props2, link);
+    };
+    var handleScrollTo = /*#__PURE__*/function () {
+      var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime.mark(function _callee2(link) {
+        var anchor, targetOffset, scrollTop, offsetTop, top;
+        return _regeneratorRuntime.wrap(function (_context2) {
+          while (1) switch (_context2.prev = _context2.next) {
+            case 0:
+              anchor = getAnchorTarget(link);
+              setCurrentActiveLink(link);
+              if (anchor) {
+                _context2.next = 1;
+                break;
+              }
+              return _context2.abrupt("return");
+            case 1:
+              handleScrollLock.value = true;
+              targetOffset = props2.targetOffset;
+              scrollTop = getScroll(scrollContainer.value);
+              offsetTop = getOffsetTop(anchor, scrollContainer.value);
+              top = scrollTop + offsetTop - targetOffset;
+              _context2.next = 2;
+              return scrollTo(top, {
+                container: scrollContainer.value
+              });
+            case 2:
+              handleScrollLock.value = false;
+            case 3:
+            case "end":
+              return _context2.stop();
+          }
+        }, _callee2);
+      }));
+      return function handleScrollTo(_x2) {
+        return _ref3.apply(this, arguments);
+      };
+    }();
+    var renderCursor = function renderCursor() {
+      var titleContent = renderTNodeJSX("cursor");
+      return titleContent || createVNode("div", {
+        "class": ANCHOR_LINE_CURSOR_CLASSNAME.value
+      }, null);
+    };
+    onMounted(/*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regeneratorRuntime.mark(function _callee3() {
+      return _regeneratorRuntime.wrap(function (_context3) {
+        while (1) switch (_context3.prev = _context3.next) {
+          case 0:
+            getScrollContainer$1();
+            if (!active.value) {
+              _context3.next = 2;
+              break;
+            }
+            _context3.next = 1;
+            return nextTick();
+          case 1:
+            handleScrollTo(active.value);
+          case 2:
+          case "end":
+            return _context3.stop();
+        }
+      }, _callee3);
+    })));
+    onUnmounted(function () {
+      if (!scrollContainer.value) return;
+      off(scrollContainer.value, "scroll", handleScroll);
+    });
+    watchEffect(function () {
+      if (scrollContainer.value) {
+        off(scrollContainer.value, "scroll", handleScroll);
+      }
+      getScrollContainer$1();
+    });
+    provide(AnchorInjectionKey, reactive({
+      registerLink: registerLink,
+      unregisterLink: unregisterLink,
+      handleScrollTo: handleScrollTo,
+      handleLinkClick: handleLinkClick,
+      active: active
+    }));
+    return function () {
+      var size = props2.size,
+        affixProps = props2.affixProps;
+      var className = [COMPONENT_NAME.value, SIZE.value[size]];
+      var content = createVNode("div", mergeProps({
+        "ref": anchorRef,
+        "class": className
+      }, attrs), [createVNode("div", {
+        "class": ANCHOR_LINE_CLASSNAME.value
+      }, [createVNode("div", {
+        "class": "".concat(ANCHOR_LINE_CURSOR_CLASSNAME.value, "-wrapper"),
+        "style": activeLineStyle
+      }, [renderCursor()])]), renderTNodeJSX("default")]);
+      if (affixProps) {
+        return createVNode(Affix, affixProps, _isSlot(content) ? content : {
+          "default": function _default() {
+            return [content];
+          }
+        });
+      }
+      return content;
+    };
+  }
+});
+
+export { _Anchor as default };
+//# sourceMappingURL=anchor.js.map

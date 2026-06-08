@@ -268,6 +268,9 @@ function createPlaybackApi(): PlaybackAPI {
       refs.largeClockScale.value = clampLargeClockScale(1)
       refs.examInfoLargeFont.value = false
       refs.preCountdownMinutes.value = 0
+      refs.pipShowRemaining.value = true
+      refs.pipShowCurrent.value = false
+      refs.materialFontScale.value = 1
     }
   }
 }

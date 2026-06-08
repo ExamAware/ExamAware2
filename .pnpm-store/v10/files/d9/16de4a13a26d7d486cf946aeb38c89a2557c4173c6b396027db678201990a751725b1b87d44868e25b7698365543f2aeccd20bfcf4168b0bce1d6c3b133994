@@ -1,0 +1,13 @@
+import type { Ref } from "vue";
+/**
+ * 筛选反人类的 dragenter、dragleave事件，以保证在进入子节点后不会触发dragleave事件
+ * @param ref
+ * @param onEnter
+ * @param onLeave
+ * @returns
+ */
+export declare function useDragEnterLeaveFilter(onEnter: (e: DragEvent) => void, onLeave: (e: DragEvent) => void, element: Ref<HTMLElement | undefined>, storageHolderTag?: string): {
+    onDragEnter: (e: DragEvent) => void;
+    onDragLeave: (e: DragEvent) => void;
+    reset: () => void;
+};

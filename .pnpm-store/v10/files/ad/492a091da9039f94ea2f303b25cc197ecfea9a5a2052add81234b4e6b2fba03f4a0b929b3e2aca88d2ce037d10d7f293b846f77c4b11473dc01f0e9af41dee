@@ -1,0 +1,15 @@
+import { LangString } from './en';
+export type CodeLayoutLangDefine = typeof LangString;
+/**
+ * Add custom lang to CodeLayout language, should be called before CodeLayout component create.
+ * @param lang Lang name
+ * @param strings Content
+ */
+export declare function addCodeLayoutLang(lang: string, strings: CodeLayoutLangDefine): void;
+/**
+ * CodeLayout language string wrapper
+ * @returns
+ */
+export declare function useCodeLayoutLang(): {
+    t: (key: keyof CodeLayoutLangDefine) => string;
+};

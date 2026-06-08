@@ -1,0 +1,64 @@
+{
+  "name": "@vuepress/plugin-markdown-math",
+  "version": "2.0.0-rc.121",
+  "description": "VuePress plugin - markdown math",
+  "keywords": [
+    "vuepress-plugin",
+    "vuepress",
+    "plugin",
+    "markdown",
+    "math"
+  ],
+  "homepage": "https://ecosystem.vuejs.press/plugins/markdown/markdown-math.html",
+  "bugs": {
+    "url": "https://github.com/vuepress/ecosystem/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vuepress/ecosystem.git",
+    "directory": "plugins/markdown/plugin-markdown-math"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Mr.Hope",
+    "email": "mister-hope@outlook.com",
+    "url": "https://mister-hope.com"
+  },
+  "type": "module",
+  "exports": {
+    ".": "./lib/node/index.js",
+    "./package.json": "./package.json"
+  },
+  "main": "./lib/node/index.js",
+  "types": "./lib/node/index.d.ts",
+  "files": [
+    "lib"
+  ],
+  "dependencies": {
+    "@mdit/plugin-katex-slim": "^0.25.1",
+    "@mdit/plugin-mathjax-slim": "^0.24.1",
+    "@types/markdown-it": "^14.1.2",
+    "@vuepress/helper": "2.0.0-rc.121",
+    "vue": "^3.5.25"
+  },
+  "devDependencies": {
+    "markdown-it": "^14.1.0"
+  },
+  "peerDependencies": {
+    "@mathjax/src": "^4.0.0",
+    "katex": "^0.16.21",
+    "vuepress": "2.0.0-rc.26"
+  },
+  "peerDependenciesMeta": {
+    "@mathjax/src": {
+      "optional": true
+    },
+    "katex": {
+      "optional": true
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "8711ffd5101434c786d865c501141ab04a252846"
+}

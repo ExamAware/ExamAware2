@@ -1,0 +1,171 @@
+@keyframes t-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes t-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes t-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.t-icon-loading {
+  animation: t-spin 1s linear infinite;
+}
+@keyframes t-zoom-out {
+  from {
+    transform: scale(0.2);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+.t-tag-input {
+  font: var(--td-font-body-medium);
+  color: var(--td-text-color-primary);
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  /** 设计稿：未填充标签场景，边距和已填充不同 */
+}
+.t-tag-input .t-tag {
+  vertical-align: middle;
+  animation: t-fade-in 0.2s ease-in-out;
+  margin: 3px var(--td-comp-margin-xs) 3px 0;
+}
+.t-tag-input .t-tag-input__drag_wrapper + .t-tag-input__drag_wrapper {
+  margin-left: var(--td-comp-margin-xs);
+}
+.t-tag-input .t-input {
+  overflow: hidden;
+  min-height: var(--td-comp-size-m);
+  height: fit-content;
+  padding: 0 var(--td-comp-paddingLR-s) 0 var(--td-comp-margin-xs);
+}
+.t-tag-input .t-input .t-input__suffix-icon {
+  right: var(--td-comp-margin-s);
+}
+.t-tag-input .t-input.t-size-s {
+  padding: 0 var(--td-comp-paddingLR-s) 0 var(--td-comp-margin-xs);
+  min-height: var(--td-comp-size-xs);
+}
+.t-tag-input .t-input.t-size-s .t-tag {
+  margin: 1px var(--td-comp-margin-xs) 1px 0;
+}
+.t-tag-input .t-input.t-size-l {
+  min-height: var(--td-comp-size-xl);
+  padding: 0 var(--td-comp-paddingLR-m) 0 var(--td-comp-margin-s);
+}
+.t-tag-input .t-input.t-size-l .t-input__suffix-icon {
+  right: var(--td-comp-margin-m);
+}
+.t-tag-input.t-is-empty .t-input__inner {
+  margin-left: var(--td-comp-margin-xs);
+}
+.t-tag-input:hover .t-input__inner:not(.t-input--soft-hidden),
+.t-tag-input .t-input--focused .t-input__inner:not(.t-input--soft-hidden) {
+  min-width: 20px;
+}
+.t-tag-input .t-tag-input__prefix {
+  margin-left: var(--td-comp-margin-xs);
+  line-height: 1;
+}
+.t-tag-input .t-tag-input__prefix > .t-icon {
+  color: var(--td-text-color-placeholder);
+}
+.t-tag-input .t-input .t-input__prefix:not(:empty) {
+  margin-right: 0;
+}
+.t-tag-input.t-input--auto-width .t-input.t-input--focused {
+  padding-right: calc(var(--td-comp-paddingLR-xxl) + var(--td-comp-paddingLR-xxs));
+}
+.t-tag-input.t-input--auto-width .t-input__prefix {
+  white-space: nowrap;
+}
+.t-tag-input .t-input__prefix--scrollable {
+  overflow-y: hidden;
+  overflow-x: auto;
+}
+@-moz-document url-prefix() {
+  .t-tag-input .t-input__prefix--scrollable {
+    scrollbar-color: var(--td-scrollbar-color) transparent;
+    scrollbar-width: thin;
+  }
+}
+.t-tag-input .t-input__prefix--scrollable::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.t-tag-input .t-input__prefix--scrollable::-webkit-scrollbar-thumb {
+  border: 0px solid transparent;
+  background-clip: content-box;
+  background-color: var(--td-scrollbar-color);
+  border-radius: 11px;
+}
+.t-tag-input .t-input__prefix--scrollable::-webkit-scrollbar-thumb:vertical:hover,
+.t-tag-input .t-input__prefix--scrollable::-webkit-scrollbar-thumb:horizontal:hover {
+  background-color: var(--td-scrollbar-hover-color);
+}
+.t-tag-input__suffix-clear {
+  cursor: pointer;
+}
+.t-tag-input--drag-sort .t-input__prefix .t-tag {
+  cursor: move;
+}
+.t-tag-input--break-line:not(.t-is-empty) .t-input {
+  display: block;
+}
+.t-tag-input--break-line:not(.t-is-empty) .t-input.t-input--prefix > .t-input__prefix {
+  display: inline;
+  text-align: left;
+}
+.t-tag-input--break-line:not(.t-is-empty) .t-input .t-input__suffix-icon {
+  position: absolute;
+  bottom: 0;
+}
+.t-tag-input--break-line:not(.t-is-empty) .t-tag-input__prefix {
+  vertical-align: middle;
+}
+.t-tag-input__prefix {
+  width: max-content;
+  display: inline-block;
+  margin-right: var(--td-comp-margin-s);
+}
+/** 换行模式避免标签和右侧图标重合，需保留图标宽度 22px 和左侧距离标签间距 8px */
+.t-tag-input--break-line.t-tag-input--with-tag:not(.t-input--auto-width) .t-input,
+.t-tag-input.t-input--auto-width:hover .t-input {
+  padding-right: calc(var(--td-comp-paddingLR-xxl) + var(--td-comp-paddingLR-xxs));
+}
+.t-tag-input--break-line.t-tag-input--with-tag:not(.t-input--auto-width) .t-size-l .t-input,
+.t-tag-input.t-input--auto-width:hover .t-size-l .t-input {
+  padding-right: calc(var(--td-comp-paddingLR-xxl) + var(--td-comp-paddingLR-xs));
+}
+/** auto-width 模式，左右边距相同 */
+.t-tag-input.t-input--auto-width .t-input {
+  padding-right: 0;
+}
+/** max-rows模式，限制最大高度 */
+.t-tag-input--max-rows .t-input {
+  max-height: calc(var(--max-rows, 1) * (var(--td-comp-size-m) - 2px));
+  overflow-y: scroll;
+}
+.t-tag-input--max-rows .t-input.t-size-s {
+  max-height: calc(var(--max-rows, 1) * var(--td-comp-size-xs));
+}
+.t-tag-input--max-rows .t-input.t-size-l {
+  max-height: calc(var(--max-rows, 1) * (var(--td-comp-size-xl) - 2px));
+}

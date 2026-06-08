@@ -1,0 +1,55 @@
+{
+  "name": "@vue/devtools-api",
+  "version": "8.0.5",
+  "requiresBuild": false,
+  "files": {
+    "dist/index.cjs": {
+      "checkedAt": 1780883861149,
+      "integrity": "sha512-i+J56eX546sra0326jqNFfcg4Z4ze8M54rdBrwIF5bknozoVgv75HPr2r1sibzlNk1TDxtl7Bn+BfCam/lbLSQ==",
+      "mode": 420,
+      "size": 1139
+    },
+    "dist/index.d.cts": {
+      "checkedAt": 1780883861150,
+      "integrity": "sha512-SXc5Za3fbOSltQZLeZpSVPdciSORynyFHDT4RZszVlS/PsVo6H9EsYcCZ0sxaudydxcfXzZ9Yx9HUZyV7Ft2Jg==",
+      "mode": 420,
+      "size": 25157
+    },
+    "dist/chunk.js": {
+      "checkedAt": 1780883856268,
+      "integrity": "sha512-I29vkuV303gH7GqVS2X9Oo1Cv2gY4cXn24W7tgVbwi39BQ1841m/ZDk1RMIMImmGbaTRm6YzS0rQl6KqyntmVw==",
+      "mode": 420,
+      "size": 989
+    },
+    "dist/index.js": {
+      "checkedAt": 1780883861150,
+      "integrity": "sha512-eQYdED3IHdXFc7IAMy949cUzpmrkWwF8un9USAZgPOTmZSNnc+2U+DAYd6QyFBWdZIYhW6QEdbra1hU6Coewyw==",
+      "mode": 420,
+      "size": 356
+    },
+    "package.json": {
+      "checkedAt": 1780883861150,
+      "integrity": "sha512-8QP7XqDMBtHcI9C7L8nA6mf7EUc2sBzrskzhiVi7Sc5HI8NAjIU5X71MVyGpCIQz+ejP+NwrBNJ4ayfMBOKwtA==",
+      "mode": 420,
+      "size": 694
+    },
+    "README.md": {
+      "checkedAt": 1780883846376,
+      "integrity": "sha512-BY/4YErxU4dRCvaq8+eEFxneaKjLoJXs3IO1r3+TbywF83o2hfBJUu4hvWCe9Wsvpk13Yb2WBN8HVcgz4sSlxw==",
+      "mode": 420,
+      "size": 187
+    },
+    "dist/index.d.ts": {
+      "checkedAt": 1780883861150,
+      "integrity": "sha512-SXc5Za3fbOSltQZLeZpSVPdciSORynyFHDT4RZszVlS/PsVo6H9EsYcCZ0sxaudydxcfXzZ9Yx9HUZyV7Ft2Jg==",
+      "mode": 420,
+      "size": 25157
+    },
+    "LICENSE": {
+      "checkedAt": 1780883846376,
+      "integrity": "sha512-yLl3n2Vdi9s8yrXmZl6xGtVSUy2Y7PmNuYgnmtNKbAbdVYVAlgL7N42wY3vWSI+QPfGQRtUBJe4bI7Pls2v//w==",
+      "mode": 420,
+      "size": 1067
+    }
+  }
+}

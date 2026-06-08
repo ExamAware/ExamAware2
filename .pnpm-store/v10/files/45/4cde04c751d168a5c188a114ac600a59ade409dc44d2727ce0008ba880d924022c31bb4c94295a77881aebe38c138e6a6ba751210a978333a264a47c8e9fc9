@@ -1,0 +1,31 @@
+declare const _default: import("vue").DefineComponent<{
+    content: {
+        type: null;
+        required: true;
+    };
+    class: {
+        type: StringConstructor;
+        default: string;
+    };
+    fallback: {
+        type: StringConstructor;
+        default: null;
+    };
+}, unknown, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
+    content: {
+        type: null;
+        required: true;
+    };
+    class: {
+        type: StringConstructor;
+        default: string;
+    };
+    fallback: {
+        type: StringConstructor;
+        default: null;
+    };
+}>>, {
+    class: string;
+    fallback: string;
+}, {}>;
+export default _default;

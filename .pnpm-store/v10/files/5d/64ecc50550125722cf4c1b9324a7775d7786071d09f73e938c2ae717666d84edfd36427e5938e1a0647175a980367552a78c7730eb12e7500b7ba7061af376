@@ -1,0 +1,21 @@
+/**
+ * tdesign v1.17.7
+ * (c) 2025 tdesign
+ * @license MIT
+ */
+
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+var props = {
+  content: {
+    type: [String, Function]
+  },
+  "default": {
+    type: [String, Function]
+  }
+};
+
+exports["default"] = props;
+//# sourceMappingURL=content-props.js.map

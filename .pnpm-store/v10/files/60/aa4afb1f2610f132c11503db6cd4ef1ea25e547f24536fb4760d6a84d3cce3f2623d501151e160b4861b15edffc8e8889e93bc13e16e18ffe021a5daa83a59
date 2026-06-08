@@ -1,0 +1,16 @@
+.spoiler {
+  background-color: currentColor;
+  border-radius: 0.2em;
+  transition: background ease 0.5s;
+  cursor: help;
+}
+
+.spoiler:not(:hover) * {
+  background-color: inherit;
+  color: inherit;
+}
+
+.spoiler:hover,
+.spoiler:focus {
+  background-color: transparent;
+}

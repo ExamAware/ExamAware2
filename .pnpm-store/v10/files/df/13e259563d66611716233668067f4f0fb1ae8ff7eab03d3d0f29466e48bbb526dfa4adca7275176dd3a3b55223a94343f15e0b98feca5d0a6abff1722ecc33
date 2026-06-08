@@ -1,0 +1,55 @@
+{
+  "name": "@electron-toolkit/eslint-config-ts",
+  "version": "3.1.0",
+  "description": "Basic ESLint config for Electron-TypeScript projects.",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    }
+  },
+  "files": [
+    "eslint-base.js",
+    "eslint-recommended-type-checked.js",
+    "eslint-recommended.js",
+    "eslint-typescript.js",
+    "index.js",
+    "index.d.ts"
+  ],
+  "author": "Alex Wei<https://github.com/alex8088>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alex8088/electron-toolkit.git",
+    "directory": "packages/eslint-config-ts"
+  },
+  "bugs": {
+    "url": "https://github.com/alex8088/electron-toolkit/issues"
+  },
+  "homepage": "https://github.com/alex8088/electron-toolkit/tree/master/packages/eslint-config-ts#readme",
+  "keywords": [
+    "electron",
+    "eslint",
+    "typescript"
+  ],
+  "dependencies": {
+    "@eslint/js": "^9.24.0",
+    "globals": "^16.0.0",
+    "typescript-eslint": "^8.29.1"
+  },
+  "devDependencies": {
+    "eslint": "^9.18.0",
+    "typescript": "^5.7.3"
+  },
+  "peerDependencies": {
+    "eslint": ">=9.0.0",
+    "typescript": "*"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
+  }
+}

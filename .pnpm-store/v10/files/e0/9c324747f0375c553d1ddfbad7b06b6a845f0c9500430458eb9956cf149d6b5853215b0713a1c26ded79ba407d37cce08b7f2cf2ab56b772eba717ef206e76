@@ -1,0 +1,278 @@
+@use "@sass-palette/hope-config";
+@keyframes cursor-blink {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.vp-portfolio {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  box-sizing: border-box;
+
+  &:not(.bg) {
+    background: var(--vp-c-accent-soft);
+
+    &::after {
+      content: "";
+
+      position: absolute;
+      inset-inline-start: -200px;
+      top: -200px;
+      z-index: -1;
+
+      width: 1000px;
+      height: 1000px;
+      border-radius: 50%;
+
+      background-color: var(--vp-c-white);
+
+      @media (max-width: hope-config.$pad) {
+        display: none;
+      }
+    }
+  }
+
+  &-mask {
+    position: absolute;
+    inset: 0;
+
+    &::after {
+      content: " ";
+
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+
+      display: block;
+
+      background: #888;
+
+      opacity: 0.2;
+    }
+
+    &.light {
+      display: block;
+
+      [data-theme="dark"] & {
+        display: none;
+      }
+    }
+
+    &.dark {
+      display: none;
+
+      [data-theme="dark"] & {
+        display: block;
+      }
+    }
+  }
+
+  &-avatar {
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0;
+    bottom: 0;
+
+    display: flex;
+    align-items: end;
+    justify-content: center;
+
+    width: 50vw;
+    height: 100vh;
+    border-radius: 10px;
+
+    @media (min-width: hope-config.$pc) {
+      width: 60vw;
+    }
+
+    @media (max-width: hope-config.$pad) {
+      width: 100vw;
+    }
+
+    img {
+      max-height: 93vh;
+
+      &.light {
+        display: block;
+
+        // stylelint-disable-next-line max-nesting-depth
+        [data-theme="dark"] & {
+          display: none;
+        }
+      }
+
+      &.dark {
+        display: none;
+
+        // stylelint-disable-next-line max-nesting-depth
+        [data-theme="dark"] & {
+          display: block;
+        }
+      }
+    }
+  }
+
+  &-container {
+    position: relative;
+    z-index: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    box-sizing: border-box;
+    min-height: 100vh;
+    padding-top: 120px;
+    padding-bottom: 70px;
+  }
+
+  &-info {
+    position: relative;
+
+    flex: 0 0 50%;
+
+    box-sizing: border-box;
+    max-width: 50%;
+    padding: 0 25px;
+
+    @media (max-width: hope-config.$pad) {
+      position: absolute;
+      right: 15px;
+      bottom: 15px;
+      left: 15px;
+
+      flex: 0 0 100%;
+
+      max-width: unset;
+      padding: 2rem 1.5rem;
+      border-radius: 0.5rem;
+
+      background: var(--vp-c-bg-soft);
+
+      text-align: center;
+    }
+
+    .vp-social-medias {
+      justify-content: start;
+
+      @media (max-width: hope-config.$pad) {
+        justify-content: center;
+      }
+    }
+  }
+
+  &-welcome {
+    margin: 0 0 10px;
+    padding: 0;
+
+    color: var(--vp-c-accent);
+
+    font-weight: 600;
+    font-size: 28px;
+
+    @media (max-width: hope-config.$pad) {
+      font-size: 18px;
+    }
+  }
+
+  &-name {
+    margin: 0 0 10px;
+    padding: 0;
+
+    color: var(--vp-c-black);
+
+    font-weight: bold;
+    font-size: 64px;
+
+    @media (min-width: hope-config.$pc) {
+      font-size: 72px;
+    }
+
+    @media (max-width: hope-config.$pad) {
+      font-size: 36px;
+    }
+  }
+
+  &-title {
+    position: relative;
+
+    margin: 0;
+    padding: 0;
+    border-bottom: none;
+
+    color: var(--vp-c-accent);
+
+    font-weight: 600;
+    font-size: 25px;
+
+    @media (max-width: hope-config.$pad) {
+      font-size: 18px;
+    }
+
+    &::after {
+      content: "";
+
+      display: inline-block;
+      vertical-align: top;
+
+      width: 2px;
+      height: 1.3em;
+
+      background: var(--vp-c-accent-bg);
+
+      animation-name: cursor-blink;
+      animation-duration: 1s;
+      animation-iteration-count: infinite;
+    }
+  }
+
+  &-medias {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-top: 20px;
+
+    @media (min-width: hope-config.$pad) {
+      justify-content: flex-start;
+    }
+  }
+
+  &-media {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+
+    background: var(--vp-c-accent-bg);
+    color: var(--vp-c-white);
+
+    transition: ease all 0.35s;
+
+    &:hover {
+      background-color: var(--vp-c-accent-hover);
+      cursor: pointer;
+    }
+
+    &::after {
+      --balloon-font-size: 10px;
+      padding: 0.2em 0.4em !important;
+    }
+
+    + a {
+      margin-inline-start: 5px;
+    }
+  }
+}

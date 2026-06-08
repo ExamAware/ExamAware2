@@ -1,0 +1,10 @@
+import dayjs from 'dayjs';
+import { TdCalendarProps, CalendarCell } from '../type';
+import { CalendarState } from '../types';
+export declare const getDay: (dt: Date) => number;
+export declare const getDayCn: (num: number) => string;
+export declare const getCellColIndex: (firstDayOfWeek: number, dt: Date) => number;
+export declare const addDate: (dt: Date, days: number) => Date;
+export declare const createYearCellsData: (props: TdCalendarProps, state: CalendarState) => CalendarCell[];
+export declare const createMonthCellsData: (props: TdCalendarProps, state: CalendarState) => CalendarCell[][];
+export declare const createDefaultCurDate: () => dayjs.Dayjs;

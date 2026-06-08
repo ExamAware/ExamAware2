@@ -1,0 +1,1 @@
+{"version":3,"file":"index.js","sources":["../../src/iconfont/index.ts"],"sourcesContent":["import _Icon from './icon';\n\nexport const IconFont = _Icon;\nexport default IconFont;\n"],"names":["IconFont","_Icon"],"mappings":";;;;;;;;;;IAEaA,WAAWC;;;;;"}

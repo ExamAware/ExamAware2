@@ -1,0 +1,77 @@
+{
+  "name": "vue-qrcode-reader",
+  "version": "5.7.3",
+  "description": "A set of Vue.js components for detecting and decoding QR codes.",
+  "author": {
+    "name": "Niklas Gruhn",
+    "email": "niklas@gruhn.me"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@8.3.1",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "format": "prettier **/*.{vue,ts,json,md} --write --ignore-path .gitignore --ignore-path docs/.gitignore",
+    "type-check": "vue-tsc --noEmit -p tsconfig.app.json --composite false",
+    "prepack": "pnpm run build"
+  },
+  "main": "./dist/vue-qrcode-reader.js",
+  "module": "./dist/vue-qrcode-reader.js",
+  "unpkg": "./dist/vue-qrcode-reader.umd.js",
+  "exports": {
+    ".": {
+      "import": "./dist/vue-qrcode-reader.js",
+      "require": "./dist/vue-qrcode-reader.umd.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "barcode-detector": "2.2.2",
+    "webrtc-adapter": "8.2.3"
+  },
+  "devDependencies": {
+    "@tsconfig/node20": "20.1.2",
+    "@types/node": "20.10.5",
+    "@types/w3c-image-capture": "1.0.10",
+    "@vite-pwa/vitepress": "0.3.1",
+    "@vitejs/plugin-vue": "4.5.2",
+    "@vue/compiler-sfc": "3.3.13",
+    "@vue/eslint-config-prettier": "8.0.0",
+    "@vue/eslint-config-typescript": "12.0.0",
+    "@vue/tsconfig": "0.5.1",
+    "eslint": "8.56.0",
+    "eslint-plugin-prettier": "5.1.0",
+    "eslint-plugin-vue": "9.19.2",
+    "prettier": "3.1.1",
+    "semantic-release": "22.0.12",
+    "typescript": "5.5.3",
+    "vite": "5.0.10",
+    "vite-plugin-dts": "3.6.4",
+    "vitepress": "1.0.0-rc.32",
+    "vue": "3.3.13",
+    "vue-tsc": "2.1.10",
+    "workbox-window": "7.0.0"
+  },
+  "bugs": "https://github.com/gruhn/vue-qrcode-reader/issues",
+  "homepage": "https://gruhn.github.io/vue-qrcode-reader/",
+  "keywords": [
+    "vue",
+    "vuejs",
+    "vue-component",
+    "qrcode",
+    "qrcode-reader",
+    "qrcode-scanner",
+    "webrtc"
+  ],
+  "license": "MIT",
+  "repository": "github:gruhn/vue-qrcode-reader"
+}

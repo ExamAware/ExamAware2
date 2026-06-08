@@ -1,0 +1,43 @@
+{
+  "name": "node-api-version",
+  "version": "0.2.1",
+  "requiresBuild": false,
+  "files": {
+    "README.md": {
+      "checkedAt": 1780883841491,
+      "integrity": "sha512-zPsjK7CwoUqRZtP6VF8nq3Pg0eugZKT3iiMQxp56KBx8/6ZEWAqLe59COWM3Rbc0FYcFJbIpfCyAX2AuFGsBeg==",
+      "mode": 420,
+      "size": 416
+    },
+    "electron-versions.js": {
+      "checkedAt": 1780883841491,
+      "integrity": "sha512-svHtJ0hVjnFsKTH/0Pt33GD6Im8lTpo7gTdYE1yyMcDKL5RvtCxn/TmqmCwJugncV/t08zmgLY9NZcYEJ6wNpg==",
+      "mode": 420,
+      "size": 1167
+    },
+    "index.js": {
+      "checkedAt": 1780883841491,
+      "integrity": "sha512-pH+rMD7oV9Nh4OEOcu/WEJI3pG3SOxvjJxXU+QEfxCRzfi82vosIxcU38m0831EPrKCQq4UPRKLPn/cDEIdJSQ==",
+      "mode": 420,
+      "size": 1302
+    },
+    "package.json": {
+      "checkedAt": 1780883841492,
+      "integrity": "sha512-2W2jNFEEqTSz2VEcpSdWkF+VH3QHbM6Bgr5DhEd86uSSURiG5a6BtJAPuo0335XCAFaleDR2kBA9Tj+ATW364g==",
+      "mode": 420,
+      "size": 581
+    },
+    "test.js": {
+      "checkedAt": 1780883841492,
+      "integrity": "sha512-kp37t1Br8pcxARMW146x8zQ3GOnw00j3szgN2gDgzGItiC9pH/4j5VcISsrn7HgrrblxR6qAvEhFSyDShPaPlQ==",
+      "mode": 420,
+      "size": 2191
+    },
+    "types.d.ts": {
+      "checkedAt": 1780883841492,
+      "integrity": "sha512-sN1xRJaPjJHT3EwowMcilrGcLU2Fe55ZsWSCjMLoE2WYvFYggB9Rf3GlUc7lbCtE9I1eDAswpRzqMTuZ2RtldQ==",
+      "mode": 420,
+      "size": 168
+    }
+  }
+}

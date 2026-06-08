@@ -1,0 +1,162 @@
+.t-cascader .t-fake-arrow {
+  color: var(--td-text-color-placeholder);
+}
+.t-cascader .t-fake-arrow--active {
+  color: var(--td-brand-color);
+}
+.t-cascader__popup .t-popup__content {
+  padding: 0;
+  box-shadow: var(--td-shadow-2);
+  border-radius: var(--td-radius-medium);
+  border: 0.5px solid var(--td-component-border);
+  overflow: hidden;
+}
+.t-cascader__panel {
+  display: flex;
+  height: 100%;
+}
+.t-cascader__panel.t-cascader--normal {
+  height: 200px;
+}
+.t-cascader__panel.t-cascader--multiple {
+  height: 280px;
+}
+.t-cascader__panel--empty {
+  width: 100%;
+  height: var(--td-comp-size-s);
+  line-height: var(--td-comp-size-s);
+  color: var(--td-text-color-disabled);
+  margin: var(--td-pop-padding-m);
+  text-align: center;
+  padding-left: 0;
+}
+.t-cascader__panel--empty:hover {
+  background: none;
+  cursor: default;
+}
+.t-cascader__menu {
+  width: 148px;
+  overflow: auto;
+  box-sizing: content-box;
+  padding: var(--td-pop-padding-m);
+  background: var(--td-bg-color-container);
+  margin: 0;
+}
+.t-cascader__menu.t-size-l {
+  padding: var(--td-pop-padding-l);
+}
+.t-cascader__menu.t-size-s {
+  padding: var(--td-pop-padding-s);
+}
+.t-cascader__menu--segment {
+  border-right: 1px solid var(--td-component-stroke);
+}
+.t-cascader__menu--filter {
+  width: auto;
+  min-width: 148px;
+}
+.t-cascader__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: var(--td-comp-size-s);
+  font: var(--td-font-body-medium);
+  color: var(--td-text-color-primary);
+  padding: 0 var(--td-comp-paddingLR-s);
+  border-radius: var(--td-radius-default);
+  margin-top: var(--td-comp-margin-xxs);
+  transition: background-color 0.2s cubic-bezier(0.82, 0, 1, 0.9);
+  list-style: none;
+  --ripple-color: var(--td-bg-color-container-active);
+}
+.t-cascader__item.t-size-s {
+  height: var(--td-comp-size-xs);
+  font: var(--td-font-body-small);
+  padding: 0px var(--td-comp-paddingLR-s);
+}
+.t-cascader__item.t-size-l {
+  height: var(--td-comp-size-m);
+  font: var(--td-font-body-large);
+  padding: 0 var(--td-comp-paddingLR-m);
+}
+.t-cascader__item.t-is-disabled {
+  color: var(--td-text-color-disabled);
+  background-color: transparent;
+  cursor: not-allowed;
+}
+.t-cascader__item-icon.t-icon {
+  position: absolute;
+  height: 100%;
+  right: 0;
+  top: 0;
+  background: transparent;
+  margin: 0 8px;
+  font-size: 16px;
+  color: var(--td-text-color-placeholder);
+}
+.t-cascader__item-icon.t-loading {
+  display: flex;
+  color: var(--td-text-color-brand);
+}
+.t-cascader__item.t-is-expanded {
+  background: var(--td-brand-color-light);
+  color: var(--td-text-color-brand);
+}
+.t-cascader__item.t-is-expanded .t-icon-chevron-right {
+  color: var(--td-text-color-brand);
+}
+.t-cascader__item.t-is-expanded:hover {
+  cursor: pointer;
+}
+.t-cascader__item:first-child {
+  margin-top: 0;
+}
+.t-cascader__item .t-checkbox {
+  max-width: 100%;
+}
+.t-cascader__item .t-checkbox .t-checkbox__input {
+  flex-shrink: 0;
+}
+.t-cascader__item .t-checkbox .t-checkbox__label {
+  display: block;
+  white-space: nowrap;
+  word-wrap: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.t-cascader__item .t-checkbox .t-checkbox__label .t-cascader__item__label--filter {
+  color: var(--td-text-color-brand);
+}
+.t-cascader__item--with-icon .t-checkbox__label,
+.t-cascader__item--with-icon .t-cascader__item-label {
+  margin-right: 16px;
+}
+.t-cascader__item--leaf .t-checkbox {
+  width: 100%;
+}
+.t-cascader__item-label {
+  display: block;
+  position: relative;
+  white-space: nowrap;
+  padding: 0;
+}
+.t-cascader__item-label--ellipsis {
+  white-space: nowrap;
+  word-wrap: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.t-cascader__item-label--filter {
+  color: var(--td-text-color-brand);
+}
+.t-cascader__item:hover:not(.t-is-expanded):not(.t-is-disabled) {
+  background: var(--td-bg-color-container-hover);
+  cursor: pointer;
+}
+.t-cascader__item.t-is-selected {
+  color: var(--td-brand-color);
+  background: var(--td-brand-color-light);
+}
+.t-cascader__item.t-is-selected .t-checkbox__label {
+  color: var(--td-brand-color);
+}

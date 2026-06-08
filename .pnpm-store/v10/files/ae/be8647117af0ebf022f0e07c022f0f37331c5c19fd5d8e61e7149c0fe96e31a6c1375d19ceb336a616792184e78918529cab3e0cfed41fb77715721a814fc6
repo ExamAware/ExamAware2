@@ -1,0 +1,126 @@
+import { type PropType } from 'vue';
+declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<{
+    /**
+     * Items to display, render by slot
+     */
+    items: {
+        type: PropType<any[]>;
+        default: () => object;
+    };
+    /**
+     * Key of the item.visible, used to identify the item visibility
+     */
+    visibleKey: {
+        type: StringConstructor;
+        default: string;
+    };
+    /**
+     * Direction of the menu
+     */
+    menuDirection: {
+        type: PropType<"down" | "up">;
+        default: string;
+    };
+    /**
+     * Activated item, activated item will not be hidden
+     */
+    activeItem: {
+        type: null;
+        default: null;
+    };
+    /**
+     * Direction of the list, horizontal or vertical
+     */
+    direction: {
+        type: PropType<"vertical" | "horizontal">;
+        default: string;
+    };
+    /**
+     * Label of the item in the context menu
+     */
+    itemMenuLabel: {
+        type: PropType<(item: any) => string>;
+        default: null;
+    };
+    /**
+     * Mergin of the item when collapse
+     */
+    itemCollapseMergin: {
+        type: NumberConstructor;
+        default: number;
+    };
+}, {}, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+    overflowItemClicked: (...args: any[]) => void;
+}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
+    /**
+     * Items to display, render by slot
+     */
+    items: {
+        type: PropType<any[]>;
+        default: () => object;
+    };
+    /**
+     * Key of the item.visible, used to identify the item visibility
+     */
+    visibleKey: {
+        type: StringConstructor;
+        default: string;
+    };
+    /**
+     * Direction of the menu
+     */
+    menuDirection: {
+        type: PropType<"down" | "up">;
+        default: string;
+    };
+    /**
+     * Activated item, activated item will not be hidden
+     */
+    activeItem: {
+        type: null;
+        default: null;
+    };
+    /**
+     * Direction of the list, horizontal or vertical
+     */
+    direction: {
+        type: PropType<"vertical" | "horizontal">;
+        default: string;
+    };
+    /**
+     * Label of the item in the context menu
+     */
+    itemMenuLabel: {
+        type: PropType<(item: any) => string>;
+        default: null;
+    };
+    /**
+     * Mergin of the item when collapse
+     */
+    itemCollapseMergin: {
+        type: NumberConstructor;
+        default: number;
+    };
+}>> & {
+    onOverflowItemClicked?: ((...args: any[]) => any) | undefined;
+}, {
+    direction: "vertical" | "horizontal";
+    items: any[];
+    visibleKey: string;
+    menuDirection: "down" | "up";
+    activeItem: any;
+    itemMenuLabel: (item: any) => string;
+    itemCollapseMergin: number;
+}, {}>, {
+    item?(_: {
+        item: any;
+        index: number;
+    }): any;
+    overflowItem?(_: {}): any;
+}>;
+export default _default;
+type __VLS_WithTemplateSlots<T, S> = T & {
+    new (): {
+        $slots: S;
+    };
+};

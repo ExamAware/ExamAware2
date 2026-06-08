@@ -1,0 +1,178 @@
+.t-notification {
+  color: var(--td-text-color-primary);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font: var(--td-font-body-medium);
+  outline: 0;
+  border: 0;
+  background-color: var(--td-bg-color-container);
+  display: flex;
+  box-shadow: var(--td-shadow-2), var(--td-shadow-inset-top), var(--td-shadow-inset-right), var(--td-shadow-inset-bottom), var(--td-shadow-inset-left);
+  box-sizing: border-box;
+  border-radius: var(--td-radius-medium);
+  width: 360px;
+  padding: var(--td-comp-paddingTB-l) var(--td-comp-paddingLR-l);
+}
+.t-notification__icon {
+  width: calc(var(--td-font-size-body-large) + 8px);
+  text-align: center;
+  margin-right: var(--td-comp-margin-s);
+}
+.t-notification__icon .t-icon {
+  font-size: calc(var(--td-font-size-body-large) + 8px);
+}
+.t-notification .t-icon.t-is-info {
+  color: var(--td-brand-color);
+}
+.t-notification .t-icon.t-is-success {
+  color: var(--td-success-color);
+}
+.t-notification .t-icon.t-is-warning {
+  color: var(--td-warning-color);
+}
+.t-notification .t-icon.t-is-error {
+  color: var(--td-error-color-6);
+}
+.t-notification__main {
+  flex: 1;
+}
+.t-notification__title__wrap {
+  display: flex;
+  justify-content: space-between;
+}
+.t-notification__title {
+  font: var(--td-font-title-medium);
+  color: var(--td-text-color-primary);
+}
+.t-notification .t-icon-close {
+  cursor: pointer;
+  font-size: var(--td-font-size-body-large);
+  border-radius: var(--td-radius-default);
+  color: var(--td-text-color-secondary);
+}
+.t-notification .t-icon-close:hover {
+  background: var(--td-bg-color-container-hover);
+}
+.t-notification .t-icon-close:active {
+  background: var(--td-bg-color-container-active);
+}
+.t-notification__content {
+  font: var(--td-font-body-medium);
+  color: var(--td-text-color-secondary);
+  margin-top: var(--td-comp-margin-s);
+  max-height: 66px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
+  /* stylelint-disable-next-line */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  /* stylelint-disable-next-line */
+  -webkit-box-orient: vertical;
+}
+.t-notification__detail {
+  margin-top: var(--td-comp-margin-l);
+  text-align: right;
+  font: var(--td-font-body-medium);
+}
+.t-notification__detail-item {
+  cursor: pointer;
+}
+.t-notification__detail-item:hover {
+  color: inherit;
+  background: var(--td-bg-color-container-hover);
+}
+.t-notification__detail-item:active {
+  color: inherit;
+  background: var(--td-bg-color-container-active);
+}
+.t-notification__detail-item + .t-notification__detail-item {
+  margin-left: var(--td-comp-margin-s);
+}
+.t-notification__detail-item.t-is-active {
+  color: var(--td-brand-color);
+}
+.t-notification__show--top-left {
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+.t-notification__show--top-left > .t-notification {
+  animation-duration: 0.3s;
+  animation-name: slidein-top-left;
+}
+@keyframes slidein-top-left {
+  from {
+    opacity: 0;
+    transform: translate3d(-100%, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+.t-notification__show--top-right {
+  position: fixed;
+  top: 0;
+  right: 0;
+}
+.t-notification__show--top-right > .t-notification {
+  animation-duration: 0.3s;
+  animation-name: slidein-top-right;
+}
+@keyframes slidein-top-right {
+  from {
+    opacity: 0;
+    transform: translate3d(100%, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+.t-notification__show--bottom-left {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column-reverse;
+}
+.t-notification__show--bottom-left > .t-notification {
+  animation-duration: 0.3s;
+  animation-name: slidein-bottom-left;
+}
+@keyframes slidein-bottom-left {
+  from {
+    opacity: 0;
+    transform: translate3d(-100%, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+.t-notification__show--bottom-right {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column-reverse;
+}
+.t-notification__show--bottom-right > .t-notification {
+  animation-duration: 0.3s;
+  animation-name: slidein-bottom-right;
+}
+@keyframes slidein-bottom-right {
+  from {
+    opacity: 0;
+    transform: translate3d(100%, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+.t-notification-list__show {
+  position: fixed;
+}

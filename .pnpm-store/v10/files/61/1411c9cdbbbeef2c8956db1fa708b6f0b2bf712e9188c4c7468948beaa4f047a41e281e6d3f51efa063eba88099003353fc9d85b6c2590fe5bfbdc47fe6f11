@@ -1,0 +1,27 @@
+@use "vuepress-shared/styles/reset";
+
+.stackblitz-container {
+  margin: 8px 0;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stackblitz-button {
+  @include reset.button;
+
+  margin: 0 auto;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+
+  background: var(--vp-c-control);
+  color: var(--vp-c-text);
+
+  font-weight: 600;
+  line-height: 1.5;
+
+  transition: background var(--vp-t-color);
+
+  &:hover {
+    background: var(--vp-c-control-hover);
+  }
+}

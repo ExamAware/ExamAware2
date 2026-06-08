@@ -1,0 +1,25 @@
+{
+  "name": "compare-version",
+  "version": "0.1.2",
+  "requiresBuild": false,
+  "files": {
+    "package.json": {
+      "checkedAt": 1780883871054,
+      "integrity": "sha512-pfS5TseEpVSyiyKAwl+uA/ZTwp0mGLFN2dXMcvF/yB5P2I4YaArf2ipU6/vKFQw6RV5wmKG7lipJMC/go6aNDg==",
+      "mode": 420,
+      "size": 654
+    },
+    "README.md": {
+      "checkedAt": 1780883871054,
+      "integrity": "sha512-g36vbZ7Zj161OIfnLEAKkBJfZtkEtzuD76Drx5HMtE+9hLj9J/RQyCYIuXNSWpIwLz/0GnqgZ4NzyPB9uVAIFA==",
+      "mode": 420,
+      "size": 663
+    },
+    "index.js": {
+      "checkedAt": 1780883871054,
+      "integrity": "sha512-DAjFCBua4MbDMoIp9rzsQem+RyLscL4dZR39qUueag7f0vx/Yw8R//swGl7K9GLl0NcIXzjoyijGK7KiRfsVJA==",
+      "mode": 420,
+      "size": 645
+    }
+  }
+}

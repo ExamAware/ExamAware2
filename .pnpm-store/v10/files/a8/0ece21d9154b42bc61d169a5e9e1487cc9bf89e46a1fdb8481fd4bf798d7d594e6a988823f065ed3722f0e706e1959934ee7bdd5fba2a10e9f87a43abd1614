@@ -1,0 +1,106 @@
+@use "vuepress-shared/styles/reset";
+@use "vuepress-shared/styles/arrow";
+
+.vp-nav-screen-menu-title {
+  @include reset.button;
+
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  padding: 0;
+
+  color: var(--vp-c-text);
+
+  font-size: inherit;
+  font-family: inherit;
+  text-align: start;
+
+  cursor: pointer;
+
+  &:hover,
+  &.active {
+    color: var(--vp-c-text);
+  }
+
+  .text {
+    flex: 1;
+  }
+
+  .arrow {
+    @include arrow.arrow;
+  }
+}
+
+.vp-nav-screen-menu {
+  overflow: hidden;
+
+  margin: 0.5rem 0 0;
+  padding: 0;
+
+  list-style: none;
+
+  transition: transform 0.1s ease-out;
+
+  transform: scaleY(1);
+  transform-origin: top;
+
+  &.hide {
+    height: 0;
+    margin: 0;
+    transform: scaleY(0);
+  }
+
+  .auto-link {
+    position: relative;
+
+    display: block;
+
+    padding-inline-start: 0.5rem;
+
+    font-weight: 400;
+    line-height: 2;
+
+    &:hover {
+      color: var(--vp-c-accent);
+    }
+
+    &.route-link-active {
+      color: var(--vp-c-accent);
+    }
+  }
+}
+
+.vp-nav-screen-menu-item {
+  color: inherit;
+  line-height: 1.7rem;
+}
+
+.vp-nav-screen-menu-subtitle {
+  margin: 0;
+  padding-inline-start: 0.25rem;
+
+  color: var(--vp-c-text-mute);
+
+  font-weight: 600;
+  font-size: 0.75rem;
+  line-height: 2;
+  text-transform: uppercase;
+
+  .auto-link {
+    padding: 0;
+  }
+}
+
+.vp-nav-screen-menu-subitems {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vp-nav-screen-menu-subitem {
+  padding-inline-start: 0.5rem;
+  font-size: 0.9em;
+}

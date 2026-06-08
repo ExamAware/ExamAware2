@@ -1,0 +1,1 @@
+{"version":3,"sourceRoot":"","sources":["../../../src/client/styles/giscus.scss"],"names":[],"mappings":"AACE,kCACE","file":"giscus.css","sourcesContent":[".giscus-wrapper {\n  &.input-top .giscus {\n    margin-bottom: -3rem;\n  }\n}\n"]}

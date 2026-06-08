@@ -1,0 +1,43 @@
+{
+  "name": "sass-embedded-linux-x64",
+  "version": "1.97.1",
+  "requiresBuild": false,
+  "files": {
+    "dart-sass/src/dart": {
+      "checkedAt": 1780883837736,
+      "integrity": "sha512-NrUmfJ3Esxwl1cHnIc8YY282ZxsAbQf65OzlvXFuAfgviljAu1ME4u8jcLpP+jR5q2f83PmP2uKXnplVu7DAZA==",
+      "mode": 493,
+      "size": 5635880
+    },
+    "dart-sass/src/LICENSE": {
+      "checkedAt": 1780883836663,
+      "integrity": "sha512-6wsM0TKrsAXCpzqeMiZmvzNoj/bi5dSzYW75vWARi/y3Z0vcR6vX5KZjBchNk1bKjN5oQ9rYVEXJ1KtfGT8HcQ==",
+      "mode": 420,
+      "size": 87282
+    },
+    "dart-sass/sass": {
+      "checkedAt": 1780883837651,
+      "integrity": "sha512-dUQBbEt5IHnSaB3Ax3oSkT2FQU/vAxvh+i3M2RVlnkS3otJzOoM+NaBr2HCT0ccOTiCm+gY+frqWmWcSl65SWw==",
+      "mode": 493,
+      "size": 592
+    },
+    "package.json": {
+      "checkedAt": 1780883837736,
+      "integrity": "sha512-eAzNB9r+fBxsU+59k1q+QwHR3g0gzFBe0kPvOt5vybkvXhYIlsQhwZFavXNYp1DN1e4/gUcBZ6bc9RKdnIal+Q==",
+      "mode": 420,
+      "size": 366
+    },
+    "README.md": {
+      "checkedAt": 1780883837736,
+      "integrity": "sha512-D0XgHPfQZ1Oh6ScHIM5emtFhNWvt0FXI2Vz9uvJhUyXaUApdp4yOZ7dkxOKe06F6FcuFwwnZ8fIosO+F7W3PyQ==",
+      "mode": 420,
+      "size": 129
+    },
+    "dart-sass/src/sass.snapshot": {
+      "checkedAt": 1780883837752,
+      "integrity": "sha512-Hv0Im4fpyjCW0C+VTkGJscL/Zvu0x1Yy2/VV+e3xnEHZh/sHigGlLpZpbl6eIHkqIv/3r5HYdfgBMi+g1CfiNA==",
+      "mode": 420,
+      "size": 5116568
+    }
+  }
+}

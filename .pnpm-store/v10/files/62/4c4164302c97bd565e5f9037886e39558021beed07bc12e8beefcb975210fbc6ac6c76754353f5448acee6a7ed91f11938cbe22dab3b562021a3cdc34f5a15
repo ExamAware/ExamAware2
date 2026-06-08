@@ -1,0 +1,65 @@
+@use "@sass-palette/hope-config";
+@use "vuepress-shared/styles/arrow";
+
+.vp-page-nav {
+  display: flex;
+  flex-wrap: wrap;
+
+  max-width: var(--content-width);
+  min-height: 2rem;
+  margin-inline: auto;
+  margin-top: 0;
+  padding-block: 0.5rem;
+  padding-inline: 2rem;
+  border-top: 1px solid var(--vp-c-border);
+
+  @media (max-width: hope-config.$pad) {
+    padding-inline: 1rem;
+  }
+
+  @media print {
+    display: none;
+  }
+
+  .auto-link {
+    display: inline-block;
+    flex-grow: 1;
+
+    margin: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--vp-c-border);
+    border-radius: 0.25rem;
+
+    &:hover {
+      background: var(--vp-c-control);
+    }
+
+    .hint {
+      color: var(--vp-c-text-mute);
+      font-size: 0.875rem;
+      line-height: 2;
+    }
+
+    .arrow {
+      @include arrow.arrow;
+
+      font-size: 0.75rem;
+    }
+  }
+
+  .prev {
+    text-align: start;
+
+    .vp-icon {
+      margin-inline-end: 0.25em;
+    }
+  }
+
+  .next {
+    text-align: end;
+
+    .vp-icon {
+      margin-inline-start: 0.25em;
+    }
+  }
+}
