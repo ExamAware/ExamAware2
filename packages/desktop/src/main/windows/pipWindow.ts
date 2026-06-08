@@ -99,7 +99,6 @@ body:hover #close { opacity: 1; }
 const timeEl = document.getElementById('time');
 const currentEl = document.getElementById('current');
 const closeBtn = document.getElementById('close');
-const dragHandle = document.getElementById('drag-handle');
 
 let showRemaining = true;
 let showCurrent = false;
@@ -133,9 +132,11 @@ let dragStartPos = { x: 0, y: 0 };
 let hasMoved = false;
 let dragging = false;
 let dragOffset = { x: 0, y: 0 };
+let mouseDownTarget = null;
 
 document.body.addEventListener('mousedown', (e) => {
   if (e.target === closeBtn) return;
+  mouseDownTarget = e.target;
   dragStartTime = Date.now();
   dragStartPos = { x: e.screenX, y: e.screenY };
   hasMoved = false;
@@ -148,18 +149,21 @@ document.addEventListener('mousemove', (e) => {
   if (!dragging) return;
   const dx = e.screenX - dragStartPos.x;
   const dy = e.screenY - dragStartPos.y;
-  if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+  if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
     hasMoved = true;
   }
-  window.moveTo(e.screenX - dragOffset.x, e.screenY - dragOffset.y);
+  if (hasMoved) {
+    window.moveTo(e.screenX - dragOffset.x, e.screenY - dragOffset.y);
+  }
 });
 
 document.addEventListener('mouseup', (e) => {
+  if (!dragging) return;
   dragging = false;
   if (e.target === closeBtn) return;
   const duration = Date.now() - dragStartTime;
-  // 短按（< 200ms）且没有明显移动 = 点击，返回播放页
-  if (duration < 200 && !hasMoved) {
+  // 短按（< 300ms）且没有明显移动 = 点击，返回播放页
+  if (duration < 300 && !hasMoved) {
     ipcRenderer.send('pip:toggle');
   }
 });
