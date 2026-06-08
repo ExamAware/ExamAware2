@@ -1,27 +1,27 @@
-'use strict'
+'use strict';
 
-const http = require('http')
-const https = require('https')
-const server = http.createServer(handler)
-const port = +process.argv[2]
-const prefix = process.argv[3]
-const upstream = process.argv[4]
-let calls = 0
+const http = require('http');
+const https = require('https');
+const server = http.createServer(handler);
+const port = +process.argv[2];
+const prefix = process.argv[3];
+const upstream = process.argv[4];
+let calls = 0;
 
-server.listen(port)
+server.listen(port);
 
-function handler (req, res) {
+function handler(req, res) {
   if (req.url.indexOf(prefix) !== 0) {
-    throw new Error('request url [' + req.url + '] does not start with [' + prefix + ']')
+    throw new Error('request url [' + req.url + '] does not start with [' + prefix + ']');
   }
 
-  const upstreamUrl = upstream + req.url.substring(prefix.length)
+  const upstreamUrl = upstream + req.url.substring(prefix.length);
   https.get(upstreamUrl, function (ures) {
     ures.on('end', function () {
       if (++calls === 2) {
-        server.close()
+        server.close();
       }
-    })
-    ures.pipe(res)
-  })
+    });
+    ures.pipe(res);
+  });
 }

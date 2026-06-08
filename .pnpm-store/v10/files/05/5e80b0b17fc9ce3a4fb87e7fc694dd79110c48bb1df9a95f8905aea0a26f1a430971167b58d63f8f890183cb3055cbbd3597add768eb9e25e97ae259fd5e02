@@ -18,7 +18,7 @@ be used to write those kinds of tests).
 The idea is that the generated build configuration files
 could be completely written to add a feature or fix a bug
 so long as they continue to support the functional behaviors
-defined by the tests:  building programs, shared libraries, etc.
+defined by the tests: building programs, shared libraries, etc.
 
 ## "Hello, world!" GYP test configuration
 
@@ -37,7 +37,7 @@ a simple build of a C program to print `"Hello, world!"`.
 ```
 
 The `gyptest-*.py` files are three separate tests (test scripts)
-that use this configuration.  The first one, `gyptest-all.py`,
+that use this configuration. The first one, `gyptest-all.py`,
 looks like this:
 
 ```
@@ -162,7 +162,7 @@ directory. On test completion, intermediate output is cleaned up. To preserve
 this output, set the environment variable PRESERVE=1. This can be handy to
 inspect intermediate data when debugging a test.
 
-You can also set PRESERVE\_PASS=1, PRESERVE\_FAIL=1 or PRESERVE\_NO\_RESULT=1
+You can also set PRESERVE_PASS=1, PRESERVE_FAIL=1 or PRESERVE_NO_RESULT=1
 to preserve output for tests that fall into one of those categories.
 
 # Specifying the format (build tool) to use
@@ -298,8 +298,8 @@ necessary executable file suffix for the platform (for example `.exe` on
 Windows).
 
 `stdout=` and `stderr=` keyword arguments specify expected standard output and
-error output, respectively.  Failure to match these (if specified) will cause
-the test to fail.  An explicit `None` value will suppress that verification:
+error output, respectively. Failure to match these (if specified) will cause
+the test to fail. An explicit `None` value will suppress that verification:
 
 ```
   test.run_built_executable('program',
@@ -359,7 +359,7 @@ test if it does.
 ```
 
 Verifies that the content of the specified file match the expected string, and
-fails the test if it does not.  By default, the match must be exact, but
+fails the test if it does not. By default, the match must be exact, but
 line-by-line regular expressions may be used if the `TestGyp` object was
 initialized with `TestGyp.match_re`.
 
@@ -368,7 +368,7 @@ initialized with `TestGyp.match_re`.
 ```
 
 Verifies that the content of the specified file does _not_ match the expected
-string, and fails the test if it does.  By default, the match must be exact,
+string, and fails the test if it does. By default, the match must be exact,
 but line-by-line regular expressions may be used if the `TestGyp` object was
 initialized with `TestGyp.match_re`.
 
@@ -391,16 +391,16 @@ fails the test if it does.
 ```
 
 Verifies that the output string contains all of the "lines" in the specified
-list of lines.  In practice, the lines can be any substring and need not be
-`\n`-terminaed lines per se.  If any line is missing, the test fails.
+list of lines. In practice, the lines can be any substring and need not be
+`\n`-terminaed lines per se. If any line is missing, the test fails.
 
 ```
   test.must_not_contain_any_lines(output, lines)
 ```
 
 Verifies that the output string does _not_ contain any of the "lines" in the
-specified list of lines.  In practice, the lines can be any substring and need
-not be `\n`-terminaed lines per se.  If any line exists in the output string,
+specified list of lines. In practice, the lines can be any substring and need
+not be `\n`-terminaed lines per se. If any line exists in the output string,
 the test fails.
 
 ```
@@ -408,8 +408,8 @@ the test fails.
 ```
 
 Verifies that the output string contains at least one of the "lines" in the
-specified list of lines.  In practice, the lines can be any substring and need
-not be `\n`-terminaed lines per se.  If none of the specified lines is present,
+specified list of lines. In practice, the lines can be any substring and need
+not be `\n`-terminaed lines per se. If none of the specified lines is present,
 the test fails.
 
 ### Reading file contents
@@ -418,7 +418,7 @@ the test fails.
   test.read('file')
 ```
 
-Returns the contents of the specified file.  Directory elements contained in a
+Returns the contents of the specified file. Directory elements contained in a
 list will be joined:
 
 ```
@@ -446,5 +446,5 @@ status of `0`.
 ```
 
 Indicates the test had no valid result (i.e., the conditions could not be
-tested because of an external factor like a full file system).  Reports `NO
+tested because of an external factor like a full file system). Reports `NO
 RESULT` on standard output and exits with a status of `2`.

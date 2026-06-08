@@ -3,8 +3,8 @@
 GYP was originally created to generate native IDE project files (Visual Studio, Xcode) for building [Chromium](http://www.chromim.org).
 
 The functionality of GYP is very similar to the [CMake](http://www.cmake.org)
-build tool.  Bradley Nelson wrote up the following description of why the team
-created GYP instead of using CMake.  The text below is copied from
+build tool. Bradley Nelson wrote up the following description of why the team
+created GYP instead of using CMake. The text below is copied from
 http://www.mail-archive.com/webkit-dev@lists.webkit.org/msg11029.html
 
 ```

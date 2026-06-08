@@ -5,6 +5,7 @@ Contributor guide: https://github.com/nodejs/node/blob/main/CONTRIBUTING.md
 -->
 
 ##### Checklist
+
 <!-- Remove items that do not apply. For completed items, change [ ] to [x]. -->
 
 - [ ] `npm install && npm run lint && npm test` passes
@@ -13,5 +14,5 @@ Contributor guide: https://github.com/nodejs/node/blob/main/CONTRIBUTING.md
 - [ ] commit message follows [commit guidelines](https://github.com/googleapis/release-please#how-should-i-write-my-commits)
 
 ##### Description of change
-<!-- Provide a description of the change -->
 
+<!-- Provide a description of the change -->

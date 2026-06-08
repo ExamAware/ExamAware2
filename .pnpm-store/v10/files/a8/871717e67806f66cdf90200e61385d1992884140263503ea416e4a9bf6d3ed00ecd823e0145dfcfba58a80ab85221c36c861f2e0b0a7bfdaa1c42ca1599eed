@@ -2,7 +2,7 @@ A handful of native addons require linking to OpenSSL in one way or another. Thi
 
 Good native addons should account for both scenarios. It's recommended that you use the `binding.gyp` file provided below as a starting-point for any addon that needs to use OpenSSL:
 
-``` python
+```python
 {
   'variables': {
     # node v0.6.x doesn't give us its build variables,
@@ -52,7 +52,7 @@ Unfortunately it doesn't seem like that is possible at the moment, as there woul
 
 In the meantime, one possible solution is using another copy of OpenSSL, which is what [`node-bcrypt`](https://github.com/ncb000gt/node.bcrypt.js) currently does. Adding something like this to your `binding.gyp` file's `"conditions"` block would enable this:
 
-``` python
+```python
     [ 'OS=="win"', {
       'conditions': [
         # "openssl_root" is the directory on Windows of the OpenSSL files.
@@ -68,7 +68,7 @@ In the meantime, one possible solution is using another copy of OpenSSL, which i
           },
         }],
       ],
-      'libraries': [ 
+      'libraries': [
         '-l<(openssl_root)/lib/libeay32.lib',
       ],
       'include_dirs': [
@@ -81,6 +81,6 @@ Now you can direct your users to install OpenSSL on Windows from here (be sure t
 
 Also note that both `node-gyp` and `npm` allow you to overwrite that default `openssl_root` variable on the command line:
 
-``` bash
+```bash
 $ node-gyp rebuild --openssl-root="C:\Users\Nathan\Desktop\openssl"
 ```

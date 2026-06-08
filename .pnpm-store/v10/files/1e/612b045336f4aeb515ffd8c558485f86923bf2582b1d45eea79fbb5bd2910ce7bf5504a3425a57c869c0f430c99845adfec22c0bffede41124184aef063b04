@@ -4,9 +4,9 @@
 name: Python_tests
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 jobs:
   Python_tests:
@@ -16,7 +16,7 @@ jobs:
       max-parallel: 5
       matrix:
         os: [macos-13, macos-14, ubuntu-latest] # , windows-latest]
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
@@ -30,9 +30,9 @@ jobs:
           python -m pip install --upgrade pip setuptools
           pip install --editable ".[dev]"
       - run: ./gyp -V && ./gyp --version && gyp -V && gyp --version
-      - name: Lint with ruff  # See pyproject.toml for settings
+      - name: Lint with ruff # See pyproject.toml for settings
         run: ruff --output-format=github .
-      - name: Test with pytest  # See pyproject.toml for settings
+      - name: Test with pytest # See pyproject.toml for settings
         run: pytest
       # - name: Run doctests with pytest
       #   run: pytest --doctest-modules

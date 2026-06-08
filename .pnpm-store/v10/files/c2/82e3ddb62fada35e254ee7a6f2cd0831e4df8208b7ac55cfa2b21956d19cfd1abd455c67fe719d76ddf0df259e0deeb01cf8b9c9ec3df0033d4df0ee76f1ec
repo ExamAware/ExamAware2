@@ -2,12 +2,12 @@
 
 GYP is a Meta-Build system: a build system that generates other build systems.
 
-* [User documentation](./UserDocumentation.md)
-* [Input Format Reference](./InputFormatReference.md)
-* [Language specification](./LanguageSpecification.md)
-* [Hacking](./Hacking.md)
-* [Testing](./Testing.md)
-* [GYP vs. CMake](./GypVsCMake.md)
+- [User documentation](./UserDocumentation.md)
+- [Input Format Reference](./InputFormatReference.md)
+- [Language specification](./LanguageSpecification.md)
+- [Hacking](./Hacking.md)
+- [Testing](./Testing.md)
+- [GYP vs. CMake](./GypVsCMake.md)
 
 GYP is intended to support large projects that need to be built on multiple
 platforms (e.g., Mac, Windows, Linux), and where it is important that
