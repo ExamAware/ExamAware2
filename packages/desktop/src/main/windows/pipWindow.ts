@@ -1,66 +1,163 @@
 import { BrowserWindow, ipcMain } from 'electron'
-import { is } from '@electron-toolkit/utils'
 import { windowManager } from './windowManager'
 import { appLogger } from '../logging/winstonLogger'
 
 let pipWindow: BrowserWindow | null = null
-let pipCleanup: (() => void) | null = null
 
-export function createPipWindow(options?: {
-  showRemaining?: boolean
-  showCurrent?: boolean
-}): BrowserWindow | null {
+export function getPipWindow(): BrowserWindow | null {
+  return pipWindow
+}
+
+export function createPipWindow(parentWindow: BrowserWindow): BrowserWindow {
+  // 如果已存在则直接返回
   if (pipWindow && !pipWindow.isDestroyed()) {
-    pipWindow.focus()
+    pipWindow.showInactive()
     return pipWindow
   }
 
-  const win = windowManager.open(({ commonOptions }) => ({
-    id: 'pip',
-    route: 'pip',
-    options: {
-      ...commonOptions(),
-      width: 320,
-      height: 160,
-      frame: false,
-      alwaysOnTop: true,
-      skipTaskbar: true,
-      resizable: false,
-      maximizable: false,
-      minimizable: false,
-      fullscreenable: false,
-      transparent: true,
-      backgroundColor: '#00000000',
-      roundedCorners: true,
-      webPreferences: {
-        ...commonOptions().webPreferences,
-        nodeIntegration: true
-      }
-    },
-    setup: (w) => {
-      pipWindow = w
-
-      // 发送初始选项
-      setTimeout(() => {
-        w.webContents.send('pip:init', {
-          showRemaining: options?.showRemaining ?? true,
-          showCurrent: options?.showCurrent ?? false
-        })
-      }, 500)
-
-      const onClose = () => {
-        pipWindow = null
-      }
-      w.on('closed', onClose)
-
-      return () => {
-        w.off('closed', onClose)
-        pipWindow = null
-      }
+  pipWindow = new BrowserWindow({
+    width: 320,
+    height: 120,
+    frame: false,
+    skipTaskbar: true,
+    resizable: false,
+    maximizable: false,
+    minimizable: false,
+    fullscreenable: false,
+    transparent: true,
+    backgroundColor: '#00000000',
+    show: false,
+    parent: parentWindow,
+    x: 20,
+    y: 20,
+    webPreferences: {
+      preload: undefined,
+      nodeIntegration: false,
+      contextIsolation: false,
+      backgroundThrottling: false,
+      offscreen: false
     }
-  })) as unknown as BrowserWindow
+  })
 
-  return win
+  // 加载极简 HTML（内联，无需路由）
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: rgba(4, 14, 21, 0.92);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  width: 320px; height: 120px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  font-family: 'Segoe UI', 'MiSans', sans-serif;
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  -webkit-app-region: drag;
+}
+body:active { cursor: grabbing; }
+#time {
+  color: #fff;
+  font-size: 48px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+#current {
+  color: rgba(255,255,255,0.6);
+  font-size: 16px;
+  margin-top: 4px;
+}
+#close {
+  position: absolute;
+  top: -8px; right: -8px;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,59,48,0.9);
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+  -webkit-app-region: no-drag;
+}
+body:hover #close { opacity: 1; }
+</style>
+</head>
+<body>
+<div id="time">00:00</div>
+<div id="current"></div>
+<button id="close">×</button>
+<script>
+const timeEl = document.getElementById('time');
+const currentEl = document.getElementById('current');
+const closeBtn = document.getElementById('close');
+
+let showRemaining = true;
+let showCurrent = false;
+
+// 直接监听 IPC，不走 Vue
+const { ipcRenderer } = require('electron');
+
+ipcRenderer.on('pip:data', (_, data) => {
+  if (data.remainingTime !== undefined && showRemaining) {
+    timeEl.textContent = data.remainingTime;
+  }
+  if (data.currentTime !== undefined && showCurrent) {
+    currentEl.textContent = data.currentTime;
+  }
+});
+
+ipcRenderer.on('pip:init', (_, opts) => {
+  showRemaining = opts.showRemaining ?? true;
+  showCurrent = opts.showCurrent ?? false;
+  if (!showRemaining) timeEl.style.display = 'none';
+  if (!showCurrent) currentEl.style.display = 'none';
+});
+
+closeBtn.addEventListener('click', () => {
+  ipcRenderer.send('pip:toggle');
+});
+
+// 拖拽逻辑
+let dragging = false;
+let dragOffset = { x: 0, y: 0 };
+
+document.body.addEventListener('mousedown', (e) => {
+  if (e.target === closeBtn) return;
+  dragging = true;
+  dragOffset.x = e.screenX - window.screenX;
+  dragOffset.y = e.screenY - window.screenY;
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (!dragging) return;
+  window.moveTo(e.screenX - dragOffset.x, e.screenY - dragOffset.y);
+});
+
+document.addEventListener('mouseup', () => {
+  dragging = false;
+});
+</script>
+</body>
+</html>`
+
+  pipWindow.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(html))
+
+  pipWindow.once('ready-to-show', () => {
+    pipWindow?.showInactive()
+  })
+
+  pipWindow.on('closed', () => {
+    pipWindow = null
+  })
+
+  return pipWindow
 }
 
 export function closePipWindow(): void {
@@ -80,6 +177,30 @@ export function sendPipData(data: { remainingTime?: string; currentTime?: string
   }
 }
 
+function restorePlayerWindow(): void {
+  try {
+    const playerWin = windowManager.get('player')
+    if (playerWin && !playerWin.isDestroyed()) {
+      if (playerWin.isMinimized()) playerWin.restore()
+      if (!playerWin.isVisible()) playerWin.show()
+      playerWin.focus()
+    }
+  } catch (error) {
+    appLogger.warn('[pipWindow] failed to restore player window', error as Error)
+  }
+}
+
+function minimizePlayerWindow(): void {
+  try {
+    const playerWin = windowManager.get('player')
+    if (playerWin && !playerWin.isDestroyed()) {
+      playerWin.minimize()
+    }
+  } catch (error) {
+    appLogger.warn('[pipWindow] failed to minimize player window', error as Error)
+  }
+}
+
 export function setupPipIpc(): () => void {
   const onToggle = (
     _event: Electron.IpcMainEvent,
@@ -87,8 +208,21 @@ export function setupPipIpc(): () => void {
   ) => {
     if (isPipWindowOpen()) {
       closePipWindow()
+      restorePlayerWindow()
     } else {
-      createPipWindow(opts)
+      const playerWin = windowManager.get('player')
+      if (playerWin && !playerWin.isDestroyed()) {
+        createPipWindow(playerWin)
+        // 发送初始选项
+        setTimeout(() => {
+          sendPipData({})
+          pipWindow?.webContents.send('pip:init', {
+            showRemaining: opts?.showRemaining ?? true,
+            showCurrent: opts?.showCurrent ?? false
+          })
+        }, 100)
+        minimizePlayerWindow()
+      }
     }
   }
 

@@ -579,28 +579,6 @@ const handlePipToggle = () => {
   } catch {}
 };
 
-// 监听时间变化，通过 IPC 发送给独立悬浮窗
-let lastPipRemaining = '';
-let lastPipCurrent = '';
-watch(displayedRemainingTime, (val) => {
-  if (val && val !== lastPipRemaining) {
-    lastPipRemaining = val;
-    try {
-      const ipc = (window as any).api?.ipc;
-      if (ipc) ipc.send('pip:update', { remainingTime: val });
-    } catch {}
-  }
-});
-watch(formattedCurrentTime, (val) => {
-  if (val && val !== lastPipCurrent) {
-    lastPipCurrent = val;
-    try {
-      const ipc = (window as any).api?.ipc;
-      if (ipc) ipc.send('pip:update', { currentTime: val });
-    } catch {}
-  }
-});
-
 const handleMaterialFontScaleChange = (scale: number) => {
   const safe = Math.min(3, Math.max(1, Number(scale) || 1));
   materialFontScaleState.value = safe;
@@ -849,6 +827,28 @@ const displayFormattedExamInfos = computed(() => {
 // 显示剩余时间（考前倒计时或考试倒计时）
 const displayedRemainingTime = computed(() => {
   return remainingTime.value || '';
+});
+
+// 监听时间变化，通过 IPC 发送给独立悬浮窗
+let lastPipRemaining = '';
+let lastPipCurrent = '';
+watch(displayedRemainingTime, (val) => {
+  if (val && val !== lastPipRemaining) {
+    lastPipRemaining = val;
+    try {
+      const ipc = (window as any).api?.ipc;
+      if (ipc) ipc.send('pip:update', { remainingTime: val });
+    } catch {}
+  }
+});
+watch(formattedCurrentTime, (val) => {
+  if (val && val !== lastPipCurrent) {
+    lastPipCurrent = val;
+    try {
+      const ipc = (window as any).api?.ipc;
+      if (ipc) ipc.send('pip:update', { currentTime: val });
+    } catch {}
+  }
 });
 
 // 添加调试信息与本地存储同步
