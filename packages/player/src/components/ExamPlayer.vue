@@ -52,7 +52,7 @@
       :initial-pre-countdown-minutes="preCountdownMinutesState"
       :extra-tools="toolbarTools"
       @exit="emit('exit')"
-      @scale-change="emit('scaleChange', $event)"
+      @scale-change="handleScaleChange"
       @density-change="handleDensityChange"
       @large-clock-toggle="handleLargeClockToggle"
       @clock-scale-change="handleLargeClockScaleChange"
@@ -539,6 +539,13 @@ const {
   updateConfig
 } = examPlayer;
 
+const manualScale = ref(false);
+
+const handleScaleChange = (scale: number) => {
+  manualScale.value = true;
+  emit('scaleChange', scale);
+};
+
 const handleDensityChange = (next: UIDensity) => {
   densityState.value = next;
   emit('densityChange', next);
@@ -946,6 +953,7 @@ const animateToAutoScale = (target: number) => {
 
 // 处理窗口大小变化
 const handleAutoScaleResize = () => {
+  if (manualScale.value) return;
   const targetScale = calculateAutoScale();
   animateToAutoScale(targetScale);
 };
@@ -1118,7 +1126,7 @@ const resolvedCards = computed(() => ({
 }
 
 .title-section {
-  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 3rem);
+  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1rem);
 }
 
 .main-title {
@@ -1139,7 +1147,7 @@ const resolvedCards = computed(() => ({
 }
 
 .clock-card {
-  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
+  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.75rem);
 }
 
 .clock-content {
@@ -1175,11 +1183,11 @@ const resolvedCards = computed(() => ({
   height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem)
+  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1rem)
     calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem)
     calc(var(--ui-scale, 1) * var(--density-scale, 1) * 6rem)
     calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
-  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.5rem);
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.75rem);
 }
 
 /* 顶部标题栏 */

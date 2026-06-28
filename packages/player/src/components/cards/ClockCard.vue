@@ -1,16 +1,19 @@
 <template>
   <BaseCard :custom-class="customCardClass">
     <div class="clock-content" :class="{ 'large-mode': isLargeClock }">
-      <div class="beijing-time-label">北京时间</div>
-      <div
-        class="time-display"
-        :class="{ 'time-display-large': isLargeClock }"
-        :style="timeDisplayStyle"
-      >
-        {{ ctx.formattedCurrentTime.value }}
-      </div>
-      <div class="countdown-display">
+      <div v-if="!isLargeClock" class="countdown-left">
+        <div class="countdown-label">{{ countdownLabel }}</div>
         <div class="countdown-value">{{ countdownValue }}</div>
+      </div>
+      <div class="time-right">
+        <div class="time-label">北京时间</div>
+        <div
+          class="time-display"
+          :class="{ 'time-display-large': isLargeClock }"
+          :style="timeDisplayStyle"
+        >
+          {{ ctx.formattedCurrentTime.value }}
+        </div>
       </div>
     </div>
   </BaseCard>
@@ -41,43 +44,93 @@ const timeDisplayStyle = computed(() => ({
   '--clock-scale': ctx.largeClockScale?.value ?? 1
 }));
 
-// 倒计时标签：考前倒计时 / 考试倒计时
-const countdownLabel = computed(() => {
+const PRE_COUNTDOWN_MS = 15 * 60 * 1000;
+
+const countdownState = computed(() => {
   const status = ctx.examStatus?.value?.status;
-  if (status === 'pending') return '考前倒计时';
-  if (status === 'inProgress') return '考试倒计时';
-  return '';
+  const timeRemaining = ctx.examStatus?.value?.timeRemaining;
+
+  if (status === 'inProgress') {
+    return {
+      label: '考试倒计时',
+      value: ctx.remainingTime?.value || '00:00'
+    };
+  }
+
+  if (status === 'pending') {
+    if (typeof timeRemaining === 'number' && timeRemaining <= PRE_COUNTDOWN_MS) {
+      return {
+        label: '考前倒计时',
+        value: ctx.remainingTime?.value || '00:00'
+      };
+    }
+    return {
+      label: '考试未开始',
+      value: '--:--'
+    };
+  }
+
+  if (status === 'completed') {
+    return {
+      label: '考试已结束',
+      value: '00:00'
+    };
+  }
+
+  return {
+    label: '考试未开始',
+    value: '--:--'
+  };
 });
 
-// 倒计时值，根据状态显示不同前缀
-const countdownValue = computed(() => {
-  const time = ctx.remainingTime?.value || '00:00:00';
-  const status = ctx.examStatus?.value?.status;
-  if (status === 'pending') return `距离考试开始：${time}`;
-  if (status === 'inProgress') return `考试倒计时：${time}`;
-  return '';
-});
+const countdownLabel = computed(() => countdownState.value.label);
+const countdownValue = computed(() => countdownState.value.value);
 </script>
 
 <style scoped>
+.clock-card :deep(.card-content) {
+  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.75rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.25rem);
+}
+
 .clock-content {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
-  gap: calc(var(--ui-scale, 1) * 0.75rem);
-  padding: calc(var(--ui-scale, 1) * 1rem) 0;
+  justify-content: space-between;
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1rem);
+  padding: 0;
 }
 
 .clock-content.large-mode {
-  gap: calc(var(--ui-scale, 1) * 1rem);
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.5rem);
+  justify-content: center;
 }
 
-.beijing-time-label {
-  color: rgba(255, 255, 255, 0.85);
-  font-size: calc(var(--ui-scale, 1) * 1.25rem);
+.countdown-left,
+.time-right {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.25rem);
+  min-width: 0;
+}
+
+.countdown-left {
+  align-items: flex-start;
+}
+
+.time-right {
+  align-items: flex-end;
+}
+
+.time-label,
+.countdown-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.1rem);
   font-weight: 500;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .time-display {
@@ -98,26 +151,14 @@ const countdownValue = computed(() => {
   );
 }
 
-.countdown-display {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: calc(var(--ui-scale, 1) * 0.5rem);
-  margin-top: calc(var(--ui-scale, 1) * 0.5rem);
-}
-
-.countdown-label {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: calc(var(--ui-scale, 1) * 1.4rem);
-  font-weight: 400;
-}
-
 .countdown-value {
   color: #fff;
-  font-size: calc(var(--ui-scale, 1) * 2.8rem);
+  font-size: calc(var(--ui-scale, 1) * clamp(2rem, 5vw, 3.5rem));
   font-weight: 600;
   font-family: 'TCloudNumber', 'MiSans', monospace;
   text-shadow: 0 calc(var(--ui-scale, 1) * 0.1rem) calc(var(--ui-scale, 1) * 0.8rem)
     rgba(255, 255, 255, 0.25);
+  line-height: 1;
+  white-space: nowrap;
 }
 </style>

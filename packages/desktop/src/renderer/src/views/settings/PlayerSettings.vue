@@ -95,14 +95,9 @@
 <script setup lang="ts">
 import { Icon as TIcon } from 'tdesign-icons-vue-next'
 import { useSettingsGroup } from '@renderer/composables/useSetting'
+import { clampUiScale } from '@renderer/composables/usePlaybackSettings'
 
 const settings = useSettingsGroup('player')
-
-const clampScale = (value: unknown) => {
-  const num = Number(value)
-  if (!Number.isFinite(num)) return 1
-  return Math.min(2, Math.max(0.5, num))
-}
 
 const sanitizeRoom = (value: unknown) => {
   if (value == null) return '01'
@@ -115,12 +110,12 @@ const defaultRoom = settings.ref<string>('defaultRoom', '01', {
   mapOut: sanitizeRoom
 })
 
-const defaultScale = settings.ref<number>('defaultScale', 1, {
-  mapIn: clampScale,
-  mapOut: clampScale
+const defaultScale = settings.ref<number>('uiScale', 1, {
+  mapIn: clampUiScale,
+  mapOut: clampUiScale
 })
 
-const largeClockEnabled = settings.ref<boolean>('largeClock', false, {
+const largeClockEnabled = settings.ref<boolean>('largeClockEnabled', false, {
   mapIn: (value) => Boolean(value),
   mapOut: (value) => Boolean(value)
 })
