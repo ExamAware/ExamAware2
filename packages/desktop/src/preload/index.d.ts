@@ -113,6 +113,9 @@ declare global {
           get: () => Promise<boolean>
           set: (enable: boolean) => Promise<boolean>
         }
+        classialand: {
+          killNow: () => Promise<{ found: boolean; killed: boolean }>
+        }
       }
       app: {
         getVersion: () => Promise<string>

@@ -14,11 +14,97 @@
           <div class="settings-item-action">
             <t-switch
               v-model="autoStart"
+              :disabled="examAutoStartEnabled"
               :label="[
                 { value: true, label: '开' },
                 { value: false, label: '关' }
               ]"
             />
+          </div>
+        </div>
+
+        <div class="settings-item">
+          <div class="settings-item-icon">
+            <TIcon name="time" size="22px" />
+          </div>
+          <div class="settings-item-main">
+            <div class="settings-item-title">考试关联开机自启</div>
+            <div class="settings-item-desc">
+              开考前 15 分钟到最后一科结束前 15 分钟自动启用开机自启，无考试或考试结束后自动取消。
+            </div>
+          </div>
+          <div class="settings-item-action">
+            <t-switch
+              v-model="examAutoStartEnabled"
+              :label="[
+                { value: true, label: '开' },
+                { value: false, label: '关' }
+              ]"
+            />
+          </div>
+        </div>
+
+        <t-divider />
+
+        <div class="settings-item">
+          <div class="settings-item-icon">
+            <TIcon name="play-circle" size="22px" />
+          </div>
+          <div class="settings-item-main">
+            <div class="settings-item-title">自动进入播放页</div>
+            <div class="settings-item-desc">每次打开主界面时自动跳转到放映器页面。</div>
+          </div>
+          <div class="settings-item-action">
+            <t-switch
+              v-model="autoEnterPlayer"
+              :label="[
+                { value: true, label: '开' },
+                { value: false, label: '关' }
+              ]"
+            />
+          </div>
+        </div>
+
+        <t-divider />
+
+        <div class="settings-item">
+          <div class="settings-item-icon">
+            <TIcon name="close-circle" size="22px" />
+          </div>
+          <div class="settings-item-main">
+            <div class="settings-item-title">拦截 classialand 课表进程</div>
+            <div class="settings-item-desc">
+              运行期间每 10 分钟检测一次指定课表进程，若存在则自动结束。关闭后不再自动检测。
+            </div>
+          </div>
+          <div class="settings-item-action">
+            <t-switch
+              v-model="classialandEnabled"
+              :label="[
+                { value: true, label: '开' },
+                { value: false, label: '关' }
+              ]"
+            />
+          </div>
+        </div>
+
+        <div class="settings-item">
+          <div class="settings-item-icon">
+            <TIcon name="file-unknown" size="22px" />
+          </div>
+          <div class="settings-item-main">
+            <div class="settings-item-title">进程名</div>
+            <div class="settings-item-desc">要检测并结束的课表进程名称，例如 classiland.exe。</div>
+          </div>
+          <div class="settings-item-action" style="display: flex; align-items: center; gap: 8px">
+            <t-input
+              v-model="classialandProcessName"
+              placeholder="classiland.exe"
+              style="width: 180px"
+            />
+            <t-button theme="primary" size="small" @click="handleKillClassialandNow"
+              >立即结束</t-button
+            >
           </div>
         </div>
 
@@ -88,11 +174,20 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useSettingRef } from '@renderer/composables/useSetting'
 import { Icon as TIcon } from 'tdesign-icons-vue-next'
+import { MessagePlugin } from 'tdesign-vue-next'
 
 const autoStart = useSettingRef<boolean>('behavior.autoStart', false)
+const examAutoStartEnabled = useSettingRef<boolean>('behavior.examAutoStart.enabled', true)
+const autoEnterPlayer = useSettingRef<boolean>('behavior.autoEnterPlayer', false)
+const classialandEnabled = useSettingRef<boolean>('behavior.classialandKiller.enabled', true)
+const classialandProcessName = useSettingRef<string>(
+  'behavior.classialandKiller.processName',
+  'classiland.exe'
+)
+const classialandKilling = ref(false)
 
 async function syncAutoStartFromSystem() {
   try {
@@ -108,6 +203,26 @@ watch(autoStart, async (v) => {
     console.error('设置开机自启失败', e)
   }
 })
+
+const handleKillClassialandNow = async () => {
+  if (classialandKilling.value) return
+  classialandKilling.value = true
+  try {
+    const result = await window.api.system.classialand.killNow()
+    if (result.found && result.killed) {
+      MessagePlugin.success('已结束 classialand 课表进程')
+    } else if (result.found && !result.killed) {
+      MessagePlugin.warning('检测到进程但结束失败')
+    } else {
+      MessagePlugin.info('未检测到指定课表进程')
+    }
+  } catch (e) {
+    MessagePlugin.error('结束进程失败')
+    console.error(e)
+  } finally {
+    classialandKilling.value = false
+  }
+}
 
 onMounted(() => {
   syncAutoStartFromSystem()

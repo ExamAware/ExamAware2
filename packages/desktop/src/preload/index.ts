@@ -46,6 +46,10 @@ const api = {
     autostart: {
       get: () => ipcRenderer.invoke('autostart:get') as Promise<boolean>,
       set: (enable: boolean) => ipcRenderer.invoke('autostart:set', enable) as Promise<boolean>
+    },
+    classialand: {
+      killNow: () =>
+        ipcRenderer.invoke('classialand:kill-now') as Promise<{ found: boolean; killed: boolean }>
     }
   },
   deeplink: {

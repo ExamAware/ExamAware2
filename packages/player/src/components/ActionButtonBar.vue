@@ -41,6 +41,22 @@
         <div class="button-text">{{ isPressing ? '按住退出' : '退出播放' }}</div>
       </button>
 
+      <!-- 最小化（收起）按钮 -->
+      <button
+        class="action-button"
+        type="button"
+        :aria-pressed="manualCollapsed"
+        :aria-label="isCollapsed ? '展开工具栏' : '最小化工具栏'"
+        :title="isCollapsed ? '展开工具栏' : '最小化工具栏'"
+        @click.stop="toggleManualCollapse"
+      >
+        <div class="button-icon">
+          <ChevronRightIcon v-if="isCollapsed" />
+          <MinusIcon v-else />
+        </div>
+        <div class="button-text">{{ isCollapsed ? '展开' : '最小化' }}</div>
+      </button>
+
       <!-- 播放设置按钮 -->
       <button class="action-button" type="button" @click="handlePlaybackSettings">
         <div class="button-icon">
@@ -72,22 +88,6 @@
           <div class="button-text">{{ tool.label }}</div>
         </button>
       </template>
-
-      <!-- 折叠开关 -->
-      <button
-        class="action-button"
-        type="button"
-        :aria-pressed="manualCollapsed"
-        :aria-label="manualCollapsed ? '展开工具栏' : '收起工具栏'"
-        :title="manualCollapsed ? '展开工具栏' : '收起工具栏'"
-        @click.stop="toggleManualCollapse"
-      >
-        <div class="button-icon">
-          <ChevronRightIcon v-if="isCollapsed" />
-          <ChevronLeftIcon v-else />
-        </div>
-        <div class="button-text">{{ manualCollapsed ? '展开' : '收起' }}</div>
-      </button>
     </div>
   </div>
 
@@ -163,7 +163,13 @@ const emit = defineEmits<{
   (e: 'devReminderTest', preset: DevReminderPreset | DevReminderPayload): void;
   (e: 'devReminderHide'): void;
 }>();
-import { LogoutIcon, SettingIcon, ChevronLeftIcon, ChevronRightIcon } from 'tdesign-icons-vue-next';
+import {
+  LogoutIcon,
+  SettingIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  MinusIcon
+} from 'tdesign-icons-vue-next';
 
 const isDevMode = Boolean(import.meta.env?.DEV ?? false);
 
@@ -315,6 +321,9 @@ const handleUserActivity = () => {
   }
   markActivity();
   if (manualCollapsed.value) {
+    manualCollapsed.value = false;
+    autoCollapsed.value = false;
+    scheduleCollapse();
     return;
   }
   if (autoCollapsed.value) {

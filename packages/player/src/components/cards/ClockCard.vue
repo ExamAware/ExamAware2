@@ -14,6 +14,7 @@
         >
           {{ ctx.formattedCurrentTime.value }}
         </div>
+        <div class="time-hint">一切考试时间以现场为准，仅供参考</div>
       </div>
     </div>
   </BaseCard>
@@ -131,6 +132,16 @@ const countdownValue = computed(() => countdownState.value.value);
   letter-spacing: 0.05em;
   line-height: 1.2;
   white-space: nowrap;
+}
+
+.time-hint {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.85rem);
+  font-weight: 400;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  margin-top: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.15rem);
 }
 
 .time-display {

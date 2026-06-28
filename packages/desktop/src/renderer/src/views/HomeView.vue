@@ -22,7 +22,7 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { FileIcon } from 'tdesign-icons-vue-next'
 import eaLogo from '@renderer/assets/logo.svg'
@@ -50,6 +50,17 @@ const handleMenuChange = (value) => {
 watch(route, (newRoute) => {
   currentMenu.value =
     Object.keys(routeMap.value).find((key) => routeMap.value[key] === newRoute.path) || 'home'
+})
+
+onMounted(async () => {
+  try {
+    const autoEnter = await window.api.config.get('behavior.autoEnterPlayer', false)
+    if (autoEnter && route.path !== '/playerhome') {
+      router.push('/playerhome')
+    }
+  } catch (e) {
+    console.error('读取自动进入播放页设置失败', e)
+  }
 })
 </script>
 
