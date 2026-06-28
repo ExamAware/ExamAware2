@@ -40,12 +40,22 @@ export const clampPreCountdownMinutes = (value: number | string) => {
   return Math.min(60, Math.max(0, Math.round(num)))
 }
 
+export const clampMaterialFontScale = (value: number | string) => {
+  const num = Number(value)
+  if (!Number.isFinite(num)) {
+    return 1
+  }
+  const clamped = Math.min(2, Math.max(0.8, num))
+  return Number(roundToStep(clamped, 0.05).toFixed(2))
+}
+
 export interface PlaybackSettingsRefs {
   uiScale: Ref<number>
   uiDensity: Ref<UIDensity>
   largeClockEnabled: Ref<boolean>
   largeClockScale: Ref<number>
   examInfoLargeFont: Ref<boolean>
+  materialFontScale: Ref<number>
   preCountdownMinutes: Ref<number>
 }
 
@@ -75,6 +85,11 @@ export const usePlaybackSettings = (): PlaybackSettingsRefs => {
     mapOut: (val) => Boolean(val)
   })
 
+  const materialFontScale = useSettingRef<number>('player.materialFontScale', 1, {
+    mapIn: clampMaterialFontScale,
+    mapOut: clampMaterialFontScale
+  })
+
   const preCountdownMinutes = useSettingRef<number>('player.preCountdownMinutes', 0, {
     mapIn: clampPreCountdownMinutes,
     mapOut: clampPreCountdownMinutes
@@ -86,6 +101,7 @@ export const usePlaybackSettings = (): PlaybackSettingsRefs => {
     largeClockEnabled,
     largeClockScale,
     examInfoLargeFont,
+    materialFontScale,
     preCountdownMinutes
   }
 }

@@ -14,6 +14,7 @@
       :large-clock="largeClockEnabled"
       :large-clock-scale="largeClockScaleSetting"
       :exam-info-large-font="examInfoLargeFontSetting"
+      :material-font-scale="materialFontScaleSetting"
       :pre-countdown-minutes="preCountdownMinutesSetting"
       :hdr-highlight="hdrHighlightSetting"
       @exit="handleExit"
@@ -24,6 +25,7 @@
       @large-clock-toggle="handleLargeClockToggle"
       @large-clock-scale-change="handleLargeClockScaleChange"
       @exam-info-large-font-toggle="handleExamInfoLargeFontToggle"
+      @material-font-scale-change="handleMaterialFontScaleChange"
       @pre-countdown-minutes-change="handlePreCountdownMinutesChange"
       @exam-start="handleExamStart"
       @exam-end="handleExamEnd"
@@ -52,6 +54,7 @@ import { useSettingsStore } from '@renderer/stores/settingsStore'
 import {
   clampUiScale,
   clampLargeClockScale,
+  clampMaterialFontScale,
   normalizeDensity
 } from '@renderer/composables/usePlaybackSettings'
 import { useDesktopApi, type UIDensity } from '@renderer/runtime/desktopApi'
@@ -67,6 +70,7 @@ const {
   largeClockEnabled: largeClockEnabledSetting,
   largeClockScale: largeClockScaleSetting,
   examInfoLargeFont: examInfoLargeFontSetting,
+  materialFontScale: materialFontScaleSetting,
   preCountdownMinutes: preCountdownMinutesSetting
 } = desktopApi.playback
 
@@ -173,6 +177,12 @@ const handleExamInfoLargeFontToggle = (enabled: boolean) => {
   const flag = Boolean(enabled)
   if (examInfoLargeFontSetting.value === flag) return
   examInfoLargeFontSetting.value = flag
+}
+
+const handleMaterialFontScaleChange = (scale: number) => {
+  const safe = clampMaterialFontScale(scale)
+  if (Object.is(materialFontScaleSetting.value, safe)) return
+  materialFontScaleSetting.value = safe
 }
 
 const handlePreCountdownMinutesChange = (minutes: number) => {

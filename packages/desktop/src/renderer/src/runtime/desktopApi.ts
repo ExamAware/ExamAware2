@@ -11,6 +11,7 @@ import {
   clampUiScale,
   clampLargeClockScale,
   clampPreCountdownMinutes,
+  clampMaterialFontScale,
   normalizeDensity,
   type PlaybackSettingsRefs
 } from '../composables/usePlaybackSettings'
@@ -267,6 +268,7 @@ function createPlaybackApi(): PlaybackAPI {
       refs.largeClockEnabled.value = false
       refs.largeClockScale.value = clampLargeClockScale(1)
       refs.examInfoLargeFont.value = false
+      refs.materialFontScale.value = clampMaterialFontScale(1)
       refs.preCountdownMinutes.value = 0
     }
   }

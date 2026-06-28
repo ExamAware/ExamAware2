@@ -79,6 +79,21 @@
           </div>
         </div>
         <div class="settings-group">
+          <div class="settings-label">试卷答题卡字号</div>
+          <div class="settings-control">
+            <div class="slider-row">
+              <t-slider
+                v-model:value="materialFontScaleModel"
+                :min="0.8"
+                :max="2"
+                :step="0.05"
+                :input-number-props="{ theme: 'column', suffix: 'x', format: formatScale }"
+              />
+            </div>
+            <div class="settings-hint">单独调整左下角试卷、答题卡等材料的字号大小</div>
+          </div>
+        </div>
+        <div class="settings-group">
           <div class="settings-label">考前倒计时</div>
           <div class="settings-control">
             <div class="slider-row">
@@ -151,6 +166,7 @@ const props = withDefaults(
     largeClockEnabled: boolean;
     largeClockScale: number;
     examInfoLargeFont: boolean;
+    materialFontScale: number;
     preCountdownMinutes: number;
     formatScale: (value: number | string) => string;
     isDevMode?: boolean;
@@ -158,6 +174,7 @@ const props = withDefaults(
   {
     isDevMode: false,
     examInfoLargeFont: false,
+    materialFontScale: 1,
     preCountdownMinutes: 0
   }
 );
@@ -169,6 +186,7 @@ const emit = defineEmits<{
   (e: 'update:largeClockEnabled', value: boolean): void;
   (e: 'update:largeClockScale', value: number): void;
   (e: 'update:examInfoLargeFont', value: boolean): void;
+  (e: 'update:materialFontScale', value: number): void;
   (e: 'update:preCountdownMinutes', value: number): void;
   (e: 'confirm'): void;
   (e: 'close'): void;
@@ -201,6 +219,11 @@ const largeClockScaleModel = computed({
 const examInfoLargeFontModel = computed({
   get: () => props.examInfoLargeFont,
   set: (value: boolean) => emit('update:examInfoLargeFont', value)
+});
+
+const materialFontScaleModel = computed({
+  get: () => props.materialFontScale,
+  set: (value: number) => emit('update:materialFontScale', value)
 });
 
 const preCountdownMinutesModel = computed({

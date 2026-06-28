@@ -48,6 +48,7 @@
       :initial-large-clock-enabled="largeClockState"
       :initial-large-clock-scale="largeClockScaleState"
       :initial-exam-info-large-font="examInfoLargeFontState"
+      :initial-material-font-scale="materialFontScaleState"
       :initial-pre-countdown-minutes="preCountdownMinutesState"
       :extra-tools="toolbarTools"
       @exit="emit('exit')"
@@ -56,6 +57,7 @@
       @large-clock-toggle="handleLargeClockToggle"
       @clock-scale-change="handleLargeClockScaleChange"
       @exam-info-large-font-toggle="handleExamInfoLargeFontToggle"
+      @material-font-scale-change="handleMaterialFontScaleChange"
       @pre-countdown-minutes-change="handlePreCountdownMinutesChange"
       @dev-reminder-test="handleDevReminderTest"
       @dev-reminder-hide="handleDevReminderHide"
@@ -177,6 +179,8 @@ interface Props {
   uiDensity?: UIDensity;
   /** 本场考试信息是否使用大字体 */
   examInfoLargeFont?: boolean;
+  /** 试卷答题卡等材料字号缩放 */
+  materialFontScale?: number;
   /** 考前倒计时分钟数 */
   preCountdownMinutes?: number;
   /** 时间提供者 */
@@ -213,12 +217,14 @@ interface Emits {
   (e: 'update:roomNumber', roomNumber: string): void;
   (e: 'update:largeClock', enabled: boolean): void;
   (e: 'update:examInfoLargeFont', enabled: boolean): void;
+  (e: 'update:materialFontScale', scale: number): void;
   (e: 'update:preCountdownMinutes', minutes: number): void;
   (e: 'exit'): void;
   (e: 'scaleChange', scale: number): void;
   (e: 'largeClockToggle', enabled: boolean): void;
   (e: 'largeClockScaleChange', scale: number): void;
   (e: 'examInfoLargeFontToggle', enabled: boolean): void;
+  (e: 'materialFontScaleChange', scale: number): void;
   (e: 'preCountdownMinutesChange', minutes: number): void;
   (e: 'densityChange', density: UIDensity): void;
   (e: 'examStart', exam: any): void;
@@ -234,6 +240,7 @@ const props = withDefaults(defineProps<Props>(), {
   uiScale: undefined,
   largeClockScale: undefined,
   examInfoLargeFont: false,
+  materialFontScale: 1,
   preCountdownMinutes: 0,
   timeProvider: () => ({ getCurrentTime: () => Date.now() }),
   timeSyncStatus: '电脑时间',
@@ -347,6 +354,12 @@ const clampLargeClockScale = (value: unknown) => {
   return Math.min(1.8, Math.max(0.5, num));
 };
 
+const clampMaterialFontScale = (value: unknown) => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return 1;
+  return Math.min(2, Math.max(0.8, num));
+};
+
 const largeClockState = ref<boolean>(Boolean(props.largeClock));
 const resolveInitialLargeClockScale = () => {
   if (props.largeClockScale !== undefined && props.largeClockScale !== null) {
@@ -357,6 +370,8 @@ const resolveInitialLargeClockScale = () => {
 const largeClockScaleState = ref<number>(resolveInitialLargeClockScale());
 
 const examInfoLargeFontState = ref<boolean>(Boolean(props.examInfoLargeFont));
+
+const materialFontScaleState = ref<number>(clampMaterialFontScale(props.materialFontScale));
 
 const preCountdownMinutesState = ref<number>(Number(props.preCountdownMinutes) || 0);
 
@@ -378,6 +393,17 @@ watch(
     const safe = Math.min(60, Math.max(0, Math.round(Number(value))));
     if (safe !== preCountdownMinutesState.value) {
       preCountdownMinutesState.value = safe;
+    }
+  }
+);
+
+watch(
+  () => props.materialFontScale,
+  (value) => {
+    if (value === undefined || value === null) return;
+    const safe = clampMaterialFontScale(value);
+    if (safe !== materialFontScaleState.value) {
+      materialFontScaleState.value = safe;
     }
   }
 );
@@ -427,12 +453,34 @@ const setLargeClockScaleVar = (scale: number) => {
   }
 };
 
+const setMaterialFontScaleVar = (scale: number) => {
+  const safe = clampMaterialFontScale(scale);
+  if (typeof document !== 'undefined') {
+    document.documentElement.style.setProperty('--material-font-scale', String(safe));
+  }
+  const root = rootRef.value;
+  if (root) {
+    root.style.setProperty('--material-font-scale', String(safe));
+  }
+};
+
 watch(
   largeClockScaleState,
   (value) => {
     const safe = clampLargeClockScale(value);
     setLargeClockScaleVar(safe);
     emit('largeClockScaleChange', safe);
+  },
+  { immediate: true }
+);
+
+watch(
+  materialFontScaleState,
+  (value) => {
+    const safe = clampMaterialFontScale(value);
+    setMaterialFontScaleVar(safe);
+    emit('materialFontScaleChange', safe);
+    emit('update:materialFontScale', safe);
   },
   { immediate: true }
 );
@@ -511,6 +559,11 @@ const handleExamInfoLargeFontToggle = (enabled: boolean) => {
   examInfoLargeFontState.value = flag;
   emit('update:examInfoLargeFont', flag);
   emit('examInfoLargeFontToggle', flag);
+};
+
+const handleMaterialFontScaleChange = (scale: number) => {
+  const safe = clampMaterialFontScale(scale);
+  materialFontScaleState.value = safe;
 };
 
 const handlePreCountdownMinutesChange = (minutes: number) => {
@@ -1009,6 +1062,7 @@ const ctxForCards = {
   largeClockEnabled: computed(() => largeClockState.value),
   largeClockScale: largeClockScaleState,
   examInfoLargeFont: computed(() => examInfoLargeFontState.value),
+  materialFontScale: computed(() => materialFontScaleState.value),
   handleRoomNumberClick,
   currentExamIndex: computed(() => state.value.currentExamIndex)
 };
@@ -1037,6 +1091,7 @@ const resolvedCards = computed(() => ({
   --ui-scale: 1;
   --density-scale: 1;
   --large-clock-scale: 1;
+  --material-font-scale: 1;
 }
 
 .background-ellipse {
