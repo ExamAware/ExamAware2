@@ -44,8 +44,8 @@ const timeDisplayStyle = computed(() => ({
 // 倒计时标签：考前倒计时 / 考试倒计时
 const countdownLabel = computed(() => {
   const status = ctx.examStatus?.value?.status;
-  if (status === 'pending') return '考前倒计时';
-  if (status === 'inProgress') return '考试倒计时';
+  if (status === 'pending') return '距离考试开始还剩';
+  if (status === 'inProgress') return '距离考试结束还剩';
   return '';
 });
 
@@ -53,8 +53,8 @@ const countdownLabel = computed(() => {
 const countdownValue = computed(() => {
   const time = ctx.remainingTime?.value || '00:00:00';
   const status = ctx.examStatus?.value?.status;
-  if (status === 'pending') return `距离考试开始：${time}`;
-  if (status === 'inProgress') return `考试倒计时：${time}`;
+  if (status === 'pending') return `距离考试开始还剩：${time}`;
+  if (status === 'inProgress') return `距离考试结束还剩：${time}`;
   return '';
 });
 
