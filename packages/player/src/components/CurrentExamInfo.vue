@@ -2,8 +2,13 @@
   <BaseCard custom-class="current-exam-info-card">
     <!-- 按日期分多列展示 -->
     <div v-if="groupedExamInfos.length > 0" class="days-grid">
-      <div v-for="day in groupedExamInfos" :key="day.date" class="day-column">
-        <div class="day-title">{{ day.date }}</div>
+      <div
+        v-for="day in groupedExamInfos"
+        :key="day.date"
+        class="day-column"
+        :class="{ 'is-current-day': day.isCurrentDay, 'is-ended': day.isEnded }"
+      >
+        <div class="day-title">{{ day.dateLabel }}</div>
         <div class="day-table-header">
           <div class="day-header-cell" style="flex: 0.6">时段</div>
           <div class="day-header-cell" style="flex: 1.6">科目</div>
@@ -34,6 +39,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { parseDateTime } from '@dsz-examaware/core';
 import BaseCard from './BaseCard.vue';
 import ExamInfoItem from './ExamInfoItem.vue';
 import type { FormattedExamInfo } from '../utils/dataProcessor';
@@ -48,14 +54,53 @@ const props = withDefaults(defineProps<CurrentExamInfoProps>(), {
   currentExamIndex: 0
 });
 
-const groupedExamInfos = computed(() => {
+interface DayGroup {
+  date: string;
+  dateLabel: string;
+  dayIndex: number;
+  exams: FormattedExamInfo[];
+  isCurrentDay: boolean;
+  isEnded: boolean;
+}
+
+const groupedExamInfos = computed<DayGroup[]>(() => {
   const groups = new Map<string, FormattedExamInfo[]>();
   props.examInfos.forEach((exam) => {
     const list = groups.get(exam.date) || [];
     list.push(exam);
     groups.set(exam.date, list);
   });
-  return Array.from(groups.entries()).map(([date, exams]) => ({ date, exams }));
+
+  const currentExam = props.examInfos[props.currentExamIndex];
+  const currentDate = currentExam?.date;
+
+  let dayIndex = 0;
+  const items: DayGroup[] = Array.from(groups.entries()).map(([date, exams]) => {
+    dayIndex++;
+    const firstExam = exams[0];
+    const startDate = parseDateTime(firstExam.rawData.start);
+    const weekday = startDate.toLocaleDateString('zh-CN', {
+      weekday: 'short'
+    });
+    const isCurrentDay = date === currentDate;
+    const isEnded = exams.every((e) => e.statusText === '已结束');
+
+    return {
+      date,
+      dateLabel: `第${dayIndex}天 ${date} ${weekday}`,
+      dayIndex,
+      exams,
+      isCurrentDay,
+      isEnded
+    };
+  });
+
+  // 当前考试日期置顶，其余按日期顺序排列
+  return items.sort((a, b) => {
+    if (a.isCurrentDay && !b.isCurrentDay) return -1;
+    if (!a.isCurrentDay && b.isCurrentDay) return 1;
+    return a.date.localeCompare(b.date);
+  });
 });
 </script>
 
@@ -77,13 +122,35 @@ const groupedExamInfos = computed(() => {
   min-width: calc(var(--ui-scale, 1) * 14rem);
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  border-radius: calc(var(--ui-scale, 1) * 8px);
+  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.4rem);
+  transition: opacity 0.3s ease;
+}
+
+.day-column.is-current-day {
+  border-color: rgba(77, 171, 247, 0.45);
+  background: rgba(77, 171, 247, 0.06);
+}
+
+.day-column.is-current-day .day-title {
+  color: #4dabf7;
+  border-color: rgba(77, 171, 247, 0.35);
+}
+
+.day-column.is-ended {
+  opacity: 0.5;
 }
 
 .day-title {
   color: rgba(255, 255, 255, 0.85);
-  font-size: calc(var(--ui-scale, 1) * 1.25rem);
+  font-size: calc(var(--ui-scale, 1) * 1.15rem);
   font-weight: 600;
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   padding-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.4rem);
   margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.4rem);
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
