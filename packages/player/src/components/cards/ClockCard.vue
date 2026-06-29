@@ -145,12 +145,14 @@ const countdownState = computed(() => {
 
   // 考试进行中：显示倒计时
   if (status === 'inProgress') {
+    const isEndingSoon =
+      typeof timeRemaining === 'number' && timeRemaining <= PRE_COUNTDOWN_MS.value;
     return {
       label: '考试倒计时',
       showValue: true,
       value: ctx.remainingTime?.value || '00:00',
       text: '',
-      labelClass: ''
+      labelClass: isEndingSoon ? 'text-danger' : ''
     };
   }
 

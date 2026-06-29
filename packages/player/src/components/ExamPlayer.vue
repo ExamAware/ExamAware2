@@ -303,10 +303,10 @@ const mergedEventHandlers: PlayerEventHandlers = {
   onPreExamStart: (exam: any, preMinutes: number) => {
     props.eventHandlers?.onPreExamStart?.(exam, preMinutes);
     emit('preExamStart', exam, preMinutes);
-    // 即将开考（蓝色）
+    // 即将开考（黄色）
     showExamReminder('preStart', exam, {
       title: `即将开考 · ${exam.name}`,
-      themeBaseColor: '#3498db',
+      themeBaseColor: '#f1c40f',
       forceWhiteText: true
     });
   },
@@ -325,10 +325,10 @@ const mergedEventHandlers: PlayerEventHandlers = {
   onExamAlert: (exam: any, alertTime: number) => {
     props.eventHandlers?.onExamAlert?.(exam, alertTime);
     emit('examAlert', exam, alertTime);
-    // 考试即将结束（黄色）
+    // 考试即将结束（红色）
     showExamReminder('alert', exam, {
       title: '考试即将结束',
-      themeBaseColor: '#f1c40f',
+      themeBaseColor: '#ff3b30',
       forceWhiteText: true
     });
   },
