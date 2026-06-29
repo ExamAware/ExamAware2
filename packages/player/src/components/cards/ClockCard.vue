@@ -101,6 +101,7 @@ const countdownValue = computed(() => countdownState.value.value);
   justify-content: space-between;
   gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1rem);
   padding: 0;
+  width: 100%;
 }
 
 .clock-content.large-mode {

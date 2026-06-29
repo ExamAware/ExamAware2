@@ -1152,12 +1152,6 @@ const resolvedCards = computed(() => ({
   margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.75rem);
 }
 
-.clock-content {
-  display: flex;
-  align-items: center;
-  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
-}
-
 .time-display {
   font-size: calc(var(--ui-scale, 1) * 4rem);
   line-height: 1;

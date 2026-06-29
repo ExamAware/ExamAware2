@@ -336,9 +336,8 @@ const handleUserActivity = () => {
   }
   markActivity();
   if (manualCollapsed.value) {
-    manualCollapsed.value = false;
-    autoCollapsed.value = false;
-    scheduleCollapse();
+    // 手动收起后，不因鼠标移动等被动事件自动展开；
+    // 只能通过点击「展开」按钮恢复
     return;
   }
   if (autoCollapsed.value) {
