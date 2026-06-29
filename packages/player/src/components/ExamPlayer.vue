@@ -47,6 +47,7 @@
       :initial-density="densityState"
       :initial-large-clock-enabled="largeClockState"
       :initial-large-clock-scale="largeClockScaleState"
+      :initial-auxiliary-font-scale="auxiliaryFontScaleState"
       :initial-exam-info-large-font="examInfoLargeFontState"
       :initial-material-font-scale="materialFontScaleState"
       :initial-pre-countdown-minutes="preCountdownMinutesState"
@@ -57,6 +58,7 @@
       @density-change="handleDensityChange"
       @large-clock-toggle="handleLargeClockToggle"
       @clock-scale-change="handleLargeClockScaleChange"
+      @auxiliary-font-scale-change="handleAuxiliaryFontScaleChange"
       @exam-info-large-font-toggle="handleExamInfoLargeFontToggle"
       @material-font-scale-change="handleMaterialFontScaleChange"
       @pre-countdown-minutes-change="handlePreCountdownMinutesChange"
@@ -182,6 +184,8 @@ interface Props {
   examInfoLargeFont?: boolean;
   /** 试卷答题卡等材料字号缩放 */
   materialFontScale?: number;
+  /** 时钟标签与提示文字字号缩放 */
+  auxiliaryFontScale?: number;
   /** 考前倒计时分钟数 */
   preCountdownMinutes?: number;
   /** 时间提供者 */
@@ -219,6 +223,7 @@ interface Emits {
   (e: 'update:largeClock', enabled: boolean): void;
   (e: 'update:examInfoLargeFont', enabled: boolean): void;
   (e: 'update:materialFontScale', scale: number): void;
+  (e: 'update:auxiliaryFontScale', scale: number): void;
   (e: 'update:preCountdownMinutes', minutes: number): void;
   (e: 'exit'): void;
   (e: 'minimize'): void;
@@ -243,6 +248,7 @@ const props = withDefaults(defineProps<Props>(), {
   largeClockScale: undefined,
   examInfoLargeFont: false,
   materialFontScale: 1,
+  auxiliaryFontScale: 1,
   preCountdownMinutes: 0,
   timeProvider: () => ({ getCurrentTime: () => Date.now() }),
   timeSyncStatus: '电脑时间',
@@ -362,6 +368,12 @@ const clampMaterialFontScale = (value: unknown) => {
   return Math.min(2, Math.max(0.8, num));
 };
 
+const clampAuxiliaryFontScale = (value: unknown) => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return 1;
+  return Math.min(2, Math.max(0.5, num));
+};
+
 const largeClockState = ref<boolean>(Boolean(props.largeClock));
 const resolveInitialLargeClockScale = () => {
   if (props.largeClockScale !== undefined && props.largeClockScale !== null) {
@@ -375,6 +387,8 @@ const examInfoLargeFontState = ref<boolean>(Boolean(props.examInfoLargeFont));
 
 const materialFontScaleState = ref<number>(clampMaterialFontScale(props.materialFontScale));
 
+const auxiliaryFontScaleState = ref<number>(clampAuxiliaryFontScale(props.auxiliaryFontScale));
+
 const preCountdownMinutesState = ref<number>(Number(props.preCountdownMinutes) || 0);
 
 watch(
@@ -384,6 +398,17 @@ watch(
     const safe = clampLargeClockScale(value);
     if (safe !== largeClockScaleState.value) {
       largeClockScaleState.value = safe;
+    }
+  }
+);
+
+watch(
+  () => props.auxiliaryFontScale,
+  (value) => {
+    if (value === undefined || value === null) return;
+    const safe = clampAuxiliaryFontScale(value);
+    if (safe !== auxiliaryFontScaleState.value) {
+      auxiliaryFontScaleState.value = safe;
     }
   }
 );
@@ -466,6 +491,17 @@ const setMaterialFontScaleVar = (scale: number) => {
   }
 };
 
+const setAuxiliaryFontScaleVar = (scale: number) => {
+  const safe = clampAuxiliaryFontScale(scale);
+  if (typeof document !== 'undefined') {
+    document.documentElement.style.setProperty('--auxiliary-font-scale', String(safe));
+  }
+  const root = rootRef.value;
+  if (root) {
+    root.style.setProperty('--auxiliary-font-scale', String(safe));
+  }
+};
+
 watch(
   largeClockScaleState,
   (value) => {
@@ -483,6 +519,17 @@ watch(
     setMaterialFontScaleVar(safe);
     emit('materialFontScaleChange', safe);
     emit('update:materialFontScale', safe);
+  },
+  { immediate: true }
+);
+
+watch(
+  auxiliaryFontScaleState,
+  (value) => {
+    const safe = clampAuxiliaryFontScale(value);
+    setAuxiliaryFontScaleVar(safe);
+    emit('auxiliaryFontScaleChange', safe);
+    emit('update:auxiliaryFontScale', safe);
   },
   { immediate: true }
 );
@@ -573,6 +620,11 @@ const handleExamInfoLargeFontToggle = (enabled: boolean) => {
 const handleMaterialFontScaleChange = (scale: number) => {
   const safe = clampMaterialFontScale(scale);
   materialFontScaleState.value = safe;
+};
+
+const handleAuxiliaryFontScaleChange = (scale: number) => {
+  const safe = clampAuxiliaryFontScale(scale);
+  auxiliaryFontScaleState.value = safe;
 };
 
 const handlePreCountdownMinutesChange = (minutes: number) => {
@@ -1074,6 +1126,7 @@ const ctxForCards = {
   largeClockScale: largeClockScaleState,
   examInfoLargeFont: computed(() => examInfoLargeFontState.value),
   materialFontScale: computed(() => materialFontScaleState.value),
+  auxiliaryFontScale: computed(() => auxiliaryFontScaleState.value),
   handleRoomNumberClick,
   currentExamIndex: computed(() => state.value.currentExamIndex),
   preCountdownMinutes: preCountdownMinutesState

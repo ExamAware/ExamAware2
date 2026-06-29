@@ -15,6 +15,7 @@
       :large-clock-scale="largeClockScaleSetting"
       :exam-info-large-font="examInfoLargeFontSetting"
       :material-font-scale="materialFontScaleSetting"
+      :auxiliary-font-scale="auxiliaryFontScaleSetting"
       :pre-countdown-minutes="preCountdownMinutesSetting"
       :hdr-highlight="hdrHighlightSetting"
       @exit="handleExit"
@@ -27,6 +28,7 @@
       @large-clock-scale-change="handleLargeClockScaleChange"
       @exam-info-large-font-toggle="handleExamInfoLargeFontToggle"
       @material-font-scale-change="handleMaterialFontScaleChange"
+      @auxiliary-font-scale-change="handleAuxiliaryFontScaleChange"
       @pre-countdown-minutes-change="handlePreCountdownMinutesChange"
       @exam-start="handleExamStart"
       @exam-end="handleExamEnd"
@@ -56,6 +58,7 @@ import {
   clampUiScale,
   clampLargeClockScale,
   clampMaterialFontScale,
+  clampAuxiliaryFontScale,
   normalizeDensity
 } from '@renderer/composables/usePlaybackSettings'
 import { useDesktopApi, type UIDensity } from '@renderer/runtime/desktopApi'
@@ -72,6 +75,7 @@ const {
   largeClockScale: largeClockScaleSetting,
   examInfoLargeFont: examInfoLargeFontSetting,
   materialFontScale: materialFontScaleSetting,
+  auxiliaryFontScale: auxiliaryFontScaleSetting,
   preCountdownMinutes: preCountdownMinutesSetting
 } = desktopApi.playback
 
@@ -184,6 +188,12 @@ const handleMaterialFontScaleChange = (scale: number) => {
   const safe = clampMaterialFontScale(scale)
   if (Object.is(materialFontScaleSetting.value, safe)) return
   materialFontScaleSetting.value = safe
+}
+
+const handleAuxiliaryFontScaleChange = (scale: number) => {
+  const safe = clampAuxiliaryFontScale(scale)
+  if (Object.is(auxiliaryFontScaleSetting.value, safe)) return
+  auxiliaryFontScaleSetting.value = safe
 }
 
 const handlePreCountdownMinutesChange = (minutes: number) => {

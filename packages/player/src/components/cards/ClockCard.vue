@@ -54,6 +54,7 @@ export interface ExamPlayerCtx {
   timeSyncStatus?: any;
   largeClockEnabled?: any;
   largeClockScale?: any;
+  auxiliaryFontScale?: any;
   currentExam?: any;
   examStatus?: any;
   remainingTime?: any;
@@ -67,7 +68,8 @@ const customCardClass = computed(() =>
   isLargeClock.value ? 'clock-card clock-card-large' : 'clock-card'
 );
 const timeDisplayStyle = computed(() => ({
-  '--clock-scale': ctx.largeClockScale?.value ?? 1
+  '--clock-scale': ctx.largeClockScale?.value ?? 1,
+  '--auxiliary-font-scale': ctx.auxiliaryFontScale?.value ?? 1
 }));
 
 const PRE_COUNTDOWN_MS = computed(() => {
@@ -260,7 +262,9 @@ const countdownLabelClass = computed(() => countdownState.value.labelClass);
 
 .side-label {
   color: rgba(255, 255, 255, 0.7);
-  font-size: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.35rem);
+  font-size: calc(
+    var(--ui-scale, 1) * var(--density-scale, 1) * var(--auxiliary-font-scale, 1) * 1.35rem
+  );
   font-weight: 600;
   letter-spacing: 0.05em;
   line-height: 1.2;
@@ -271,7 +275,9 @@ const countdownLabelClass = computed(() => countdownState.value.labelClass);
 
 .time-hint {
   color: rgba(255, 255, 255, 0.45);
-  font-size: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.15rem);
+  font-size: calc(
+    var(--ui-scale, 1) * var(--density-scale, 1) * var(--auxiliary-font-scale, 1) * 1.15rem
+  );
   font-weight: 400;
   line-height: 1.2;
   text-align: center;

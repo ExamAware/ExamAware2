@@ -111,6 +111,7 @@
     :density="tempDensity"
     :large-clock-enabled="tempLargeClockEnabled"
     :large-clock-scale="tempLargeClockScale"
+    :auxiliary-font-scale="tempAuxiliaryFontScale"
     :exam-info-large-font="tempExamInfoLargeFont"
     :material-font-scale="tempMaterialFontScale"
     :pre-countdown-minutes="tempPreCountdownMinutes"
@@ -122,6 +123,7 @@
     @update:density="handleTempDensityUpdate"
     @update:largeClockEnabled="handleTempLargeClockEnabledUpdate"
     @update:largeClockScale="handleTempLargeClockScaleUpdate"
+    @update:auxiliaryFontScale="handleTempAuxiliaryFontScaleUpdate"
     @update:examInfoLargeFont="handleTempExamInfoLargeFontUpdate"
     @update:materialFontScale="handleTempMaterialFontScaleUpdate"
     @update:preCountdownMinutes="handleTempPreCountdownMinutesUpdate"
@@ -151,6 +153,7 @@ const props = withDefaults(
     initialLargeClockEnabled?: boolean;
     initialExamInfoLargeFont?: boolean;
     initialMaterialFontScale?: number;
+    initialAuxiliaryFontScale?: number;
     initialPreCountdownMinutes?: number;
     extraTools?: readonly PlayerToolbarItem[];
   }>(),
@@ -161,6 +164,7 @@ const props = withDefaults(
     initialLargeClockEnabled: false,
     initialExamInfoLargeFont: false,
     initialMaterialFontScale: 1,
+    initialAuxiliaryFontScale: 1,
     initialPreCountdownMinutes: 0,
     extraTools: () => []
   }
@@ -174,6 +178,7 @@ const emit = defineEmits<{
   (e: 'largeClockToggle', enabled: boolean): void;
   (e: 'examInfoLargeFontToggle', enabled: boolean): void;
   (e: 'materialFontScaleChange', scale: number): void;
+  (e: 'auxiliaryFontScaleChange', scale: number): void;
   (e: 'preCountdownMinutesChange', minutes: number): void;
   (e: 'devReminderTest', preset: DevReminderPreset | DevReminderPayload): void;
   (e: 'devReminderHide'): void;
@@ -211,6 +216,13 @@ const clampMaterialFontScale = (value: unknown) => {
   const num = Number(value);
   if (!Number.isFinite(num)) return 1;
   const clamped = Math.min(2, Math.max(0.8, num));
+  return Number(roundToStep(clamped, 0.05).toFixed(2));
+};
+
+const clampAuxiliaryFontScale = (value: unknown) => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return 1;
+  const clamped = Math.min(2, Math.max(0.5, num));
   return Number(roundToStep(clamped, 0.05).toFixed(2));
 };
 
@@ -261,6 +273,13 @@ const materialFontScale = ref<number>(
 );
 const tempMaterialFontScale = ref<number>(materialFontScale.value);
 
+const auxiliaryFontScale = ref<number>(
+  props.initialAuxiliaryFontScale !== undefined && props.initialAuxiliaryFontScale !== null
+    ? clampAuxiliaryFontScale(props.initialAuxiliaryFontScale)
+    : 1
+);
+const tempAuxiliaryFontScale = ref<number>(auxiliaryFontScale.value);
+
 const preCountdownMinutes = ref<number>(Number(props.initialPreCountdownMinutes) || 0);
 const tempPreCountdownMinutes = ref<number>(preCountdownMinutes.value);
 
@@ -286,6 +305,10 @@ const handleTempExamInfoLargeFontUpdate = (value: boolean) => {
 
 const handleTempMaterialFontScaleUpdate = (value: number) => {
   tempMaterialFontScale.value = value;
+};
+
+const handleTempAuxiliaryFontScaleUpdate = (value: number) => {
+  tempAuxiliaryFontScale.value = value;
 };
 
 const handleTempPreCountdownMinutesUpdate = (value: number) => {
@@ -450,6 +473,16 @@ const setMaterialFontScale = (value: number) => {
   }
 };
 
+const setAuxiliaryFontScale = (value: number) => {
+  if (typeof window === 'undefined') return;
+  const target = String(value);
+  document.documentElement.style.setProperty('--auxiliary-font-scale', target);
+  const container = document.querySelector('.exam-container') as HTMLElement | null;
+  if (container) {
+    container.style.setProperty('--auxiliary-font-scale', target);
+  }
+};
+
 const devReminderPresets: Record<DevReminderPreset, DevReminderPayload> = {
   start: { title: '考试开始（测试）', themeBaseColor: '#2ecc71' },
   warning: { title: '考试即将结束（测试）', themeBaseColor: '#f1c40f', forceWhiteText: true },
@@ -473,6 +506,7 @@ onMounted(() => {
   setRootDensity(density.value);
   setLargeClockScale(largeClockScale.value);
   setMaterialFontScale(materialFontScale.value);
+  setAuxiliaryFontScale(auxiliaryFontScale.value);
   markActivity();
   scheduleCollapse();
   activityEvents.forEach((eventName) => {
@@ -536,6 +570,16 @@ watch(
     const safe = clampMaterialFontScale(value);
     materialFontScale.value = safe;
     tempMaterialFontScale.value = safe;
+  }
+);
+
+watch(
+  () => props.initialAuxiliaryFontScale,
+  (value) => {
+    if (value === undefined || value === null) return;
+    const safe = clampAuxiliaryFontScale(value);
+    auxiliaryFontScale.value = safe;
+    tempAuxiliaryFontScale.value = safe;
   }
 );
 
@@ -677,6 +721,29 @@ watch(tempMaterialFontScale, (value) => {
   const safe = clampMaterialFontScale(value);
   if (materialFontScale.value !== safe) {
     materialFontScale.value = safe;
+  }
+});
+
+watch(
+  auxiliaryFontScale,
+  (newValue, oldValue) => {
+    const safe = clampAuxiliaryFontScale(newValue);
+    if (safe !== newValue) {
+      auxiliaryFontScale.value = safe;
+      return;
+    }
+    setAuxiliaryFontScale(safe);
+    if (safe !== oldValue) {
+      emit('auxiliaryFontScaleChange', safe);
+    }
+  },
+  { immediate: true }
+);
+
+watch(tempAuxiliaryFontScale, (value) => {
+  const safe = clampAuxiliaryFontScale(value);
+  if (auxiliaryFontScale.value !== safe) {
+    auxiliaryFontScale.value = safe;
   }
 });
 
@@ -825,6 +892,7 @@ const handlePlaybackSettings = () => {
   tempLargeClockEnabled.value = largeClockEnabled.value;
   tempExamInfoLargeFont.value = examInfoLargeFont.value;
   tempMaterialFontScale.value = materialFontScale.value;
+  tempAuxiliaryFontScale.value = auxiliaryFontScale.value;
   tempPreCountdownMinutes.value = preCountdownMinutes.value;
   showSettings.value = true;
 };
@@ -839,6 +907,7 @@ const handleSettingsConfirm = () => {
   largeClockEnabled.value = Boolean(tempLargeClockEnabled.value);
   examInfoLargeFont.value = Boolean(tempExamInfoLargeFont.value);
   materialFontScale.value = clampMaterialFontScale(tempMaterialFontScale.value);
+  auxiliaryFontScale.value = clampAuxiliaryFontScale(tempAuxiliaryFontScale.value);
   preCountdownMinutes.value = Math.min(
     60,
     Math.max(0, Math.round(Number(tempPreCountdownMinutes.value)))
@@ -863,6 +932,7 @@ const handleSettingsVisibleChange = (visible: boolean) => {
     tempLargeClockEnabled.value = largeClockEnabled.value;
     tempExamInfoLargeFont.value = examInfoLargeFont.value;
     tempMaterialFontScale.value = materialFontScale.value;
+    tempAuxiliaryFontScale.value = auxiliaryFontScale.value;
     tempPreCountdownMinutes.value = preCountdownMinutes.value;
   }
 };
@@ -875,6 +945,7 @@ const handleSettingsClosed = () => {
   tempLargeClockEnabled.value = largeClockEnabled.value;
   tempExamInfoLargeFont.value = examInfoLargeFont.value;
   tempMaterialFontScale.value = materialFontScale.value;
+  tempAuxiliaryFontScale.value = auxiliaryFontScale.value;
   tempPreCountdownMinutes.value = preCountdownMinutes.value;
   scheduleCollapse();
 };

@@ -67,6 +67,21 @@
           </div>
         </div>
         <div class="settings-group">
+          <div class="settings-label">标签提示字号</div>
+          <div class="settings-control">
+            <div class="slider-row">
+              <t-slider
+                v-model:value="auxiliaryFontScaleModel"
+                :min="0.5"
+                :max="2"
+                :step="0.05"
+                :input-number-props="{ theme: 'column', suffix: 'x', format: formatScale }"
+              />
+            </div>
+            <div class="settings-hint">调整“北京时间”“考试倒计时”以及底部提示文字的字号</div>
+          </div>
+        </div>
+        <div class="settings-group">
           <div class="settings-label">本场信息大字体</div>
           <div class="settings-control">
             <div class="switch-row">
@@ -165,6 +180,7 @@ const props = withDefaults(
     densityOptions: DensityOption[];
     largeClockEnabled: boolean;
     largeClockScale: number;
+    auxiliaryFontScale: number;
     examInfoLargeFont: boolean;
     materialFontScale: number;
     preCountdownMinutes: number;
@@ -175,6 +191,7 @@ const props = withDefaults(
     isDevMode: false,
     examInfoLargeFont: false,
     materialFontScale: 1,
+    auxiliaryFontScale: 1,
     preCountdownMinutes: 0
   }
 );
@@ -185,6 +202,7 @@ const emit = defineEmits<{
   (e: 'update:density', value: UIDensity): void;
   (e: 'update:largeClockEnabled', value: boolean): void;
   (e: 'update:largeClockScale', value: number): void;
+  (e: 'update:auxiliaryFontScale', value: number): void;
   (e: 'update:examInfoLargeFont', value: boolean): void;
   (e: 'update:materialFontScale', value: number): void;
   (e: 'update:preCountdownMinutes', value: number): void;
@@ -214,6 +232,11 @@ const largeClockEnabledModel = computed({
 const largeClockScaleModel = computed({
   get: () => props.largeClockScale,
   set: (value: number) => emit('update:largeClockScale', value)
+});
+
+const auxiliaryFontScaleModel = computed({
+  get: () => props.auxiliaryFontScale,
+  set: (value: number) => emit('update:auxiliaryFontScale', value)
 });
 
 const examInfoLargeFontModel = computed({

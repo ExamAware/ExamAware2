@@ -95,12 +95,14 @@
           </div>
           <div class="settings-item-main">
             <div class="settings-item-title">进程名</div>
-            <div class="settings-item-desc">要检测并结束的课表进程名称，例如 ClassIsland.exe。</div>
+            <div class="settings-item-desc">
+              要检测并结束的课表进程名称，例如 ClassIsland.Desktop.exe。
+            </div>
           </div>
           <div class="settings-item-action" style="display: flex; align-items: center; gap: 8px">
             <t-input
               v-model="classialandProcessName"
-              placeholder="ClassIsland.exe"
+              placeholder="ClassIsland.Desktop.exe"
               style="width: 180px"
             />
             <t-button theme="primary" size="small" @click="handleKillClassialandNow"
@@ -186,7 +188,7 @@ const autoEnterPlayer = useSettingRef<boolean>('behavior.autoEnterPlayer', false
 const classialandEnabled = useSettingRef<boolean>('behavior.classialandKiller.enabled', true)
 const classialandProcessName = useSettingRef<string>(
   'behavior.classialandKiller.processName',
-  'ClassIsland.exe'
+  'ClassIsland.Desktop.exe'
 )
 const classialandKilling = ref(false)
 

@@ -5,7 +5,7 @@ import { getConfig, onConfigChanged } from './configStore'
 
 const execFileAsync = promisify(execFile)
 
-const DEFAULT_PROCESS_NAME = 'ClassIsland.exe'
+const DEFAULT_PROCESS_NAME = 'ClassIsland.Desktop.exe'
 const DEFAULT_INTERVAL_MINUTES = 10
 
 export interface KillerConfig {
