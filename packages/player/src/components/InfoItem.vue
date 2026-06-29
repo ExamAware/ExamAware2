@@ -1,6 +1,6 @@
 <template>
   <div class="info-item">
-    <div class="info-label">{{ label }}</div>
+    <div class="info-label">{{ label }}:</div>
     <div class="info-value" :class="valueClass">{{ value }}</div>
   </div>
 </template>
