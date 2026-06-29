@@ -33,7 +33,6 @@ export class ExamDataProcessor {
 
     // 使用排序后的配置确保考试按时间顺序显示
     const sortedConfig = getSortedExamConfig(config);
-    let lastDisplayedDate = '';
 
     return sortedConfig.examInfos.map((exam: ExamInfo, index: number) => {
       const startDate = parseDateTime(exam.start);
@@ -69,17 +68,10 @@ export class ExamDataProcessor {
         period = '晚上';
       }
 
-      // 决定是否显示日期：只有当前考试的日期与前一个考试不同时才显示
-      let displayDate = '';
-      if (dateString !== lastDisplayedDate) {
-        displayDate = dateString;
-        lastDisplayedDate = dateString;
-      }
-
       return {
         index,
         name: exam.name,
-        date: displayDate, // 可能为空字符串
+        date: dateString,
         period,
         timeRange: `${this.formatHourMinute(startDate)} ~ ${this.formatHourMinute(endDate)}`,
         startTime: this.formatHourMinute(startDate),

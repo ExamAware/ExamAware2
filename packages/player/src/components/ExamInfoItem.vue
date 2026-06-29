@@ -1,8 +1,7 @@
 <template>
   <div class="exam-table-row" :class="{ 'is-current': isCurrent }">
-    <div class="cell cell-date">
-      <template v-if="date">{{ date }} {{ period }}</template>
-    </div>
+    <div class="cell cell-date">{{ date }}</div>
+    <div class="cell cell-period">{{ period }}</div>
     <div class="cell cell-subject">{{ subject }}</div>
     <div class="cell cell-time">{{ startTime }}</div>
     <div class="cell cell-time">{{ endTime }}</div>
@@ -46,10 +45,10 @@ const statusClass = computed(() => {
 <style scoped>
 .exam-table-row {
   display: grid;
-  grid-template-columns: 1fr 2fr 1.2fr 1.2fr 1fr;
+  grid-template-columns: 0.7fr 0.5fr 1.8fr 1fr 1fr 0.8fr;
   align-items: center;
   gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.5rem);
-  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.6rem) 0;
+  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.5rem) 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -69,6 +68,11 @@ const statusClass = computed(() => {
 .cell-date {
   color: rgba(255, 255, 255, 0.75);
   font-family: 'TCloudNumber', 'MiSans', monospace;
+}
+
+.cell-period {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: calc(var(--ui-scale, 1) * 1.15rem);
 }
 
 .cell-subject {

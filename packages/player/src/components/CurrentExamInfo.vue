@@ -2,11 +2,12 @@
   <BaseCard custom-class="current-exam-info-card">
     <!-- 表头 -->
     <div class="table-header">
-      <div class="header-cell" style="flex: 1">日期</div>
-      <div class="header-cell" style="flex: 2">科目</div>
-      <div class="header-cell" style="flex: 1.2">开始时间</div>
-      <div class="header-cell" style="flex: 1.2">结束时间</div>
-      <div class="header-cell" style="flex: 1; text-align: right">考试状态</div>
+      <div class="header-cell" style="flex: 0.7">日期</div>
+      <div class="header-cell" style="flex: 0.5">时段</div>
+      <div class="header-cell" style="flex: 1.8">科目</div>
+      <div class="header-cell" style="flex: 1">开始时间</div>
+      <div class="header-cell" style="flex: 1">结束时间</div>
+      <div class="header-cell" style="flex: 0.8; text-align: right">考试状态</div>
     </div>
 
     <!-- 考试信息列表 -->
@@ -57,6 +58,11 @@ const props = withDefaults(defineProps<CurrentExamInfoProps>(), {
 </script>
 
 <style scoped>
+.current-exam-info-card :deep(.card-content) {
+  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.2rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.8rem);
+}
+
 .table-header {
   display: flex;
   align-items: center;
