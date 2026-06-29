@@ -189,7 +189,7 @@ const countdownState = computed(() => {
     // 考前 15 分钟内才显示倒计时
     if (typeof timeRemaining === 'number' && timeRemaining <= PRE_COUNTDOWN_MS.value) {
       return {
-        label: '考前倒计时',
+        label: '距离开考',
         showValue: true,
         value: ctx.remainingTime?.value || '00:00',
         text: '',
