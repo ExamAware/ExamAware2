@@ -56,7 +56,7 @@ onMounted(async () => {
   try {
     const autoEnter = await window.api.config.get('behavior.autoEnterPlayer', false)
     if (autoEnter && (route.path === '/' || route.path === '/mainpage')) {
-      // 自动进入播放页：如果有上次放映文件则直接打开播放器，否则跳转到放映器页面
+      // 自动进入播放页：有上次放映文件则直接打开播放器，没有则留在主界面
       const LAST_FILE_KEY = 'examaware:last-played-file'
       let lastFile = null
       try {
@@ -64,8 +64,6 @@ onMounted(async () => {
       } catch {}
       if (lastFile && lastFile.trim()) {
         window.api?.ipc?.send('open-player-window', lastFile.trim())
-      } else {
-        router.push('/playerhome')
       }
     }
   } catch (e) {
