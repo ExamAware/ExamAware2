@@ -34,10 +34,10 @@ export const normalizeDensity = (value: unknown): UIDensity => {
 
 export const clampPreCountdownMinutes = (value: number | string) => {
   const num = Number(value)
-  if (!Number.isFinite(num)) {
-    return 0
+  if (!Number.isFinite(num) || num <= 0) {
+    return 15
   }
-  return Math.min(60, Math.max(0, Math.round(num)))
+  return Math.min(60, Math.max(1, Math.round(num)))
 }
 
 export const clampMaterialFontScale = (value: number | string) => {

@@ -385,7 +385,7 @@ const materialFontScaleState = ref<number>(clampMaterialFontScale(props.material
 
 const auxiliaryFontScaleState = ref<number>(clampAuxiliaryFontScale(props.auxiliaryFontScale));
 
-const preCountdownMinutesState = ref<number>(Number(props.preCountdownMinutes) || 0);
+const preCountdownMinutesState = ref<number>(Number(props.preCountdownMinutes) || 15);
 
 watch(
   () => props.largeClockScale,

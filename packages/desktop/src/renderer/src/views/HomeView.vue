@@ -56,7 +56,17 @@ onMounted(async () => {
   try {
     const autoEnter = await window.api.config.get('behavior.autoEnterPlayer', false)
     if (autoEnter && (route.path === '/' || route.path === '/mainpage')) {
-      router.push('/playerhome')
+      // 自动进入播放页：如果有上次放映文件则直接打开播放器，否则跳转到放映器页面
+      const LAST_FILE_KEY = 'examaware:last-played-file'
+      let lastFile = null
+      try {
+        lastFile = localStorage.getItem(LAST_FILE_KEY)
+      } catch {}
+      if (lastFile && lastFile.trim()) {
+        window.api?.ipc?.send('open-player-window', lastFile.trim())
+      } else {
+        router.push('/playerhome')
+      }
     }
   } catch (e) {
     console.error('读取自动进入播放页设置失败', e)
