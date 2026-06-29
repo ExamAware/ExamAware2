@@ -13,7 +13,7 @@
       'settings-open': showSettings,
       'manual-collapsed': manualCollapsed
     }"
-    @mouseenter="handleUserActivity"
+    @mouseenter="handleBarMouseEnter"
     @mousemove="handleUserActivity"
     @mouseleave="scheduleCollapse"
     @touchstart.passive="handleUserActivity"
@@ -336,14 +336,25 @@ const handleUserActivity = () => {
   }
   markActivity();
   if (manualCollapsed.value) {
-    // 手动收起后，不因鼠标移动等被动事件自动展开；
-    // 只能通过点击「展开」按钮恢复
+    // 手动收起时，不在全局鼠标移动时自动展开；
+    // 但如果是鼠标直接进入工具栏区域则展开
     return;
   }
   if (autoCollapsed.value) {
     autoCollapsed.value = false;
   }
   scheduleCollapse();
+};
+
+const handleBarMouseEnter = () => {
+  if (manualCollapsed.value) {
+    // 鼠标进入悬浮窗区域，展开工具栏
+    manualCollapsed.value = false;
+    autoCollapsed.value = false;
+    scheduleCollapse();
+    return;
+  }
+  handleUserActivity();
 };
 
 const handleGlobalActivity = () => {

@@ -257,10 +257,12 @@ const countdownLabelClass = computed(() => countdownState.value.labelClass);
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.25rem);
   min-width: 0;
   flex: 1;
+  padding-top: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.15rem);
+  padding-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.2rem);
 }
 
 .time-left {
@@ -273,17 +275,18 @@ const countdownLabelClass = computed(() => countdownState.value.labelClass);
 
 .side-label {
   color: rgba(255, 255, 255, 0.7);
-  font-size: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.1rem);
-  font-weight: 500;
+  font-size: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.35rem);
+  font-weight: 600;
   letter-spacing: 0.05em;
   line-height: 1.2;
   white-space: nowrap;
   text-align: center;
+  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.15rem);
 }
 
 .time-hint {
   color: rgba(255, 255, 255, 0.45);
-  font-size: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.85rem);
+  font-size: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1rem);
   font-weight: 400;
   line-height: 1.2;
   text-align: center;
@@ -315,7 +318,7 @@ const countdownLabelClass = computed(() => countdownState.value.labelClass);
 
 .countdown-value {
   color: #fff;
-  font-size: calc(var(--ui-scale, 1) * clamp(2rem, 5vw, 3.5rem));
+  font-size: calc(var(--ui-scale, 1) * clamp(3rem, 8vw, 6rem));
   font-weight: 600;
   font-family: 'TCloudNumber', 'MiSans', monospace;
   text-shadow: 0 calc(var(--ui-scale, 1) * 0.1rem) calc(var(--ui-scale, 1) * 0.8rem)
@@ -327,13 +330,13 @@ const countdownLabelClass = computed(() => countdownState.value.labelClass);
 
 .countdown-value-large {
   font-size: calc(
-    var(--ui-scale, 1) * var(--clock-scale, var(--large-clock-scale, 1)) * clamp(3.5rem, 9vw, 7rem)
+    var(--ui-scale, 1) * var(--clock-scale, var(--large-clock-scale, 1)) * clamp(5rem, 12vw, 10rem)
   );
 }
 
 .countdown-text {
   color: #fff;
-  font-size: calc(var(--ui-scale, 1) * clamp(1.5rem, 4vw, 2.8rem));
+  font-size: calc(var(--ui-scale, 1) * clamp(2rem, 5vw, 4rem));
   font-weight: 700;
   font-family: 'MiSans', sans-serif;
   line-height: 1;
@@ -344,8 +347,7 @@ const countdownLabelClass = computed(() => countdownState.value.labelClass);
 
 .countdown-text-large {
   font-size: calc(
-    var(--ui-scale, 1) * var(--clock-scale, var(--large-clock-scale, 1)) *
-      clamp(2.5rem, 6vw, 4.5rem)
+    var(--ui-scale, 1) * var(--clock-scale, var(--large-clock-scale, 1)) * clamp(3.5rem, 9vw, 7rem)
   );
 }
 
