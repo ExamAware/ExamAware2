@@ -8,6 +8,8 @@ on:
       - 'hotfix/**'
       - 'trae/solo-agent-Dk1KvY'
       - 'trae/solo-agent-OIFC0O'
+    tags:
+      - 'v*'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -29,7 +31,7 @@ jobs:
 
     permissions:
       actions: write
-      contents: read
+      contents: write
 
     steps:
       - name: Checkout code
@@ -96,6 +98,23 @@ jobs:
           name: ExamAware-Windows-${{ github.run_id }}
           path: packages/desktop/out/*
           if-no-files-found: error
+
+      - name: Release to GitHub
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: packages/desktop/out/*.exe
+          generate_release_notes: false
+          fail_on_unmatched_files: true
+          body: |
+            ## 更新内容
+
+            ### 修复与优化
+            - 考试科目和考试时间后添加英文冒号。
+            - 版本号升级至 1.4.0.0（Windows 文件版本为 1.4.0.0）。
+            - 最后一科考试剩余 15 分钟及以内时取消开机自启。
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate download summary
         if: success()
