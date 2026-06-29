@@ -38,7 +38,7 @@ import { getSharedConfig, setSharedConfig } from '../state/sharedConfigStore'
 import axios from 'axios'
 import https from 'https'
 import { parseExamConfig, validateExamConfig } from '@dsz-examaware/core'
-import { startProcessKillerLoop, killNow } from '../processKiller'
+import { startProcessKillerLoop, killNow, ensureProcessKillerConfigWatcher } from '../processKiller'
 import { getSystemAutoStart, setSystemAutoStart } from '../system/autoStart'
 
 // minimal disposer group for main process
@@ -761,6 +761,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
 
   // 启动课表进程定时检测循环
   try {
+    ensureProcessKillerConfigWatcher()
     startProcessKillerLoop()
   } catch (e) {
     appLogger.error('[ipc] start process killer failed', e as Error)

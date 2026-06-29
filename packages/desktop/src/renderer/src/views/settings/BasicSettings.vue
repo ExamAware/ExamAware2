@@ -72,9 +72,10 @@
             <TIcon name="close-circle" size="22px" />
           </div>
           <div class="settings-item-main">
-            <div class="settings-item-title">拦截 classialand 课表进程</div>
+            <div class="settings-item-title">结束 ClassIsland 课表进程</div>
             <div class="settings-item-desc">
-              运行期间每 10 分钟检测一次指定课表进程，若存在则自动结束。关闭后不再自动检测。
+              启动时及运行期间每 10 分钟检测一次 ClassIsland
+              进程，若存在则自动结束。关闭后不再自动检测。
             </div>
           </div>
           <div class="settings-item-action">
@@ -94,12 +95,12 @@
           </div>
           <div class="settings-item-main">
             <div class="settings-item-title">进程名</div>
-            <div class="settings-item-desc">要检测并结束的课表进程名称，例如 classiland.exe。</div>
+            <div class="settings-item-desc">要检测并结束的课表进程名称，例如 ClassIsland.exe。</div>
           </div>
           <div class="settings-item-action" style="display: flex; align-items: center; gap: 8px">
             <t-input
               v-model="classialandProcessName"
-              placeholder="classiland.exe"
+              placeholder="ClassIsland.exe"
               style="width: 180px"
             />
             <t-button theme="primary" size="small" @click="handleKillClassialandNow"
@@ -185,7 +186,7 @@ const autoEnterPlayer = useSettingRef<boolean>('behavior.autoEnterPlayer', false
 const classialandEnabled = useSettingRef<boolean>('behavior.classialandKiller.enabled', true)
 const classialandProcessName = useSettingRef<string>(
   'behavior.classialandKiller.processName',
-  'classiland.exe'
+  'ClassIsland.exe'
 )
 const classialandKilling = ref(false)
 

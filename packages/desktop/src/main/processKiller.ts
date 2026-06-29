@@ -1,11 +1,11 @@
 import { execFile } from 'child_process'
 import { promisify } from 'util'
 import { appLogger } from './logging/winstonLogger'
-import { getConfig } from './configStore'
+import { getConfig, onConfigChanged } from './configStore'
 
 const execFileAsync = promisify(execFile)
 
-const DEFAULT_PROCESS_NAME = 'classiland.exe'
+const DEFAULT_PROCESS_NAME = 'ClassIsland.exe'
 const DEFAULT_INTERVAL_MINUTES = 10
 
 export interface KillerConfig {
@@ -173,4 +173,21 @@ export function stopProcessKillerLoop() {
 
 export async function killNow(): Promise<{ found: boolean; killed: boolean }> {
   return checkAndKillOnce()
+}
+
+// 配置变更时自动重启/停止循环，使开关和进程名修改即时生效
+let configWatcherInitialized = false
+export function ensureProcessKillerConfigWatcher() {
+  if (configWatcherInitialized) return
+  configWatcherInitialized = true
+  onConfigChanged((cfg) => {
+    const current = cfg?.behavior?.classialandKiller
+    const enabled = Boolean(current?.enabled ?? true)
+    if (!enabled) {
+      stopProcessKillerLoop()
+      return
+    }
+    // 启用时重新启动循环，确保进程名/间隔等配置生效
+    startProcessKillerLoop()
+  })
 }
