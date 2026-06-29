@@ -1067,6 +1067,7 @@ const ctxForCards = {
   remainingTime,
   displayedRemainingTime,
   displayFormattedExamInfos,
+  sortedExamInfos,
   effectiveRoomNumber,
   uiDensity: densityState,
   largeClockEnabled: computed(() => largeClockState.value),
@@ -1074,7 +1075,8 @@ const ctxForCards = {
   examInfoLargeFont: computed(() => examInfoLargeFontState.value),
   materialFontScale: computed(() => materialFontScaleState.value),
   handleRoomNumberClick,
-  currentExamIndex: computed(() => state.value.currentExamIndex)
+  currentExamIndex: computed(() => state.value.currentExamIndex),
+  preCountdownMinutes: preCountdownMinutesState
 };
 provide('ExamPlayerCtx', ctxForCards);
 
