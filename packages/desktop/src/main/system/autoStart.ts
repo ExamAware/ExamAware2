@@ -39,10 +39,12 @@ export function setSystemAutoStart(enable: boolean): boolean {
       }
       fs.mkdirSync(desktopDir, { recursive: true })
       const execPath = process.env.APPIMAGE || process.execPath
+      // 统一用正斜杠，避免 Windows 路径分隔符混进 .desktop 文件
+      const normalizedExecPath = execPath.replace(/\\/g, '/')
       const content = buildDesktopEntry({
         name: app.getName(),
         comment: 'Start this application on login',
-        exec: execPath + ' --autostart',
+        exec: normalizedExecPath + ' --autostart',
         icon: getLinuxIconPathSafe()
       })
       fs.writeFileSync(file, content, 'utf-8')

@@ -105,20 +105,19 @@ export function applyExamAutoStart(): boolean {
 }
 
 export function startExamAutoStartLoop(): void {
-  stopExamAutoStartLoop()
+  // 先清理旧监听器，避免重复注册
+  disposeExamAutoStart()
 
   // 监听设置开关变化
-  if (!configUnsubscribe) {
-    configUnsubscribe = onConfigChanged((cfg) => {
-      const enabled = cfg?.behavior?.examAutoStart?.enabled
-      if (enabled === false) {
-        stopExamAutoStartLoop()
-      } else if (enabled === true && !checkTimer) {
-        applyExamAutoStart()
-        startInterval()
-      }
-    })
-  }
+  configUnsubscribe = onConfigChanged((cfg) => {
+    const enabled = cfg?.behavior?.examAutoStart?.enabled
+    if (enabled === false) {
+      stopExamAutoStartLoop()
+    } else if (enabled === true && !checkTimer) {
+      applyExamAutoStart()
+      startInterval()
+    }
+  })
 
   if (!isExamAutoStartEnabled()) {
     return
