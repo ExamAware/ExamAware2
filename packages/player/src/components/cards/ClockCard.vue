@@ -18,7 +18,9 @@
 
       <!-- 右侧：考试倒计时 -->
       <div class="time-side time-right">
-        <div class="side-label" :class="countdownLabelClass">{{ countdownLabel }}</div>
+        <div v-if="countdownShowValue" class="side-label" :class="countdownLabelClass">
+          {{ countdownLabel }}
+        </div>
         <div
           v-if="countdownShowValue"
           class="countdown-value"
@@ -257,7 +259,7 @@ const countdownLabelClass = computed(() => countdownState.value.labelClass);
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.25rem);
   min-width: 0;
   flex: 1;
@@ -286,7 +288,7 @@ const countdownLabelClass = computed(() => countdownState.value.labelClass);
 
 .time-hint {
   color: rgba(255, 255, 255, 0.45);
-  font-size: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1rem);
+  font-size: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.15rem);
   font-weight: 400;
   line-height: 1.2;
   text-align: center;
