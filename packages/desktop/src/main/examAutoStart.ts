@@ -53,13 +53,14 @@ export function evaluateExamAutoStart(): ExamAutoStartEvaluation {
 
   const now = getCurrentTimeMs()
   const windowStart = firstStart - PRE_EXAM_MS
-  const windowEnd = lastEnd - PRE_EXAM_MS
+  // 考前 15 分钟（含）到最后一科考试结束（不含）之间启用；开考后只要还没结束都启用
+  const windowEnd = lastEnd
 
-  // 考前 15 分钟（含）到最后一科结束前 15 分钟（不含）之间启用
   if (now >= windowStart && now < windowEnd) {
+    const isPreExam = now < firstStart
     return {
       shouldEnable: true,
-      reason: '处于考试关联自启时间窗口内',
+      reason: isPreExam ? '考前 15 分钟内，已启用开机自启' : '考试进行中，已启用开机自启',
       firstStartMs: firstStart,
       lastEndMs: lastEnd
     }
@@ -68,7 +69,7 @@ export function evaluateExamAutoStart(): ExamAutoStartEvaluation {
   const reason =
     now < windowStart
       ? '距离首场考试开始还有超过 15 分钟'
-      : '最后一科考试已剩余不足 15 分钟或已结束'
+      : '最后一科考试已结束'
   return {
     shouldEnable: false,
     reason,
