@@ -110,7 +110,7 @@ const defaultRoom = settings.ref<string>('defaultRoom', '01', {
   mapOut: sanitizeRoom
 })
 
-const defaultScale = settings.ref<number>('uiScale', 1.02, {
+const defaultScale = settings.ref<number>('uiScale', 1.05, {
   mapIn: clampUiScale,
   mapOut: clampUiScale
 })

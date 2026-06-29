@@ -70,7 +70,7 @@ export interface PlaybackSettingsRefs {
 }
 
 export const usePlaybackSettings = (): PlaybackSettingsRefs => {
-  const uiScale = useSettingRef<number>('player.uiScale', 1.02, {
+  const uiScale = useSettingRef<number>('player.uiScale', 1.05, {
     mapIn: clampUiScale,
     mapOut: clampUiScale
   })
@@ -85,7 +85,7 @@ export const usePlaybackSettings = (): PlaybackSettingsRefs => {
     mapOut: (val) => Boolean(val)
   })
 
-  const largeClockScale = useSettingRef<number>('player.largeClockScale', 1.2, {
+  const largeClockScale = useSettingRef<number>('player.largeClockScale', 1.0, {
     mapIn: clampLargeClockScale,
     mapOut: clampLargeClockScale
   })
@@ -95,12 +95,12 @@ export const usePlaybackSettings = (): PlaybackSettingsRefs => {
     mapOut: (val) => Boolean(val)
   })
 
-  const materialFontScale = useSettingRef<number>('player.materialFontScale', 1.55, {
+  const materialFontScale = useSettingRef<number>('player.materialFontScale', 1.4, {
     mapIn: clampMaterialFontScale,
     mapOut: clampMaterialFontScale
   })
 
-  const auxiliaryFontScale = useSettingRef<number>('player.auxiliaryFontScale', 1.5, {
+  const auxiliaryFontScale = useSettingRef<number>('player.auxiliaryFontScale', 1.3, {
     mapIn: clampAuxiliaryFontScale,
     mapOut: clampAuxiliaryFontScale
   })

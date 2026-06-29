@@ -158,10 +158,10 @@ const props = withDefaults(
     initialScale: undefined,
     initialDensity: 'comfortable',
     initialLargeClockScale: 1,
-    initialLargeClockEnabled: false,
-    initialExamInfoLargeFont: false,
-    initialMaterialFontScale: 1,
-    initialAuxiliaryFontScale: 1,
+    initialLargeClockEnabled: true,
+    initialExamInfoLargeFont: true,
+    initialMaterialFontScale: 1.4,
+    initialAuxiliaryFontScale: 1.3,
     extraTools: () => []
   }
 );
@@ -264,14 +264,14 @@ const tempExamInfoLargeFont = ref<boolean>(examInfoLargeFont.value);
 const materialFontScale = ref<number>(
   props.initialMaterialFontScale !== undefined && props.initialMaterialFontScale !== null
     ? clampMaterialFontScale(props.initialMaterialFontScale)
-    : 1
+    : 1.4
 );
 const tempMaterialFontScale = ref<number>(materialFontScale.value);
 
 const auxiliaryFontScale = ref<number>(
   props.initialAuxiliaryFontScale !== undefined && props.initialAuxiliaryFontScale !== null
     ? clampAuxiliaryFontScale(props.initialAuxiliaryFontScale)
-    : 1
+    : 1.3
 );
 const tempAuxiliaryFontScale = ref<number>(auxiliaryFontScale.value);
 

@@ -264,13 +264,13 @@ function createPlaybackApi(): PlaybackAPI {
   return {
     ...refs,
     reset() {
-      refs.uiScale.value = clampUiScale(1.02)
+      refs.uiScale.value = clampUiScale(1.05)
       refs.uiDensity.value = normalizeDensity('comfortable' as UIDensity)
       refs.largeClockEnabled.value = true
-      refs.largeClockScale.value = clampLargeClockScale(1.2)
+      refs.largeClockScale.value = clampLargeClockScale(1.0)
       refs.examInfoLargeFont.value = true
-      refs.materialFontScale.value = clampMaterialFontScale(1.55)
-      refs.auxiliaryFontScale.value = clampAuxiliaryFontScale(1.5)
+      refs.materialFontScale.value = clampMaterialFontScale(1.4)
+      refs.auxiliaryFontScale.value = clampAuxiliaryFontScale(1.3)
       refs.preCountdownMinutes.value = 15
     }
   }
