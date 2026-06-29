@@ -1,16 +1,42 @@
 <template>
   <BaseCard :custom-class="customCardClass">
     <div class="clock-content" :class="{ 'large-mode': isLargeClock }">
-      <div class="beijing-time-label">北京时间</div>
-      <div
-        class="time-display"
-        :class="{ 'time-display-large': isLargeClock }"
-        :style="timeDisplayStyle"
-      >
-        {{ ctx.formattedCurrentTime.value }}
+      <!-- 左侧：北京时间 -->
+      <div class="time-side time-left">
+        <div class="side-label">北京时间</div>
+        <div
+          class="time-display"
+          :class="{ 'time-display-large': isLargeClock }"
+          :style="timeDisplayStyle"
+        >
+          {{ ctx.formattedCurrentTime.value }}
+        </div>
       </div>
-      <div class="countdown-display">
-        <div class="countdown-value" :class="{ urgent: isUrgent, 'pre-countdown': isPreCountdown }">{{ countdownValue }}</div>
+
+      <!-- 中间：提示文字 -->
+      <div class="time-hint">一切考试时间以现场为准，仅供参考</div>
+
+      <!-- 右侧：考试倒计时 -->
+      <div class="time-side time-right">
+        <div v-if="countdownShowValue" class="side-label" :class="countdownLabelClass">
+          {{ countdownLabel }}
+        </div>
+        <div
+          v-if="countdownShowValue"
+          class="countdown-value"
+          :class="[{ 'countdown-value-large': isLargeClock }, countdownValueClass]"
+          :style="timeDisplayStyle"
+        >
+          {{ countdownValue }}
+        </div>
+        <div
+          v-else
+          class="countdown-text"
+          :class="[{ 'countdown-text-large': isLargeClock }, countdownLabelClass]"
+          :style="timeDisplayStyle"
+        >
+          {{ countdownText }}
+        </div>
       </div>
     </div>
   </BaseCard>
@@ -21,15 +47,19 @@
 <script setup lang="ts">
 import { computed, inject } from 'vue';
 import BaseCard from '../BaseCard.vue';
+import { parseDateTime } from '@dsz-examaware/core';
 
 export interface ExamPlayerCtx {
   formattedCurrentTime: any;
   timeSyncStatus?: any;
   largeClockEnabled?: any;
   largeClockScale?: any;
+  auxiliaryFontScale?: any;
   currentExam?: any;
   examStatus?: any;
   remainingTime?: any;
+  sortedExamInfos?: any;
+  preCountdownMinutes?: any;
 }
 const ctx = inject<ExamPlayerCtx>('ExamPlayerCtx')!;
 
@@ -38,59 +68,233 @@ const customCardClass = computed(() =>
   isLargeClock.value ? 'clock-card clock-card-large' : 'clock-card'
 );
 const timeDisplayStyle = computed(() => ({
-  '--clock-scale': ctx.largeClockScale?.value ?? 1
+  '--clock-scale': ctx.largeClockScale?.value ?? 1,
+  '--auxiliary-font-scale': ctx.auxiliaryFontScale?.value ?? 1
 }));
 
-// 倒计时标签：考前倒计时 / 考试倒计时
-const countdownLabel = computed(() => {
-  const status = ctx.examStatus?.value?.status;
-  if (status === 'pending') return '距离考试开始还剩';
-  if (status === 'inProgress') return '距离考试结束还剩';
-  return '';
+const PRE_COUNTDOWN_MS = computed(() => {
+  const minutes = Number(ctx.preCountdownMinutes?.value ?? 15);
+  return (Number.isFinite(minutes) && minutes > 0 ? minutes : 15) * 60 * 1000;
 });
 
-// 倒计时值，根据状态显示不同前缀
-const countdownValue = computed(() => {
-  const time = ctx.remainingTime?.value || '00:00:00';
-  const status = ctx.examStatus?.value?.status;
-  if (status === 'pending') return `距离考试开始还剩：${time}`;
-  if (status === 'inProgress') return `距离考试结束还剩：${time}`;
-  return '';
+// 考试结束后保留“考试已结束”提示的宽限期
+const EXAM_END_GRACE_MS = 60 * 1000; // 1 分钟
+
+// 判断是否所有考试都已结束
+const allExamsEnded = computed(() => {
+  const list = ctx.sortedExamInfos?.value;
+  if (!list || !Array.isArray(list) || list.length === 0) return false;
+  const now = Date.now();
+  return list.every((exam: any) => {
+    try {
+      return parseDateTime(exam.end).getTime() <= now;
+    } catch {
+      return false;
+    }
+  });
 });
 
-// 考前倒计时是否显示黄色
-const isPreCountdown = computed(() => {
-  return ctx.examStatus?.value?.status === 'pending';
+// 是否存在下一场未结束的考试（在当前考试结束后判断）
+const hasNextExam = computed(() => {
+  const list = ctx.sortedExamInfos?.value;
+  if (!list || !Array.isArray(list) || list.length === 0) return false;
+  const now = Date.now();
+  return list.some((exam: any) => {
+    try {
+      return parseDateTime(exam.end).getTime() > now;
+    } catch {
+      return false;
+    }
+  });
 });
 
-// 是否剩余15分钟以内（仅考试进行中时）
-const isUrgent = computed(() => {
+// 当前考试结束后是否仍在1分钟宽限期内（基于考试实际结束时间）
+const inExamEndGrace = computed(() => {
+  if (ctx.examStatus?.value?.status !== 'completed') return false;
+  const exam = ctx.currentExam?.value;
+  if (!exam?.end) return false;
+  try {
+    const endMs = parseDateTime(exam.end).getTime();
+    return Date.now() - endMs < EXAM_END_GRACE_MS;
+  } catch {
+    return false;
+  }
+});
+
+// 倒计时显示状态
+const countdownState = computed(() => {
   const status = ctx.examStatus?.value?.status;
   const timeRemaining = ctx.examStatus?.value?.timeRemaining;
-  if (status !== 'inProgress' || typeof timeRemaining !== 'number') return false;
-  return timeRemaining <= 15 * 60 * 1000; // 15分钟
+
+  // 考试进行中：显示倒计时
+  if (status === 'inProgress') {
+    const isEndingSoon =
+      typeof timeRemaining === 'number' && timeRemaining <= PRE_COUNTDOWN_MS.value;
+    return {
+      label: '考试倒计时',
+      showValue: true,
+      value: ctx.remainingTime?.value || '00:00',
+      text: '',
+      labelClass: '',
+      valueClass: isEndingSoon ? 'countdown-value-danger' : ''
+    };
+  }
+
+  // 考试已结束
+  if (status === 'completed') {
+    // 1分钟宽限期内：红色「考试已结束」
+    if (inExamEndGrace.value) {
+      return {
+        label: '考试已结束',
+        showValue: false,
+        value: '',
+        text: '考试已结束',
+        labelClass: 'text-danger',
+        valueClass: ''
+      };
+    }
+    // 宽限期过后：检查下一场
+    if (hasNextExam.value) {
+      return {
+        label: '考试未开始',
+        showValue: false,
+        value: '',
+        text: '考试未开始',
+        labelClass: 'text-warning',
+        valueClass: ''
+      };
+    }
+    // 没有下一场
+    return {
+      label: '考试已全部结束',
+      showValue: false,
+      value: '',
+      text: '考试已结束',
+      labelClass: 'text-danger',
+      valueClass: ''
+    };
+  }
+
+  // 考试未开始
+  if (status === 'pending') {
+    // 考前 15 分钟内才显示倒计时
+    if (typeof timeRemaining === 'number' && timeRemaining <= PRE_COUNTDOWN_MS.value) {
+      return {
+        label: '距离开考',
+        showValue: true,
+        value: ctx.remainingTime?.value || '00:00',
+        text: '',
+        labelClass: '',
+        valueClass: 'countdown-value-warning'
+      };
+    }
+    // 还没到 15 分钟，显示黄色「考试未开始」
+    return {
+      label: '考试未开始',
+      showValue: false,
+      value: '',
+      text: '考试未开始',
+      labelClass: 'text-warning',
+      valueClass: ''
+    };
+  }
+
+  // 默认
+  if (allExamsEnded.value) {
+    return {
+      label: '考试已全部结束',
+      showValue: false,
+      value: '',
+      text: '考试已结束',
+      labelClass: 'text-danger',
+      valueClass: ''
+    };
+  }
+  return {
+    label: '考试未开始',
+    showValue: false,
+    value: '',
+    text: '考试未开始',
+    labelClass: 'text-warning',
+    valueClass: ''
+  };
 });
+
+const countdownLabel = computed(() => countdownState.value.label);
+const countdownValue = computed(() => countdownState.value.value);
+const countdownText = computed(() => countdownState.value.text);
+const countdownShowValue = computed(() => countdownState.value.showValue);
+const countdownLabelClass = computed(() => countdownState.value.labelClass);
+const countdownValueClass = computed(() => (countdownState.value as any).valueClass ?? '');
 </script>
 
 <style scoped>
+.clock-card :deep(.card-content) {
+  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.75rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.25rem);
+}
+
 .clock-content {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1rem);
+  padding: 0;
+  width: 100%;
+  position: relative;
+}
+
+.clock-content.large-mode {
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.5rem);
+}
+
+.time-side {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: calc(var(--ui-scale, 1) * 0.75rem);
-  padding: calc(var(--ui-scale, 1) * 1rem) 0;
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.25rem);
+  min-width: 0;
+  flex: 1;
+  padding-top: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.15rem);
+  padding-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.2rem);
 }
 
-.clock-content.large-mode {
-  gap: calc(var(--ui-scale, 1) * 1rem);
+.time-left {
+  align-items: center;
 }
 
-.beijing-time-label {
-  color: rgba(255, 255, 255, 0.85);
-  font-size: calc(var(--ui-scale, 1) * 1.25rem);
-  font-weight: 500;
-  letter-spacing: 0.1em;
+.time-right {
+  align-items: center;
+}
+
+.side-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: calc(
+    var(--ui-scale, 1) * var(--density-scale, 1) * var(--auxiliary-font-scale, 1) * 1.35rem
+  );
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-align: center;
+  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.15rem);
+}
+
+.time-hint {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: calc(
+    var(--ui-scale, 1) * var(--density-scale, 1) * var(--auxiliary-font-scale, 1) * 1.15rem
+  );
+  font-weight: 400;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
 }
 
 .time-display {
@@ -102,6 +306,7 @@ const isUrgent = computed(() => {
   font-family: 'TCloudNumber', 'MiSans', monospace;
   font-style: normal;
   font-weight: 600;
+  text-align: center;
 }
 
 .clock-card-large .time-display,
@@ -111,40 +316,54 @@ const isUrgent = computed(() => {
   );
 }
 
-.countdown-display {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: calc(var(--ui-scale, 1) * 0.5rem);
-  margin-top: calc(var(--ui-scale, 1) * 0.5rem);
-}
-
-.countdown-label {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: calc(var(--ui-scale, 1) * 1.4rem);
-  font-weight: 400;
-}
-
 .countdown-value {
   color: #fff;
-  font-size: calc(var(--ui-scale, 1) * 3.6rem);
+  font-size: calc(var(--ui-scale, 1) * clamp(3rem, 8vw, 6rem));
   font-weight: 600;
   font-family: 'TCloudNumber', 'MiSans', monospace;
   text-shadow: 0 calc(var(--ui-scale, 1) * 0.1rem) calc(var(--ui-scale, 1) * 0.8rem)
     rgba(255, 255, 255, 0.25);
-  transition: color 0.5s ease, text-shadow 0.5s ease;
+  line-height: 1;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.countdown-value-large {
+  font-size: calc(
+    var(--ui-scale, 1) * var(--clock-scale, var(--large-clock-scale, 1)) * clamp(5rem, 12vw, 10rem)
+  );
+}
+
+.countdown-value-warning {
+  color: #f1c40f !important;
+}
+
+.countdown-value-danger {
+  color: #ff3b30 !important;
+}
+
+.countdown-text {
+  color: #fff;
+  font-size: calc(var(--ui-scale, 1) * clamp(2rem, 5vw, 4rem));
+  font-weight: 700;
+  font-family: 'MiSans', sans-serif;
+  line-height: 1;
+  white-space: nowrap;
+  text-align: center;
   letter-spacing: 0.05em;
 }
 
-.countdown-value.urgent {
-  color: #ff3b30;
-  text-shadow: 0 calc(var(--ui-scale, 1) * 0.1rem) calc(var(--ui-scale, 1) * 0.8rem)
-    rgba(255, 59, 48, 0.4);
+.countdown-text-large {
+  font-size: calc(
+    var(--ui-scale, 1) * var(--clock-scale, var(--large-clock-scale, 1)) * clamp(3.5rem, 9vw, 7rem)
+  );
 }
 
-.countdown-value.pre-countdown {
-  color: #f1c40f;
-  text-shadow: 0 calc(var(--ui-scale, 1) * 0.1rem) calc(var(--ui-scale, 1) * 0.8rem)
-    rgba(241, 196, 15, 0.35);
+.text-warning {
+  color: #f1c40f !important;
+}
+
+.text-danger {
+  color: #ff3b30 !important;
 }
 </style>

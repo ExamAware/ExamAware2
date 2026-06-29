@@ -3,12 +3,12 @@
     <InfoItem label="当前科目" :value="ctx.currentExamName.value" />
     <InfoItem label="考试时间" :value="ctx.currentExamTimeRange.value" />
     <div class="info-row">
-      <span class="info-label">考试状态：</span>
+      <span class="info-label">考试状态:</span>
       <span class="info-value" :class="statusColorClass">{{ examStatusText }}</span>
     </div>
 
     <!-- 试卷信息：共 X 页 共 Y 张 -->
-    <div class="material-row" :style="materialScaleStyle">
+    <div class="material-row">
       <span class="material-label">试卷:</span>
       <span class="material-text">共</span>
       <div class="number-control" :class="{ 'controls-hidden': !showControls.paperPages }">
@@ -49,7 +49,7 @@
     </div>
 
     <!-- 答题卡信息：共 X 页 共 Y 张 -->
-    <div class="material-row" :style="materialScaleStyle">
+    <div class="material-row">
       <span class="material-label">答题卡:</span>
       <span class="material-text">共</span>
       <div class="number-control" :class="{ 'controls-hidden': !showControls.answerPages }">
@@ -119,12 +119,6 @@ const customClass = computed(() =>
     .filter(Boolean)
     .join(' ')
 );
-
-// 材料字体缩放
-const materialScaleStyle = computed(() => {
-  const scale = ctx.materialFontScale?.value ?? 1;
-  return { '--material-font-scale': scale };
-});
 
 // 考试状态文本和颜色
 const examStatusText = computed(() => {
@@ -210,6 +204,13 @@ watch(
       answerPages.value = 0;
       answerSheets.value = 0;
       saveCounts({ paperPages: 0, paperSheets: 0, answerPages: 0, answerSheets: 0 });
+      // 重置后强制显示加减按钮，方便用户输入下一场考试页数
+      showControls.value = {
+        paperPages: true,
+        paperSheets: true,
+        answerPages: true,
+        answerSheets: true
+      };
     }
   }
 );
@@ -252,7 +253,7 @@ const scheduleHide = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 'ans
     if (val > 0) {
       showControls.value[field] = false;
     }
-  }, 5000);
+  }, 10000);
 };
 
 const showControlsAndScheduleHide = (
@@ -362,7 +363,7 @@ const handleInputFocus = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 
 .info-row {
   display: flex;
   align-items: center;
-  gap: calc(var(--ui-scale, 1) * 0.5rem);
+  gap: calc(var(--ui-scale, 1) * 1em);
 }
 
 .info-label {
@@ -379,7 +380,7 @@ const handleInputFocus = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 
 }
 
 .status-pending {
-  color: #f1c40f;
+  color: #e37318;
 }
 
 .status-ongoing {
@@ -400,14 +401,14 @@ const handleInputFocus = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 
 
 .material-label {
   color: rgba(255, 255, 255, 0.75);
-  font-size: calc(var(--material-font-scale, 1) * var(--ui-scale, 1) * 1.4rem);
+  font-size: calc(var(--ui-scale, 1) * var(--material-font-scale, 1) * 1.4rem);
   font-weight: 500;
-  min-width: calc(var(--material-font-scale, 1) * var(--ui-scale, 1) * 5rem);
+  min-width: calc(var(--ui-scale, 1) * var(--material-font-scale, 1) * 5rem);
 }
 
 .material-text {
   color: rgba(255, 255, 255, 0.75);
-  font-size: calc(var(--material-font-scale, 1) * var(--ui-scale, 1) * 1.3rem);
+  font-size: calc(var(--ui-scale, 1) * var(--material-font-scale, 1) * 1.3rem);
 }
 
 /* 数字加减控制器 */
@@ -429,8 +430,8 @@ const handleInputFocus = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 
 }
 
 .num-btn {
-  width: calc(var(--material-font-scale, 1) * var(--ui-scale, 1) * 1.6rem);
-  height: calc(var(--material-font-scale, 1) * var(--ui-scale, 1) * 1.6rem);
+  width: calc(var(--ui-scale, 1) * var(--material-font-scale, 1) * 1.6rem);
+  height: calc(var(--ui-scale, 1) * var(--material-font-scale, 1) * 1.6rem);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -438,7 +439,7 @@ const handleInputFocus = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 
   border: none;
   border-radius: calc(var(--ui-scale, 1) * 4px);
   color: #fff;
-  font-size: calc(var(--material-font-scale, 1) * var(--ui-scale, 1) * 1.1rem);
+  font-size: calc(var(--ui-scale, 1) * var(--material-font-scale, 1) * 1.1rem);
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s ease;
@@ -457,9 +458,9 @@ const handleInputFocus = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 
 .num-value,
 .num-input {
   color: #fff;
-  font-size: calc(var(--material-font-scale, 1) * var(--ui-scale, 1) * 1.8rem);
-  font-weight: 700;
-  min-width: calc(var(--material-font-scale, 1) * var(--ui-scale, 1) * 2rem);
+  font-size: calc(var(--ui-scale, 1) * var(--material-font-scale, 1) * 1.3rem);
+  font-weight: 600;
+  min-width: calc(var(--ui-scale, 1) * var(--material-font-scale, 1) * 1.8rem);
   text-align: center;
   font-family: 'TCloudNumber', 'MiSans', monospace;
 }
@@ -468,7 +469,7 @@ const handleInputFocus = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 
   background: transparent;
   border: none;
   outline: none;
-  width: calc(var(--material-font-scale, 1) * var(--ui-scale, 1) * 2.8rem);
+  width: calc(var(--ui-scale, 1) * var(--material-font-scale, 1) * 2.5rem);
   padding: 0;
   -moz-appearance: textfield;
 }

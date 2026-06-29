@@ -6,7 +6,6 @@ import { createMainWindow } from './windows/mainWindow'
 import { createEditorWindow } from './windows/editorWindow'
 import { createSettingsWindow } from './windows/settingsWindow'
 import { createPlayerWindow } from './windows/playerWindow'
-import { setupPipIpc } from './windows/pipWindow'
 import { windowManager } from './windows/windowManager'
 import { registerIpcHandlers } from './ipcHandlers'
 import { patchConsoleWithLogger, appLogger, initLoggingConfig } from './logging/winstonLogger'
@@ -32,6 +31,12 @@ import { applyDeepLinkControllers } from './deepLink/decorators'
 import { CoreDeepLinkController } from './deepLink/coreDeepLinkController'
 import { composeVersionLabel } from '../shared/appInfo'
 import bannerText from './banner.txt?raw'
+import {
+  startExamAutoStartLoop,
+  runExamAutoStartBootCheck,
+  disposeExamAutoStart
+} from './examAutoStart'
+import { loadPersistedSharedConfig } from './state/sharedConfigStore'
 
 protocol.registerSchemesAsPrivileged([
   {
@@ -178,7 +183,6 @@ app.whenReady().then(async () => {
   })
 
   const disposeIpc = registerIpcHandlers(_mainCtx)
-  const disposePipIpc = setupPipIpc()
   // macOS 常用快捷键：Command+逗号 打开设置（聚焦“关于”页可由二级逻辑决定，这里默认普通设置首页）
   try {
     globalShortcut.register('CommandOrControl+,', () => {
@@ -208,6 +212,12 @@ app.whenReady().then(async () => {
 
   // 初始化时间同步服务
   initializeTimeSync()
+
+  // 恢复上次使用的考试配置，供考试关联自启等主进程逻辑使用
+  loadPersistedSharedConfig()
+
+  // 启动考试关联开机自启检测循环
+  startExamAutoStartLoop()
 
   // 始终注册托盘
   ensureAppTray()
@@ -324,7 +334,8 @@ app.whenReady().then(async () => {
     createEditorWindow(fileToOpen)
     fileToOpen = null
   } else if (isAutoStart) {
-    // 开机自启：不弹主窗口
+    // 开机自启：不弹主窗口，先执行考试关联自启检查
+    runExamAutoStartBootCheck(true)
   } else {
     createMainWindow()
   }
@@ -410,7 +421,7 @@ app.whenReady().then(async () => {
       disposeIpc()
     } catch {}
     try {
-      disposePipIpc()
+      disposeExamAutoStart()
     } catch {}
     try {
       void httpApiService.dispose()

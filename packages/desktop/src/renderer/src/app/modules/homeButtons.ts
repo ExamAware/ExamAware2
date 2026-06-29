@@ -89,19 +89,17 @@ export const homeButtonsModule: AppModule = {
       order: 2,
       action: async () => {
         const LAST_FILE_KEY = 'examaware:last-played-file'
-        let lastFile = ''
+        let lastFile: string | null = null
         try {
-          lastFile = localStorage.getItem(LAST_FILE_KEY) || ''
+          lastFile = localStorage.getItem(LAST_FILE_KEY)
         } catch {}
-        if (lastFile) {
-          // 有直接打开上次文件
-          window.api.ipc.send('open-player-window', lastFile)
-        } else {
-          // 没有记录则跳转到选择页面
-          const router = (app.config.globalProperties as any).$router
-          if (router) {
-            await router.push('/playerhome')
-          }
+        if (lastFile && lastFile.trim()) {
+          window.api?.ipc?.send('open-player-window', lastFile.trim())
+          return
+        }
+        const router = (app.config.globalProperties as any).$router
+        if (router) {
+          await router.push('/playerhome')
         }
       }
     })

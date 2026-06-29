@@ -34,10 +34,28 @@ export const normalizeDensity = (value: unknown): UIDensity => {
 
 export const clampPreCountdownMinutes = (value: number | string) => {
   const num = Number(value)
-  if (!Number.isFinite(num)) {
-    return 0
+  if (!Number.isFinite(num) || num <= 0) {
+    return 15
   }
-  return Math.min(60, Math.max(0, Math.round(num)))
+  return Math.min(60, Math.max(1, Math.round(num)))
+}
+
+export const clampMaterialFontScale = (value: number | string) => {
+  const num = Number(value)
+  if (!Number.isFinite(num)) {
+    return 1
+  }
+  const clamped = Math.min(2, Math.max(0.8, num))
+  return Number(roundToStep(clamped, 0.05).toFixed(2))
+}
+
+export const clampAuxiliaryFontScale = (value: number | string) => {
+  const num = Number(value)
+  if (!Number.isFinite(num)) {
+    return 1
+  }
+  const clamped = Math.min(2, Math.max(0.5, num))
+  return Number(roundToStep(clamped, 0.05).toFixed(2))
 }
 
 export interface PlaybackSettingsRefs {
@@ -46,14 +64,13 @@ export interface PlaybackSettingsRefs {
   largeClockEnabled: Ref<boolean>
   largeClockScale: Ref<number>
   examInfoLargeFont: Ref<boolean>
-  preCountdownMinutes: Ref<number>
-  pipShowRemaining: Ref<boolean>
-  pipShowCurrent: Ref<boolean>
   materialFontScale: Ref<number>
+  auxiliaryFontScale: Ref<number>
+  preCountdownMinutes: Ref<number>
 }
 
 export const usePlaybackSettings = (): PlaybackSettingsRefs => {
-  const uiScale = useSettingRef<number>('player.uiScale', 1, {
+  const uiScale = useSettingRef<number>('player.uiScale', 1.05, {
     mapIn: clampUiScale,
     mapOut: clampUiScale
   })
@@ -63,39 +80,34 @@ export const usePlaybackSettings = (): PlaybackSettingsRefs => {
     mapOut: normalizeDensity
   })
 
-  const largeClockEnabled = useSettingRef<boolean>('player.largeClockEnabled', false, {
+  const largeClockEnabled = useSettingRef<boolean>('player.largeClockEnabled', true, {
     mapIn: (raw) => Boolean(raw),
     mapOut: (val) => Boolean(val)
   })
 
-  const largeClockScale = useSettingRef<number>('player.largeClockScale', 1, {
+  const largeClockScale = useSettingRef<number>('player.largeClockScale', 1.0, {
     mapIn: clampLargeClockScale,
     mapOut: clampLargeClockScale
   })
 
-  const examInfoLargeFont = useSettingRef<boolean>('player.examInfoLargeFont', false, {
+  const examInfoLargeFont = useSettingRef<boolean>('player.examInfoLargeFont', true, {
     mapIn: (raw) => Boolean(raw),
     mapOut: (val) => Boolean(val)
   })
 
-  const preCountdownMinutes = useSettingRef<number>('player.preCountdownMinutes', 0, {
+  const materialFontScale = useSettingRef<number>('player.materialFontScale', 1.4, {
+    mapIn: clampMaterialFontScale,
+    mapOut: clampMaterialFontScale
+  })
+
+  const auxiliaryFontScale = useSettingRef<number>('player.auxiliaryFontScale', 1.3, {
+    mapIn: clampAuxiliaryFontScale,
+    mapOut: clampAuxiliaryFontScale
+  })
+
+  const preCountdownMinutes = useSettingRef<number>('player.preCountdownMinutes', 15, {
     mapIn: clampPreCountdownMinutes,
     mapOut: clampPreCountdownMinutes
-  })
-
-  const pipShowRemaining = useSettingRef<boolean>('player.pipShowRemaining', true, {
-    mapIn: (raw) => Boolean(raw),
-    mapOut: (val) => Boolean(val)
-  })
-
-  const pipShowCurrent = useSettingRef<boolean>('player.pipShowCurrent', false, {
-    mapIn: (raw) => Boolean(raw),
-    mapOut: (val) => Boolean(val)
-  })
-
-  const materialFontScale = useSettingRef<number>('player.materialFontScale', 1, {
-    mapIn: (raw) => Math.min(3, Math.max(1, Number(raw) || 1)),
-    mapOut: (val) => Math.min(3, Math.max(1, Number(val) || 1))
   })
 
   return {
@@ -104,10 +116,9 @@ export const usePlaybackSettings = (): PlaybackSettingsRefs => {
     largeClockEnabled,
     largeClockScale,
     examInfoLargeFont,
-    preCountdownMinutes,
-    pipShowRemaining,
-    pipShowCurrent,
-    materialFontScale
+    materialFontScale,
+    auxiliaryFontScale,
+    preCountdownMinutes
   }
 }
 

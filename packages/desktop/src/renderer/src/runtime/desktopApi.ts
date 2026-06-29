@@ -11,6 +11,8 @@ import {
   clampUiScale,
   clampLargeClockScale,
   clampPreCountdownMinutes,
+  clampMaterialFontScale,
+  clampAuxiliaryFontScale,
   normalizeDensity,
   type PlaybackSettingsRefs
 } from '../composables/usePlaybackSettings'
@@ -262,15 +264,14 @@ function createPlaybackApi(): PlaybackAPI {
   return {
     ...refs,
     reset() {
-      refs.uiScale.value = clampUiScale(1)
+      refs.uiScale.value = clampUiScale(1.05)
       refs.uiDensity.value = normalizeDensity('comfortable' as UIDensity)
-      refs.largeClockEnabled.value = false
-      refs.largeClockScale.value = clampLargeClockScale(1)
-      refs.examInfoLargeFont.value = false
-      refs.preCountdownMinutes.value = 0
-      refs.pipShowRemaining.value = true
-      refs.pipShowCurrent.value = false
-      refs.materialFontScale.value = 1
+      refs.largeClockEnabled.value = true
+      refs.largeClockScale.value = clampLargeClockScale(1.0)
+      refs.examInfoLargeFont.value = true
+      refs.materialFontScale.value = clampMaterialFontScale(1.4)
+      refs.auxiliaryFontScale.value = clampAuxiliaryFontScale(1.3)
+      refs.preCountdownMinutes.value = 15
     }
   }
 }
