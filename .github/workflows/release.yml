@@ -95,3 +95,45 @@ jobs:
           name: ExamAware-Windows-${{ github.run_id }}
           path: packages/desktop/out/*
           if-no-files-found: error
+
+      - name: Generate download summary
+        if: success()
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $repo = "${{ github.repository }}"
+          $runId = "${{ github.run_id }}"
+          $artifactName = "ExamAware-Windows-${{ github.run_id }}"
+          $refName = "${{ github.ref_name }}"
+          $runNumber = "${{ github.run_number }}"
+          $commit = "${{ github.sha }}"
+
+          $headers = @{
+            Accept = "application/vnd.github+json"
+            Authorization = "Bearer $env:GH_TOKEN"
+          }
+          $artifactsUrl = "https://api.github.com/repos/$repo/actions/runs/$runId/artifacts"
+          $response = Invoke-RestMethod -Uri $artifactsUrl -Headers $headers -MaximumRetryCount 3 -RetryIntervalSec 2
+          $artifact = $response.artifacts | Where-Object { $_.name -eq $artifactName } | Select-Object -First 1
+
+          $artifactId = $artifact.id
+          $artifactUrl = "https://github.com/$repo/actions/runs/$runId/artifacts/$artifactId"
+          $nightlyUrl = "https://nightly.link/$repo/actions/artifacts/$artifactId.zip"
+          $ghproxyFastly = "https://ghproxy.cc/$nightlyUrl"
+          $ghproxyMirror = "https://ghproxy.net/$nightlyUrl"
+
+          @"
+          ## 构建总结
+
+          - 提交：$commit
+          - 运行：#$runId
+          - 版本：$refName-$runNumber
+
+          ### 下载
+
+          - [下载文物]($artifactUrl)
+          - [Nightly.link 下载]($nightlyUrl)
+          - [GhProxy Fastly Mirror]($ghproxyFastly)
+          - [GhProxy Mirror]($ghproxyMirror)
+          "@ | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
