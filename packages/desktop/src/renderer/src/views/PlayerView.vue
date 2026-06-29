@@ -18,6 +18,7 @@
       :pre-countdown-minutes="preCountdownMinutesSetting"
       :hdr-highlight="hdrHighlightSetting"
       @exit="handleExit"
+      @minimize="handleMinimize"
       @room-number-click="handleRoomNumberClick"
       @room-number-change="handleRoomNumberChange"
       @scale-change="handleScaleChange"
@@ -266,6 +267,15 @@ const handleExit = () => {
     ipcRenderer?.send?.('player-window-exit')
   } catch (e) {
     console.warn('发送退出请求失败:', e)
+  }
+}
+
+// 最小化播放窗口
+const handleMinimize = () => {
+  try {
+    window.electronAPI?.minimize()
+  } catch (e) {
+    console.warn('最小化窗口失败:', e)
   }
 }
 

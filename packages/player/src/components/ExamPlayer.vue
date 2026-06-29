@@ -52,6 +52,7 @@
       :initial-pre-countdown-minutes="preCountdownMinutesState"
       :extra-tools="toolbarTools"
       @exit="emit('exit')"
+      @minimize="emit('minimize')"
       @scale-change="handleScaleChange"
       @density-change="handleDensityChange"
       @large-clock-toggle="handleLargeClockToggle"
@@ -220,6 +221,7 @@ interface Emits {
   (e: 'update:materialFontScale', scale: number): void;
   (e: 'update:preCountdownMinutes', minutes: number): void;
   (e: 'exit'): void;
+  (e: 'minimize'): void;
   (e: 'scaleChange', scale: number): void;
   (e: 'largeClockToggle', enabled: boolean): void;
   (e: 'largeClockScaleChange', scale: number): void;

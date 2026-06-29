@@ -41,20 +41,18 @@
         <div class="button-text">{{ isPressing ? '按住退出' : '退出播放' }}</div>
       </button>
 
-      <!-- 最小化（收起）按钮 -->
+      <!-- 最小化按钮 -->
       <button
         class="action-button"
         type="button"
-        :aria-pressed="manualCollapsed"
-        :aria-label="isCollapsed ? '展开工具栏' : '最小化工具栏'"
-        :title="isCollapsed ? '展开工具栏' : '最小化工具栏'"
-        @click.stop="toggleManualCollapse"
+        aria-label="最小化窗口"
+        title="最小化窗口"
+        @click.stop="emit('minimize')"
       >
         <div class="button-icon">
-          <ChevronRightIcon v-if="isCollapsed" />
-          <MinusIcon v-else />
+          <MinusIcon />
         </div>
-        <div class="button-text">{{ isCollapsed ? '展开' : '最小化' }}</div>
+        <div class="button-text">最小化</div>
       </button>
 
       <!-- 播放设置按钮 -->
@@ -88,6 +86,22 @@
           <div class="button-text">{{ tool.label }}</div>
         </button>
       </template>
+
+      <!-- 收起/展开工具栏 -->
+      <button
+        class="action-button"
+        type="button"
+        :aria-pressed="manualCollapsed"
+        :aria-label="manualCollapsed ? '展开工具栏' : '收起工具栏'"
+        :title="manualCollapsed ? '展开工具栏' : '收起工具栏'"
+        @click.stop="toggleManualCollapse"
+      >
+        <div class="button-icon">
+          <ChevronRightIcon v-if="isCollapsed" />
+          <ChevronLeftIcon v-else />
+        </div>
+        <div class="button-text">{{ manualCollapsed ? '展开' : '收起' }}</div>
+      </button>
     </div>
   </div>
 
@@ -153,6 +167,7 @@ const props = withDefaults(
 );
 const emit = defineEmits<{
   (e: 'exit'): void;
+  (e: 'minimize'): void;
   (e: 'scaleChange', scale: number): void;
   (e: 'densityChange', density: UIDensity): void;
   (e: 'clockScaleChange', scale: number): void;
