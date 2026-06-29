@@ -1,11 +1,7 @@
 <template>
   <BaseCard :custom-class="customCardClass">
     <div class="clock-content" :class="{ 'large-mode': isLargeClock }">
-      <div v-if="!isLargeClock" class="countdown-left">
-        <div class="countdown-label">{{ countdownLabel }}</div>
-        <div class="countdown-value">{{ countdownValue }}</div>
-      </div>
-      <div class="time-right">
+      <div class="time-left">
         <div class="time-label">北京时间</div>
         <div
           class="time-display"
@@ -15,6 +11,10 @@
           {{ ctx.formattedCurrentTime.value }}
         </div>
         <div class="time-hint">一切考试时间以现场为准，仅供参考</div>
+      </div>
+      <div v-if="!isLargeClock" class="countdown-right">
+        <div class="countdown-label">{{ countdownLabel }}</div>
+        <div class="countdown-value">{{ countdownValue }}</div>
       </div>
     </div>
   </BaseCard>
@@ -108,19 +108,19 @@ const countdownValue = computed(() => countdownState.value.value);
   justify-content: center;
 }
 
-.countdown-left,
-.time-right {
+.time-left,
+.countdown-right {
   display: flex;
   flex-direction: column;
   gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.25rem);
   min-width: 0;
 }
 
-.countdown-left {
+.time-left {
   align-items: flex-start;
 }
 
-.time-right {
+.countdown-right {
   align-items: flex-end;
 }
 
@@ -139,7 +139,7 @@ const countdownValue = computed(() => countdownState.value.value);
   font-size: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.85rem);
   font-weight: 400;
   line-height: 1.2;
-  text-align: center;
+  text-align: left;
   white-space: nowrap;
   margin-top: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.15rem);
 }

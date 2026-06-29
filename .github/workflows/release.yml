@@ -27,7 +27,8 @@ jobs:
       ELECTRON_BUILDER_TMP_DIR: C:/Users/runneradmin/AppData/Local/Temp/eb-tmp-${{ github.run_id }}
 
     permissions:
-      contents: write
+      actions: write
+      contents: read
 
     steps:
       - name: Checkout code
@@ -88,18 +89,9 @@ jobs:
       - name: Build desktop application
         run: pnpm desktop:build:win
 
-      - name: Generate tag
-        id: tag
-        shell: bash
-        run: |
-          echo "tag=v$(date +%Y%m%d-%H%M%S)" >> "$GITHUB_OUTPUT"
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
         with:
-          tag_name: ${{ steps.tag.outputs.tag }}
-          name: Release ${{ steps.tag.outputs.tag }}
-          files: packages/desktop/out/*
-          generate_release_notes: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: ExamAware-Windows-${{ github.run_id }}
+          path: packages/desktop/out/*
+          if-no-files-found: error
