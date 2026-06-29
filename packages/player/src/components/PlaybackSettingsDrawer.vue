@@ -108,23 +108,6 @@
             <div class="settings-hint">单独调整左下角试卷、答题卡等材料的字号大小</div>
           </div>
         </div>
-        <div class="settings-group">
-          <div class="settings-label">考前倒计时</div>
-          <div class="settings-control">
-            <div class="slider-row">
-              <t-slider
-                v-model:value="preCountdownMinutesModel"
-                :min="0"
-                :max="60"
-                :step="1"
-                :input-number-props="{ theme: 'column', suffix: '分钟' }"
-              />
-            </div>
-            <div class="settings-hint">
-              考试开始前多久显示考前倒计时并触发全屏提醒，设为 0 表示禁用
-            </div>
-          </div>
-        </div>
         <div v-if="isDevMode" class="settings-group dev-reminder-tools">
           <div class="settings-label">调试 · 全屏提醒</div>
           <div class="settings-control">
@@ -183,7 +166,6 @@ const props = withDefaults(
     auxiliaryFontScale: number;
     examInfoLargeFont: boolean;
     materialFontScale: number;
-    preCountdownMinutes: number;
     formatScale: (value: number | string) => string;
     isDevMode?: boolean;
   }>(),
@@ -205,7 +187,6 @@ const emit = defineEmits<{
   (e: 'update:auxiliaryFontScale', value: number): void;
   (e: 'update:examInfoLargeFont', value: boolean): void;
   (e: 'update:materialFontScale', value: number): void;
-  (e: 'update:preCountdownMinutes', value: number): void;
   (e: 'confirm'): void;
   (e: 'close'): void;
   (e: 'devReminderTest', preset: DevReminderPreset): void;
@@ -247,11 +228,6 @@ const examInfoLargeFontModel = computed({
 const materialFontScaleModel = computed({
   get: () => props.materialFontScale,
   set: (value: number) => emit('update:materialFontScale', value)
-});
-
-const preCountdownMinutesModel = computed({
-  get: () => props.preCountdownMinutes,
-  set: (value: number) => emit('update:preCountdownMinutes', value)
 });
 
 const handleVisibleChange = (value: boolean) => {

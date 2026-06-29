@@ -50,7 +50,6 @@
       :initial-auxiliary-font-scale="auxiliaryFontScaleState"
       :initial-exam-info-large-font="examInfoLargeFontState"
       :initial-material-font-scale="materialFontScaleState"
-      :initial-pre-countdown-minutes="preCountdownMinutesState"
       :extra-tools="toolbarTools"
       @exit="emit('exit')"
       @minimize="emit('minimize')"
@@ -61,7 +60,6 @@
       @auxiliary-font-scale-change="handleAuxiliaryFontScaleChange"
       @exam-info-large-font-toggle="handleExamInfoLargeFontToggle"
       @material-font-scale-change="handleMaterialFontScaleChange"
-      @pre-countdown-minutes-change="handlePreCountdownMinutesChange"
       @dev-reminder-test="handleDevReminderTest"
       @dev-reminder-hide="handleDevReminderHide"
     />
@@ -224,7 +222,6 @@ interface Emits {
   (e: 'update:examInfoLargeFont', enabled: boolean): void;
   (e: 'update:materialFontScale', scale: number): void;
   (e: 'update:auxiliaryFontScale', scale: number): void;
-  (e: 'update:preCountdownMinutes', minutes: number): void;
   (e: 'exit'): void;
   (e: 'minimize'): void;
   (e: 'scaleChange', scale: number): void;
@@ -232,7 +229,6 @@ interface Emits {
   (e: 'largeClockScaleChange', scale: number): void;
   (e: 'examInfoLargeFontToggle', enabled: boolean): void;
   (e: 'materialFontScaleChange', scale: number): void;
-  (e: 'preCountdownMinutesChange', minutes: number): void;
   (e: 'densityChange', density: UIDensity): void;
   (e: 'examStart', exam: any): void;
   (e: 'examEnd', exam: any): void;
@@ -249,7 +245,7 @@ const props = withDefaults(defineProps<Props>(), {
   examInfoLargeFont: false,
   materialFontScale: 1,
   auxiliaryFontScale: 1,
-  preCountdownMinutes: 0,
+  preCountdownMinutes: 15,
   timeProvider: () => ({ getCurrentTime: () => Date.now() }),
   timeSyncStatus: '电脑时间',
   roomNumber: '01',
@@ -420,6 +416,7 @@ watch(
     const safe = Math.min(60, Math.max(0, Math.round(Number(value))));
     if (safe !== preCountdownMinutesState.value) {
       preCountdownMinutesState.value = safe;
+      examPlayer.updatePlayerConfig({ preCountdownMinutes: safe });
     }
   }
 );
@@ -625,15 +622,6 @@ const handleMaterialFontScaleChange = (scale: number) => {
 const handleAuxiliaryFontScaleChange = (scale: number) => {
   const safe = clampAuxiliaryFontScale(scale);
   auxiliaryFontScaleState.value = safe;
-};
-
-const handlePreCountdownMinutesChange = (minutes: number) => {
-  const safe = Math.min(60, Math.max(0, Math.round(Number(minutes))));
-  preCountdownMinutesState.value = safe;
-  emit('update:preCountdownMinutes', safe);
-  emit('preCountdownMinutesChange', safe);
-  // 同步更新核心层的播放器配置，重新创建任务队列
-  examPlayer.updatePlayerConfig({ preCountdownMinutes: safe });
 };
 
 watch(

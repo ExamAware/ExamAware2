@@ -114,7 +114,6 @@
     :auxiliary-font-scale="tempAuxiliaryFontScale"
     :exam-info-large-font="tempExamInfoLargeFont"
     :material-font-scale="tempMaterialFontScale"
-    :pre-countdown-minutes="tempPreCountdownMinutes"
     :density-options="densityOptions"
     :format-scale="formatScale"
     :is-dev-mode="isDevMode"
@@ -126,7 +125,6 @@
     @update:auxiliaryFontScale="handleTempAuxiliaryFontScaleUpdate"
     @update:examInfoLargeFont="handleTempExamInfoLargeFontUpdate"
     @update:materialFontScale="handleTempMaterialFontScaleUpdate"
-    @update:preCountdownMinutes="handleTempPreCountdownMinutesUpdate"
     @close="handleSettingsClosed"
     @confirm="handleSettingsConfirm"
     @dev-reminder-test="triggerDevReminderTest"
@@ -154,7 +152,6 @@ const props = withDefaults(
     initialExamInfoLargeFont?: boolean;
     initialMaterialFontScale?: number;
     initialAuxiliaryFontScale?: number;
-    initialPreCountdownMinutes?: number;
     extraTools?: readonly PlayerToolbarItem[];
   }>(),
   {
@@ -165,7 +162,6 @@ const props = withDefaults(
     initialExamInfoLargeFont: false,
     initialMaterialFontScale: 1,
     initialAuxiliaryFontScale: 1,
-    initialPreCountdownMinutes: 0,
     extraTools: () => []
   }
 );
@@ -179,7 +175,6 @@ const emit = defineEmits<{
   (e: 'examInfoLargeFontToggle', enabled: boolean): void;
   (e: 'materialFontScaleChange', scale: number): void;
   (e: 'auxiliaryFontScaleChange', scale: number): void;
-  (e: 'preCountdownMinutesChange', minutes: number): void;
   (e: 'devReminderTest', preset: DevReminderPreset | DevReminderPayload): void;
   (e: 'devReminderHide'): void;
 }>();
@@ -280,9 +275,6 @@ const auxiliaryFontScale = ref<number>(
 );
 const tempAuxiliaryFontScale = ref<number>(auxiliaryFontScale.value);
 
-const preCountdownMinutes = ref<number>(Number(props.initialPreCountdownMinutes) || 0);
-const tempPreCountdownMinutes = ref<number>(preCountdownMinutes.value);
-
 const handleTempScaleUpdate = (value: number) => {
   tempScale.value = value;
 };
@@ -309,10 +301,6 @@ const handleTempMaterialFontScaleUpdate = (value: number) => {
 
 const handleTempAuxiliaryFontScaleUpdate = (value: number) => {
   tempAuxiliaryFontScale.value = value;
-};
-
-const handleTempPreCountdownMinutesUpdate = (value: number) => {
-  tempPreCountdownMinutes.value = value;
 };
 
 // 播放设置弹窗开关
@@ -583,16 +571,6 @@ watch(
   }
 );
 
-watch(
-  () => props.initialPreCountdownMinutes,
-  (value) => {
-    if (value === undefined || value === null) return;
-    const safe = Math.min(60, Math.max(0, Math.round(Number(value))));
-    preCountdownMinutes.value = safe;
-    tempPreCountdownMinutes.value = safe;
-  }
-);
-
 watch(uiScale, (newValue, oldValue) => {
   const safe = clampScale(newValue);
   if (safe !== newValue) {
@@ -747,22 +725,6 @@ watch(tempAuxiliaryFontScale, (value) => {
   }
 });
 
-watch(
-  preCountdownMinutes,
-  (minutes, previous) => {
-    if (minutes === previous) return;
-    emit('preCountdownMinutesChange', minutes);
-  },
-  { immediate: true }
-);
-
-watch(tempPreCountdownMinutes, (value) => {
-  const safe = Math.min(60, Math.max(0, Math.round(Number(value))));
-  if (preCountdownMinutes.value !== safe) {
-    preCountdownMinutes.value = safe;
-  }
-});
-
 onUnmounted(() => {
   // 清理定时器和动画帧
   cancelLongPress();
@@ -893,7 +855,6 @@ const handlePlaybackSettings = () => {
   tempExamInfoLargeFont.value = examInfoLargeFont.value;
   tempMaterialFontScale.value = materialFontScale.value;
   tempAuxiliaryFontScale.value = auxiliaryFontScale.value;
-  tempPreCountdownMinutes.value = preCountdownMinutes.value;
   showSettings.value = true;
 };
 
@@ -908,10 +869,6 @@ const handleSettingsConfirm = () => {
   examInfoLargeFont.value = Boolean(tempExamInfoLargeFont.value);
   materialFontScale.value = clampMaterialFontScale(tempMaterialFontScale.value);
   auxiliaryFontScale.value = clampAuxiliaryFontScale(tempAuxiliaryFontScale.value);
-  preCountdownMinutes.value = Math.min(
-    60,
-    Math.max(0, Math.round(Number(tempPreCountdownMinutes.value)))
-  );
   showSettings.value = false;
 };
 
@@ -933,7 +890,6 @@ const handleSettingsVisibleChange = (visible: boolean) => {
     tempExamInfoLargeFont.value = examInfoLargeFont.value;
     tempMaterialFontScale.value = materialFontScale.value;
     tempAuxiliaryFontScale.value = auxiliaryFontScale.value;
-    tempPreCountdownMinutes.value = preCountdownMinutes.value;
   }
 };
 
@@ -946,7 +902,6 @@ const handleSettingsClosed = () => {
   tempExamInfoLargeFont.value = examInfoLargeFont.value;
   tempMaterialFontScale.value = materialFontScale.value;
   tempAuxiliaryFontScale.value = auxiliaryFontScale.value;
-  tempPreCountdownMinutes.value = preCountdownMinutes.value;
   scheduleCollapse();
 };
 

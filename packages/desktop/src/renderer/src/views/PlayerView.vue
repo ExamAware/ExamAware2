@@ -29,7 +29,6 @@
       @exam-info-large-font-toggle="handleExamInfoLargeFontToggle"
       @material-font-scale-change="handleMaterialFontScaleChange"
       @auxiliary-font-scale-change="handleAuxiliaryFontScaleChange"
-      @pre-countdown-minutes-change="handlePreCountdownMinutesChange"
       @exam-start="handleExamStart"
       @exam-end="handleExamEnd"
       @exam-alert="handleExamAlert"
@@ -194,10 +193,6 @@ const handleAuxiliaryFontScaleChange = (scale: number) => {
   const safe = clampAuxiliaryFontScale(scale)
   if (Object.is(auxiliaryFontScaleSetting.value, safe)) return
   auxiliaryFontScaleSetting.value = safe
-}
-
-const handlePreCountdownMinutesChange = (minutes: number) => {
-  desktopApi.playback.preCountdownMinutes.value = minutes
 }
 
 // 考试开始事件

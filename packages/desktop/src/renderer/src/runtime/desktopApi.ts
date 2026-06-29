@@ -264,14 +264,14 @@ function createPlaybackApi(): PlaybackAPI {
   return {
     ...refs,
     reset() {
-      refs.uiScale.value = clampUiScale(1)
+      refs.uiScale.value = clampUiScale(1.02)
       refs.uiDensity.value = normalizeDensity('comfortable' as UIDensity)
-      refs.largeClockEnabled.value = false
-      refs.largeClockScale.value = clampLargeClockScale(1)
-      refs.examInfoLargeFont.value = false
-      refs.materialFontScale.value = clampMaterialFontScale(1)
-      refs.auxiliaryFontScale.value = clampAuxiliaryFontScale(1)
-      refs.preCountdownMinutes.value = 0
+      refs.largeClockEnabled.value = true
+      refs.largeClockScale.value = clampLargeClockScale(1.2)
+      refs.examInfoLargeFont.value = true
+      refs.materialFontScale.value = clampMaterialFontScale(1.55)
+      refs.auxiliaryFontScale.value = clampAuxiliaryFontScale(1.5)
+      refs.preCountdownMinutes.value = 15
     }
   }
 }

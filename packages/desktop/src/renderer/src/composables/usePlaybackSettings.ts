@@ -105,7 +105,7 @@ export const usePlaybackSettings = (): PlaybackSettingsRefs => {
     mapOut: clampAuxiliaryFontScale
   })
 
-  const preCountdownMinutes = useSettingRef<number>('player.preCountdownMinutes', 0, {
+  const preCountdownMinutes = useSettingRef<number>('player.preCountdownMinutes', 15, {
     mapIn: clampPreCountdownMinutes,
     mapOut: clampPreCountdownMinutes
   })
