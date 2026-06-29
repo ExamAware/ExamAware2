@@ -204,6 +204,13 @@ watch(
       answerPages.value = 0;
       answerSheets.value = 0;
       saveCounts({ paperPages: 0, paperSheets: 0, answerPages: 0, answerSheets: 0 });
+      // 重置后强制显示加减按钮，方便用户输入下一场考试页数
+      showControls.value = {
+        paperPages: true,
+        paperSheets: true,
+        answerPages: true,
+        answerSheets: true
+      };
     }
   }
 );
