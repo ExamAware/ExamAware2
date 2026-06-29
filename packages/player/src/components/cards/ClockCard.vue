@@ -131,7 +131,7 @@ const countdownState = computed(() => {
     const isEndingSoon =
       typeof timeRemaining === 'number' && timeRemaining <= PRE_COUNTDOWN_MS.value;
     return {
-      label: '考试倒计时',
+      label: '距离考试结束还剩',
       showValue: true,
       value: ctx.remainingTime?.value || '00:00',
       text: '',
@@ -180,7 +180,7 @@ const countdownState = computed(() => {
     // 考前 15 分钟内才显示倒计时
     if (typeof timeRemaining === 'number' && timeRemaining <= PRE_COUNTDOWN_MS.value) {
       return {
-        label: '距离开考',
+        label: '距离考试开始还剩',
         showValue: true,
         value: ctx.remainingTime?.value || '00:00',
         text: '',
