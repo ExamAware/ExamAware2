@@ -24,7 +24,7 @@
         <div
           v-if="countdownShowValue"
           class="countdown-value"
-          :class="{ 'countdown-value-large': isLargeClock }"
+          :class="[{ 'countdown-value-large': isLargeClock }, countdownValueClass]"
           :style="timeDisplayStyle"
         >
           {{ countdownValue }}
@@ -135,7 +135,8 @@ const countdownState = computed(() => {
       showValue: true,
       value: ctx.remainingTime?.value || '00:00',
       text: '',
-      labelClass: isEndingSoon ? 'text-danger' : ''
+      labelClass: '',
+      valueClass: isEndingSoon ? 'countdown-value-danger' : ''
     };
   }
 
@@ -148,7 +149,8 @@ const countdownState = computed(() => {
         showValue: false,
         value: '',
         text: '考试已结束',
-        labelClass: 'text-danger'
+        labelClass: 'text-danger',
+        valueClass: ''
       };
     }
     // 宽限期过后：检查下一场
@@ -158,7 +160,8 @@ const countdownState = computed(() => {
         showValue: false,
         value: '',
         text: '考试未开始',
-        labelClass: 'text-warning'
+        labelClass: 'text-warning',
+        valueClass: ''
       };
     }
     // 没有下一场
@@ -167,7 +170,8 @@ const countdownState = computed(() => {
       showValue: false,
       value: '',
       text: '考试已结束',
-      labelClass: 'text-danger'
+      labelClass: 'text-danger',
+      valueClass: ''
     };
   }
 
@@ -180,7 +184,8 @@ const countdownState = computed(() => {
         showValue: true,
         value: ctx.remainingTime?.value || '00:00',
         text: '',
-        labelClass: ''
+        labelClass: '',
+        valueClass: 'countdown-value-warning'
       };
     }
     // 还没到 15 分钟，显示黄色「考试未开始」
@@ -189,7 +194,8 @@ const countdownState = computed(() => {
       showValue: false,
       value: '',
       text: '考试未开始',
-      labelClass: 'text-warning'
+      labelClass: 'text-warning',
+      valueClass: ''
     };
   }
 
@@ -200,7 +206,8 @@ const countdownState = computed(() => {
       showValue: false,
       value: '',
       text: '考试已结束',
-      labelClass: 'text-danger'
+      labelClass: 'text-danger',
+      valueClass: ''
     };
   }
   return {
@@ -208,7 +215,8 @@ const countdownState = computed(() => {
     showValue: false,
     value: '',
     text: '考试未开始',
-    labelClass: 'text-warning'
+    labelClass: 'text-warning',
+    valueClass: ''
   };
 });
 
@@ -217,6 +225,7 @@ const countdownValue = computed(() => countdownState.value.value);
 const countdownText = computed(() => countdownState.value.text);
 const countdownShowValue = computed(() => countdownState.value.showValue);
 const countdownLabelClass = computed(() => countdownState.value.labelClass);
+const countdownValueClass = computed(() => (countdownState.value as any).valueClass ?? '');
 </script>
 
 <style scoped>
@@ -323,6 +332,14 @@ const countdownLabelClass = computed(() => countdownState.value.labelClass);
   font-size: calc(
     var(--ui-scale, 1) * var(--clock-scale, var(--large-clock-scale, 1)) * clamp(5rem, 12vw, 10rem)
   );
+}
+
+.countdown-value-warning {
+  color: #f1c40f !important;
+}
+
+.countdown-value-danger {
+  color: #ff3b30 !important;
 }
 
 .countdown-text {
