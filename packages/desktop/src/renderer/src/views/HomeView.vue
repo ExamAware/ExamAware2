@@ -55,7 +55,7 @@ watch(route, (newRoute) => {
 onMounted(async () => {
   try {
     const autoEnter = await window.api.config.get('behavior.autoEnterPlayer', false)
-    if (autoEnter && route.path !== '/playerhome') {
+    if (autoEnter && route.path === '/mainpage') {
       router.push('/playerhome')
     }
   } catch (e) {

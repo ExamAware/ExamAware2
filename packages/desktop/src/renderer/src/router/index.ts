@@ -21,6 +21,7 @@ const router = createRouter({
       name: 'home',
       component: HomeView,
       children: [
+        { path: '', name: 'home-root', redirect: '/mainpage' },
         { path: 'mainpage', name: 'mainpage', component: MainpageView },
         { path: 'playerhome', name: 'playerhome', component: PlayerHomeView },
         { path: 'playerhome/url', name: 'playerhome-url', component: UrlPlayerView },
