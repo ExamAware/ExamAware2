@@ -70,7 +70,7 @@ export interface PlaybackSettingsRefs {
 }
 
 export const usePlaybackSettings = (): PlaybackSettingsRefs => {
-  const uiScale = useSettingRef<number>('player.uiScale', 1, {
+  const uiScale = useSettingRef<number>('player.uiScale', 1.02, {
     mapIn: clampUiScale,
     mapOut: clampUiScale
   })
@@ -80,27 +80,27 @@ export const usePlaybackSettings = (): PlaybackSettingsRefs => {
     mapOut: normalizeDensity
   })
 
-  const largeClockEnabled = useSettingRef<boolean>('player.largeClockEnabled', false, {
+  const largeClockEnabled = useSettingRef<boolean>('player.largeClockEnabled', true, {
     mapIn: (raw) => Boolean(raw),
     mapOut: (val) => Boolean(val)
   })
 
-  const largeClockScale = useSettingRef<number>('player.largeClockScale', 1, {
+  const largeClockScale = useSettingRef<number>('player.largeClockScale', 1.2, {
     mapIn: clampLargeClockScale,
     mapOut: clampLargeClockScale
   })
 
-  const examInfoLargeFont = useSettingRef<boolean>('player.examInfoLargeFont', false, {
+  const examInfoLargeFont = useSettingRef<boolean>('player.examInfoLargeFont', true, {
     mapIn: (raw) => Boolean(raw),
     mapOut: (val) => Boolean(val)
   })
 
-  const materialFontScale = useSettingRef<number>('player.materialFontScale', 1, {
+  const materialFontScale = useSettingRef<number>('player.materialFontScale', 1.55, {
     mapIn: clampMaterialFontScale,
     mapOut: clampMaterialFontScale
   })
 
-  const auxiliaryFontScale = useSettingRef<number>('player.auxiliaryFontScale', 1, {
+  const auxiliaryFontScale = useSettingRef<number>('player.auxiliaryFontScale', 1.5, {
     mapIn: clampAuxiliaryFontScale,
     mapOut: clampAuxiliaryFontScale
   })

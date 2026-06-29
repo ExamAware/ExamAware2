@@ -189,9 +189,9 @@ const props = withDefaults(
   }>(),
   {
     isDevMode: false,
-    examInfoLargeFont: false,
-    materialFontScale: 1,
-    auxiliaryFontScale: 1,
+    examInfoLargeFont: true,
+    materialFontScale: 1.55,
+    auxiliaryFontScale: 1.5,
     preCountdownMinutes: 0
   }
 );

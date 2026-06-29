@@ -110,12 +110,12 @@ const defaultRoom = settings.ref<string>('defaultRoom', '01', {
   mapOut: sanitizeRoom
 })
 
-const defaultScale = settings.ref<number>('uiScale', 1, {
+const defaultScale = settings.ref<number>('uiScale', 1.02, {
   mapIn: clampUiScale,
   mapOut: clampUiScale
 })
 
-const largeClockEnabled = settings.ref<boolean>('largeClockEnabled', false, {
+const largeClockEnabled = settings.ref<boolean>('largeClockEnabled', true, {
   mapIn: (value) => Boolean(value),
   mapOut: (value) => Boolean(value)
 })
