@@ -363,7 +363,7 @@ const handleInputFocus = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 
 .info-row {
   display: flex;
   align-items: center;
-  gap: calc(var(--ui-scale, 1) * 1em);
+  gap: 0;
 }
 
 .info-label {
@@ -458,9 +458,9 @@ const handleInputFocus = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 
 .num-value,
 .num-input {
   color: #fff;
-  font-size: calc(var(--ui-scale, 1) * var(--material-font-scale, 1) * 1.3rem);
-  font-weight: 600;
-  min-width: calc(var(--ui-scale, 1) * var(--material-font-scale, 1) * 1.8rem);
+  font-size: calc(var(--ui-scale, 1) * var(--material-font-scale, 1) * 2rem);
+  font-weight: 700;
+  min-width: calc(var(--ui-scale, 1) * var(--material-font-scale, 1) * 2rem);
   text-align: center;
   font-family: 'TCloudNumber', 'MiSans', monospace;
 }
@@ -469,7 +469,7 @@ const handleInputFocus = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 
   background: transparent;
   border: none;
   outline: none;
-  width: calc(var(--ui-scale, 1) * var(--material-font-scale, 1) * 2.5rem);
+  width: calc(var(--ui-scale, 1) * var(--material-font-scale, 1) * 3rem);
   padding: 0;
   -moz-appearance: textfield;
 }
