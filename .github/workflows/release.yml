@@ -7,6 +7,7 @@ on:
       - 'release/**'
       - 'hotfix/**'
       - 'trae/solo-agent-Dk1KvY'
+      - 'trae/solo-agent-OIFC0O'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
