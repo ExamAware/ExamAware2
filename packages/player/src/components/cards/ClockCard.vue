@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, ref, watch } from 'vue';
+import { computed, inject } from 'vue';
 import BaseCard from '../BaseCard.vue';
 import { parseDateTime } from '@dsz-examaware/core';
 
@@ -75,33 +75,8 @@ const PRE_COUNTDOWN_MS = computed(() => {
   return (Number.isFinite(minutes) && minutes > 0 ? minutes : 15) * 60 * 1000;
 });
 
-// 记录当前考试结束的时间戳，用于实现“结束后1分钟仍显示已结束，再检查下一场”
+// 考试结束后保留“考试已结束”提示的宽限期
 const EXAM_END_GRACE_MS = 60 * 1000; // 1 分钟
-const examEndedAtRef = ref<number | null>(null);
-let lastExamId: string | null = null;
-
-watch(
-  () => [ctx.currentExam?.value, ctx.examStatus?.value?.status] as const,
-  ([exam, status]) => {
-    const examId = exam ? String(exam.id ?? exam.name ?? '') : '';
-    if (status === 'completed') {
-      // 只在第一次进入 completed 时记录时间
-      if (examId && examId !== lastExamId) {
-        lastExamId = examId;
-        examEndedAtRef.value = Date.now();
-      } else if (examId && examId === lastExamId && examEndedAtRef.value === null) {
-        examEndedAtRef.value = Date.now();
-      }
-    } else if (status === 'inProgress' || status === 'pending') {
-      // 切换了考试或重新开始，重置
-      if (examId && examId !== lastExamId) {
-        lastExamId = examId;
-      }
-      examEndedAtRef.value = null;
-    }
-  },
-  { immediate: true }
-);
 
 // 判断是否所有考试都已结束
 const allExamsEnded = computed(() => {
@@ -131,11 +106,17 @@ const hasNextExam = computed(() => {
   });
 });
 
-// 当前考试结束后是否仍在1分钟宽限期内
+// 当前考试结束后是否仍在1分钟宽限期内（基于考试实际结束时间）
 const inExamEndGrace = computed(() => {
   if (ctx.examStatus?.value?.status !== 'completed') return false;
-  if (examEndedAtRef.value === null) return false;
-  return Date.now() - examEndedAtRef.value < EXAM_END_GRACE_MS;
+  const exam = ctx.currentExam?.value;
+  if (!exam?.end) return false;
+  try {
+    const endMs = parseDateTime(exam.end).getTime();
+    return Date.now() - endMs < EXAM_END_GRACE_MS;
+  } catch {
+    return false;
+  }
 });
 
 // 倒计时显示状态
