@@ -1,7 +1,6 @@
 name: release-please
 
-on:
-  workflow_dispatch
+on: workflow_dispatch
   # push:
   #   branches:
   #     - main
@@ -17,21 +16,20 @@ jobs:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
-      - uses: googleapis/release-please-action@v4
-        id:
-          release
-          # Standard Conventional Commits: `feat` and `fix`
-          # node-gyp subdirectories: `bin`, `gyp`, `lib`, `src`, `test`
-          # node-gyp subcommands: `build`, `clean`, `configure`, `install`, `list`, `rebuild`, `remove`
-          # Core abstract category: `deps`
-          # Languages/platforms: `python`, `lin`, `linux`, `mac`, `macos`, `win`, `window`, `zos`
-          # Documentation: `doc`, `docs`, `readme`
-          # Standard Conventional Commits: `chore` (under "Miscellaneous")
-          # Miscellaneous abstract categories: `refactor`, `ci`, `meta`
+    - uses: googleapis/release-please-action@v4
+      id: release
+        # Standard Conventional Commits: `feat` and `fix`
+        # node-gyp subdirectories: `bin`, `gyp`, `lib`, `src`, `test`
+        # node-gyp subcommands: `build`, `clean`, `configure`, `install`, `list`, `rebuild`, `remove`
+        # Core abstract category: `deps`
+        # Languages/platforms: `python`, `lin`, `linux`, `mac`, `macos`, `win`, `window`, `zos`
+        # Documentation: `doc`, `docs`, `readme`
+        # Standard Conventional Commits: `chore` (under "Miscellaneous")
+        # Miscellaneous abstract categories: `refactor`, `ci`, `meta`
 
   test:
     name: Release Test
-    needs: [release-please]
+    needs: [ release-please ]
     if: needs.release-please.outputs.pr || startsWith(github.head_ref, 'release-please--')
     uses: ./.github/workflows/tests.yml
 

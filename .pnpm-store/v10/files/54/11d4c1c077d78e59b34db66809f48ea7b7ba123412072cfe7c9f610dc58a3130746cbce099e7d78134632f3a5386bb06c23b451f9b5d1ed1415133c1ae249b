@@ -26,7 +26,7 @@ RBttXQKBgB6LQFOTjDMfsFHKsnQXFUZId3GG/iLg3WCWxEo88T5Rq3JIR0zDpW8H
 cKhl/sPY+JVHsxizNCMPtp7Hn7GrB6D/v9LbO0jpG2U0BFiJ6zhiDopbP9B0EAW4
 5JJ+JGKRKoCxs3DmSVyns0gU4j4rVte97UWyVy5TZ8Acr/qrgOA1
 -----END RSA PRIVATE KEY-----
-`;
+`
 
 module.exports['ca.crt'] = `
 -----BEGIN CERTIFICATE-----
@@ -51,7 +51,7 @@ MM0CWlP6COJ8TX7X0MTtexVOgo9m3hBuTSYEZClYFIdSOk10xkPl8Y3Iz/x6mzfK
 Uu2l2ZtYvSdAX1CQMds3ZWt0ChNNEjOKPv4g2QSDhGkiqrmi4wUS81g68wKqOpqn
 GbN8uKxIfyMjqZKaujPR
 -----END CERTIFICATE-----
-`;
+`
 
 module.exports['server.key'] = `
 -----BEGIN PRIVATE KEY-----
@@ -82,7 +82,7 @@ BscBwAZKmUasdWQBUzRFpR1UAO3fFBatjMPwrFYnt+ZgiCXTGFcoEa7mjoP/r5Mh
 j1nRCoPQVcbmB1B9AtiaEa1AA+BqYF1r2aErbcsGrCV5OHU7TYFk1dep1SAQP/0W
 9MQ+1Af5ttYSFYlJLnWJo4M=
 -----END PRIVATE KEY-----
-`;
+`
 
 module.exports['server.crt'] = `
 -----BEGIN CERTIFICATE-----
@@ -105,7 +105,7 @@ La4PCMh7NwVMtHRqbYvgq785PsKAh+j4FSX1sj9NRzRPoJJ2qsre1Qn5tL/i6ovj
 6s+3GxOQ5I1UzJX22PZFu003a582ha1CEFM0VaeDzzwbGNcV5SP+g2nw55zx9YRR
 Rg8nGmjRuRtbs+/XAre2eQ5p
 -----END CERTIFICATE-----
-`;
+`
 
 module.exports['ca-bundle.crt'] = `
 -----BEGIN CERTIFICATE-----
@@ -148,4 +148,4 @@ YRwMLd7JNQffHAbWb2CE1mcea4H/12U8JZW5tHCF6y9V+7IuDzqwIrLKcW3lG17n
 VUG6ODF/Ryqn3V5X+TL91YyXi6c34y34IpC7MQDV/67U7+5Bp5CfeDPWW2wVSrW+
 uGZtfEvhbNm6m2i4UNmpCXxUZQ==
 -----END CERTIFICATE-----
-`;
+`
