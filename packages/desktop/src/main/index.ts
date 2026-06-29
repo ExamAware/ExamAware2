@@ -31,6 +31,12 @@ import { applyDeepLinkControllers } from './deepLink/decorators'
 import { CoreDeepLinkController } from './deepLink/coreDeepLinkController'
 import { composeVersionLabel } from '../shared/appInfo'
 import bannerText from './banner.txt?raw'
+import {
+  startExamAutoStartLoop,
+  runExamAutoStartBootCheck,
+  disposeExamAutoStart
+} from './examAutoStart'
+import { loadPersistedSharedConfig } from './state/sharedConfigStore'
 
 protocol.registerSchemesAsPrivileged([
   {
@@ -207,6 +213,12 @@ app.whenReady().then(async () => {
   // 初始化时间同步服务
   initializeTimeSync()
 
+  // 恢复上次使用的考试配置，供考试关联自启等主进程逻辑使用
+  loadPersistedSharedConfig()
+
+  // 启动考试关联开机自启检测循环
+  startExamAutoStartLoop()
+
   // 始终注册托盘
   ensureAppTray()
 
@@ -322,7 +334,8 @@ app.whenReady().then(async () => {
     createEditorWindow(fileToOpen)
     fileToOpen = null
   } else if (isAutoStart) {
-    // 开机自启：不弹主窗口
+    // 开机自启：不弹主窗口，先执行考试关联自启检查
+    runExamAutoStartBootCheck(true)
   } else {
     createMainWindow()
   }
@@ -406,6 +419,9 @@ app.whenReady().then(async () => {
     } catch {}
     try {
       disposeIpc()
+    } catch {}
+    try {
+      disposeExamAutoStart()
     } catch {}
     try {
       void httpApiService.dispose()

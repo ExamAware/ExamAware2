@@ -115,6 +115,7 @@ onMounted(() => {
 .plugin-view {
   padding: 20px;
   height: 100%;
+  overflow-y: auto;
 }
 
 h2,

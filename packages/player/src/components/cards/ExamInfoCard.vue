@@ -110,6 +110,7 @@ export interface ExamPlayerCtx {
   currentExamTimeRange: any;
   examStatus?: any;
   examInfoLargeFont?: { value: boolean };
+  materialFontScale?: { value: number };
 }
 const ctx = inject<ExamPlayerCtx>('ExamPlayerCtx')!;
 
@@ -203,6 +204,13 @@ watch(
       answerPages.value = 0;
       answerSheets.value = 0;
       saveCounts({ paperPages: 0, paperSheets: 0, answerPages: 0, answerSheets: 0 });
+      // 重置后强制显示加减按钮，方便用户输入下一场考试页数
+      showControls.value = {
+        paperPages: true,
+        paperSheets: true,
+        answerPages: true,
+        answerSheets: true
+      };
     }
   }
 );
@@ -355,7 +363,7 @@ const handleInputFocus = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 
 .info-row {
   display: flex;
   align-items: center;
-  gap: calc(var(--ui-scale, 1) * 0.5rem);
+  gap: calc(var(--ui-scale, 1) * 1em);
 }
 
 .info-label {
@@ -393,14 +401,14 @@ const handleInputFocus = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 
 
 .material-label {
   color: rgba(255, 255, 255, 0.75);
-  font-size: calc(var(--ui-scale, 1) * 1.4rem);
+  font-size: calc(var(--ui-scale, 1) * var(--material-font-scale, 1) * 1.4rem);
   font-weight: 500;
-  min-width: calc(var(--ui-scale, 1) * 5rem);
+  min-width: calc(var(--ui-scale, 1) * var(--material-font-scale, 1) * 5rem);
 }
 
 .material-text {
   color: rgba(255, 255, 255, 0.75);
-  font-size: calc(var(--ui-scale, 1) * 1.3rem);
+  font-size: calc(var(--ui-scale, 1) * var(--material-font-scale, 1) * 1.3rem);
 }
 
 /* 数字加减控制器 */
@@ -422,8 +430,8 @@ const handleInputFocus = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 
 }
 
 .num-btn {
-  width: calc(var(--ui-scale, 1) * 1.6rem);
-  height: calc(var(--ui-scale, 1) * 1.6rem);
+  width: calc(var(--ui-scale, 1) * var(--material-font-scale, 1) * 1.6rem);
+  height: calc(var(--ui-scale, 1) * var(--material-font-scale, 1) * 1.6rem);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -431,7 +439,7 @@ const handleInputFocus = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 
   border: none;
   border-radius: calc(var(--ui-scale, 1) * 4px);
   color: #fff;
-  font-size: calc(var(--ui-scale, 1) * 1.1rem);
+  font-size: calc(var(--ui-scale, 1) * var(--material-font-scale, 1) * 1.1rem);
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s ease;
@@ -450,9 +458,9 @@ const handleInputFocus = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 
 .num-value,
 .num-input {
   color: #fff;
-  font-size: calc(var(--ui-scale, 1) * 1.3rem);
+  font-size: calc(var(--ui-scale, 1) * var(--material-font-scale, 1) * 1.3rem);
   font-weight: 600;
-  min-width: calc(var(--ui-scale, 1) * 1.8rem);
+  min-width: calc(var(--ui-scale, 1) * var(--material-font-scale, 1) * 1.8rem);
   text-align: center;
   font-family: 'TCloudNumber', 'MiSans', monospace;
 }
@@ -461,7 +469,7 @@ const handleInputFocus = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 
   background: transparent;
   border: none;
   outline: none;
-  width: calc(var(--ui-scale, 1) * 2.5rem);
+  width: calc(var(--ui-scale, 1) * var(--material-font-scale, 1) * 2.5rem);
   padding: 0;
   -moz-appearance: textfield;
 }

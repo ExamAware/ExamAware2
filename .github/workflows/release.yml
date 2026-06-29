@@ -27,7 +27,8 @@ jobs:
       ELECTRON_BUILDER_TMP_DIR: C:/Users/runneradmin/AppData/Local/Temp/eb-tmp-${{ github.run_id }}
 
     permissions:
-      contents: write
+      actions: write
+      contents: read
 
     steps:
       - name: Checkout code
@@ -88,18 +89,51 @@ jobs:
       - name: Build desktop application
         run: pnpm desktop:build:win
 
-      - name: Generate tag
-        id: tag
-        shell: bash
-        run: |
-          echo "tag=v$(date +%Y%m%d-%H%M%S)" >> "$GITHUB_OUTPUT"
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
         with:
-          tag_name: ${{ steps.tag.outputs.tag }}
-          name: Release ${{ steps.tag.outputs.tag }}
-          files: packages/desktop/out/*
-          generate_release_notes: false
+          name: ExamAware-Windows-${{ github.run_id }}
+          path: packages/desktop/out/*
+          if-no-files-found: error
+
+      - name: Generate download summary
+        if: success()
+        shell: pwsh
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $repo = "${{ github.repository }}"
+          $runId = "${{ github.run_id }}"
+          $artifactName = "ExamAware-Windows-${{ github.run_id }}"
+          $refName = "${{ github.ref_name }}"
+          $runNumber = "${{ github.run_number }}"
+          $commit = "${{ github.sha }}"
+
+          $headers = @{
+            Accept = "application/vnd.github+json"
+            Authorization = "Bearer $env:GH_TOKEN"
+          }
+          $artifactsUrl = "https://api.github.com/repos/$repo/actions/runs/$runId/artifacts"
+          $response = Invoke-RestMethod -Uri $artifactsUrl -Headers $headers -MaximumRetryCount 3 -RetryIntervalSec 2
+          $artifact = $response.artifacts | Where-Object { $_.name -eq $artifactName } | Select-Object -First 1
+
+          $artifactId = $artifact.id
+          $artifactUrl = "https://github.com/$repo/actions/runs/$runId/artifacts/$artifactId"
+          $nightlyUrl = "https://nightly.link/$repo/actions/artifacts/$artifactId.zip"
+          $ghproxyFastly = "https://ghproxy.cc/$nightlyUrl"
+          $ghproxyMirror = "https://ghproxy.net/$nightlyUrl"
+
+          @"
+          ## 构建总结
+
+          - 提交：$commit
+          - 运行：#$runId
+          - 版本：$refName-$runNumber
+
+          ### 下载
+
+          - [下载文物]($artifactUrl)
+          - [Nightly.link 下载]($nightlyUrl)
+          - [GhProxy Fastly Mirror]($ghproxyFastly)
+          - [GhProxy Mirror]($ghproxyMirror)
+          "@ | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8

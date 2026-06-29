@@ -14,9 +14,12 @@
       :large-clock="largeClockEnabled"
       :large-clock-scale="largeClockScaleSetting"
       :exam-info-large-font="examInfoLargeFontSetting"
+      :material-font-scale="materialFontScaleSetting"
+      :auxiliary-font-scale="auxiliaryFontScaleSetting"
       :pre-countdown-minutes="preCountdownMinutesSetting"
       :hdr-highlight="hdrHighlightSetting"
       @exit="handleExit"
+      @minimize="handleMinimize"
       @room-number-click="handleRoomNumberClick"
       @room-number-change="handleRoomNumberChange"
       @scale-change="handleScaleChange"
@@ -24,7 +27,8 @@
       @large-clock-toggle="handleLargeClockToggle"
       @large-clock-scale-change="handleLargeClockScaleChange"
       @exam-info-large-font-toggle="handleExamInfoLargeFontToggle"
-      @pre-countdown-minutes-change="handlePreCountdownMinutesChange"
+      @material-font-scale-change="handleMaterialFontScaleChange"
+      @auxiliary-font-scale-change="handleAuxiliaryFontScaleChange"
       @exam-start="handleExamStart"
       @exam-end="handleExamEnd"
       @exam-alert="handleExamAlert"
@@ -52,6 +56,8 @@ import { useSettingsStore } from '@renderer/stores/settingsStore'
 import {
   clampUiScale,
   clampLargeClockScale,
+  clampMaterialFontScale,
+  clampAuxiliaryFontScale,
   normalizeDensity
 } from '@renderer/composables/usePlaybackSettings'
 import { useDesktopApi, type UIDensity } from '@renderer/runtime/desktopApi'
@@ -67,6 +73,8 @@ const {
   largeClockEnabled: largeClockEnabledSetting,
   largeClockScale: largeClockScaleSetting,
   examInfoLargeFont: examInfoLargeFontSetting,
+  materialFontScale: materialFontScaleSetting,
+  auxiliaryFontScale: auxiliaryFontScaleSetting,
   preCountdownMinutes: preCountdownMinutesSetting
 } = desktopApi.playback
 
@@ -175,8 +183,16 @@ const handleExamInfoLargeFontToggle = (enabled: boolean) => {
   examInfoLargeFontSetting.value = flag
 }
 
-const handlePreCountdownMinutesChange = (minutes: number) => {
-  desktopApi.playback.preCountdownMinutes.value = minutes
+const handleMaterialFontScaleChange = (scale: number) => {
+  const safe = clampMaterialFontScale(scale)
+  if (Object.is(materialFontScaleSetting.value, safe)) return
+  materialFontScaleSetting.value = safe
+}
+
+const handleAuxiliaryFontScaleChange = (scale: number) => {
+  const safe = clampAuxiliaryFontScale(scale)
+  if (Object.is(auxiliaryFontScaleSetting.value, safe)) return
+  auxiliaryFontScaleSetting.value = safe
 }
 
 // 考试开始事件
@@ -256,6 +272,15 @@ const handleExit = () => {
     ipcRenderer?.send?.('player-window-exit')
   } catch (e) {
     console.warn('发送退出请求失败:', e)
+  }
+}
+
+// 最小化播放窗口
+const handleMinimize = () => {
+  try {
+    window.electronAPI?.minimize()
+  } catch (e) {
+    console.warn('最小化窗口失败:', e)
   }
 }
 
