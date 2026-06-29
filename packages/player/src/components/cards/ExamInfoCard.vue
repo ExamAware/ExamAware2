@@ -356,7 +356,7 @@ const handleInputFocus = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 
 .info-row {
   display: flex;
   align-items: center;
-  gap: calc(var(--ui-scale, 1) * 0.5rem);
+  gap: calc(var(--ui-scale, 1) * 1em);
 }
 
 .info-label {
