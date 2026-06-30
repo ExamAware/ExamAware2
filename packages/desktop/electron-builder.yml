@@ -1,6 +1,6 @@
 appId: org.examaware.desktop2
 productName: ExamAware
-buildVersion: 1.4.0.0
+buildVersion: 1.3.0.0
 directories:
   buildResources: build
   output: out

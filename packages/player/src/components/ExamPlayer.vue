@@ -134,6 +134,9 @@ import ClockCard from './cards/ClockCard.vue';
 import ExamInfoCard from './cards/ExamInfoCard.vue';
 import ExamRoomCard from './cards/ExamRoomCard.vue';
 import CurrentListCard from './cards/CurrentListCard.vue';
+import ClassicClockCard from './classic/ClassicClockCard.vue';
+import ClassicExamInfoCard from './classic/ClassicExamInfoCard.vue';
+import ClassicListCard from './classic/ClassicListCard.vue';
 import ActionButtonBar from './ActionButtonBar.vue';
 import { providePlayerToolbar } from '../composables/usePlayerToolbar';
 // 本地引入 TDesign 组件，确保不依赖宿主全局注册
@@ -211,6 +214,10 @@ interface Props {
     room: any;
     list: any;
   }>;
+  /** 经典主题下是否显示页数统计 */
+  classicShowMaterial?: boolean;
+  /** 播放器主题：enhanced（默认）或 classic（原版风格） */
+  playerTheme?: 'classic' | 'enhanced';
 }
 
 // Events 定义
@@ -1117,16 +1124,38 @@ const ctxForCards = {
   auxiliaryFontScale: computed(() => auxiliaryFontScaleState.value),
   handleRoomNumberClick,
   currentExamIndex: computed(() => state.value.currentExamIndex),
-  preCountdownMinutes: preCountdownMinutesState
+  preCountdownMinutes: preCountdownMinutesState,
+  classicShowMaterial: computed(() => Boolean(props.classicShowMaterial))
 };
 provide('ExamPlayerCtx', ctxForCards);
 
-const resolvedCards = computed(() => ({
-  clock: props.cards?.clock ?? ClockCard,
-  examInfo: props.cards?.examInfo ?? ExamInfoCard,
-  room: props.cards?.room ?? ExamRoomCard,
-  list: props.cards?.list ?? CurrentListCard
-}));
+const resolvedCards = computed(() => {
+  // 外部 cards 优先级最高
+  if (props.cards?.clock || props.cards?.examInfo || props.cards?.room || props.cards?.list) {
+    return {
+      clock: props.cards?.clock ?? ClockCard,
+      examInfo: props.cards?.examInfo ?? ExamInfoCard,
+      room: props.cards?.room ?? ExamRoomCard,
+      list: props.cards?.list ?? CurrentListCard
+    };
+  }
+  // 经典主题
+  if (props.playerTheme === 'classic') {
+    return {
+      clock: ClassicClockCard,
+      examInfo: ClassicExamInfoCard,
+      room: ExamRoomCard,
+      list: ClassicListCard
+    };
+  }
+  // 增强主题（默认）
+  return {
+    clock: ClockCard,
+    examInfo: ExamInfoCard,
+    room: ExamRoomCard,
+    list: CurrentListCard
+  };
+});
 </script>
 
 <style scoped>

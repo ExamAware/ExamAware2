@@ -18,6 +18,8 @@
       :auxiliary-font-scale="auxiliaryFontScaleSetting"
       :pre-countdown-minutes="preCountdownMinutesSetting"
       :hdr-highlight="hdrHighlightSetting"
+      :player-theme="playerTheme"
+      :classic-show-material="classicShowMaterial"
       @exit="handleExit"
       @minimize="handleMinimize"
       @room-number-click="handleRoomNumberClick"
@@ -61,6 +63,7 @@ import {
   normalizeDensity
 } from '@renderer/composables/usePlaybackSettings'
 import { useDesktopApi, type UIDensity } from '@renderer/runtime/desktopApi'
+import { useSettingRef } from '@renderer/composables/useSetting'
 // 键盘相关逻辑已经内置在 ExamPlayer 中
 
 const ipcRenderer = window.api.ipc
@@ -77,6 +80,10 @@ const {
   auxiliaryFontScale: auxiliaryFontScaleSetting,
   preCountdownMinutes: preCountdownMinutesSetting
 } = desktopApi.playback
+
+// 播放器主题
+const playerTheme = useSettingRef<'classic' | 'enhanced'>('appearance.playerTheme', 'enhanced')
+const classicShowMaterial = useSettingRef<boolean>('appearance.classicShowMaterial', false)
 
 const defaultRoomSetting = computed(() => {
   const raw = settingsStore.get<string>('player.defaultRoom', '01')
