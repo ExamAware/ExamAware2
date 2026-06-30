@@ -380,7 +380,7 @@ const handleInputFocus = (field: 'paperPages' | 'paperSheets' | 'answerPages' | 
 }
 
 .status-pending {
-  color: #e37318;
+  color: #ff9800;
 }
 
 .status-ongoing {

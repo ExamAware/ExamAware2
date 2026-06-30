@@ -104,8 +104,8 @@ const statusClass = computed(() => {
 }
 
 .status-pending {
-  background: rgba(227, 115, 24, 0.2);
-  color: #e37318;
+  background: rgba(255, 152, 0, 0.2);
+  color: #ff9800;
 }
 
 .exam-table-row.is-current {
