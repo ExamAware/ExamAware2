@@ -1,3 +1,5 @@
+import { getConfig, setConfig } from '../configStore'
+
 export interface SharedConfigEntry {
   id: string
   examName: string
@@ -10,6 +12,45 @@ type SharedConfigMap = Record<string, SharedConfigEntry>
 
 let sharedConfigs: SharedConfigMap = {}
 
+const LAST_EXAM_CONFIG_KEY = 'behavior.lastExamConfig'
+
+function persistLastExamConfig(entry?: SharedConfigEntry | null) {
+  try {
+    if (!entry?.payload) {
+      setConfig(LAST_EXAM_CONFIG_KEY, null)
+      return
+    }
+    setConfig(LAST_EXAM_CONFIG_KEY, {
+      id: entry.id,
+      examName: entry.examName,
+      examCount: entry.examCount,
+      updatedAt: entry.updatedAt,
+      payload: entry.payload
+    })
+  } catch (e) {
+    // ignore persistence errors
+  }
+}
+
+export function loadPersistedSharedConfig(): void {
+  try {
+    const raw = getConfig(LAST_EXAM_CONFIG_KEY, null)
+    if (!raw || typeof raw !== 'object' || !raw.payload) {
+      return
+    }
+    const entry: SharedConfigEntry = {
+      id: String(raw.id || 'legacy'),
+      examName: String(raw.examName || '未命名考试'),
+      examCount: Number(raw.examCount || 0),
+      updatedAt: Number(raw.updatedAt || Date.now()),
+      payload: String(raw.payload)
+    }
+    sharedConfigs[entry.id] = entry
+  } catch {
+    // ignore load errors
+  }
+}
+
 export function setSharedConfigs(entries: SharedConfigEntry[]) {
   const next: SharedConfigMap = {}
   entries.forEach((e) => {
@@ -20,6 +61,9 @@ export function setSharedConfigs(entries: SharedConfigEntry[]) {
     }
   })
   sharedConfigs = next
+  // 持久化最新的考试配置，供开机自启等主进程逻辑使用
+  const first = listSharedConfigs()[0]
+  persistLastExamConfig(first)
 }
 
 export function upsertSharedConfig(entry: SharedConfigEntry) {
@@ -29,6 +73,8 @@ export function upsertSharedConfig(entry: SharedConfigEntry) {
     ...entry,
     updatedAt: entry.updatedAt || prev?.updatedAt || Date.now()
   }
+  const first = listSharedConfigs()[0]
+  persistLastExamConfig(first)
 }
 
 export function removeSharedConfig(id: string) {

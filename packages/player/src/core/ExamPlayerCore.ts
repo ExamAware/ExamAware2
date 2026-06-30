@@ -134,6 +134,56 @@ export class ExamPlayerCore {
     this.queue.stop();
   }
 
+  private playerConfig: PlayerConfig = { roomNumber: '01' };
+
+  setPlayerConfig(cfg: PlayerConfig) {
+    this.playerConfig = cfg;
+  }
+
+  updatePlayerConfig(cfg: Partial<PlayerConfig>) {
+    this.playerConfig = { ...this.playerConfig, ...cfg };
+    // 如果配置已加载，重新创建任务队列以应用新的考前倒计时设置
+    if (this.examConfig.value && this.state.value.loaded) {
+      this.queue.clear();
+      this.queue.createTasksForConfig(
+        this.examConfig.value,
+        {
+          onPreExamStart: (exam: ExamInfo, preMinutes: number) => {
+            this.events.onPreExamStart?.(exam, preMinutes);
+            this.reminder?.showColorfulAlert({
+              title: `即将开考 · ${exam.name}`,
+              themeBaseColor: '#f1c40f',
+              forceWhiteText: true
+            });
+          },
+          onExamStart: (exam: ExamInfo) => {
+            this.currentTime.value = this.timeProvider.getCurrentTime();
+            this.updateCurrentExam();
+            this.events.onExamStart?.(exam);
+            this.reminder?.showColorfulAlert({ title: '考试开始', themeBaseColor: '#2ecc71' });
+          },
+          onExamEnd: (exam: ExamInfo) => {
+            this.currentTime.value = this.timeProvider.getCurrentTime();
+            this.updateCurrentExam();
+            this.events.onExamEnd?.(exam);
+            this.reminder?.showColorfulAlert({ title: '考试结束', themeBaseColor: '#ff3b30' });
+          },
+          onExamAlert: (exam: ExamInfo, alertTime: number) => {
+            this.events.onExamAlert?.(exam, alertTime);
+            this.reminder?.showColorfulAlert({
+              title: '考试即将结束',
+              themeBaseColor: '#ff3b30',
+              forceWhiteText: true
+            });
+          },
+          onExamSwitch: this.events.onExamSwitch
+        },
+        this.playerConfig.preCountdownMinutes
+      );
+      this.queue.start();
+    }
+  }
+
   updateConfig(newConfig: ExamConfig | null): boolean {
     if (!newConfig) {
       this.state.value.error = '配置为空';
@@ -169,25 +219,37 @@ export class ExamPlayerCore {
     this.state.value.loaded = true;
     this.updateCurrentExam();
 
-    this.queue.createTasksForConfig(newConfig, {
-      onExamStart: (exam: ExamInfo) => {
-        this.currentTime.value = this.timeProvider.getCurrentTime();
-        this.updateCurrentExam();
-        this.events.onExamStart?.(exam);
-        this.reminder?.showColorfulAlert({ title: '考试开始', themeBaseColor: '#2ecc71' });
+    this.queue.createTasksForConfig(
+      newConfig,
+      {
+        onPreExamStart: (exam: ExamInfo, preMinutes: number) => {
+          this.events.onPreExamStart?.(exam, preMinutes);
+          this.reminder?.showColorfulAlert({
+            title: `即将开考 · ${exam.name}`,
+            themeBaseColor: '#f1c40f',
+            forceWhiteText: true
+          });
+        },
+        onExamStart: (exam: ExamInfo) => {
+          this.currentTime.value = this.timeProvider.getCurrentTime();
+          this.updateCurrentExam();
+          this.events.onExamStart?.(exam);
+          this.reminder?.showColorfulAlert({ title: '考试开始', themeBaseColor: '#2ecc71' });
+        },
+        onExamEnd: (exam: ExamInfo) => {
+          this.currentTime.value = this.timeProvider.getCurrentTime();
+          this.updateCurrentExam();
+          this.events.onExamEnd?.(exam);
+          this.reminder?.showColorfulAlert({ title: '考试结束', themeBaseColor: '#ff3b30' });
+        },
+        onExamAlert: (exam: ExamInfo, alertTime: number) => {
+          this.events.onExamAlert?.(exam, alertTime);
+          this.reminder?.showColorfulAlert({ title: '考试即将结束', themeBaseColor: '#f1c40f' });
+        },
+        onExamSwitch: this.events.onExamSwitch
       },
-      onExamEnd: (exam: ExamInfo) => {
-        this.currentTime.value = this.timeProvider.getCurrentTime();
-        this.updateCurrentExam();
-        this.events.onExamEnd?.(exam);
-        this.reminder?.showColorfulAlert({ title: '考试结束', themeBaseColor: '#ff3b30' });
-      },
-      onExamAlert: (exam: ExamInfo, alertTime: number) => {
-        this.events.onExamAlert?.(exam, alertTime);
-        this.reminder?.showColorfulAlert({ title: '考试即将结束', themeBaseColor: '#f1c40f' });
-      },
-      onExamSwitch: this.events.onExamSwitch
-    });
+      this.playerConfig.preCountdownMinutes
+    );
 
     this.queue.start();
     return true;

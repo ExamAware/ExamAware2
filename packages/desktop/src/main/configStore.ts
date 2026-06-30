@@ -78,11 +78,20 @@ function deepMerge(target: AnyRecord, src: AnyRecord) {
   }
 }
 
-async function flushWrite() {
+export async function flushWrite(): Promise<void> {
   try {
+    if (writeTimer) {
+      clearTimeout(writeTimer)
+      writeTimer = null
+    }
+    if (writePromise) {
+      await writePromise
+      return
+    }
     const file = getConfigPath()
     await fsp.mkdir(path.dirname(file), { recursive: true })
-    await fsp.writeFile(file, JSON.stringify(cache ?? {}, null, 2), 'utf-8')
+    writePromise = fsp.writeFile(file, JSON.stringify(cache ?? {}, null, 2), 'utf-8')
+    await writePromise
   } catch (e) {
     appLogger.error('[config] write failed:', e as Error)
   } finally {

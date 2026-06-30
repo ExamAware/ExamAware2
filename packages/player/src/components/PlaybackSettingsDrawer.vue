@@ -67,6 +67,21 @@
           </div>
         </div>
         <div class="settings-group">
+          <div class="settings-label">标签提示字号</div>
+          <div class="settings-control">
+            <div class="slider-row">
+              <t-slider
+                v-model:value="auxiliaryFontScaleModel"
+                :min="0.5"
+                :max="2"
+                :step="0.05"
+                :input-number-props="{ theme: 'column', suffix: 'x', format: formatScale }"
+              />
+            </div>
+            <div class="settings-hint">调整“北京时间”“考试倒计时”以及底部提示文字的字号</div>
+          </div>
+        </div>
+        <div class="settings-group">
           <div class="settings-label">本场信息大字体</div>
           <div class="settings-control">
             <div class="switch-row">
@@ -75,7 +90,22 @@
                 {{ examInfoLargeFontModel ? '已启用' : '未启用' }}
               </span>
             </div>
-            <div class="settings-hint">放大“当前考试信息”卡片内的字段字号，提升远距离可读性</div>
+            <div class="settings-hint">放大"当前考试信息"卡片内的字段字号，提升远距离可读性</div>
+          </div>
+        </div>
+        <div class="settings-group">
+          <div class="settings-label">试卷答题卡字号</div>
+          <div class="settings-control">
+            <div class="slider-row">
+              <t-slider
+                v-model:value="materialFontScaleModel"
+                :min="0.8"
+                :max="2"
+                :step="0.05"
+                :input-number-props="{ theme: 'column', suffix: 'x', format: formatScale }"
+              />
+            </div>
+            <div class="settings-hint">单独调整左下角试卷、答题卡等材料的字号大小</div>
           </div>
         </div>
         <div v-if="isDevMode" class="settings-group dev-reminder-tools">
@@ -133,13 +163,18 @@ const props = withDefaults(
     densityOptions: DensityOption[];
     largeClockEnabled: boolean;
     largeClockScale: number;
+    auxiliaryFontScale: number;
     examInfoLargeFont: boolean;
+    materialFontScale: number;
     formatScale: (value: number | string) => string;
     isDevMode?: boolean;
   }>(),
   {
     isDevMode: false,
-    examInfoLargeFont: false
+    examInfoLargeFont: true,
+    materialFontScale: 1.4,
+    auxiliaryFontScale: 1.3,
+    preCountdownMinutes: 15
   }
 );
 
@@ -149,7 +184,9 @@ const emit = defineEmits<{
   (e: 'update:density', value: UIDensity): void;
   (e: 'update:largeClockEnabled', value: boolean): void;
   (e: 'update:largeClockScale', value: number): void;
+  (e: 'update:auxiliaryFontScale', value: number): void;
   (e: 'update:examInfoLargeFont', value: boolean): void;
+  (e: 'update:materialFontScale', value: number): void;
   (e: 'confirm'): void;
   (e: 'close'): void;
   (e: 'devReminderTest', preset: DevReminderPreset): void;
@@ -178,9 +215,19 @@ const largeClockScaleModel = computed({
   set: (value: number) => emit('update:largeClockScale', value)
 });
 
+const auxiliaryFontScaleModel = computed({
+  get: () => props.auxiliaryFontScale,
+  set: (value: number) => emit('update:auxiliaryFontScale', value)
+});
+
 const examInfoLargeFontModel = computed({
   get: () => props.examInfoLargeFont,
   set: (value: boolean) => emit('update:examInfoLargeFont', value)
+});
+
+const materialFontScaleModel = computed({
+  get: () => props.materialFontScale,
+  set: (value: number) => emit('update:materialFontScale', value)
 });
 
 const handleVisibleChange = (value: boolean) => {

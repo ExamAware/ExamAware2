@@ -4,13 +4,9 @@
     <div class="background-ellipse"></div>
 
     <!-- 主要内容（可插拔卡片区域） -->
-    <div class="content-wrapper">
-      <!-- 左侧列（默认布局） -->
+    <!-- 经典主题：左右两列布局 -->
+    <div v-if="isClassicTheme" class="content-wrapper content-wrapper-classic">
       <div class="left-column">
-        <slot name="left:logo">
-          <div class="logo-container"><span class="logo-text">DSZ ExamAware 知试</span></div>
-        </slot>
-
         <slot name="left:title">
           <div class="title-section">
             <h1 ref="mainTitleRef" class="main-title">
@@ -21,17 +17,49 @@
             </p>
           </div>
         </slot>
-
         <div class="card-item"><component :is="resolvedCards.clock" /></div>
-        <div class="card-item">
-          <component :is="resolvedCards.examInfo" />
-        </div>
+        <div class="card-item"><component :is="resolvedCards.examInfo" /></div>
       </div>
-
-      <!-- 右侧列（默认布局） -->
       <div class="right-column">
         <div class="card-item"><component :is="resolvedCards.room" /></div>
         <div class="card-item"><component :is="resolvedCards.list" /></div>
+      </div>
+    </div>
+
+    <!-- 增强主题：上中下布局 -->
+    <div v-else class="content-wrapper">
+      <!-- 顶部标题栏：考试标题+副标题（左）考场号（右） -->
+      <div class="top-header">
+        <slot name="left:title">
+          <div class="title-section">
+            <h1 ref="mainTitleRef" class="main-title">
+              {{ playerExamConfig?.examName || '考试' }}
+            </h1>
+            <p ref="subtitleRef" class="subtitle">
+              {{ playerExamConfig?.message || '请遵守考场纪律' }}
+            </p>
+          </div>
+        </slot>
+        <div class="header-room">
+          <component :is="resolvedCards.room" />
+        </div>
+      </div>
+
+      <!-- 中间大时钟区域 -->
+      <div class="clock-section">
+        <component :is="resolvedCards.clock" />
+      </div>
+
+      <!-- 底部左右分栏 -->
+      <div class="bottom-section">
+        <!-- 左侧：当前考试信息 -->
+        <div class="bottom-left">
+          <component :is="resolvedCards.examInfo" />
+        </div>
+        <!-- 右侧：考试列表表格 -->
+        <div class="bottom-right">
+          <component :is="resolvedCards.list" />
+        </div>
       </div>
     </div>
 
@@ -42,27 +70,34 @@
       :initial-density="densityState"
       :initial-large-clock-enabled="largeClockState"
       :initial-large-clock-scale="largeClockScaleState"
+      :initial-auxiliary-font-scale="auxiliaryFontScaleState"
       :initial-exam-info-large-font="examInfoLargeFontState"
+      :initial-material-font-scale="materialFontScaleState"
       :extra-tools="toolbarTools"
       @exit="emit('exit')"
-      @scale-change="emit('scaleChange', $event)"
+      @minimize="emit('minimize')"
+      @scale-change="handleScaleChange"
       @density-change="handleDensityChange"
       @large-clock-toggle="handleLargeClockToggle"
       @clock-scale-change="handleLargeClockScaleChange"
+      @auxiliary-font-scale-change="handleAuxiliaryFontScaleChange"
       @exam-info-large-font-toggle="handleExamInfoLargeFontToggle"
+      @material-font-scale-change="handleMaterialFontScaleChange"
       @dev-reminder-test="handleDevReminderTest"
       @dev-reminder-hide="handleDevReminderHide"
     />
 
-    <!-- 彩色提醒：用于考试开始/即将结束/考试结束，淡入动画 -->
+    <!-- 彩色提醒：用于考试开始/即将结束/考试结束/即将开考，淡入动画，点击可关闭 -->
     <transition name="fade-soft">
       <div
         v-if="colorfulVisible"
         class="overlay colorful-overlay"
         :class="{ 'hdr-highlight': colorfulHdrActive }"
         :style="colorfulOverlayStyle"
+        @click="handleCloseColorfulAlert"
       >
         <div class="colorful-title">{{ colorfulTitle }}</div>
+        <div class="colorful-hint">点击任意位置关闭</div>
       </div>
     </transition>
 
@@ -122,7 +157,12 @@ import ClockCard from './cards/ClockCard.vue';
 import ExamInfoCard from './cards/ExamInfoCard.vue';
 import ExamRoomCard from './cards/ExamRoomCard.vue';
 import CurrentListCard from './cards/CurrentListCard.vue';
+import ClassicClockCard from './classic/ClassicClockCard.vue';
+import ClassicExamInfoCard from './classic/ClassicExamInfoCard.vue';
+import ClassicListCard from './classic/ClassicListCard.vue';
 import ActionButtonBar from './ActionButtonBar.vue';
+
+const isClassicTheme = computed(() => props.playerTheme === 'classic');
 import { providePlayerToolbar } from '../composables/usePlayerToolbar';
 // 本地引入 TDesign 组件，确保不依赖宿主全局注册
 import { Dialog as TDialog, Input as TInput, Button as TButton } from 'tdesign-vue-next';
@@ -168,6 +208,12 @@ interface Props {
   uiDensity?: UIDensity;
   /** 本场考试信息是否使用大字体 */
   examInfoLargeFont?: boolean;
+  /** 试卷答题卡等材料字号缩放 */
+  materialFontScale?: number;
+  /** 时钟标签与提示文字字号缩放 */
+  auxiliaryFontScale?: number;
+  /** 考前倒计时分钟数 */
+  preCountdownMinutes?: number;
   /** 时间提供者 */
   timeProvider?: TimeProvider;
   /** 时间同步状态描述 */
@@ -193,6 +239,10 @@ interface Props {
     room: any;
     list: any;
   }>;
+  /** 经典主题下是否显示页数统计 */
+  classicShowMaterial?: boolean;
+  /** 播放器主题：enhanced（默认）或 classic（原版风格） */
+  playerTheme?: 'classic' | 'enhanced';
 }
 
 // Events 定义
@@ -202,15 +252,20 @@ interface Emits {
   (e: 'update:roomNumber', roomNumber: string): void;
   (e: 'update:largeClock', enabled: boolean): void;
   (e: 'update:examInfoLargeFont', enabled: boolean): void;
+  (e: 'update:materialFontScale', scale: number): void;
+  (e: 'update:auxiliaryFontScale', scale: number): void;
   (e: 'exit'): void;
+  (e: 'minimize'): void;
   (e: 'scaleChange', scale: number): void;
   (e: 'largeClockToggle', enabled: boolean): void;
   (e: 'largeClockScaleChange', scale: number): void;
   (e: 'examInfoLargeFontToggle', enabled: boolean): void;
+  (e: 'materialFontScaleChange', scale: number): void;
   (e: 'densityChange', density: UIDensity): void;
   (e: 'examStart', exam: any): void;
   (e: 'examEnd', exam: any): void;
   (e: 'examAlert', exam: any, alertTime: number): void;
+  (e: 'preExamStart', exam: any, preMinutes: number): void;
   (e: 'examSwitch', fromExam: any, toExam: any): void;
   (e: 'error', error: string): void;
 }
@@ -219,13 +274,16 @@ const props = withDefaults(defineProps<Props>(), {
   config: () => ({ roomNumber: '01' }),
   uiScale: undefined,
   largeClockScale: undefined,
-  examInfoLargeFont: false,
+  examInfoLargeFont: true,
+  materialFontScale: 1.4,
+  auxiliaryFontScale: 1.3,
+  preCountdownMinutes: 15,
   timeProvider: () => ({ getCurrentTime: () => Date.now() }),
   timeSyncStatus: '电脑时间',
   roomNumber: '01',
   showActionBar: true,
   hdrHighlight: false,
-  largeClock: false,
+  largeClock: true,
   allowEditRoomNumber: true,
   eventHandlers: () => ({}),
   cards: () => ({}),
@@ -253,13 +311,18 @@ const showColorfulOnce = (
 };
 
 const showExamReminder = (
-  kind: 'start' | 'end' | 'alert',
+  kind: 'start' | 'end' | 'alert' | 'preStart',
   exam: any,
   options: { title: string; themeBaseColor: string; forceWhiteText?: boolean }
 ) => {
   const examKey = getExamKey(exam);
   if (!examKey) return;
   showColorfulOnce(`${kind}:${examKey}`, options);
+};
+
+// 重置已显示的提醒（用于配置更新后重新触发）
+const resetReminderShown = () => {
+  reminderShown.clear();
 };
 
 // 显式注册局部组件（<t-dialog> / <t-input>）
@@ -271,6 +334,16 @@ const TButtonComp = TButton;
 // 合并事件处理器
 const mergedEventHandlers: PlayerEventHandlers = {
   ...props.eventHandlers,
+  onPreExamStart: (exam: any, preMinutes: number) => {
+    props.eventHandlers?.onPreExamStart?.(exam, preMinutes);
+    emit('preExamStart', exam, preMinutes);
+    // 即将开考（黄色）
+    showExamReminder('preStart', exam, {
+      title: `即将开考 · ${exam.name}`,
+      themeBaseColor: '#f1c40f',
+      forceWhiteText: true
+    });
+  },
   onExamStart: (exam: any) => {
     props.eventHandlers?.onExamStart?.(exam);
     emit('examStart', exam);
@@ -286,10 +359,10 @@ const mergedEventHandlers: PlayerEventHandlers = {
   onExamAlert: (exam: any, alertTime: number) => {
     props.eventHandlers?.onExamAlert?.(exam, alertTime);
     emit('examAlert', exam, alertTime);
-    // 考试即将结束（黄色）
+    // 考试即将结束（红色）
     showExamReminder('alert', exam, {
       title: '考试即将结束',
-      themeBaseColor: '#f1c40f',
+      themeBaseColor: '#ff3b30',
       forceWhiteText: true
     });
   },
@@ -317,6 +390,18 @@ const clampLargeClockScale = (value: unknown) => {
   return Math.min(1.8, Math.max(0.5, num));
 };
 
+const clampMaterialFontScale = (value: unknown) => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return 1;
+  return Math.min(2, Math.max(0.8, num));
+};
+
+const clampAuxiliaryFontScale = (value: unknown) => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return 1;
+  return Math.min(2, Math.max(0.5, num));
+};
+
 const largeClockState = ref<boolean>(Boolean(props.largeClock));
 const resolveInitialLargeClockScale = () => {
   if (props.largeClockScale !== undefined && props.largeClockScale !== null) {
@@ -328,6 +413,12 @@ const largeClockScaleState = ref<number>(resolveInitialLargeClockScale());
 
 const examInfoLargeFontState = ref<boolean>(Boolean(props.examInfoLargeFont));
 
+const materialFontScaleState = ref<number>(clampMaterialFontScale(props.materialFontScale));
+
+const auxiliaryFontScaleState = ref<number>(clampAuxiliaryFontScale(props.auxiliaryFontScale));
+
+const preCountdownMinutesState = ref<number>(Number(props.preCountdownMinutes) || 15);
+
 watch(
   () => props.largeClockScale,
   (value) => {
@@ -335,6 +426,40 @@ watch(
     const safe = clampLargeClockScale(value);
     if (safe !== largeClockScaleState.value) {
       largeClockScaleState.value = safe;
+    }
+  }
+);
+
+watch(
+  () => props.auxiliaryFontScale,
+  (value) => {
+    if (value === undefined || value === null) return;
+    const safe = clampAuxiliaryFontScale(value);
+    if (safe !== auxiliaryFontScaleState.value) {
+      auxiliaryFontScaleState.value = safe;
+    }
+  }
+);
+
+watch(
+  () => props.preCountdownMinutes,
+  (value) => {
+    if (value === undefined || value === null) return;
+    const safe = Math.min(60, Math.max(0, Math.round(Number(value))));
+    if (safe !== preCountdownMinutesState.value) {
+      preCountdownMinutesState.value = safe;
+      examPlayer.updatePlayerConfig({ preCountdownMinutes: safe });
+    }
+  }
+);
+
+watch(
+  () => props.materialFontScale,
+  (value) => {
+    if (value === undefined || value === null) return;
+    const safe = clampMaterialFontScale(value);
+    if (safe !== materialFontScaleState.value) {
+      materialFontScaleState.value = safe;
     }
   }
 );
@@ -352,6 +477,7 @@ watch(
   () => props.examConfig,
   (newConfig) => {
     console.log('ExamPlayer: 配置变化', newConfig);
+    resetReminderShown();
     examPlayer.updateConfig(newConfig);
   },
   { immediate: false, deep: true }
@@ -383,12 +509,56 @@ const setLargeClockScaleVar = (scale: number) => {
   }
 };
 
+const setMaterialFontScaleVar = (scale: number) => {
+  const safe = clampMaterialFontScale(scale);
+  if (typeof document !== 'undefined') {
+    document.documentElement.style.setProperty('--material-font-scale', String(safe));
+  }
+  const root = rootRef.value;
+  if (root) {
+    root.style.setProperty('--material-font-scale', String(safe));
+  }
+};
+
+const setAuxiliaryFontScaleVar = (scale: number) => {
+  const safe = clampAuxiliaryFontScale(scale);
+  if (typeof document !== 'undefined') {
+    document.documentElement.style.setProperty('--auxiliary-font-scale', String(safe));
+  }
+  const root = rootRef.value;
+  if (root) {
+    root.style.setProperty('--auxiliary-font-scale', String(safe));
+  }
+};
+
 watch(
   largeClockScaleState,
   (value) => {
     const safe = clampLargeClockScale(value);
     setLargeClockScaleVar(safe);
     emit('largeClockScaleChange', safe);
+  },
+  { immediate: true }
+);
+
+watch(
+  materialFontScaleState,
+  (value) => {
+    const safe = clampMaterialFontScale(value);
+    setMaterialFontScaleVar(safe);
+    emit('materialFontScaleChange', safe);
+    emit('update:materialFontScale', safe);
+  },
+  { immediate: true }
+);
+
+watch(
+  auxiliaryFontScaleState,
+  (value) => {
+    const safe = clampAuxiliaryFontScale(value);
+    setAuxiliaryFontScaleVar(safe);
+    emit('auxiliaryFontScaleChange', safe);
+    emit('update:auxiliaryFontScale', safe);
   },
   { immediate: true }
 );
@@ -447,6 +617,13 @@ const {
   updateConfig
 } = examPlayer;
 
+const manualScale = ref(false);
+
+const handleScaleChange = (scale: number) => {
+  manualScale.value = true;
+  emit('scaleChange', scale);
+};
+
 const handleDensityChange = (next: UIDensity) => {
   densityState.value = next;
   emit('densityChange', next);
@@ -467,6 +644,16 @@ const handleExamInfoLargeFontToggle = (enabled: boolean) => {
   examInfoLargeFontState.value = flag;
   emit('update:examInfoLargeFont', flag);
   emit('examInfoLargeFontToggle', flag);
+};
+
+const handleMaterialFontScaleChange = (scale: number) => {
+  const safe = clampMaterialFontScale(scale);
+  materialFontScaleState.value = safe;
+};
+
+const handleAuxiliaryFontScaleChange = (scale: number) => {
+  const safe = clampAuxiliaryFontScale(scale);
+  auxiliaryFontScaleState.value = safe;
 };
 
 watch(
@@ -500,6 +687,10 @@ const handleDevReminderTest = (payload: DevReminderPreset | DevReminderPayload) 
 };
 
 const handleDevReminderHide = () => {
+  reminder.hideColorfulAlert();
+};
+
+const handleCloseColorfulAlert = () => {
   reminder.hideColorfulAlert();
 };
 
@@ -739,10 +930,9 @@ const displayFormattedExamInfos = computed(() => {
   return formatted;
 });
 
-// pending 状态时不显示剩余时间
-// 没用的屎山 我现在不敢删
+// 显示剩余时间（考前倒计时或考试倒计时）
 const displayedRemainingTime = computed(() => {
-  return examStatus.value?.status === 'pending' ? '' : remainingTime.value || '';
+  return remainingTime.value || '';
 });
 
 // 添加调试信息与本地存储同步
@@ -837,6 +1027,7 @@ const animateToAutoScale = (target: number) => {
 
 // 处理窗口大小变化
 const handleAutoScaleResize = () => {
+  if (manualScale.value) return;
   const targetScale = calculateAutoScale();
   animateToAutoScale(targetScale);
 };
@@ -944,25 +1135,52 @@ const ctxForCards = {
   currentExam,
   currentExamName,
   currentExamTimeRange,
-  displayedRemainingTime: computed(() =>
-    examStatus.value?.status === 'pending' ? '' : remainingTime.value || ''
-  ),
+  examStatus,
+  remainingTime,
+  displayedRemainingTime,
   displayFormattedExamInfos,
+  sortedExamInfos,
   effectiveRoomNumber,
   uiDensity: densityState,
   largeClockEnabled: computed(() => largeClockState.value),
   largeClockScale: largeClockScaleState,
   examInfoLargeFont: computed(() => examInfoLargeFontState.value),
-  handleRoomNumberClick
+  materialFontScale: computed(() => materialFontScaleState.value),
+  auxiliaryFontScale: computed(() => auxiliaryFontScaleState.value),
+  handleRoomNumberClick,
+  currentExamIndex: computed(() => state.value.currentExamIndex),
+  preCountdownMinutes: preCountdownMinutesState,
+  classicShowMaterial: computed(() => Boolean(props.classicShowMaterial))
 };
 provide('ExamPlayerCtx', ctxForCards);
 
-const resolvedCards = computed(() => ({
-  clock: props.cards?.clock ?? ClockCard,
-  examInfo: props.cards?.examInfo ?? ExamInfoCard,
-  room: props.cards?.room ?? ExamRoomCard,
-  list: props.cards?.list ?? CurrentListCard
-}));
+const resolvedCards = computed(() => {
+  // 外部 cards 优先级最高
+  if (props.cards?.clock || props.cards?.examInfo || props.cards?.room || props.cards?.list) {
+    return {
+      clock: props.cards?.clock ?? ClockCard,
+      examInfo: props.cards?.examInfo ?? ExamInfoCard,
+      room: props.cards?.room ?? ExamRoomCard,
+      list: props.cards?.list ?? CurrentListCard
+    };
+  }
+  // 经典主题
+  if (props.playerTheme === 'classic') {
+    return {
+      clock: ClassicClockCard,
+      examInfo: ClassicExamInfoCard,
+      room: ExamRoomCard,
+      list: ClassicListCard
+    };
+  }
+  // 增强主题（默认）
+  return {
+    clock: ClockCard,
+    examInfo: ExamInfoCard,
+    room: ExamRoomCard,
+    list: CurrentListCard
+  };
+});
 </script>
 
 <style scoped>
@@ -980,6 +1198,7 @@ const resolvedCards = computed(() => ({
   --ui-scale: 1;
   --density-scale: 1;
   --large-clock-scale: 1;
+  --material-font-scale: 1;
 }
 
 .background-ellipse {
@@ -1005,21 +1224,8 @@ const resolvedCards = computed(() => ({
   justify-content: flex-end; /* 右对齐 */
 }
 
-.logo-container {
-  position: relative;
-  margin-bottom: calc((40px * 100vh / 1080px) * var(--ui-scale, 1) * var(--density-scale, 1));
-  z-index: 20;
-}
-
-.logo-text {
-  color: #ffffff;
-  font-size: calc(var(--ui-scale, 1) * 1.25rem);
-  font-weight: 600;
-  letter-spacing: 0.025em;
-}
-
 .title-section {
-  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 3rem);
+  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1rem);
 }
 
 .main-title {
@@ -1034,19 +1240,13 @@ const resolvedCards = computed(() => ({
 }
 
 .subtitle {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.75);
   font-weight: 400;
   line-height: 1.4;
 }
 
 .clock-card {
-  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
-}
-
-.clock-content {
-  display: flex;
-  align-items: center;
-  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
+  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.75rem);
 }
 
 .time-display {
@@ -1075,25 +1275,96 @@ const resolvedCards = computed(() => ({
   z-index: 10;
   height: 100vh;
   display: flex;
-  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem)
+  flex-direction: column;
+  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1rem)
     calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem)
-    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 8rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 6rem)
     calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
-  gap: calc(100px * var(--ui-scale, 1) * var(--density-scale, 1));
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.75rem);
+}
+
+/* 经典主题：左右两列布局 */
+.content-wrapper-classic {
+  flex-direction: row;
+  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.5rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 5rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.5rem);
 }
 
 .left-column {
-  width: 50%;
-  min-width: 0; /* 允许收缩 */
-  padding-top: calc((40px * 100vh / 1080px) * var(--ui-scale, 1) * var(--density-scale, 1));
-  overflow: hidden; /* 防止内容溢出 */
+  flex: 1.2;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1rem);
+  min-width: 0;
+}
+
+.left-column .card-item {
+  flex-shrink: 0;
 }
 
 .right-column {
-  width: 50%;
-  min-width: 0; /* 允许收缩 */
-  padding-top: calc((40px * 100vh / 1080px) * var(--ui-scale, 1) * var(--density-scale, 1));
-  overflow: hidden; /* 防止内容溢出 */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1rem);
+  min-width: 0;
+}
+
+.right-column .card-item {
+  flex-shrink: 0;
+}
+
+/* 顶部标题栏 */
+.top-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
+.top-header .title-section {
+  flex: 1;
+  min-width: 0;
+}
+
+.top-header .header-room {
+  flex-shrink: 0;
+  margin-left: calc(var(--ui-scale, 1) * 2rem);
+}
+
+/* 中间大时钟区域 */
+.clock-section {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.clock-section > * {
+  width: 100%;
+}
+
+/* 底部左右分栏 */
+.bottom-section {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
+}
+
+.bottom-left {
+  width: 45%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.bottom-right {
+  width: 55%;
+  min-width: 0;
+  overflow: hidden;
 }
 
 /* 统一卡片间距（适配可插拔卡片） */
@@ -1262,6 +1533,18 @@ const resolvedCards = computed(() => ({
   letter-spacing: 0.05em;
   text-shadow: var(--colorful-shadow, 0 6px 24px rgba(0, 0, 0, 0.35));
   text-align: center;
+}
+
+.colorful-hint {
+  position: absolute;
+  bottom: calc(var(--ui-scale, 1) * 3rem);
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--colorful-text, #fff);
+  font-size: calc(var(--ui-scale, 1) * 1.2rem);
+  opacity: 0.6;
+  text-align: center;
+  pointer-events: none;
 }
 
 @media (dynamic-range: high) {

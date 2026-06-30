@@ -88,6 +88,15 @@ export const homeButtonsModule: AppModule = {
       theme: 'warning',
       order: 2,
       action: async () => {
+        const LAST_FILE_KEY = 'examaware:last-played-file'
+        let lastFile: string | null = null
+        try {
+          lastFile = localStorage.getItem(LAST_FILE_KEY)
+        } catch {}
+        if (lastFile && lastFile.trim()) {
+          window.api?.ipc?.send('open-player-window', lastFile.trim())
+          return
+        }
         const router = (app.config.globalProperties as any).$router
         if (router) {
           await router.push('/playerhome')

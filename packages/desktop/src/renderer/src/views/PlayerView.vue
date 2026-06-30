@@ -14,8 +14,14 @@
       :large-clock="largeClockEnabled"
       :large-clock-scale="largeClockScaleSetting"
       :exam-info-large-font="examInfoLargeFontSetting"
+      :material-font-scale="materialFontScaleSetting"
+      :auxiliary-font-scale="auxiliaryFontScaleSetting"
+      :pre-countdown-minutes="preCountdownMinutesSetting"
       :hdr-highlight="hdrHighlightSetting"
+      :player-theme="playerTheme"
+      :classic-show-material="classicShowMaterial"
       @exit="handleExit"
+      @minimize="handleMinimize"
       @room-number-click="handleRoomNumberClick"
       @room-number-change="handleRoomNumberChange"
       @scale-change="handleScaleChange"
@@ -23,9 +29,12 @@
       @large-clock-toggle="handleLargeClockToggle"
       @large-clock-scale-change="handleLargeClockScaleChange"
       @exam-info-large-font-toggle="handleExamInfoLargeFontToggle"
+      @material-font-scale-change="handleMaterialFontScaleChange"
+      @auxiliary-font-scale-change="handleAuxiliaryFontScaleChange"
       @exam-start="handleExamStart"
       @exam-end="handleExamEnd"
       @exam-alert="handleExamAlert"
+      @pre-exam-start="handlePreExamStart"
       @exam-switch="handleExamSwitch"
       @error="handleError"
     >
@@ -49,9 +58,12 @@ import { useSettingsStore } from '@renderer/stores/settingsStore'
 import {
   clampUiScale,
   clampLargeClockScale,
+  clampMaterialFontScale,
+  clampAuxiliaryFontScale,
   normalizeDensity
 } from '@renderer/composables/usePlaybackSettings'
 import { useDesktopApi, type UIDensity } from '@renderer/runtime/desktopApi'
+import { useSettingRef } from '@renderer/composables/useSetting'
 // 键盘相关逻辑已经内置在 ExamPlayer 中
 
 const ipcRenderer = window.api.ipc
@@ -63,8 +75,15 @@ const {
   uiDensity: uiDensitySetting,
   largeClockEnabled: largeClockEnabledSetting,
   largeClockScale: largeClockScaleSetting,
-  examInfoLargeFont: examInfoLargeFontSetting
+  examInfoLargeFont: examInfoLargeFontSetting,
+  materialFontScale: materialFontScaleSetting,
+  auxiliaryFontScale: auxiliaryFontScaleSetting,
+  preCountdownMinutes: preCountdownMinutesSetting
 } = desktopApi.playback
+
+// 播放器主题
+const playerTheme = useSettingRef<'classic' | 'enhanced'>('appearance.playerTheme', 'enhanced')
+const classicShowMaterial = useSettingRef<boolean>('appearance.classicShowMaterial', false)
 
 const defaultRoomSetting = computed(() => {
   const raw = settingsStore.get<string>('player.defaultRoom', '01')
@@ -110,7 +129,8 @@ const playerConfig = computed<PlayerConfig>(() => ({
   roomNumber: roomNumber.value,
   fullscreen: true,
   timeSync: true,
-  refreshInterval: 1000
+  refreshInterval: 1000,
+  preCountdownMinutes: preCountdownMinutesSetting.value
 }))
 
 // 时间同步状态文本
@@ -170,6 +190,18 @@ const handleExamInfoLargeFontToggle = (enabled: boolean) => {
   examInfoLargeFontSetting.value = flag
 }
 
+const handleMaterialFontScaleChange = (scale: number) => {
+  const safe = clampMaterialFontScale(scale)
+  if (Object.is(materialFontScaleSetting.value, safe)) return
+  materialFontScaleSetting.value = safe
+}
+
+const handleAuxiliaryFontScaleChange = (scale: number) => {
+  const safe = clampAuxiliaryFontScale(scale)
+  if (Object.is(auxiliaryFontScaleSetting.value, safe)) return
+  auxiliaryFontScaleSetting.value = safe
+}
+
 // 考试开始事件
 const handleExamStart = (exam: any) => {
   console.log('考试开始:', exam)
@@ -199,6 +231,18 @@ const handleExamAlert = (exam: any, alertTime: number) => {
   NotifyPlugin.warning({
     title: '考试提醒',
     content: `${exam.name} 将在 ${minutes} 分钟后${alertTime > 0 ? '开始' : '结束'}`,
+    placement: 'bottom-right',
+    closeBtn: true,
+    duration: 5000
+  })
+}
+
+// 考前倒计时开始事件
+const handlePreExamStart = (exam: any, preMinutes: number) => {
+  console.log('考前倒计时开始:', exam, preMinutes)
+  NotifyPlugin.info({
+    title: '即将开考',
+    content: `${exam.name} 将在 ${preMinutes} 分钟后开始`,
     placement: 'bottom-right',
     closeBtn: true,
     duration: 5000
@@ -235,6 +279,15 @@ const handleExit = () => {
     ipcRenderer?.send?.('player-window-exit')
   } catch (e) {
     console.warn('发送退出请求失败:', e)
+  }
+}
+
+// 最小化播放窗口
+const handleMinimize = () => {
+  try {
+    window.electronAPI?.minimize()
+  } catch (e) {
+    console.warn('最小化窗口失败:', e)
   }
 }
 

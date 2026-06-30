@@ -3,7 +3,7 @@ dist
 out
 .DS_Store
 *.log*
-packages/core/tsconfig.tsbuildinfo
+**/tsconfig.tsbuildinfo
 packages/desktop/plugins/*
 
 node_modules/
@@ -13,4 +13,4 @@ docs/.vuepress/dist/
 packages/desktop/docs/*
 ignore/
 
-packages/rpc/tsconfig.tsbuildinfo
+.pnpm-store/

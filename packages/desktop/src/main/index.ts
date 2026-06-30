@@ -9,6 +9,7 @@ import { createPlayerWindow } from './windows/playerWindow'
 import { windowManager } from './windows/windowManager'
 import { registerIpcHandlers } from './ipcHandlers'
 import { patchConsoleWithLogger, appLogger, initLoggingConfig } from './logging/winstonLogger'
+import { flushWrite } from './configStore'
 import { registerTimeSyncHandlers } from './ipcHandlers/timeServiceHandler'
 import {
   initializeTimeSync,
@@ -31,6 +32,12 @@ import { applyDeepLinkControllers } from './deepLink/decorators'
 import { CoreDeepLinkController } from './deepLink/coreDeepLinkController'
 import { composeVersionLabel } from '../shared/appInfo'
 import bannerText from './banner.txt?raw'
+import {
+  startExamAutoStartLoop,
+  runExamAutoStartBootCheck,
+  disposeExamAutoStart
+} from './examAutoStart'
+import { loadPersistedSharedConfig } from './state/sharedConfigStore'
 
 protocol.registerSchemesAsPrivileged([
   {
@@ -207,6 +214,12 @@ app.whenReady().then(async () => {
   // 初始化时间同步服务
   initializeTimeSync()
 
+  // 恢复上次使用的考试配置，供考试关联自启等主进程逻辑使用
+  loadPersistedSharedConfig()
+
+  // 启动考试关联开机自启检测循环
+  startExamAutoStartLoop()
+
   // 始终注册托盘
   ensureAppTray()
 
@@ -307,14 +320,16 @@ app.whenReady().then(async () => {
   }
 
   const isAutoStart = (() => {
-    try {
-      if (process.platform === 'darwin' || process.platform === 'win32') {
+    // 统一参数开关（Windows / macOS / Linux 都优先用命令行参数判断）
+    if (process.argv.includes('--autostart')) return true
+    // 后备检测：macOS 可通过 wasOpenedAtLogin 判断
+    if (process.platform === 'darwin') {
+      try {
         const s = app.getLoginItemSettings?.()
         if (s && (s as any).wasOpenedAtLogin) return true
-      }
-    } catch {}
-    // 统一参数开关（Linux .desktop 与通用备用）
-    return process.argv.includes('--autostart')
+      } catch {}
+    }
+    return false
   })()
 
   // 如果有文件要打开，直接打开编辑器
@@ -322,7 +337,8 @@ app.whenReady().then(async () => {
     createEditorWindow(fileToOpen)
     fileToOpen = null
   } else if (isAutoStart) {
-    // 开机自启：不弹主窗口
+    // 开机自启：不弹主窗口，先执行考试关联自启检查
+    runExamAutoStartBootCheck(true)
   } else {
     createMainWindow()
   }
@@ -406,6 +422,13 @@ app.whenReady().then(async () => {
     } catch {}
     try {
       disposeIpc()
+    } catch {}
+    try {
+      disposeExamAutoStart()
+    } catch {}
+    // 退出前确保配置已落盘（含 lastExamConfig）
+    try {
+      void flushWrite()
     } catch {}
     try {
       void httpApiService.dispose()

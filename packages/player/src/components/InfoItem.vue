@@ -1,7 +1,7 @@
 <template>
   <div class="info-item">
-    <div class="info-label">{{ label }}</div>
-    <div class="info-value">{{ value }}</div>
+    <div class="info-label">{{ label }}:</div>
+    <div class="info-value" :class="valueClass">{{ value }}</div>
   </div>
 </template>
 
@@ -9,6 +9,7 @@
 export interface InfoItemProps {
   label: string;
   value: string;
+  valueClass?: string;
 }
 
 defineProps<InfoItemProps>();
@@ -19,14 +20,15 @@ defineProps<InfoItemProps>();
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: calc(var(--ui-scale, 1) * 1em);
+  gap: 0;
 }
 
 .info-label {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.75);
   font-size: calc(var(--ui-scale, 1) * 1.4rem);
   font-weight: 500;
   line-height: normal;
+  min-width: calc(var(--ui-scale, 1) * 6rem);
 }
 
 .info-value {

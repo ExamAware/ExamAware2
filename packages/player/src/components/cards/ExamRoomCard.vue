@@ -20,7 +20,6 @@ const ctx = inject<ExamPlayerCtx>('ExamPlayerCtx')!;
 
 <style scoped>
 .exam-room-container {
-  margin-bottom: calc(var(--ui-scale, 1) * 2rem);
   display: flex;
   justify-content: flex-end;
 }

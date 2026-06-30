@@ -13,7 +13,7 @@
       'settings-open': showSettings,
       'manual-collapsed': manualCollapsed
     }"
-    @mouseenter="handleUserActivity"
+    @mouseenter="handleBarMouseEnter"
     @mousemove="handleUserActivity"
     @mouseleave="scheduleCollapse"
     @touchstart.passive="handleUserActivity"
@@ -39,6 +39,20 @@
           <LogoutIcon />
         </div>
         <div class="button-text">{{ isPressing ? '按住退出' : '退出播放' }}</div>
+      </button>
+
+      <!-- 最小化按钮 -->
+      <button
+        class="action-button"
+        type="button"
+        aria-label="最小化窗口"
+        title="最小化窗口"
+        @click.stop="emit('minimize')"
+      >
+        <div class="button-icon">
+          <MinusIcon />
+        </div>
+        <div class="button-text">最小化</div>
       </button>
 
       <!-- 播放设置按钮 -->
@@ -73,7 +87,7 @@
         </button>
       </template>
 
-      <!-- 折叠开关 -->
+      <!-- 收起/展开工具栏 -->
       <button
         class="action-button"
         type="button"
@@ -97,7 +111,9 @@
     :density="tempDensity"
     :large-clock-enabled="tempLargeClockEnabled"
     :large-clock-scale="tempLargeClockScale"
+    :auxiliary-font-scale="tempAuxiliaryFontScale"
     :exam-info-large-font="tempExamInfoLargeFont"
+    :material-font-scale="tempMaterialFontScale"
     :density-options="densityOptions"
     :format-scale="formatScale"
     :is-dev-mode="isDevMode"
@@ -106,7 +122,9 @@
     @update:density="handleTempDensityUpdate"
     @update:largeClockEnabled="handleTempLargeClockEnabledUpdate"
     @update:largeClockScale="handleTempLargeClockScaleUpdate"
+    @update:auxiliaryFontScale="handleTempAuxiliaryFontScaleUpdate"
     @update:examInfoLargeFont="handleTempExamInfoLargeFontUpdate"
+    @update:materialFontScale="handleTempMaterialFontScaleUpdate"
     @close="handleSettingsClosed"
     @confirm="handleSettingsConfirm"
     @dev-reminder-test="triggerDevReminderTest"
@@ -132,28 +150,41 @@ const props = withDefaults(
     initialLargeClockScale?: number;
     initialLargeClockEnabled?: boolean;
     initialExamInfoLargeFont?: boolean;
+    initialMaterialFontScale?: number;
+    initialAuxiliaryFontScale?: number;
     extraTools?: readonly PlayerToolbarItem[];
   }>(),
   {
     initialScale: undefined,
     initialDensity: 'comfortable',
     initialLargeClockScale: 1,
-    initialLargeClockEnabled: false,
-    initialExamInfoLargeFont: false,
+    initialLargeClockEnabled: true,
+    initialExamInfoLargeFont: true,
+    initialMaterialFontScale: 1.4,
+    initialAuxiliaryFontScale: 1.3,
     extraTools: () => []
   }
 );
 const emit = defineEmits<{
   (e: 'exit'): void;
+  (e: 'minimize'): void;
   (e: 'scaleChange', scale: number): void;
   (e: 'densityChange', density: UIDensity): void;
   (e: 'clockScaleChange', scale: number): void;
   (e: 'largeClockToggle', enabled: boolean): void;
   (e: 'examInfoLargeFontToggle', enabled: boolean): void;
+  (e: 'materialFontScaleChange', scale: number): void;
+  (e: 'auxiliaryFontScaleChange', scale: number): void;
   (e: 'devReminderTest', preset: DevReminderPreset | DevReminderPayload): void;
   (e: 'devReminderHide'): void;
 }>();
-import { LogoutIcon, SettingIcon, ChevronLeftIcon, ChevronRightIcon } from 'tdesign-icons-vue-next';
+import {
+  LogoutIcon,
+  SettingIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  MinusIcon
+} from 'tdesign-icons-vue-next';
 
 const isDevMode = Boolean(import.meta.env?.DEV ?? false);
 
@@ -173,6 +204,20 @@ const clampClockScale = (value: unknown) => {
   const num = Number(value);
   if (!Number.isFinite(num)) return 1;
   const clamped = Math.min(1.8, Math.max(0.5, num));
+  return Number(roundToStep(clamped, 0.05).toFixed(2));
+};
+
+const clampMaterialFontScale = (value: unknown) => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return 1;
+  const clamped = Math.min(2, Math.max(0.8, num));
+  return Number(roundToStep(clamped, 0.05).toFixed(2));
+};
+
+const clampAuxiliaryFontScale = (value: unknown) => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return 1;
+  const clamped = Math.min(2, Math.max(0.5, num));
   return Number(roundToStep(clamped, 0.05).toFixed(2));
 };
 
@@ -216,6 +261,20 @@ const tempLargeClockEnabled = ref<boolean>(largeClockEnabled.value);
 const examInfoLargeFont = ref<boolean>(Boolean(props.initialExamInfoLargeFont));
 const tempExamInfoLargeFont = ref<boolean>(examInfoLargeFont.value);
 
+const materialFontScale = ref<number>(
+  props.initialMaterialFontScale !== undefined && props.initialMaterialFontScale !== null
+    ? clampMaterialFontScale(props.initialMaterialFontScale)
+    : 1.4
+);
+const tempMaterialFontScale = ref<number>(materialFontScale.value);
+
+const auxiliaryFontScale = ref<number>(
+  props.initialAuxiliaryFontScale !== undefined && props.initialAuxiliaryFontScale !== null
+    ? clampAuxiliaryFontScale(props.initialAuxiliaryFontScale)
+    : 1.3
+);
+const tempAuxiliaryFontScale = ref<number>(auxiliaryFontScale.value);
+
 const handleTempScaleUpdate = (value: number) => {
   tempScale.value = value;
 };
@@ -234,6 +293,14 @@ const handleTempLargeClockScaleUpdate = (value: number) => {
 
 const handleTempExamInfoLargeFontUpdate = (value: boolean) => {
   tempExamInfoLargeFont.value = value;
+};
+
+const handleTempMaterialFontScaleUpdate = (value: number) => {
+  tempMaterialFontScale.value = value;
+};
+
+const handleTempAuxiliaryFontScaleUpdate = (value: number) => {
+  tempAuxiliaryFontScale.value = value;
 };
 
 // 播放设置弹窗开关
@@ -280,12 +347,25 @@ const handleUserActivity = () => {
   }
   markActivity();
   if (manualCollapsed.value) {
+    // 手动收起时，不在全局鼠标移动时自动展开；
+    // 但如果是鼠标直接进入工具栏区域则展开
     return;
   }
   if (autoCollapsed.value) {
     autoCollapsed.value = false;
   }
   scheduleCollapse();
+};
+
+const handleBarMouseEnter = () => {
+  if (manualCollapsed.value) {
+    // 鼠标进入悬浮窗区域，展开工具栏
+    manualCollapsed.value = false;
+    autoCollapsed.value = false;
+    scheduleCollapse();
+    return;
+  }
+  handleUserActivity();
 };
 
 const handleGlobalActivity = () => {
@@ -371,6 +451,26 @@ const setLargeClockScale = (value: number) => {
   }
 };
 
+const setMaterialFontScale = (value: number) => {
+  if (typeof window === 'undefined') return;
+  const target = String(value);
+  document.documentElement.style.setProperty('--material-font-scale', target);
+  const container = document.querySelector('.exam-container') as HTMLElement | null;
+  if (container) {
+    container.style.setProperty('--material-font-scale', target);
+  }
+};
+
+const setAuxiliaryFontScale = (value: number) => {
+  if (typeof window === 'undefined') return;
+  const target = String(value);
+  document.documentElement.style.setProperty('--auxiliary-font-scale', target);
+  const container = document.querySelector('.exam-container') as HTMLElement | null;
+  if (container) {
+    container.style.setProperty('--auxiliary-font-scale', target);
+  }
+};
+
 const devReminderPresets: Record<DevReminderPreset, DevReminderPayload> = {
   start: { title: '考试开始（测试）', themeBaseColor: '#2ecc71' },
   warning: { title: '考试即将结束（测试）', themeBaseColor: '#f1c40f', forceWhiteText: true },
@@ -393,6 +493,8 @@ onMounted(() => {
   setRootScale(uiScale.value);
   setRootDensity(density.value);
   setLargeClockScale(largeClockScale.value);
+  setMaterialFontScale(materialFontScale.value);
+  setAuxiliaryFontScale(auxiliaryFontScale.value);
   markActivity();
   scheduleCollapse();
   activityEvents.forEach((eventName) => {
@@ -446,6 +548,26 @@ watch(
     if (typeof value !== 'boolean') return;
     examInfoLargeFont.value = value;
     tempExamInfoLargeFont.value = value;
+  }
+);
+
+watch(
+  () => props.initialMaterialFontScale,
+  (value) => {
+    if (value === undefined || value === null) return;
+    const safe = clampMaterialFontScale(value);
+    materialFontScale.value = safe;
+    tempMaterialFontScale.value = safe;
+  }
+);
+
+watch(
+  () => props.initialAuxiliaryFontScale,
+  (value) => {
+    if (value === undefined || value === null) return;
+    const safe = clampAuxiliaryFontScale(value);
+    auxiliaryFontScale.value = safe;
+    tempAuxiliaryFontScale.value = safe;
   }
 );
 
@@ -554,6 +676,52 @@ watch(tempExamInfoLargeFont, (value) => {
   const flag = Boolean(value);
   if (examInfoLargeFont.value !== flag) {
     examInfoLargeFont.value = flag;
+  }
+});
+
+watch(
+  materialFontScale,
+  (newValue, oldValue) => {
+    const safe = clampMaterialFontScale(newValue);
+    if (safe !== newValue) {
+      materialFontScale.value = safe;
+      return;
+    }
+    setMaterialFontScale(safe);
+    if (safe !== oldValue) {
+      emit('materialFontScaleChange', safe);
+    }
+  },
+  { immediate: true }
+);
+
+watch(tempMaterialFontScale, (value) => {
+  const safe = clampMaterialFontScale(value);
+  if (materialFontScale.value !== safe) {
+    materialFontScale.value = safe;
+  }
+});
+
+watch(
+  auxiliaryFontScale,
+  (newValue, oldValue) => {
+    const safe = clampAuxiliaryFontScale(newValue);
+    if (safe !== newValue) {
+      auxiliaryFontScale.value = safe;
+      return;
+    }
+    setAuxiliaryFontScale(safe);
+    if (safe !== oldValue) {
+      emit('auxiliaryFontScaleChange', safe);
+    }
+  },
+  { immediate: true }
+);
+
+watch(tempAuxiliaryFontScale, (value) => {
+  const safe = clampAuxiliaryFontScale(value);
+  if (auxiliaryFontScale.value !== safe) {
+    auxiliaryFontScale.value = safe;
   }
 });
 
@@ -685,6 +853,8 @@ const handlePlaybackSettings = () => {
   tempLargeClockScale.value = largeClockScale.value;
   tempLargeClockEnabled.value = largeClockEnabled.value;
   tempExamInfoLargeFont.value = examInfoLargeFont.value;
+  tempMaterialFontScale.value = materialFontScale.value;
+  tempAuxiliaryFontScale.value = auxiliaryFontScale.value;
   showSettings.value = true;
 };
 
@@ -697,6 +867,8 @@ const handleSettingsConfirm = () => {
   largeClockScale.value = clampClockScale(tempLargeClockScale.value);
   largeClockEnabled.value = Boolean(tempLargeClockEnabled.value);
   examInfoLargeFont.value = Boolean(tempExamInfoLargeFont.value);
+  materialFontScale.value = clampMaterialFontScale(tempMaterialFontScale.value);
+  auxiliaryFontScale.value = clampAuxiliaryFontScale(tempAuxiliaryFontScale.value);
   showSettings.value = false;
 };
 
@@ -716,6 +888,8 @@ const handleSettingsVisibleChange = (visible: boolean) => {
     tempLargeClockScale.value = largeClockScale.value;
     tempLargeClockEnabled.value = largeClockEnabled.value;
     tempExamInfoLargeFont.value = examInfoLargeFont.value;
+    tempMaterialFontScale.value = materialFontScale.value;
+    tempAuxiliaryFontScale.value = auxiliaryFontScale.value;
   }
 };
 
@@ -726,6 +900,8 @@ const handleSettingsClosed = () => {
   tempLargeClockScale.value = largeClockScale.value;
   tempLargeClockEnabled.value = largeClockEnabled.value;
   tempExamInfoLargeFont.value = examInfoLargeFont.value;
+  tempMaterialFontScale.value = materialFontScale.value;
+  tempAuxiliaryFontScale.value = auxiliaryFontScale.value;
   scheduleCollapse();
 };
 
