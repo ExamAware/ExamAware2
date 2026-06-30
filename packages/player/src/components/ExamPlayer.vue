@@ -4,7 +4,30 @@
     <div class="background-ellipse"></div>
 
     <!-- 主要内容（可插拔卡片区域） -->
-    <div class="content-wrapper">
+    <!-- 经典主题：左右两列布局 -->
+    <div v-if="isClassicTheme" class="content-wrapper content-wrapper-classic">
+      <div class="left-column">
+        <slot name="left:title">
+          <div class="title-section">
+            <h1 ref="mainTitleRef" class="main-title">
+              {{ playerExamConfig?.examName || '考试' }}
+            </h1>
+            <p ref="subtitleRef" class="subtitle">
+              {{ playerExamConfig?.message || '请遵守考场纪律' }}
+            </p>
+          </div>
+        </slot>
+        <div class="card-item"><component :is="resolvedCards.clock" /></div>
+        <div class="card-item"><component :is="resolvedCards.examInfo" /></div>
+      </div>
+      <div class="right-column">
+        <div class="card-item"><component :is="resolvedCards.room" /></div>
+        <div class="card-item"><component :is="resolvedCards.list" /></div>
+      </div>
+    </div>
+
+    <!-- 增强主题：上中下布局 -->
+    <div v-else class="content-wrapper">
       <!-- 顶部标题栏：考试标题+副标题（左）考场号（右） -->
       <div class="top-header">
         <slot name="left:title">
@@ -138,6 +161,8 @@ import ClassicClockCard from './classic/ClassicClockCard.vue';
 import ClassicExamInfoCard from './classic/ClassicExamInfoCard.vue';
 import ClassicListCard from './classic/ClassicListCard.vue';
 import ActionButtonBar from './ActionButtonBar.vue';
+
+const isClassicTheme = computed(() => props.playerTheme === 'classic');
 import { providePlayerToolbar } from '../composables/usePlayerToolbar';
 // 本地引入 TDesign 组件，确保不依赖宿主全局注册
 import { Dialog as TDialog, Input as TInput, Button as TButton } from 'tdesign-vue-next';
@@ -1256,6 +1281,40 @@ const resolvedCards = computed(() => {
     calc(var(--ui-scale, 1) * var(--density-scale, 1) * 6rem)
     calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
   gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.75rem);
+}
+
+/* 经典主题：左右两列布局 */
+.content-wrapper-classic {
+  flex-direction: row;
+  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.5rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 5rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.5rem);
+}
+
+.left-column {
+  flex: 1.2;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1rem);
+  min-width: 0;
+}
+
+.left-column .card-item {
+  flex-shrink: 0;
+}
+
+.right-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1rem);
+  min-width: 0;
+}
+
+.right-column .card-item {
+  flex-shrink: 0;
 }
 
 /* 顶部标题栏 */
