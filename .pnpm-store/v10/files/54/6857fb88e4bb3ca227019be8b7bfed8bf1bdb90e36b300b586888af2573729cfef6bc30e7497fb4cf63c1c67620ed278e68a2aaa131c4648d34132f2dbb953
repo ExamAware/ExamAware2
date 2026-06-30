@@ -1,0 +1,1 @@
+{"version":3,"file":"useEditLink.d.ts","sourceRoot":"","sources":["../../../../src/client/composables/info/useEditLink.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,WAAW,EAAE,MAAM,KAAK,CAAC;AAOvC,OAAO,KAAK,EAAE,eAAe,EAAE,MAAM,0BAA0B,CAAC;AAEhE,eAAO,MAAM,WAAW,QAAO,WAAW,CAAC,IAAI,GAAG,eAAe,CAmChE,CAAC"}

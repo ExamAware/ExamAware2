@@ -1,0 +1,97 @@
+{
+  "name": "electron-publish",
+  "version": "24.13.1",
+  "requiresBuild": false,
+  "files": {
+    "out/gitHubPublisher.js": {
+      "checkedAt": 1780883843190,
+      "integrity": "sha512-R1xV+681YymBU0nJb52HUOTWbcvQAhn5sA0ufBllHIiqYqG0oihX8G2FkdBS1tN5WJGMZj4ARW3+nUYoatzU/A==",
+      "mode": 420,
+      "size": 11549
+    },
+    "out/multiProgress.js": {
+      "checkedAt": 1780883843191,
+      "integrity": "sha512-PdxkkSVjqj03jULuQCG+4cEDb1nAi6HwxO5RTLl5n/8Om1LPeQhyBSUE6U5KDUHBxK9oCmsBY8yKW5dc6wavUA==",
+      "mode": 420,
+      "size": 2903
+    },
+    "out/progress.js": {
+      "checkedAt": 1780883843192,
+      "integrity": "sha512-4w8CY/GRXSuH5hjmYiIFDNPizG4GpHtZfcq2y4HyP01IO2UPCkBsBLU0od4F6MX3TW0op6TSJOzxnaAxpZZ0Qw==",
+      "mode": 420,
+      "size": 6217
+    },
+    "out/publisher.js": {
+      "checkedAt": 1780883843192,
+      "integrity": "sha512-2vSn9K/Rf0TabgahV6G5UV1FT84NdGUd/FM/Fl1KM4svRJ2sgS2ZMWuxmpVHykCNaSO40+NRDI5zgPB5GUpxjA==",
+      "mode": 420,
+      "size": 4112
+    },
+    "out/gitHubPublisher.js.map": {
+      "checkedAt": 1780883843193,
+      "integrity": "sha512-TF7x7NBQWPWniiYXfqtrlqP74WcDsF+s+9Wympy4jtBY4SjJGUyGNSnyk5ZBnEC4Tz+u1kHJZgCQXsVEDJFx7A==",
+      "mode": 420,
+      "size": 20809
+    },
+    "out/multiProgress.js.map": {
+      "checkedAt": 1780883843193,
+      "integrity": "sha512-Y3LUCnT0DGruCkbQtTouS4hr64BgGFETUe5h+5mwzdRVkh29kM7Oz6D7Q95KyZu6yno36M2kac5B/RIRbwDs0Q==",
+      "mode": 420,
+      "size": 4802
+    },
+    "out/progress.js.map": {
+      "checkedAt": 1780883843194,
+      "integrity": "sha512-V5V/6ozYBlG55M0yCdI5BvcxMdGmybFtttGcX7qWtIzjQbT7i1IzjBaVJck3E9GnHGq3AiZ9oECRfYTCSAhP4g==",
+      "mode": 420,
+      "size": 10710
+    },
+    "out/publisher.js.map": {
+      "checkedAt": 1780883843194,
+      "integrity": "sha512-qPWg8IZtbkIwEp+L37kpqMXo5lY3Uzyzl09MLWiXfP4k6QzHFGm8w9x7j3Qxma7jvRW1IAoyqv2gmRQhruw9Zw==",
+      "mode": 420,
+      "size": 8196
+    },
+    "readme.md": {
+      "checkedAt": 1780883843194,
+      "integrity": "sha512-er9qXPIgtdBQliC+p6NUruTVIfjjw1dJ+N83/27XXRyP7I+3ZWuyiKMT9o1AD6E7v0TRvOpJrFceyQwQdBh1qw==",
+      "mode": 420,
+      "size": 232
+    },
+    "out/gitHubPublisher.d.ts": {
+      "checkedAt": 1780883843195,
+      "integrity": "sha512-TrqrjdSJNwp2H8uHfNn/kcsuP2Vb5uTppyKzpyVX0GsLRbDdJEIvbjm2hyxw7zleJJOfjgEwvFxrtP/GtjYKfg==",
+      "mode": 420,
+      "size": 1324
+    },
+    "out/multiProgress.d.ts": {
+      "checkedAt": 1780883843195,
+      "integrity": "sha512-Wu917kYG5iMzRsGhseV0Sptr+qJZEsoPv9cCK8HguQqCFO+Vq8Z9pFuRnjKBGDVRCDm+7qgxxANwQfwPuHBcNA==",
+      "mode": 420,
+      "size": 340
+    },
+    "out/progress.d.ts": {
+      "checkedAt": 1780883843196,
+      "integrity": "sha512-DMXZDI0+krzNOUYCTHCjP7lbz0cYsJH4Hhpp464aIk5O4oYfYJ8MhD60IY61hPMAQwxcNfq+y9S+Gu+JYykfwA==",
+      "mode": 420,
+      "size": 2506
+    },
+    "out/publisher.d.ts": {
+      "checkedAt": 1780883843196,
+      "integrity": "sha512-FlOcQVf1c6ql9ol0AB8hAtkXicN7BZySsniyBOl0dyUbETFjzrEWho1+WPX5lHHGciQslwifMvX/QYLsDEsXwA==",
+      "mode": 420,
+      "size": 1957
+    },
+    "LICENSE": {
+      "checkedAt": 1780883829545,
+      "integrity": "sha512-25FDnTBl9VH/5AHXEX0oq5l9jfdRt0LVoi6DPGr20fTk3XUOF2jZCsDlK1LxRFsuWf7zwc52e7J3eGqYIHmabw==",
+      "mode": 420,
+      "size": 1084
+    },
+    "package.json": {
+      "checkedAt": 1780883843197,
+      "integrity": "sha512-I7/w8SLcasTk1alxZtH1c0h968Hacut7QSbxRsHpmji9RPuK5cmVfJl5AJOgNBXIC86uanEWn/IKzz9FRiMeJA==",
+      "mode": 420,
+      "size": 793
+    }
+  }
+}

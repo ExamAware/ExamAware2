@@ -1,0 +1,31 @@
+{
+  "name": "proc-log",
+  "version": "2.0.1",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883841445,
+      "integrity": "sha512-r4UK5/kFViNt+mJbJnUmMPQgK+d5qNFliKNVLkIsU5N8ujxeUAqpvw3SAWceDJYVbwnPPiXeYLtsinTtnGeYSA==",
+      "mode": 420,
+      "size": 742
+    },
+    "lib/index.js": {
+      "checkedAt": 1780883841446,
+      "integrity": "sha512-FLTprDTgSl+osBnh6zx73vO+MyafY40/x0xfmga6pMvUzWq9nnRiKIxAFcEZwa1PEuSBWsJagj97bSHkj+7gIA==",
+      "mode": 420,
+      "size": 356
+    },
+    "package.json": {
+      "checkedAt": 1780883841446,
+      "integrity": "sha512-vU2OUdr0iCcmW5X3Zgn3CHQ92r2pBiMOyZt+MjTSO/yjtA4KfYRqXBTJjeFcZVYWdQ3cywCIUwG6OB6GRemeRA==",
+      "mode": 420,
+      "size": 1098
+    },
+    "README.md": {
+      "checkedAt": 1780883841446,
+      "integrity": "sha512-B7qBgbOKoPn7cmdqCud/VIJ+/NWM7jwDz45Rthl9+3XjHiACQnD71x2/TfiiBpCdBA6zLYPvbsaZksXin8TnwQ==",
+      "mode": 420,
+      "size": 3055
+    }
+  }
+}

@@ -1,0 +1,105 @@
+@use "sass:color";
+@use "sass:list";
+
+.vp-project-panel {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  flex-wrap: wrap;
+  place-content: stretch flex-start;
+  align-items: stretch;
+
+  margin-bottom: 12px;
+
+  &:empty {
+    margin-bottom: 0;
+  }
+}
+
+.vp-project-card {
+  position: relative;
+
+  width: calc(33% - 40px);
+  margin: 6px 8px;
+  padding: 12px;
+  border-radius: 8px;
+
+  background: var(--vp-c-bg-elv);
+
+  transition:
+    background var(--vp-t-color),
+    transform var(--vp-t-transform);
+
+  @media (max-width: hope-config.$pad) {
+    width: calc(50% - 40px);
+  }
+
+  @media (min-width: hope-config.$pc) {
+    width: calc(25% - 40px);
+  }
+
+  &:hover {
+    cursor: pointer;
+    transform: scale(0.98, 0.98);
+  }
+
+  @each $color in hope-config.$colors {
+    $index: list.index(hope-config.$colors, $color) - 1;
+
+    &.color#{$index} {
+      background: color.scale($color, $lightness: 90%);
+
+      &:hover {
+        background: color.scale($color, $lightness: 75%);
+      }
+
+      [data-theme="dark"] & {
+        background: color.scale($color, $lightness: -75%);
+
+        &:hover {
+          background: color.scale($color, $lightness: -60%);
+        }
+      }
+    }
+  }
+}
+
+.vp-project-name {
+  position: relative;
+  z-index: 2;
+
+  color: var(--vp-c-text);
+
+  font-weight: 500;
+  font-size: 16px;
+
+  transition: color var(--vp-t-color);
+}
+
+.vp-project-desc {
+  position: relative;
+  z-index: 2;
+
+  margin: 6px 0;
+
+  color: var(--vp-c-text-mute);
+
+  font-size: 13px;
+}
+
+.vp-project-icon {
+  position: relative;
+  z-index: 2;
+
+  float: right;
+
+  height: 1em;
+  margin: 4px;
+
+  font-size: 1.25em;
+
+  [dir="rtl"] & {
+    float: left;
+  }
+}

@@ -1,0 +1,62 @@
+import { PropType } from 'vue';
+import type { TdDatePickerProps, TdDateRangePickerProps } from '../../type';
+declare const _default: import("vue").DefineComponent<{
+    mode: PropType<TdDatePickerProps["mode"]>;
+    format: PropType<TdDatePickerProps["format"]>;
+    enableTimePicker: PropType<TdDatePickerProps["enableTimePicker"]>;
+    timePickerProps: {
+        type: PropType<TdDatePickerProps["timePickerProps"]>;
+        default: () => {};
+    };
+    year: NumberConstructor;
+    month: NumberConstructor;
+    tableData: ArrayConstructor;
+    time: StringConstructor;
+    multiple: BooleanConstructor;
+    firstDayOfWeek: NumberConstructor;
+    partial: StringConstructor;
+    popupVisible: BooleanConstructor;
+    onYearChange: FunctionConstructor;
+    onMonthChange: FunctionConstructor;
+    onJumperClick: FunctionConstructor;
+    onCellMouseEnter: FunctionConstructor;
+    onCellClick: FunctionConstructor;
+    onCellMouseLeave: FunctionConstructor;
+    onTimePickerChange: FunctionConstructor;
+    value: (ArrayConstructor | StringConstructor | NumberConstructor | DateConstructor)[];
+    internalYear: PropType<Array<number>>;
+    disableTime: PropType<TdDateRangePickerProps["disableTime"]>;
+    defaultTime: PropType<TdDatePickerProps["defaultTime"] | TdDateRangePickerProps["defaultTime"]>;
+}, () => JSX.Element, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps, Readonly<import("vue").ExtractPropTypes<{
+    mode: PropType<TdDatePickerProps["mode"]>;
+    format: PropType<TdDatePickerProps["format"]>;
+    enableTimePicker: PropType<TdDatePickerProps["enableTimePicker"]>;
+    timePickerProps: {
+        type: PropType<TdDatePickerProps["timePickerProps"]>;
+        default: () => {};
+    };
+    year: NumberConstructor;
+    month: NumberConstructor;
+    tableData: ArrayConstructor;
+    time: StringConstructor;
+    multiple: BooleanConstructor;
+    firstDayOfWeek: NumberConstructor;
+    partial: StringConstructor;
+    popupVisible: BooleanConstructor;
+    onYearChange: FunctionConstructor;
+    onMonthChange: FunctionConstructor;
+    onJumperClick: FunctionConstructor;
+    onCellMouseEnter: FunctionConstructor;
+    onCellClick: FunctionConstructor;
+    onCellMouseLeave: FunctionConstructor;
+    onTimePickerChange: FunctionConstructor;
+    value: (ArrayConstructor | StringConstructor | NumberConstructor | DateConstructor)[];
+    internalYear: PropType<Array<number>>;
+    disableTime: PropType<TdDateRangePickerProps["disableTime"]>;
+    defaultTime: PropType<TdDatePickerProps["defaultTime"] | TdDateRangePickerProps["defaultTime"]>;
+}>>, {
+    multiple: boolean;
+    popupVisible: boolean;
+    timePickerProps: {};
+}, {}>;
+export default _default;

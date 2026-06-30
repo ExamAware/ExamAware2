@@ -1,0 +1,261 @@
+.t-calendar {
+  font: var(--td-font-body-medium);
+  color: var(--td-text-color-primary);
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--td-border-level-1-color);
+  background-color: var(--td-bg-color-container);
+  border-radius: var(--td-radius-large);
+}
+.t-calendar .t-is-disabled.t-calendar__table-body-cell:hover {
+  cursor: not-allowed;
+}
+.t-calendar .t-is-disabled .t-calendar__table-body-cell-display {
+  color: var(--td-text-color-disabled);
+}
+.t-calendar .t-is-disabled .t-calendar__table-body-cell-display:hover {
+  box-shadow: none;
+}
+.t-calendar--full {
+  min-width: 560px;
+  padding: var(--td-comp-paddingTB-xxl) var(--td-comp-paddingLR-xxl);
+}
+.t-calendar--full .t-calendar__control {
+  padding: 0;
+}
+.t-calendar--full .t-calendar__title {
+  font: var(--td-font-title-large);
+  flex: 1;
+}
+.t-calendar--full .t-calendar__panel {
+  position: relative;
+  margin-top: var(--td-comp-margin-xxxl);
+}
+.t-calendar--full .t-calendar__panel-title {
+  font: var(--td-font-title-large);
+  color: var(--td-text-color-primary);
+  position: absolute;
+}
+.t-calendar--full .t-calendar__table-head-cell,
+.t-calendar--full .t-calendar__table-body-cell {
+  margin-right: var(--td-comp-margin-s);
+  position: relative;
+}
+.t-calendar--full .t-calendar__table-body-cell {
+  border-top: 2px solid var(--td-border-level-1-color);
+  padding: 0;
+  height: 104px;
+  line-height: var(--td-line-height-body-medium);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-start;
+  margin-left: 0;
+  transition-duration: 0.2s;
+  transition-property: border-top, background;
+  transition-timing-function: linear;
+}
+.t-calendar--full .t-calendar__table-body-cell-content {
+  padding: var(--td-comp-paddingTB-s) var(--td-comp-paddingLR-xs);
+  width: 100%;
+  box-sizing: border-box;
+}
+.t-calendar--full .t-calendar__table-body-cell.t-is-checked {
+  background-color: var(--td-brand-color-light);
+}
+.t-calendar--full .t-calendar__table-body-cell.t-is-checked:hover {
+  background-color: var(--td-brand-color-light);
+}
+.t-calendar--full .t-calendar__table-body-cell--now {
+  border-top: 2px solid var(--td-brand-color);
+}
+.t-calendar--full .t-calendar__table-body-cell--now .t-calendar__table-body-cell-display {
+  color: var(--td-text-color-primary);
+}
+.t-calendar--full .t-calendar__footer {
+  height: 90px;
+  padding: var(--td-comp-paddingTB-xxl) var(--td-comp-paddingLR-xxl);
+  border-top: 1px solid var(--td-border-level-1-color);
+}
+.t-calendar--card {
+  width: 280px;
+  border-radius: var(--td-radius-medium);
+  padding: var(--td-comp-paddingTB-m) var(--td-comp-paddingLR-m);
+}
+.t-calendar--card .t-calendar__control {
+  padding: 0;
+}
+.t-calendar--card .t-calendar__control-section {
+  width: 100%;
+  justify-content: flex-start;
+}
+.t-calendar--card .t-calendar__control-section-cell:last-child {
+  flex: 1;
+  text-align: right;
+  display: block;
+}
+.t-calendar--card .t-calendar__panel.t-calendar__panel--month {
+  height: 200px;
+  margin-top: var(--td-comp-margin-m);
+}
+.t-calendar--card .t-calendar__panel.t-calendar__panel--year {
+  height: 168px;
+  margin-top: var(--td-comp-margin-m);
+}
+.t-calendar--card .t-calendar__panel.t-calendar__panel--year .t-calendar__table-body-cell-display {
+  min-width: var(--td-comp-size-xxl);
+}
+.t-calendar--card .t-calendar__table {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-self: start;
+  align-items: flex-start;
+}
+.t-calendar--card .t-calendar__table-head-row,
+.t-calendar--card .t-calendar__table-body-row {
+  flex: 1;
+  background: var(--td-bg-color-container);
+}
+.t-calendar--card .t-calendar__table-head-cell,
+.t-calendar--card .t-calendar__table-body-cell {
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  font: var(--td-font-body-medium);
+  box-sizing: border-box;
+}
+.t-calendar--card .t-calendar__table-head-cell-display,
+.t-calendar--card .t-calendar__table-body-cell-display {
+  width: var(--td-comp-size-xs);
+  line-height: var(--td-comp-size-xs);
+}
+.t-calendar--card .t-calendar__table-body {
+  display: flex;
+  flex-direction: column;
+  justify-self: center;
+  align-items: center;
+  flex: 1;
+}
+.t-calendar--card .t-calendar__table-body-cell {
+  justify-content: center;
+  align-items: center;
+}
+.t-calendar--card .t-calendar__table-body-cell:hover {
+  background-color: var(--td-bg-color-container);
+}
+.t-calendar--card .t-calendar__table-body-cell-display {
+  font: var(--td-font-body-medium);
+  padding-top: calc(var(--td-comp-paddingTB-xxs) / 2);
+  padding-bottom: calc(var(--td-comp-paddingTB-xxs) / 2);
+  text-align: center;
+  border-radius: var(--td-radius-default);
+  transition: all 0.2s linear;
+}
+.t-calendar--card .t-calendar__table-body-cell-display:hover {
+  box-shadow: inset 0 0 0 1px var(--td-brand-color);
+  transition: box-shadow 0.2s linear;
+}
+.t-calendar--card .t-calendar__table-body-cell--now .t-calendar__table-body-cell-display {
+  color: var(--td-brand-color);
+  background-color: var(--td-brand-color-light);
+  position: relative;
+}
+.t-calendar--card .t-is-checked .t-calendar__table-body-cell-display {
+  background: var(--td-brand-color);
+  border-radius: var(--td-radius-default);
+  color: var(--td-text-color-anti);
+}
+.t-calendar--card .t-calendar__footer {
+  height: var(--td-comp-size-xxl);
+  padding: 0 var(--td-comp-paddingLR-m);
+  border-top: 1px solid var(--td-border-level-1-color);
+}
+.t-calendar__control {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+.t-calendar__control-section {
+  height: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+.t-calendar__control-section:last-child {
+  margin-right: 0;
+}
+.t-calendar__control-section-cell {
+  height: 100%;
+  margin-right: var(--td-comp-margin-s);
+  display: flex;
+}
+.t-calendar__control-section-cell .t-radio-group {
+  vertical-align: bottom;
+}
+.t-calendar__control-section-cell .t-select {
+  display: inline;
+}
+.t-calendar__control-section-cell:last-child {
+  margin-right: 0;
+}
+.t-calendar__panel {
+  box-sizing: border-box;
+  width: 100%;
+}
+.t-calendar__table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  height: 100%;
+}
+.t-calendar__table-head,
+.t-calendar__table-body {
+  width: 100%;
+}
+.t-calendar__table-head-row,
+.t-calendar__table-body-row {
+  width: 100%;
+  display: flex;
+}
+.t-calendar__table-head-cell,
+.t-calendar__table-body-cell {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  font: var(--td-font-title-small);
+  color: var(--td-text-color-primary);
+  cursor: default;
+  padding: 0;
+}
+.t-calendar__table-head-cell:last-child,
+.t-calendar__table-body-cell:last-child {
+  margin-right: 0;
+}
+.t-calendar__table-head {
+  margin-bottom: var(--td-comp-margin-s);
+  display: block;
+}
+.t-calendar__table-head-row {
+  padding-bottom: 0px;
+  background: var(--td-bg-color-container);
+}
+.t-calendar__table-head-cell {
+  height: 100%;
+  font: var(--td-font-title-small);
+  color: var(--td-text-color-secondary);
+}
+.t-calendar__table-body-cell {
+  cursor: pointer;
+}
+.t-calendar__table-body-cell:hover {
+  background-color: var(--td-bg-color-container-hover);
+  transition: background-color 0.2s linear;
+}
+.t-calendar__table-body-cell-display {
+  font: var(--td-font-title-small);
+  color: var(--td-text-color-primary);
+}

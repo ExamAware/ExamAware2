@@ -1,0 +1,31 @@
+{
+  "name": "@npmcli/move-file",
+  "version": "2.0.1",
+  "requiresBuild": false,
+  "files": {
+    "lib/index.js": {
+      "checkedAt": 1780883840590,
+      "integrity": "sha512-6nUmDGAZbdu9xcwSgq5co0LmnI3J652eIYxRwdfBe18eu4m1MoBg51Jbfz8+jEWTpSKlTG3IRaOS8CIPjbLgCw==",
+      "mode": 420,
+      "size": 4967
+    },
+    "package.json": {
+      "checkedAt": 1780883840590,
+      "integrity": "sha512-hY17I7j6pwmkjqBmckkJODzQfnYAPQKLuAN+fypcbB+JMFIkSoKfYLAEkICTnhxJghUYtMJXxo6rJrNrthkPjw==",
+      "mode": 420,
+      "size": 1159
+    },
+    "LICENSE.md": {
+      "checkedAt": 1780883840590,
+      "integrity": "sha512-RivZN6RyM/ebUtndkXX8KZjRIjvnR6EhX0EHXqa6V+GoTvJI49gMrzCcnLtg4x8DUVEdWBYVXkT1AIyvTO3xRg==",
+      "mode": 420,
+      "size": 1141
+    },
+    "README.md": {
+      "checkedAt": 1780883840591,
+      "integrity": "sha512-Ku9Bpw7rsnMjPJcWg0WRb0+8VaYAxI9NHTkWEO9vZlA6++1J5uNDfk/75hmeHfEz3jFezEslG5BhpNq2958kQA==",
+      "mode": 420,
+      "size": 1459
+    }
+  }
+}

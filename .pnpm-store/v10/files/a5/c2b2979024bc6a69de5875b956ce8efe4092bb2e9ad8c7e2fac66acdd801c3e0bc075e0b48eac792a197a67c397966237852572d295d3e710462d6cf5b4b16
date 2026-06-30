@@ -1,0 +1,8 @@
+export declare class Debounce {
+    private timer;
+    private delay;
+    private cb;
+    constructor(delay: number, cb: () => void);
+    execute(): void;
+    executeWithDelay(delay?: number): void;
+}

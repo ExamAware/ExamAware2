@@ -1,0 +1,43 @@
+{
+  "name": "@malept/cross-spawn-promise",
+  "version": "2.0.0",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883825743,
+      "integrity": "sha512-mPa3m3ePewoVQVvXUMOooJfWUFEctOyBFRiOEVxHBT/nAPV4iVwJcFHJvD37YZfCsToV3iAyc+GjIYiE+G6Q6A==",
+      "mode": 384,
+      "size": 11358
+    },
+    "dist/src/index.js": {
+      "checkedAt": 1780883841457,
+      "integrity": "sha512-+djv1ADMxeUF/q29Mhg041x1Es0KPMPS8zhgU1HC2oc8sPryWk6CPkVzuH2WsTwr5Cx4m2nL9IWZnlAkelPkhQ==",
+      "mode": 436,
+      "size": 4043
+    },
+    "package.json": {
+      "checkedAt": 1780883841458,
+      "integrity": "sha512-R7zrKaGBroUf1ernrCGt76FmgISNKMXEmUFaz1Hd8GtUS9yIW9vItTE5RcoQWlMFSnc2FFyYPcF9sqjn3sJDGg==",
+      "mode": 436,
+      "size": 2659
+    },
+    "dist/src/index.js.map": {
+      "checkedAt": 1780883841458,
+      "integrity": "sha512-vQStK4dGuNYojDnTKJtgklGPAb8eaPhk1AjQSFfFkNtjOx95O6f+DQlURTXkMZ1tnqwHWohJ3tKc/+2f/56tQg==",
+      "mode": 436,
+      "size": 3182
+    },
+    "README.md": {
+      "checkedAt": 1780883841458,
+      "integrity": "sha512-wBEXMrVMiiHFCT4YAXqBwdbUDj1v3BcxN8Hy1l2bSZrf5HtuDwFh45CutWjyehT3+rXKU4ouJKl4flWZLtucTw==",
+      "mode": 384,
+      "size": 1397
+    },
+    "dist/src/index.d.ts": {
+      "checkedAt": 1780883841458,
+      "integrity": "sha512-zfWQSHyiMoeTKLHdAg2OyZ0mAmcys37Kj4D4cu9xfClvHmGopMnQrls4im+7b/tPRawwlLUT58KqCUHFNOzZrA==",
+      "mode": 436,
+      "size": 2294
+    }
+  }
+}

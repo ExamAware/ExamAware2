@@ -4,7 +4,30 @@
     <div class="background-ellipse"></div>
 
     <!-- 主要内容（可插拔卡片区域） -->
-    <div class="content-wrapper">
+    <!-- 经典主题：左右两列布局 -->
+    <div v-if="isClassicTheme" class="content-wrapper content-wrapper-classic">
+      <div class="left-column">
+        <slot name="left:title">
+          <div class="title-section">
+            <h1 ref="mainTitleRef" class="main-title">
+              {{ playerExamConfig?.examName || '考试' }}
+            </h1>
+            <p ref="subtitleRef" class="subtitle">
+              {{ playerExamConfig?.message || '请遵守考场纪律' }}
+            </p>
+          </div>
+        </slot>
+        <div class="card-item"><component :is="resolvedCards.clock" /></div>
+        <div class="card-item"><component :is="resolvedCards.examInfo" /></div>
+      </div>
+      <div class="right-column">
+        <div class="card-item"><component :is="resolvedCards.room" /></div>
+        <div class="card-item"><component :is="resolvedCards.list" /></div>
+      </div>
+    </div>
+
+    <!-- 增强主题：上中下布局 -->
+    <div v-else class="content-wrapper">
       <!-- 顶部标题栏：考试标题+副标题（左）考场号（右） -->
       <div class="top-header">
         <slot name="left:title">
@@ -134,7 +157,12 @@ import ClockCard from './cards/ClockCard.vue';
 import ExamInfoCard from './cards/ExamInfoCard.vue';
 import ExamRoomCard from './cards/ExamRoomCard.vue';
 import CurrentListCard from './cards/CurrentListCard.vue';
+import ClassicClockCard from './classic/ClassicClockCard.vue';
+import ClassicExamInfoCard from './classic/ClassicExamInfoCard.vue';
+import ClassicListCard from './classic/ClassicListCard.vue';
 import ActionButtonBar from './ActionButtonBar.vue';
+
+const isClassicTheme = computed(() => props.playerTheme === 'classic');
 import { providePlayerToolbar } from '../composables/usePlayerToolbar';
 // 本地引入 TDesign 组件，确保不依赖宿主全局注册
 import { Dialog as TDialog, Input as TInput, Button as TButton } from 'tdesign-vue-next';
@@ -211,6 +239,10 @@ interface Props {
     room: any;
     list: any;
   }>;
+  /** 经典主题下是否显示页数统计 */
+  classicShowMaterial?: boolean;
+  /** 播放器主题：enhanced（默认）或 classic（原版风格） */
+  playerTheme?: 'classic' | 'enhanced';
 }
 
 // Events 定义
@@ -1117,16 +1149,38 @@ const ctxForCards = {
   auxiliaryFontScale: computed(() => auxiliaryFontScaleState.value),
   handleRoomNumberClick,
   currentExamIndex: computed(() => state.value.currentExamIndex),
-  preCountdownMinutes: preCountdownMinutesState
+  preCountdownMinutes: preCountdownMinutesState,
+  classicShowMaterial: computed(() => Boolean(props.classicShowMaterial))
 };
 provide('ExamPlayerCtx', ctxForCards);
 
-const resolvedCards = computed(() => ({
-  clock: props.cards?.clock ?? ClockCard,
-  examInfo: props.cards?.examInfo ?? ExamInfoCard,
-  room: props.cards?.room ?? ExamRoomCard,
-  list: props.cards?.list ?? CurrentListCard
-}));
+const resolvedCards = computed(() => {
+  // 外部 cards 优先级最高
+  if (props.cards?.clock || props.cards?.examInfo || props.cards?.room || props.cards?.list) {
+    return {
+      clock: props.cards?.clock ?? ClockCard,
+      examInfo: props.cards?.examInfo ?? ExamInfoCard,
+      room: props.cards?.room ?? ExamRoomCard,
+      list: props.cards?.list ?? CurrentListCard
+    };
+  }
+  // 经典主题
+  if (props.playerTheme === 'classic') {
+    return {
+      clock: ClassicClockCard,
+      examInfo: ClassicExamInfoCard,
+      room: ExamRoomCard,
+      list: ClassicListCard
+    };
+  }
+  // 增强主题（默认）
+  return {
+    clock: ClockCard,
+    examInfo: ExamInfoCard,
+    room: ExamRoomCard,
+    list: CurrentListCard
+  };
+});
 </script>
 
 <style scoped>
@@ -1227,6 +1281,40 @@ const resolvedCards = computed(() => ({
     calc(var(--ui-scale, 1) * var(--density-scale, 1) * 6rem)
     calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
   gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.75rem);
+}
+
+/* 经典主题：左右两列布局 */
+.content-wrapper-classic {
+  flex-direction: row;
+  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.5rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 5rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1.5rem);
+}
+
+.left-column {
+  flex: 1.2;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1rem);
+  min-width: 0;
+}
+
+.left-column .card-item {
+  flex-shrink: 0;
+}
+
+.right-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1rem);
+  min-width: 0;
+}
+
+.right-column .card-item {
+  flex-shrink: 0;
 }
 
 /* 顶部标题栏 */

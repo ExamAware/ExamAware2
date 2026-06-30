@@ -1,0 +1,31 @@
+{
+  "name": "@tsconfig/node22",
+  "version": "22.0.5",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883835531,
+      "integrity": "sha512-tGYOMb/igDjJH3uXBzcj5+zeR50Nlir9I4ddZhc2aCdfAs3EW5G4NfyEEEt/r45ROchTX50Ehu+M7D6aNvEFHQ==",
+      "mode": 420,
+      "size": 1073
+    },
+    "package.json": {
+      "checkedAt": 1780883835531,
+      "integrity": "sha512-JUKIR+1JErsqpS/OIG3ZW0HY/o1aJ9iQf/QcPT53nxNFKP2ymkM646iAcGOIpBJ1BqX4fIg7SHb+3xnmxZ4rQQ==",
+      "mode": 420,
+      "size": 306
+    },
+    "tsconfig.json": {
+      "checkedAt": 1780883835532,
+      "integrity": "sha512-JkNSEkAvc+aa0gbihMqOfos/lQPcVNCaN9ibBePTEQmY5DGP7fib5PwcKP+rk2R9UvGfEGzxXJLlSnjpqMZy6A==",
+      "mode": 420,
+      "size": 347
+    },
+    "README.md": {
+      "checkedAt": 1780883835532,
+      "integrity": "sha512-miIwl5hPIxAZjyPVly/nJUOlut/WJmQvxzp7tEn72ZUbU/+P/O0uZ9+JbwGgffUJvgGEjnPftea6ur94JC5IDA==",
+      "mode": 420,
+      "size": 748
+    }
+  }
+}

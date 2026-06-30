@@ -1,0 +1,1 @@
+{"version":3,"file":"scrollPromise.d.ts","sourceRoot":"","sources":["../../../src/client/utils/scrollPromise.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,aAAa;IAC5B,IAAI,IAAI,OAAO,CAAC,IAAI,CAAC,GAAG,IAAI,CAAC;IAC7B,OAAO,EAAE,MAAM,IAAI,CAAC;IACpB,OAAO,EAAE,MAAM,IAAI,CAAC;CACrB;AAKD,eAAO,MAAM,aAAa,EAAE,aAY3B,CAAC"}

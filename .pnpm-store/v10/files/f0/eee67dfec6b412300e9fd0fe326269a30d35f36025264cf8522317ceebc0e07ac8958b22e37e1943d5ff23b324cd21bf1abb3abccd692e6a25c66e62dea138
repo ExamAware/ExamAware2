@@ -1,0 +1,2 @@
+const g=(a,{light:o=["light"],dark:m=["dark"]}={})=>{const n=a.renderer.rules.image;a.renderer.rules.image=(d,s,l,c,i)=>{const e=d[s],t=e.attrGet("src");return t&&(o.some(r=>t.endsWith(`#${r}`))?(e.attrSet("data-mode","lightmode-only"),e.attrSet("src",t.replace(/#.*?$/,""))):m.some(r=>t.endsWith(`#${r}`))&&(e.attrSet("data-mode","darkmode-only"),e.attrSet("src",t.replace(/#.*?$/,"")))),n(d,s,l,c,i)}};export{g as imgMark};
+//# sourceMappingURL=index.js.map

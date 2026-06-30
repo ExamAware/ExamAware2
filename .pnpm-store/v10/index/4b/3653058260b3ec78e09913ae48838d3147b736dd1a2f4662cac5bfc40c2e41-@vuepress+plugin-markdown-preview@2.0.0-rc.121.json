@@ -1,0 +1,109 @@
+{
+  "name": "@vuepress/plugin-markdown-preview",
+  "version": "2.0.0-rc.121",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883861285,
+      "integrity": "sha512-yu3nmzRem/6ZswYlICcbNbUetGNJj7XCiB8wzw/dIJeEcIyppzAhmT7rEi+Lnitnwo5Er6nJOnf43G14mhj2yw==",
+      "mode": 420,
+      "size": 1094
+    },
+    "lib/client/styles/vars.css": {
+      "checkedAt": 1780883866710,
+      "integrity": "sha512-7wREkJjcS30WVfDD2WHy8ltGFrLs+AjWkeo3G1v/DcXzVyhsTicjWf5vdvpN2S3AtE1Z407mqTPQKqHa4nsHBg==",
+      "mode": 420,
+      "size": 243
+    },
+    "lib/client/styles/vp-preview.css": {
+      "checkedAt": 1780883866711,
+      "integrity": "sha512-8lfuiQptWYzeqVo5xTPTSKB3XjAT/9a7rJGQWajTkcLubZRORV6HMNc6QyZUJxJunAoK6VBP1G/pMDAqcxjWsA==",
+      "mode": 420,
+      "size": 2439
+    },
+    "lib/client/config.js": {
+      "checkedAt": 1780883866711,
+      "integrity": "sha512-+vwtWdV9TWRJgwyScc2n13cgrYU0hVbuWLtxIcmuCwPD+kEmRG8JFqQ5HfVxgCWuLFm2YvyAiz0mQ/bX0xjghQ==",
+      "mode": 420,
+      "size": 403
+    },
+    "lib/client/index.js": {
+      "checkedAt": 1780883866712,
+      "integrity": "sha512-IsqcNwmnwmZ2TVoLSjJub4KqCh8YBSW/g7MXecxYsgeDQkgtxeKFl1I8ZjP7mFfntxZEPCUCHAN+0T7zTks7pQ==",
+      "mode": 420,
+      "size": 199
+    },
+    "lib/node/index.js": {
+      "checkedAt": 1780883866712,
+      "integrity": "sha512-WcCjbzrbYxGbpiUgwMDxAJyl7Ms6nKpI5X2GF/eggxKA10pzlQHL35czkLNtS2uze5Ok1x2kzFwZGbe0ODe8Jw==",
+      "mode": 420,
+      "size": 1537
+    },
+    "lib/client/VPPreview-Dzr-2ZZL.js": {
+      "checkedAt": 1780883866712,
+      "integrity": "sha512-dCyoLB8kxSX31I19XCOsSYhGL3ud58oJEbqotMUjVBGmuFCGs0Xp2l3E6CMlS1P4gWwGPb9nLv/6b6XynN5k/A==",
+      "mode": 420,
+      "size": 1305
+    },
+    "package.json": {
+      "checkedAt": 1780883866712,
+      "integrity": "sha512-4Fg8iW/l+t4RWf00KhmDfRhwx1WeyPZUvz77vHcbaRLELVyYGbdmfriiozq1B9Qobc4e9uiusQh9zfEV0rrQcA==",
+      "mode": 420,
+      "size": 1333
+    },
+    "lib/client/config.js.map": {
+      "checkedAt": 1780883866713,
+      "integrity": "sha512-N6LE1cQQ2jUe3qLmJd9cUSObtFDaeZEDE0eKpd9c2PLKXDhqtGOxkTwLkSesMgLivp4A/MKC7ifsNM7CxGxNnQ==",
+      "mode": 420,
+      "size": 970
+    },
+    "lib/client/index.js.map": {
+      "checkedAt": 1780883863371,
+      "integrity": "sha512-YQKVY9LU+3B7577X8rvvx/78xBf/YOTunRJXIPbHy1r9cjaIQF9xnkmY8vzk4ldBshM3N56VLONpOPnf1P4lvA==",
+      "mode": 420,
+      "size": 89
+    },
+    "lib/node/index.js.map": {
+      "checkedAt": 1780883866713,
+      "integrity": "sha512-xW+n+s0XrAG3hQ8rcvI4cRlpz6eckWkg9CxH/RQIpWr+4tB+0r08+eI6oXnzywJIQarzK9XhcrQZwP2cCuybew==",
+      "mode": 420,
+      "size": 5551
+    },
+    "lib/client/styles/vars.css.map": {
+      "checkedAt": 1780883866713,
+      "integrity": "sha512-d2JGiBhretT/zPIeAN0ZEE+5lqoQFTToB15OJBgvdvImZBcPlxc9AqrzjUh1/L263sZ0vkjWQ7xsoALFHd5KEA==",
+      "mode": 420,
+      "size": 409
+    },
+    "lib/client/styles/vp-preview.css.map": {
+      "checkedAt": 1780883866714,
+      "integrity": "sha512-1FMkAMXOCTwtlZwelBI5WsxeC9+sN54KOM1L+0LafTAn28EGJBNM6kqQMgV+wnUALiM1pXC4DUaRqNR9hH9gJg==",
+      "mode": 420,
+      "size": 3226
+    },
+    "lib/client/VPPreview-Dzr-2ZZL.js.map": {
+      "checkedAt": 1780883866714,
+      "integrity": "sha512-hO7Biqb91JAvBQ2Z3oZ3/j6seo3Y5iHmAwct+5lrzH7NCLVuQJ3CeGagtKKChZNF+waNAMciMIjYDxuT6hC16A==",
+      "mode": 420,
+      "size": 5245
+    },
+    "lib/client/config.d.ts": {
+      "checkedAt": 1780883863973,
+      "integrity": "sha512-LWeAJENp2w9V6CDuDmhFRkBSAGOeJcJ1mOZO8TUOQJlM3iCRlNxShqtSSe1wrNWTabQivKTWXQ6CDWhk5SW51w==",
+      "mode": 420,
+      "size": 140
+    },
+    "lib/client/index.d.ts": {
+      "checkedAt": 1780883866714,
+      "integrity": "sha512-cvxmZM/oaQ8MnQdxmZVC8G+BgqclqUrh/r6fg70Kz6xoBRK/JfcQ+55XPQt7D8ElaC0If8lD0SYdRsG1i78yEw==",
+      "mode": 420,
+      "size": 1825
+    },
+    "lib/node/index.d.ts": {
+      "checkedAt": 1780883866715,
+      "integrity": "sha512-Zv2qAZNY7e5mZY/ekJIhoyxmyS33CqucKB4dm/k7wg3aMPxPTt6PD7QEXGbijaiIy7lxvdHzgJvOuYPDy11fnw==",
+      "mode": 420,
+      "size": 1019
+    }
+  }
+}

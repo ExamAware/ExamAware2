@@ -1,0 +1,67 @@
+{
+  "name": "@vuepress/plugin-icon",
+  "version": "2.0.0-rc.121",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883861285,
+      "integrity": "sha512-yu3nmzRem/6ZswYlICcbNbUetGNJj7XCiB8wzw/dIJeEcIyppzAhmT7rEi+Lnitnwo5Er6nJOnf43G14mhj2yw==",
+      "mode": 420,
+      "size": 1094
+    },
+    "lib/client/styles/vp-icon.css": {
+      "checkedAt": 1780883865745,
+      "integrity": "sha512-2iISDOdNGuVYTDJV88uvuG3u2PCqYCN9O+t4gvuA2w2ndBSe9Jvl/ky9cneeJ8UzmnK1KH9aOyxkwIslRzhdLQ==",
+      "mode": 420,
+      "size": 515
+    },
+    "lib/client/index.js": {
+      "checkedAt": 1780883865745,
+      "integrity": "sha512-yhhF4jjQAMAwELH4IE/LXGuHaRAZDCC+D8UPQUTE+6XyzeNyu3biDNudbzWsboZbr2FHxZlAUVSMTBQ7Zkyaqw==",
+      "mode": 420,
+      "size": 1483
+    },
+    "lib/node/index.js": {
+      "checkedAt": 1780883865746,
+      "integrity": "sha512-RKqnQd5yeK+3wwvG801cDEuNCR/xOU7SALoETQq9qKRCLhM9wuR6jpiIfFDtThSPOi3OVH/F50AmcCeV7qkaoA==",
+      "mode": 420,
+      "size": 2958
+    },
+    "package.json": {
+      "checkedAt": 1780883865746,
+      "integrity": "sha512-Y0FPsd31SilrmrOHdEDb1GQscpBKRQRBq87P1ouXdOp8060C/pdRsXT4PwdRkVal6UOB03l005X0Lpns/iIeHw==",
+      "mode": 420,
+      "size": 1200
+    },
+    "lib/client/index.js.map": {
+      "checkedAt": 1780883865746,
+      "integrity": "sha512-MLnIuS+jjX/14RTcv02DKdhu0LyWb6i+Yuk1eVvIYCPQF1fBoo1OIjSDjhfLYLPtFi/zMWvSL0V29v/lsQTBDA==",
+      "mode": 420,
+      "size": 6010
+    },
+    "lib/node/index.js.map": {
+      "checkedAt": 1780883865746,
+      "integrity": "sha512-Tf4mzI/hbVHHmEjWgpl6hdTSzV+euQVbsJL46iifTKfvXxF6Z89GD0faFzDDdw3JBAiod5u1Rxmi5wWiSKAlsQ==",
+      "mode": 420,
+      "size": 11516
+    },
+    "lib/client/styles/vp-icon.css.map": {
+      "checkedAt": 1780883865747,
+      "integrity": "sha512-Jeic1QK8wZUVxoM9EAaND9Cp8tX6YqDINugmgiDVKtvdGiBS/8D14UGMvQpKF3nD5psdsdyTpU1m80sssCP2XQ==",
+      "mode": 420,
+      "size": 950
+    },
+    "lib/client/index.d.ts": {
+      "checkedAt": 1780883865747,
+      "integrity": "sha512-MHISwVHLaCkiinQJn7S69/RmupArIYdGrmb+vwN690Jgfz8RuBg+TXLV6qNirJuOoPHlLk4BKTBmZ3cEWNgdmA==",
+      "mode": 420,
+      "size": 2244
+    },
+    "lib/node/index.d.ts": {
+      "checkedAt": 1780883865747,
+      "integrity": "sha512-vekq8qHPX0KZP3v0Z9gLjNqd8iQnTuNcN2IJOjaMIXfexnoSnVjxoOxLWW9a3PZpcxjFikhiQOo+BYhwDHlbww==",
+      "mode": 420,
+      "size": 1978
+    }
+  }
+}

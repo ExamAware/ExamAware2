@@ -1,0 +1,333 @@
+/**
+ * tdesign v1.17.7
+ * (c) 2025 tdesign
+ * @license MIT
+ */
+
+import { defineComponent, ref, computed, getCurrentInstance, createVNode, mergeProps } from 'vue';
+import _objectWithoutProperties from '@babel/runtime/helpers/objectWithoutProperties';
+import _defineProperty from '@babel/runtime/helpers/defineProperty';
+import baseTableProps from './base-table-props.js';
+import primaryTableProps from './primary-table-props.js';
+import enhancedTableProps from './enhanced-table-props.js';
+import _PrimaryTable from './primary-table.js';
+import useTreeData from './hooks/useTreeData.js';
+import useTreeSelect from './hooks/useTreeSelect.js';
+import { get } from 'lodash-es';
+import { l as log } from '../_chunks/dep-8295e674.js';
+import '@babel/runtime/helpers/toConsumableArray';
+import '@babel/runtime/helpers/typeof';
+import '../_chunks/dep-fe23be6e.js';
+import { u as usePrefixClass } from '../_chunks/dep-9e6d8a78.js';
+import '@babel/runtime/helpers/slicedToArray';
+import '../_chunks/dep-880d05b9.js';
+import './base-table.js';
+import './hooks/useTableHeader.js';
+import './hooks/useMultiHeader.js';
+import './hooks/useClassName.js';
+import './components/ellipsis.js';
+import '../_chunks/dep-16bcfabc.js';
+import '../_chunks/dep-2accc95a.js';
+import '../_chunks/dep-fb805f69.js';
+import '../config-provider/hooks/useConfig.js';
+import '../config-provider/utils/context.js';
+import '../_chunks/dep-938cd955.js';
+import '../_chunks/dep-81b01cae.js';
+import 'dayjs';
+import '../tooltip/index.js';
+import '../tooltip/tooltip.js';
+import '../tooltip/props.js';
+import '../popup/props.js';
+import '../popup/index.js';
+import '../popup/popup.js';
+import '@popperjs/core';
+import '../_chunks/dep-4f8b6591.js';
+import '../_chunks/dep-2ea19dca.js';
+import '../_chunks/dep-51e5a827.js';
+import '../popup/container.js';
+import '../_chunks/dep-80a77612.js';
+import '../_chunks/dep-664b8b22.js';
+import '@babel/runtime/helpers/createClass';
+import '@babel/runtime/helpers/classCallCheck';
+import '../tooltip/utils/index.js';
+import './hooks/useColumnResize.js';
+import './hooks/useFixed.js';
+import '../_chunks/dep-167f0981.js';
+import '../_chunks/dep-80a99546.js';
+import './hooks/usePagination.js';
+import '../pagination/index.js';
+import '../pagination/pagination.js';
+import 'tdesign-icons-vue-next';
+import '../_chunks/dep-aa34a263.js';
+import '../_chunks/dep-3a7a2ef1.js';
+import '../input-number/index.js';
+import '../input-number/input-number.js';
+import '../button/index.js';
+import '../button/button.js';
+import '../loading/index.js';
+import '../loading/directive.js';
+import '../loading/plugin.js';
+import '../_chunks/dep-ee693784.js';
+import '../loading/icon/gradient.js';
+import '../loading/props.js';
+import '../button/props.js';
+import '../_chunks/dep-f7dd3c12.js';
+import '../_chunks/dep-d2a6e7a4.js';
+import '../input/index.js';
+import '../input/input.js';
+import '../input/props.js';
+import '../_chunks/dep-47b13687.js';
+import '../input/hooks/useInput.js';
+import '../form/consts/index.js';
+import '../input/hooks/useLengthLimit.js';
+import '../input/hooks/useInputEventHandler.js';
+import '../input/hooks/useInputWidth.js';
+import '../input/input-group.js';
+import '../input/input-group-props.js';
+import '../input-number/props.js';
+import '../_chunks/dep-4d7b9152.js';
+import '../input-number/hooks/useInputNumber.js';
+import '../_chunks/dep-1a63d163.js';
+import '../_chunks/dep-05f15b4e.js';
+import '../select/index.js';
+import '../select/select.js';
+import '@babel/runtime/helpers/asyncToGenerator';
+import '@babel/runtime/regenerator';
+import '../common-components/fake-arrow.js';
+import '../select-input/index.js';
+import '../select-input/select-input.js';
+import '../select-input/props.js';
+import '../select-input/hooks/useMultiple.js';
+import '../tag-input/index.js';
+import '../tag-input/tag-input.js';
+import '../tag-input/props.js';
+import '../tag-input/hooks/useDragSorter.js';
+import '../tag-input/hooks/useHover.js';
+import '../tag-input/hooks/useTagScroll.js';
+import '../tag-input/hooks/useTagList.js';
+import '../tag/index.js';
+import '../tag/tag.js';
+import 'tinycolor2';
+import '../tag/props.js';
+import '../tag/check-tag.js';
+import '../tag/check-tag-props.js';
+import '../_chunks/dep-30c631d1.js';
+import '../tag/check-tag-group.js';
+import '../tag/check-tag-group-props.js';
+import '../select-input/hooks/useOverlayInnerStyle.js';
+import '../select-input/hooks/useSingle.js';
+import '../select/components/select-panel.js';
+import '../select/option.js';
+import '../select/option-props.js';
+import '../checkbox/index.js';
+import '../checkbox/checkbox.js';
+import '../checkbox/props.js';
+import '../checkbox/consts/index.js';
+import '../checkbox/hooks/useCheckboxLazyLoad.js';
+import '../_chunks/dep-6264b0a7.js';
+import '../checkbox/hooks/useKeyboardEvent.js';
+import '../checkbox/group.js';
+import '../checkbox/checkbox-group-props.js';
+import '../_chunks/dep-e3ce8c8f.js';
+import '../select/utils/index.js';
+import '../select/consts/index.js';
+import '../select/option-group.js';
+import '../select/option-group-props.js';
+import '../select/props.js';
+import '../select/hooks/usePanelVirtualScroll.js';
+import '../select/hooks/useKeyboardControl.js';
+import '../select/hooks/useSelectOptions.js';
+import '../input-adornment/index.js';
+import '../input-adornment/input-adornment.js';
+import '../input-adornment/props.js';
+import '../pagination/props.js';
+import '../pagination/hooks/useMoreAction.js';
+import '../pagination/hooks/usePaginationClasses.js';
+import '../pagination/pagination-mini.js';
+import '../pagination/pagination-mini-props.js';
+import '../_chunks/dep-90df3fa4.js';
+import './hooks/useAffix.js';
+import './components/tbody.js';
+import './components/tr.js';
+import './utils/index.js';
+import './hooks/useLazyLoad.js';
+import './hooks/useRowspanAndColspan.js';
+import './hooks/useStyle.js';
+import '../affix/index.js';
+import '../affix/affix.js';
+import '../affix/props.js';
+import './components/thead.js';
+import './components/tfoot.js';
+import './hooks/useRowHighlight.js';
+import './hooks/useHoverKeyboardEvent.js';
+import './hooks/useColumnController.js';
+import '../dialog/plugin.js';
+import '../dialog/dialog.js';
+import '../dialog/props.js';
+import '../_chunks/dep-7f74a978.js';
+import '../dialog/hooks/useSameTarget.js';
+import '../dialog/utils/index.js';
+import '../dialog/dialog-card.js';
+import '../dialog/dialog-card-props.js';
+import '../dialog/hooks/useAction.js';
+import './components/column-checkbox-group.js';
+import './hooks/useRowExpand.js';
+import './hooks/useRowSelect.js';
+import '../_chunks/dep-1c714f6d.js';
+import '../radio/index.js';
+import '../radio/radio.js';
+import '../radio/props.js';
+import '../radio/consts/index.js';
+import '../radio/group.js';
+import '../radio/radio-group-props.js';
+import '../radio/radio-button.js';
+import '../radio/hooks/useKeyboard.js';
+import '../watermark/hooks/index.js';
+import './hooks/useSorter.js';
+import './components/sorter-button.js';
+import './hooks/useFilter.js';
+import './components/filter-controller.js';
+import './hooks/useDragSort.js';
+import 'sortablejs';
+import './hooks/useAsyncLoading.js';
+import './components/editable-cell.js';
+import '@babel/runtime/helpers/toArray';
+import '../form/utils/form-model.js';
+import './hooks/useEditableRow.js';
+import '../_chunks/dep-edaa1515.js';
+
+var _excluded = ["store", "dataSource", "formatTreeColumn", "swapData", "onExpandFoldIconClick"];
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+var _EnhancedTable = defineComponent({
+  name: "TEnhancedTable",
+  props: _objectSpread(_objectSpread(_objectSpread({}, baseTableProps), primaryTableProps), enhancedTableProps),
+  setup: function setup(props, context) {
+    var primaryTableRef = ref(null);
+    var _useTreeData = useTreeData(props, context),
+      store = _useTreeData.store,
+      dataSource = _useTreeData.dataSource,
+      formatTreeColumn = _useTreeData.formatTreeColumn,
+      swapData = _useTreeData.swapData,
+      onExpandFoldIconClick = _useTreeData.onExpandFoldIconClick,
+      treeInstanceFunctions = _objectWithoutProperties(_useTreeData, _excluded);
+    var classPrefix = usePrefixClass();
+    var treeDataMap = ref(store.value.treeDataMap);
+    var _useTreeSelect = useTreeSelect(props, treeDataMap),
+      tIndeterminateSelectedRowKeys = _useTreeSelect.tIndeterminateSelectedRowKeys,
+      onInnerSelectChange = _useTreeSelect.onInnerSelectChange;
+    var _getColumns = function getColumns(columns) {
+      var arr = [];
+      for (var i = 0, len = columns.length; i < len; i++) {
+        var _item$children, _item$children2;
+        var item = _objectSpread({}, columns[i]);
+        item = formatTreeColumn(item);
+        if ((_item$children = item.children) !== null && _item$children !== void 0 && _item$children.length) {
+          item.children = _getColumns(item.children);
+        }
+        if (!item.children || (_item$children2 = item.children) !== null && _item$children2 !== void 0 && _item$children2.length) {
+          arr.push(item);
+        }
+      }
+      return arr;
+    };
+    var tColumns = computed(function () {
+      var isTreeData = !props.tree || !Object.keys(props.tree).length;
+      return isTreeData ? props.columns : _getColumns(props.columns);
+    });
+    var onDragSortChange = function onDragSortChange(params) {
+      var _props$onDragSort;
+      if (props.beforeDragSort && !props.beforeDragSort(params)) return;
+      swapData({
+        current: params.current,
+        target: params.target,
+        currentIndex: params.currentIndex,
+        targetIndex: params.targetIndex
+      });
+      (_props$onDragSort = props.onDragSort) === null || _props$onDragSort === void 0 || _props$onDragSort.call(props, params);
+    };
+    var onEnhancedTableRowClick = function onEnhancedTableRowClick(p) {
+      var _props$tree, _props$onRowClick;
+      if ((_props$tree = props.tree) !== null && _props$tree !== void 0 && _props$tree.expandTreeNodeOnClick) {
+        onExpandFoldIconClick({
+          row: p.row,
+          rowIndex: p.index
+        }, "row-click");
+      }
+      (_props$onRowClick = props.onRowClick) === null || _props$onRowClick === void 0 || _props$onRowClick.call(props, p);
+    };
+    var _getScrollRowIndex = function getScrollRowIndex(rowStateData, key) {
+      if (!rowStateData) return -1;
+      if (rowStateData.rowIndex >= 0) return rowStateData.rowIndex;
+      if (rowStateData.rowIndex < 0) {
+        return _getScrollRowIndex(rowStateData.parent);
+      }
+    };
+    var scrollToElement = function scrollToElement(params) {
+      var index = params.index;
+      if (!index && index !== 0) {
+        if (!params.key) {
+          log.error("Table", "scrollToElement: one of `index` or `key` must exist.");
+          return;
+        }
+        var rowStateData = treeDataMap.value.get(params.key);
+        index = _getScrollRowIndex(rowStateData, params.key);
+        if (index < 0 || index === void 0) {
+          log.error("Table", "".concat(params.key, " does not exist in data, check `rowKey` or `data` please."));
+        }
+      }
+      primaryTableRef.value.scrollToElement(_objectSpread(_objectSpread({}, params), {}, {
+        index: index
+      }));
+    };
+    context.expose(_objectSpread(_objectSpread({
+      store: store.value,
+      dataSource: dataSource.value
+    }, treeInstanceFunctions), {}, {
+      primaryTableRef: primaryTableRef,
+      validateRowData: function validateRowData(rowValue) {
+        return primaryTableRef.value.validateRowData(rowValue);
+      },
+      validateTableData: function validateTableData() {
+        return primaryTableRef.value.validateTableData();
+      },
+      clearValidateData: function clearValidateData() {
+        primaryTableRef.value.clearValidateData();
+      },
+      refreshTable: function refreshTable() {
+        primaryTableRef.value.refreshTable();
+      },
+      scrollToElement: scrollToElement
+    }));
+    return function () {
+      var _props$tree2;
+      var _getCurrentInstance = getCurrentInstance(),
+        vnode = _getCurrentInstance.vnode;
+      var enhancedProps = _objectSpread(_objectSpread({}, vnode.props), {}, {
+        rowKey: props.rowKey || "id",
+        data: dataSource.value,
+        columns: tColumns.value,
+        indeterminateSelectedRowKeys: tIndeterminateSelectedRowKeys.value,
+        disableDataPage: Boolean(props.tree && Object.keys(props.tree).length) || props.disableDataPage,
+        onSelectChange: onInnerSelectChange,
+        onDragSort: onDragSortChange,
+        rowClassName: function rowClassName(_ref) {
+          var row = _ref.row;
+          var rowValue = get(row, props.rowKey || "id");
+          var rowState = treeDataMap.value.get(rowValue);
+          if (!rowState) return [props.rowClassName];
+          return ["".concat(classPrefix.value, "-table-tr--level-").concat(rowState.level), props.rowClassName];
+        }
+      });
+      if ((_props$tree2 = props.tree) !== null && _props$tree2 !== void 0 && _props$tree2.expandTreeNodeOnClick) {
+        enhancedProps.onRowClick = onEnhancedTableRowClick;
+      }
+      return createVNode(_PrimaryTable, mergeProps(enhancedProps, {
+        "ref": primaryTableRef
+      }), context.slots);
+    };
+  }
+});
+
+export { _EnhancedTable as default };
+//# sourceMappingURL=enhanced-table.js.map

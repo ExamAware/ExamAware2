@@ -1,0 +1,177 @@
+@keyframes changeColor {
+  from {
+    color: var(--td-brand-color-hover);
+  }
+  to {
+    color: var(--td-brand-color-active);
+  }
+}
+.t-breadcrumb {
+  color: var(--td-text-color-primary);
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font: var(--td-font-body-medium);
+  display: flex;
+  align-items: center;
+}
+.t-breadcrumb__separator {
+  margin: 0 var(--td-comp-margin-xs);
+  display: flex;
+  align-items: center;
+}
+.t-breadcrumb__separator .t-icon {
+  color: var(--td-text-color-placeholder);
+}
+.t-breadcrumb__item {
+  display: flex;
+  align-items: center;
+  color: var(--td-text-color-placeholder);
+  text-decoration: none;
+}
+.t-breadcrumb__item.t-is-current {
+  color: var(--td-text-color-primary);
+}
+.t-breadcrumb__item.t-is-current .t-icon {
+  color: var(--td-text-color-placeholder);
+}
+.t-breadcrumb__item:last-child {
+  color: var(--td-text-color-primary);
+}
+.t-breadcrumb__item:last-child .t-breadcrumb__separator {
+  display: none;
+}
+.t-breadcrumb__item .t-icon {
+  font-size: var(--td-font-size-body-large);
+}
+.t-breadcrumb__item .t-link {
+  color: inherit;
+  text-decoration: none;
+}
+.t-breadcrumb__item .t-link:hover {
+  color: var(--td-brand-color);
+}
+.t-breadcrumb__item .t-is-disabled {
+  cursor: not-allowed;
+}
+.t-breadcrumb__item .t-is-disabled .t-breadcrumb__inner {
+  color: var(--td-text-color-disabled);
+}
+.t-breadcrumb__item .t-is-disabled .t-breadcrumb__inner:hover {
+  color: var(--td-text-color-disabled);
+  cursor: not-allowed;
+}
+.t-breadcrumb__item .t-is-disabled .t-breadcrumb__inner:active {
+  animation: none;
+}
+.t-breadcrumb__item--arrow {
+  margin: 0 var(--td-comp-margin-xs);
+  line-height: 0;
+  color: var(--td-text-color-placeholder);
+  display: inline-block;
+  vertical-align: middle;
+}
+.t-breadcrumb__item--slash {
+  margin: 0 var(--td-comp-margin-xs);
+  line-height: 0;
+  color: var(--td-text-color-placeholder);
+  display: inline-block;
+  vertical-align: middle;
+}
+.t-breadcrumb__inner {
+  font: var(--td-font-body-medium);
+  word-break: break-all;
+  display: inline-block;
+  vertical-align: middle;
+}
+.t-breadcrumb__inner .t-icon {
+  margin: 0 var(--td-comp-margin-xs);
+}
+.t-breadcrumb__select {
+  position: relative;
+}
+.t-breadcrumb__select:hover .t-breadcrumb__option {
+  display: block;
+}
+.t-breadcrumb__select-item:hover .t-icon {
+  color: var(--td-brand-color);
+}
+.t-breadcrumb__option {
+  display: none;
+  position: absolute;
+  top: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 120px;
+  background: var(--td-bg-color-container);
+  box-shadow: var(--td-shadow-2);
+  z-index: 20;
+}
+.t-breadcrumb__option-item {
+  padding: 8px;
+  font: var(--td-font-body-medium);
+  color: var(--td-text-color-primary);
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.t-breadcrumb__option-item:hover {
+  color: var(--td-brand-color);
+}
+.t-breadcrumb__option-item.t-is-active {
+  color: var(--td-brand-color);
+}
+.t-breadcrumb__inner-msg {
+  display: none;
+  position: absolute;
+  left: 50%;
+  bottom: 30px;
+  transform: translateX(-50%);
+  width: 300px;
+  padding: 8px;
+  color: var(--td-text-color-primary);
+  background: var(--td-bg-color-container);
+  border-radius: calc(var(--td-radius-default) * 0.5);
+  box-shadow: var(--td-shadow-2);
+  z-index: 20;
+}
+.t-breadcrumb__inner-msg::before {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  margin-left: -4px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 8px 6px 0;
+  border-color: var(--td-bg-color-container) transparent transparent transparent;
+  z-index: 20;
+}
+.t-breadcrumb--text-overflow {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.t-breadcrumb--text-overflow:hover .t-breadcrumb__inner-msg {
+  display: block;
+}
+.t-breadcrumb--text-overflow .t-breadcrumb__inner {
+  max-width: 120px;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s linear;
+}
+.t-breadcrumb--text-overflow .t-breadcrumb__inner-text {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.t-breadcrumb--text-overflow .t-breadcrumb__inner:hover {
+  color: var(--td-brand-color);
+  cursor: pointer;
+}
+.t-breadcrumb--text-overflow .t-breadcrumb__inner:active {
+  animation: 0.2s linear changeColor;
+}

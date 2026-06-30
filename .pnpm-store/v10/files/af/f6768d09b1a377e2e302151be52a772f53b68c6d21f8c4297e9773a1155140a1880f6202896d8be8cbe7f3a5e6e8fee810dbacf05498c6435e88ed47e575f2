@@ -1,0 +1,59 @@
+.t-input-adornment {
+  font: var(--td-font-body-medium);
+  color: var(--td-text-color-primary);
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+}
+.t-input-adornment__prepend .t-input,
+.t-input-adornment__append .t-input,
+.t-input-adornment__prepend .t-textarea__inner,
+.t-input-adornment__append .t-textarea__inner {
+  background-color: transparent;
+}
+.t-input-adornment__prepend {
+  background-color: var(--td-bg-color-secondarycontainer);
+  color: var(--td-text-color-primary);
+  word-break: keep-all;
+  margin-right: -1px;
+}
+.t-input-adornment__append {
+  background-color: var(--td-bg-color-secondarycontainer);
+  color: var(--td-text-color-primary);
+  word-break: keep-all;
+  margin-left: -1px;
+}
+.t-input-adornment__text {
+  display: inline-flex;
+  height: 100%;
+  align-items: center;
+  box-sizing: border-box;
+  white-space: nowrap;
+  padding: 0 var(--td-comp-paddingLR-s);
+  border: 1px solid var(--td-border-level-2-color);
+}
+.t-input-adornment > :first-child {
+  border-radius: var(--td-radius-default) 0 0 var(--td-radius-default);
+}
+.t-input-adornment > :first-child .t-input,
+.t-input-adornment > :first-child .t-input-adornment__text,
+.t-input-adornment > :first-child .t-textarea__inner {
+  border-radius: var(--td-radius-default) 0 0 var(--td-radius-default);
+}
+.t-input-adornment > :last-child {
+  border-radius: 0 var(--td-radius-default) var(--td-radius-default) 0;
+}
+.t-input-adornment > :last-child .t-input,
+.t-input-adornment > :last-child .t-input-adornment__text,
+.t-input-adornment > :last-child .t-textarea__inner {
+  border-radius: 0 var(--td-radius-default) var(--td-radius-default) 0;
+}
+.t-input-adornment > :not(:last-child):hover {
+  z-index: 2;
+}
+.t-input-adornment > :not(:first-child):not(:last-child) .t-input,
+.t-input-adornment > :not(:first-child):not(:last-child) .t-textarea__inner {
+  border-radius: 0;
+}

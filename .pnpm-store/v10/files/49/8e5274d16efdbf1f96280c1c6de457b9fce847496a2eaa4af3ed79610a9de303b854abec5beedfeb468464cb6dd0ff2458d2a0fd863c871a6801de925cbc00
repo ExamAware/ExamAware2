@@ -1,0 +1,2 @@
+import{h as o}from"vue";import{defineClientConfig as r}from"vuepress/client";import"./styles/vars.css";import{N as t}from"./Notice-D-vUrWEH.js";import"@vuepress/helper/client";import"@vueuse/core";import"@vuepress/helper/transition/fade-in-up.css";import"./styles/notice.css";import"@internal/noticeOptions";var i=r({rootComponents:[()=>o(t)]});export{i as default};
+//# sourceMappingURL=config.js.map

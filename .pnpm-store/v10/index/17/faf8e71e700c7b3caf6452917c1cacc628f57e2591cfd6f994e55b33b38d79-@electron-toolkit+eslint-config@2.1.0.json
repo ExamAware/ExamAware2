@@ -1,0 +1,37 @@
+{
+  "name": "@electron-toolkit/eslint-config",
+  "version": "2.1.0",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883824989,
+      "integrity": "sha512-Y3cSW3sO/lW3DVzRfbDTe4eBPnWTkQUXToEKiU2rn+Ru8gNy97aezhQPZDl3IyAgQ4+deZMHNd2LCKi/kGJIcw==",
+      "mode": 420,
+      "size": 1074
+    },
+    "index.js": {
+      "checkedAt": 1780883833009,
+      "integrity": "sha512-jSSyL6KrVGROlznZ3hYi0FFbXG4QPWublx/qPMxbuPz5VIqsT7Cdj3rjJVXxBj6fHaeITqpmB/FFXWP3bjSeLw==",
+      "mode": 420,
+      "size": 476
+    },
+    "package.json": {
+      "checkedAt": 1780883833009,
+      "integrity": "sha512-FnsxV3L51JwR4ATX7XPJ591rNHqFam9EV4KFjTyMxtySw8bPd1XG1rrSNgEJC9iWQ5t8uZ05w+U/wADhZ4o9lg==",
+      "mode": 420,
+      "size": 973
+    },
+    "README.md": {
+      "checkedAt": 1780883833010,
+      "integrity": "sha512-Xfy65biZ96Xh7hvByY7wt8Sv00DyCtdXcse+Q2yf9X/DHEQtMTV6jMTdsX6I6DY/Gp47+xgs4QqOxxKdKC1pFA==",
+      "mode": 420,
+      "size": 521
+    },
+    "index.d.ts": {
+      "checkedAt": 1780883833010,
+      "integrity": "sha512-/VI3WYsS8Qs0XBOifskd8a71ww4H2DYI5HJRo4tasRUFq4z9013mKzdJztrh7Fb/KimeYhjE6+H+eZ1qma6XyQ==",
+      "mode": 420,
+      "size": 89
+    }
+  }
+}

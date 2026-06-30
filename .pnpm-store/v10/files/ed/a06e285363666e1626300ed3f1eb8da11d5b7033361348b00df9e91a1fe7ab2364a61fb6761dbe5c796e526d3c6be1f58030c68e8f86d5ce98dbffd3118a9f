@@ -1,0 +1,16 @@
+import type { PropType } from 'vue';
+import type { CodeLayoutActionButton } from './CodeLayout';
+declare const _default: import("vue").DefineComponent<{
+    actions: {
+        type: PropType<CodeLayoutActionButton[]>;
+        default: () => any;
+    };
+}, {}, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
+    actions: {
+        type: PropType<CodeLayoutActionButton[]>;
+        default: () => any;
+    };
+}>>, {
+    actions: CodeLayoutActionButton[];
+}, {}>;
+export default _default;

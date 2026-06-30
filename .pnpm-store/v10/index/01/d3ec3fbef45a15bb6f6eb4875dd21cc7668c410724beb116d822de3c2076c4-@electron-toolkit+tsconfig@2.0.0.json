@@ -1,0 +1,49 @@
+{
+  "name": "@electron-toolkit/tsconfig",
+  "version": "2.0.0",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883824989,
+      "integrity": "sha512-Y3cSW3sO/lW3DVzRfbDTe4eBPnWTkQUXToEKiU2rn+Ru8gNy97aezhQPZDl3IyAgQ4+deZMHNd2LCKi/kGJIcw==",
+      "mode": 420,
+      "size": 1074
+    },
+    "package.json": {
+      "checkedAt": 1780883835311,
+      "integrity": "sha512-MWLXryeu2l9JPq9Agmmuq2/NACyjhB+trE9fQ7KseJUpnD+WE+oBBQhoi0mqz4sj7HLKW28lHsLJ7izN2ZEClA==",
+      "mode": 420,
+      "size": 737
+    },
+    "tsconfig.json": {
+      "checkedAt": 1780883835311,
+      "integrity": "sha512-ieVdS5wypSWOqI9KdzPgAOK5espjLKIyIqw08Q8PsOE66D0LfSUpyBmSfQ/P7RQl/U72F92kJkkWxdtbtOeMrw==",
+      "mode": 420,
+      "size": 514
+    },
+    "tsconfig.node.json": {
+      "checkedAt": 1780883835312,
+      "integrity": "sha512-CbAUwzZI8Ao25GKH1zWMGjokW0p/JV0W38OPs6UpY/sclOeqoRYZwpOSqaY6OMWbr48UjI5FnLfRA0KrDzjcBg==",
+      "mode": 420,
+      "size": 139
+    },
+    "tsconfig.web.json": {
+      "checkedAt": 1780883835312,
+      "integrity": "sha512-/dCp1a7sAa8YjVl8C5NWSCtPKrsw8qQMLdiMI6XmwOZ1VCn+mfzcrlnZKIB5wh3vt5IZP9EzekUSevkwXq185w==",
+      "mode": 420,
+      "size": 162
+    },
+    "CHANGELOG.md": {
+      "checkedAt": 1780883835312,
+      "integrity": "sha512-/5kfP6SQ6MMMs/CaL4vw7x2GJNX0yB1SuJbM6FhQDB5+q4pVSY9WmyiWuMvcEg6sjH3wD6G5S7eDyC5X8xu3WA==",
+      "mode": 420,
+      "size": 325
+    },
+    "README.md": {
+      "checkedAt": 1780883835312,
+      "integrity": "sha512-9YN1FCqlk2Y9YPOtmfVHtVQSktlqLeWukFyO2b8dyysLKaVO2HZaGblJooZZJCPdLsSVy4yjVbDspCtkHZ+3xw==",
+      "mode": 420,
+      "size": 595
+    }
+  }
+}

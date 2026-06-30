@@ -1,0 +1,77 @@
+@use "@sass-palette/hope-config";
+.vp-sidebar {
+  position: fixed;
+  inset-inline-start: 0;
+  top: 0;
+  bottom: 0;
+
+  // this prevents footer issue on tablet
+  z-index: 1;
+
+  overflow-y: auto;
+
+  width: var(--sidebar-width);
+  margin: 0;
+  padding-inline-start: calc(var(--sidebar-space) - var(--sidebar-width));
+
+  background: var(--sidebar-c-bg);
+  box-shadow: 2px 0 8px var(--vp-c-shadow);
+
+  font-size: 0.94rem;
+
+  backdrop-filter: saturate(150%) blur(12px);
+
+  transition:
+    padding var(--vp-t-transform),
+    transform var(--vp-t-transform);
+
+  scrollbar-color: var(--vp-c-accent-bg) var(--vp-c-border);
+  scrollbar-width: thin;
+
+  @media (max-width: hope-config.$pad) {
+    font-size: 0.86em;
+  }
+
+  // on mobile
+  @media (max-width: hope-config.$tablet) {
+    z-index: 125;
+
+    // a collapsed sidebar should not have box shadow
+    box-shadow: none;
+
+    // sidebar should be collapsed by default
+    transform: translateX(-100%);
+
+    [dir="rtl"] & {
+      transform: translateX(100%);
+    }
+  }
+
+  @media (min-width: hope-config.$pc) {
+    // WARNING: this value should be greater than footer height, and users should manually override it
+    padding-bottom: 3rem;
+    box-shadow: none;
+    font-size: 1rem;
+  }
+
+  @media print {
+    display: none;
+  }
+
+  a {
+    display: inline-block;
+    color: var(--vp-c-text);
+    font-weight: normal;
+  }
+
+  .vp-icon {
+    margin-inline-end: 0.25em;
+  }
+}
+
+.vp-sidebar-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgb(0 0 0 / 15%);
+}

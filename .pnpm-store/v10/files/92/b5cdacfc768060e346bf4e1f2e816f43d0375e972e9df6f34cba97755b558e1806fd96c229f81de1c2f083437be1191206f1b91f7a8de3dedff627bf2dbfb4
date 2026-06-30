@@ -1,0 +1,127 @@
+import { _ as _defineProperty } from '../_chunks/dep-2cb449a9.js';
+import { defineComponent, computed } from 'vue';
+import renderNode from '../utils/render-fn.js';
+import useSizeProps from '../utils/use-size-props.js';
+import '../style/css.js';
+import '../utils/use-common-classname.js';
+import '../utils/config-context.js';
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var element = {
+  "tag": "svg",
+  "attrs": {
+    "fill": "none",
+    "viewBox": "0 0 24 24",
+    "width": "1em",
+    "height": "1em"
+  },
+  "children": [{
+    "tag": "g",
+    "attrs": {
+      "id": "mobile-blocked"
+    },
+    "children": [{
+      "tag": "path",
+      "attrs": {
+        "id": "fill2",
+        "fill": "props.fillColor2",
+        "d": "M14.818 15.182C16.5754 16.9393 19.4246 16.9393 21.182 15.182C22.9393 13.4246 22.9393 10.5754 21.182 8.81802C19.4246 7.06066 16.5754 7.06066 14.818 8.81802C13.0607 10.5754 13.0607 13.4246 14.818 15.182Z"
+      }
+    }, {
+      "tag": "path",
+      "attrs": {
+        "id": "stroke1",
+        "stroke": "props.strokeColor1",
+        "d": "M19 20V22H5V2H19V4M12 18H12.0039V18.0039H12V18Z",
+        "strokeLinecap": "square",
+        "strokeWidth": "props.strokeWidth"
+      }
+    }, {
+      "tag": "path",
+      "attrs": {
+        "id": "stroke2",
+        "stroke": "props.strokeColor2",
+        "d": "M20.4749 9.52514L15.5251 14.4749M21.182 15.182C19.4246 16.9393 16.5754 16.9393 14.818 15.182C13.0607 13.4246 13.0607 10.5754 14.818 8.81802C16.5754 7.06066 19.4246 7.06066 21.182 8.81802C22.9393 10.5754 22.9393 13.4246 21.182 15.182Z",
+        "strokeLinecap": "square",
+        "strokeWidth": "props.strokeWidth"
+      }
+    }]
+  }]
+};
+var mobileBlocked = defineComponent({
+  name: "MobileBlockedIcon",
+  props: {
+    size: {
+      type: String
+    },
+    onClick: {
+      type: Function
+    },
+    fillColor: {
+      type: [Array, String]
+    },
+    strokeColor: {
+      type: [Array, String]
+    },
+    strokeWidth: {
+      type: Number
+    }
+  },
+  setup(props, _ref) {
+    var {
+      attrs
+    } = _ref;
+    var propsSize = computed(() => props.size);
+    var strokeColor1 = computed(() => {
+      if (!props.strokeColor) return "currentColor";
+      return Array.isArray(props.strokeColor) ? props.strokeColor[0] : props.strokeColor;
+    });
+    var strokeColor2 = computed(() => {
+      var _props$strokeColor$;
+      if (!props.strokeColor) return "currentColor";
+      return Array.isArray(props.strokeColor) ? (_props$strokeColor$ = props.strokeColor[1]) !== null && _props$strokeColor$ !== void 0 ? _props$strokeColor$ : props.strokeColor[0] : props.strokeColor;
+    });
+    var fillColor1 = computed(() => {
+      if (!props.fillColor) return "transparent";
+      return Array.isArray(props.fillColor) ? props.fillColor[0] : props.fillColor;
+    });
+    var fillColor2 = computed(() => {
+      var _props$fillColor$;
+      if (!props.fillColor) return "transparent";
+      return Array.isArray(props.fillColor) ? (_props$fillColor$ = props.fillColor[1]) !== null && _props$fillColor$ !== void 0 ? _props$fillColor$ : props.fillColor[0] : props.fillColor;
+    });
+    var filledColor = computed(() => {
+      if (!props.fillColor) return "currentColor";
+      return Array.isArray(props.fillColor) ? props.fillColor[0] : props.fillColor;
+    });
+    var {
+      className,
+      style
+    } = useSizeProps(propsSize);
+    var finalCls = computed(() => ["t-icon", "t-icon-mobile-blocked", className.value]);
+    var finalStyle = computed(() => _objectSpread(_objectSpread({
+      fill: "none"
+    }, style.value), attrs.style));
+    var finalProps = computed(() => ({
+      class: finalCls.value,
+      style: finalStyle.value,
+      onClick: e => {
+        var _props$onClick;
+        return (_props$onClick = props.onClick) === null || _props$onClick === void 0 ? void 0 : _props$onClick.call(props, {
+          e
+        });
+      },
+      strokeColor1: strokeColor1.value,
+      strokeColor2: strokeColor2.value,
+      fillColor1: fillColor1.value,
+      fillColor2: fillColor2.value,
+      strokeWidth: props.strokeWidth || 2,
+      filledColor: filledColor.value
+    }));
+    return () => renderNode(element, finalProps.value);
+  }
+});
+
+export default mobileBlocked;
+//# sourceMappingURL=mobile-blocked.js.map

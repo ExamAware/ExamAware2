@@ -1,0 +1,43 @@
+{
+  "name": "@mdit/plugin-tasklist",
+  "version": "0.22.2",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883865993,
+      "integrity": "sha512-EkGWVJwkgjn++kNMTY3pttbMt23zfymOC2xvNabuVePkONMIqZSKOdlwIGvK6Xr0uVggojSkExWSVfVX0JYjsg==",
+      "mode": 420,
+      "size": 1174
+    },
+    "lib/index.js": {
+      "checkedAt": 1780883865993,
+      "integrity": "sha512-ZpE9gjxcXCQSMbIfkljlqEV4zNCslb1xAV1rcdBhbIbs459yCrcegLykXcuvEpNFNNsayFFDaXUaBIikRoJg2A==",
+      "mode": 420,
+      "size": 1343
+    },
+    "package.json": {
+      "checkedAt": 1780883865993,
+      "integrity": "sha512-q1jIR+5DG93HwoWbFHT1w511GfpBt1Ccyyz16GAAoxQTa98ZphANVJKmpwbIUZ65ehm1gWYlcDIbJcqUU6UILg==",
+      "mode": 420,
+      "size": 1278
+    },
+    "lib/index.js.map": {
+      "checkedAt": 1780883865994,
+      "integrity": "sha512-R2Ej0DnbOgJb4odeO3G5azY9KYG2x8YK3aiuUFPB68He5OdocBokUkh7p5XwU4OxR/eGwrD6XjHS5AjgfmMuZQ==",
+      "mode": 420,
+      "size": 6605
+    },
+    "README.md": {
+      "checkedAt": 1780883865994,
+      "integrity": "sha512-Iifkr+973bWIJ+adY2dQh4YBicUSUvl7Na/WTgrB44xWQOPjsXx3ZhEFe5t+R2ZCnVwiDLautOzSa2bctfejbA==",
+      "mode": 420,
+      "size": 672
+    },
+    "lib/index.d.ts": {
+      "checkedAt": 1780883865994,
+      "integrity": "sha512-jEuMQgPXSsWxrq3DyaBZQxWuE8tW7MjaDpmkWwwp5s4buFmiLrtMibajFZB/PHVg4LToRZ69PNzj3E6guRbeNg==",
+      "mode": 420,
+      "size": 1345
+    }
+  }
+}

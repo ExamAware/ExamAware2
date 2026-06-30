@@ -1,0 +1,95 @@
+/**
+ * tdesign v1.17.7
+ * (c) 2025 tdesign
+ * @license MIT
+ */
+
+import _ImageViewer from './image-viewer.js';
+import 'vue';
+import '../_chunks/dep-fe23be6e.js';
+import 'lodash-es';
+import { w as withInstall } from '../_chunks/dep-664b8b22.js';
+import '@babel/runtime/helpers/defineProperty';
+import '@babel/runtime/helpers/slicedToArray';
+import 'tdesign-icons-vue-next';
+import '@babel/runtime/helpers/toConsumableArray';
+import '@babel/runtime/helpers/typeof';
+import '../_chunks/dep-2accc95a.js';
+import '../_chunks/dep-16bcfabc.js';
+import '../_chunks/dep-fb805f69.js';
+import '../_chunks/dep-9e6d8a78.js';
+import '../config-provider/hooks/useConfig.js';
+import '../config-provider/utils/context.js';
+import '../_chunks/dep-938cd955.js';
+import '../_chunks/dep-81b01cae.js';
+import 'dayjs';
+import '../_chunks/dep-aa34a263.js';
+import '../_chunks/dep-880d05b9.js';
+import '@babel/runtime/helpers/createClass';
+import '@babel/runtime/helpers/classCallCheck';
+import '../_chunks/dep-ee693784.js';
+import '../loading/icon/gradient.js';
+import '../_chunks/dep-2ea19dca.js';
+import '../_chunks/dep-80a99546.js';
+import '@babel/runtime/helpers/objectWithoutProperties';
+import '../_chunks/dep-4f8b6591.js';
+import '../loading/props.js';
+import '../_chunks/dep-51e5a827.js';
+import '../image/index.js';
+import '../image/image.js';
+import '../_chunks/dep-6264b0a7.js';
+import '../_chunks/dep-d9f4e50e.js';
+import '../_chunks/dep-7d14e543.js';
+import '../_chunks/dep-8295e674.js';
+import '../image/props.js';
+import '../space/index.js';
+import '../space/space.js';
+import '../space/props.js';
+import '../_chunks/dep-e3ce8c8f.js';
+import './base/ImageItem.js';
+import '@babel/runtime/helpers/asyncToGenerator';
+import '@babel/runtime/regenerator';
+import './hooks/index.js';
+import '../_chunks/dep-1a63d163.js';
+import '../_chunks/dep-05f15b4e.js';
+import './base/ImageModalIcon.js';
+import './base/ImageViewerModal.js';
+import '../dialog/index.js';
+import '../dialog/dialog.js';
+import '../dialog/props.js';
+import '../_chunks/dep-7f74a978.js';
+import '../button/index.js';
+import '../button/button.js';
+import '../loading/index.js';
+import '../loading/directive.js';
+import '../loading/plugin.js';
+import '../button/props.js';
+import '../_chunks/dep-f7dd3c12.js';
+import '../_chunks/dep-d2a6e7a4.js';
+import '../dialog/hooks/useSameTarget.js';
+import '../_chunks/dep-167f0981.js';
+import '../dialog/utils/index.js';
+import '../dialog/dialog-card.js';
+import '../dialog/dialog-card-props.js';
+import '../_chunks/dep-3a7a2ef1.js';
+import '../dialog/hooks/useAction.js';
+import '../dialog/plugin.js';
+import './props.js';
+import './base/ImageViewerUtils.js';
+import '../tooltip/index.js';
+import '../tooltip/tooltip.js';
+import '../tooltip/props.js';
+import '../popup/props.js';
+import '../popup/index.js';
+import '../popup/popup.js';
+import '@popperjs/core';
+import '../popup/container.js';
+import '../_chunks/dep-80a77612.js';
+import '../tooltip/utils/index.js';
+import './consts/index.js';
+import './utils/index.js';
+
+var ImageViewer = withInstall(_ImageViewer);
+
+export { ImageViewer, ImageViewer as default };
+//# sourceMappingURL=index.js.map

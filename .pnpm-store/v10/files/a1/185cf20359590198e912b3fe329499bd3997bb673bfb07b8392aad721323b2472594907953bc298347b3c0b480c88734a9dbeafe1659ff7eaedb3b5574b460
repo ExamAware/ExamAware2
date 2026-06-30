@@ -1,0 +1,13 @@
+export type LateClassCallback = (...args: any[]) => any;
+/**
+ * 用于将对象发生上的调用进行延迟发送
+ */
+export declare class LateClass {
+    private _lateNotifyCallbacks;
+    private _lateNotifyItems;
+    listenLateAction(name: string, cb: LateClassCallback): void;
+    unlistenLateAction(name: string): void;
+    unlistenAllLateAction(): void;
+    applyLateActions(name: string): void;
+    pushLateAction(name: string, ...args: any[]): Promise<any>;
+}

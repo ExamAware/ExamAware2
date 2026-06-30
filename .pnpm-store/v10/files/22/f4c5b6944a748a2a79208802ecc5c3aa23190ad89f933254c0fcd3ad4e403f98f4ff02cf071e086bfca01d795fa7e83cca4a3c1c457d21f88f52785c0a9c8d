@@ -1,0 +1,1 @@
+{"version":3,"file":"getAncestorLinks.d.ts","sourceRoot":"","sources":["../../../src/client/utils/getAncestorLinks.ts"],"names":[],"mappings":"AAEA,eAAO,MAAM,gBAAgB,GAC3B,MAAM,MAAM,EACZ,aAAa,MAAM,KAClB;IAAE,IAAI,EAAE,MAAM,CAAC;IAAC,IAAI,EAAE,MAAM,CAAA;CAAE,EAiBhC,CAAC"}

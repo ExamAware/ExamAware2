@@ -1,0 +1,235 @@
+@use "@sass-palette/hope-config";
+.vp-feature-wrapper {
+  position: relative;
+}
+
+.vp-feature-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
+  background-attachment: fixed;
+  background-position: 50%;
+  background-size: cover;
+
+  &.light {
+    display: inline-block;
+  }
+
+  &.dark {
+    display: none;
+  }
+
+  [data-theme="dark"] & {
+    &.light {
+      display: none;
+    }
+
+    &.dark {
+      display: inline-block;
+    }
+  }
+}
+
+.vp-feature {
+  position: relative;
+  z-index: 1;
+
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+
+  color: var(--vp-c-text-mute);
+
+  text-align: center;
+
+  .vp-feature-bg + & {
+    color: #222;
+
+    [data-theme="dark"] & {
+      color: #eee;
+    }
+
+    .vp-icon {
+      color: inherit;
+    }
+  }
+}
+
+.vp-feature-image {
+  height: 10rem;
+  margin: 0 auto;
+
+  @media (max-width: hope-config.$pad) {
+    height: 8rem;
+  }
+
+  &.light {
+    display: inline-block;
+  }
+
+  &.dark {
+    display: none;
+  }
+
+  [data-theme="dark"] & {
+    &.light {
+      display: none;
+    }
+
+    &.dark {
+      display: inline-block;
+    }
+  }
+}
+
+.vp-feature-header {
+  margin-bottom: 1.5rem;
+  border-bottom: none;
+
+  font-size: 3rem;
+  font-family: var(--vp-font);
+  text-align: center;
+
+  @media (max-width: hope-config.$pad) {
+    font-size: 2.5rem;
+  }
+
+  @media (max-width: hope-config.$tablet) {
+    font-size: 2.25rem;
+  }
+
+  @media (max-width: hope-config.$mobile) {
+    font-size: 2rem;
+  }
+}
+
+.vp-feature-description {
+  margin: 1rem 0;
+  font-size: 1.125rem;
+}
+
+.vp-features {
+  z-index: 1;
+
+  display: flex;
+  flex-wrap: wrap;
+  place-content: stretch center;
+  align-items: stretch;
+
+  margin: 1rem 0;
+
+  text-align: start;
+
+  @media print {
+    display: block;
+  }
+
+  &:first-child {
+    border-top: 1px solid var(--vp-c-border);
+  }
+}
+
+.vp-feature-item {
+  position: relative;
+
+  display: block;
+  flex-basis: calc(33% - 3rem);
+
+  margin: 0.5rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+
+  color: inherit;
+
+  transition:
+    background var(--vp-t-color),
+    box-shadow var(--vp-t-transform),
+    transform var(--vp-t-transform);
+
+  @media (min-width: hope-config.$pc) {
+    flex-basis: calc(25% - 3rem);
+  }
+
+  @media (max-width: hope-config.$pad) {
+    flex-basis: calc(50% - 3rem);
+  }
+
+  @media (max-width: hope-config.$tablet) {
+    flex-basis: 100%;
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: hope-config.$mobile) {
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+  }
+
+  &.link {
+    cursor: pointer;
+    transition: transform var(--vp-t-transform);
+
+    @media print {
+      text-decoration: none;
+    }
+
+    &:hover {
+      background-color: var(--vp-c-grey-soft);
+
+      .vp-feature-bg + .vp-feature & {
+        background-color: transparent;
+        backdrop-filter: blur(12px);
+      }
+
+      &::before {
+        content: "➜";
+        display: block;
+        float: right;
+      }
+    }
+
+    &:active {
+      transform: scale(0.96);
+    }
+  }
+
+  .vp-icon {
+    display: inline-block;
+
+    height: 1.1em;
+    margin-inline-end: 0.5rem;
+
+    color: var(--vp-c-accent);
+
+    font-weight: normal;
+    font-size: 1.1em;
+  }
+
+  &:only-child {
+    flex-basis: 100%;
+  }
+
+  &:first-child:nth-last-child(2),
+  &:nth-child(2):last-child {
+    flex-basis: calc(50% - 3rem);
+
+    @media (max-width: hope-config.$tablet) {
+      flex-basis: 100%;
+    }
+  }
+}
+
+.vp-feature-title {
+  margin: 0.25rem 0 0.5rem;
+  font-weight: bold;
+  font-size: 1.3rem;
+  font-family: var(--vp-font);
+
+  @media (max-width: hope-config.$mobile) {
+    font-size: 1.2rem;
+  }
+}
+
+.vp-feature-details {
+  margin: 0;
+  line-height: 1.4;
+}

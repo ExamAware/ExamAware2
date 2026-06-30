@@ -1,0 +1,352 @@
+import { TdDateRangePickerProps, DateRangePickerPartial } from '../type';
+export declare const PARTIAL_MAP: Record<'first' | 'second', DateRangePickerPartial>;
+export declare function useRange(props: TdDateRangePickerProps): {
+    year: import("vue").Ref<number[]>;
+    month: import("vue").Ref<number[]>;
+    value: import("vue").Ref<import("..").DateRangeValue>;
+    time: import("vue").Ref<string[]>;
+    inputValue: import("vue").Ref<string | number | string[] | number[] | {
+        toString: () => string;
+        toDateString: () => string;
+        toTimeString: () => string;
+        toLocaleString: {
+            (): string;
+            (locales?: string | string[], options?: Intl.DateTimeFormatOptions): string;
+            (locales?: Intl.LocalesArgument, options?: Intl.DateTimeFormatOptions): string;
+        };
+        toLocaleDateString: {
+            (): string;
+            (locales?: string | string[], options?: Intl.DateTimeFormatOptions): string;
+            (locales?: Intl.LocalesArgument, options?: Intl.DateTimeFormatOptions): string;
+        };
+        toLocaleTimeString: {
+            (): string;
+            (locales?: string | string[], options?: Intl.DateTimeFormatOptions): string;
+            (locales?: Intl.LocalesArgument, options?: Intl.DateTimeFormatOptions): string;
+        };
+        valueOf: () => number;
+        getTime: () => number;
+        getFullYear: () => number;
+        getUTCFullYear: () => number;
+        getMonth: () => number;
+        getUTCMonth: () => number;
+        getDate: () => number;
+        getUTCDate: () => number;
+        getDay: () => number;
+        getUTCDay: () => number;
+        getHours: () => number;
+        getUTCHours: () => number;
+        getMinutes: () => number;
+        getUTCMinutes: () => number;
+        getSeconds: () => number;
+        getUTCSeconds: () => number;
+        getMilliseconds: () => number;
+        getUTCMilliseconds: () => number;
+        getTimezoneOffset: () => number;
+        setTime: (time: number) => number;
+        setMilliseconds: (ms: number) => number;
+        setUTCMilliseconds: (ms: number) => number;
+        setSeconds: (sec: number, ms?: number) => number;
+        setUTCSeconds: (sec: number, ms?: number) => number;
+        setMinutes: (min: number, sec?: number, ms?: number) => number;
+        setUTCMinutes: (min: number, sec?: number, ms?: number) => number;
+        setHours: (hours: number, min?: number, sec?: number, ms?: number) => number;
+        setUTCHours: (hours: number, min?: number, sec?: number, ms?: number) => number;
+        setDate: (date: number) => number;
+        setUTCDate: (date: number) => number;
+        setMonth: (month: number, date?: number) => number;
+        setUTCMonth: (month: number, date?: number) => number;
+        setFullYear: (year: number, month?: number, date?: number) => number;
+        setUTCFullYear: (year: number, month?: number, date?: number) => number;
+        toUTCString: () => string;
+        toISOString: () => string;
+        toJSON: (key?: any) => string;
+        getVarDate: () => VarDate;
+        [Symbol.toPrimitive]: {
+            (hint: "default"): string;
+            (hint: "string"): string;
+            (hint: "number"): number;
+            (hint: string): string | number;
+        };
+    } | {
+        toString: () => string;
+        toDateString: () => string;
+        toTimeString: () => string;
+        toLocaleString: {
+            (): string;
+            (locales?: string | string[], options?: Intl.DateTimeFormatOptions): string;
+            (locales?: Intl.LocalesArgument, options?: Intl.DateTimeFormatOptions): string;
+        };
+        toLocaleDateString: {
+            (): string;
+            (locales?: string | string[], options?: Intl.DateTimeFormatOptions): string;
+            (locales?: Intl.LocalesArgument, options?: Intl.DateTimeFormatOptions): string;
+        };
+        toLocaleTimeString: {
+            (): string;
+            (locales?: string | string[], options?: Intl.DateTimeFormatOptions): string;
+            (locales?: Intl.LocalesArgument, options?: Intl.DateTimeFormatOptions): string;
+        };
+        valueOf: () => number;
+        getTime: () => number;
+        getFullYear: () => number;
+        getUTCFullYear: () => number;
+        getMonth: () => number;
+        getUTCMonth: () => number;
+        getDate: () => number;
+        getUTCDate: () => number;
+        getDay: () => number;
+        getUTCDay: () => number;
+        getHours: () => number;
+        getUTCHours: () => number;
+        getMinutes: () => number;
+        getUTCMinutes: () => number;
+        getSeconds: () => number;
+        getUTCSeconds: () => number;
+        getMilliseconds: () => number;
+        getUTCMilliseconds: () => number;
+        getTimezoneOffset: () => number;
+        setTime: (time: number) => number;
+        setMilliseconds: (ms: number) => number;
+        setUTCMilliseconds: (ms: number) => number;
+        setSeconds: (sec: number, ms?: number) => number;
+        setUTCSeconds: (sec: number, ms?: number) => number;
+        setMinutes: (min: number, sec?: number, ms?: number) => number;
+        setUTCMinutes: (min: number, sec?: number, ms?: number) => number;
+        setHours: (hours: number, min?: number, sec?: number, ms?: number) => number;
+        setUTCHours: (hours: number, min?: number, sec?: number, ms?: number) => number;
+        setDate: (date: number) => number;
+        setUTCDate: (date: number) => number;
+        setMonth: (month: number, date?: number) => number;
+        setUTCMonth: (month: number, date?: number) => number;
+        setFullYear: (year: number, month?: number, date?: number) => number;
+        setUTCFullYear: (year: number, month?: number, date?: number) => number;
+        toUTCString: () => string;
+        toISOString: () => string;
+        toJSON: (key?: any) => string;
+        getVarDate: () => VarDate;
+        [Symbol.toPrimitive]: {
+            (hint: "default"): string;
+            (hint: "string"): string;
+            (hint: "number"): number;
+            (hint: string): string | number;
+        };
+    }[]>;
+    popupVisible: import("vue").Ref<boolean>;
+    rangeInputProps: import("vue").ComputedRef<{
+        size: import("../..").SizeEnum;
+        ref: import("vue").Ref<any>;
+        borderless: boolean;
+        clearable: boolean;
+        prefixIcon: () => any;
+        readonly: boolean;
+        separator: string;
+        placeholder: string | string[];
+        activeIndex: 0 | 1;
+        suffixIcon: () => any;
+        class: {
+            [x: string]: boolean;
+        };
+        onClick: ({ position }: any) => void;
+        onClear: (context: {
+            e: MouseEvent;
+        } | MouseEvent) => void;
+        onBlur: (newVal: string[], { e, position }: {
+            e: MouseEvent;
+            position: "first" | "second";
+        }) => void;
+        onFocus: (newVal: string[], { e, position }: {
+            e: MouseEvent;
+            position: "first" | "second";
+        }) => void;
+        onChange: (newVal: string[], { e, position }: {
+            e: MouseEvent;
+            position: "first" | "second";
+        }) => void;
+        onEnter: (newVal: string[]) => void;
+        disabled?: boolean;
+        format?: import("../..").InputFormatType | Array<import("../..").InputFormatType>;
+        inputProps?: import("../..").InputProps | Array<import("../..").InputProps>;
+        label?: string | import("../..").TNode;
+        showClearIconOnEmpty?: boolean;
+        status?: "default" | "success" | "warning" | "error";
+        suffix?: string | import("../..").TNode;
+        tips?: string | import("../..").TNode;
+        value?: import("../..").RangeInputValue;
+        defaultValue?: import("../..").RangeInputValue;
+        modelValue?: import("../..").RangeInputValue;
+        onMouseenter?: (context: {
+            e: MouseEvent;
+        }) => void;
+        onMouseleave?: (context: {
+            e: MouseEvent;
+        }) => void;
+    }>;
+    popupProps: import("vue").ComputedRef<{
+        overlayInnerStyle: import("../..").Styles | ((triggerElement: HTMLElement, popupElement: HTMLElement) => import("../..").Styles);
+        overlayClassName: import("../..").ClassName[];
+        onVisibleChange: (visible: boolean, context: any) => void;
+        default?: string | import("../..").TNode;
+        disabled?: boolean;
+        visible?: boolean;
+        modelValue?: boolean;
+        attach?: import("../..").AttachNode;
+        onScroll?: (context: {
+            e: WheelEvent;
+        }) => void;
+        content?: string | import("../..").TNode;
+        overlayStyle?: import("../..").Styles | ((triggerElement: HTMLElement, popupElement: HTMLElement) => import("../..").Styles);
+        delay?: number | Array<number>;
+        overlayInnerClassName?: import("../..").ClassName;
+        placement?: import("../..").PopupPlacement;
+        popperOptions?: object;
+        trigger?: "hover" | "click" | "focus" | "mousedown" | "context-menu";
+        triggerElement?: string | import("../..").TNode;
+        onOverlayClick?: (context: {
+            e: MouseEvent;
+        }) => void;
+        onScrollToBottom?: (context: {
+            e: WheelEvent;
+        }) => void;
+        destroyOnClose?: boolean;
+        hideEmptyPopup?: boolean;
+        showArrow?: boolean;
+        defaultVisible?: boolean;
+        zIndex?: number;
+        expandAnimation: boolean;
+    }>;
+    isHoverCell: import("vue").Ref<boolean>;
+    activeIndex: import("vue").Ref<0 | 1>;
+    isFirstValueSelected: import("vue").Ref<boolean>;
+    cacheValue: import("vue").Ref<string | number | string[] | number[] | {
+        toString: () => string;
+        toDateString: () => string;
+        toTimeString: () => string;
+        toLocaleString: {
+            (): string;
+            (locales?: string | string[], options?: Intl.DateTimeFormatOptions): string;
+            (locales?: Intl.LocalesArgument, options?: Intl.DateTimeFormatOptions): string;
+        };
+        toLocaleDateString: {
+            (): string;
+            (locales?: string | string[], options?: Intl.DateTimeFormatOptions): string;
+            (locales?: Intl.LocalesArgument, options?: Intl.DateTimeFormatOptions): string;
+        };
+        toLocaleTimeString: {
+            (): string;
+            (locales?: string | string[], options?: Intl.DateTimeFormatOptions): string;
+            (locales?: Intl.LocalesArgument, options?: Intl.DateTimeFormatOptions): string;
+        };
+        valueOf: () => number;
+        getTime: () => number;
+        getFullYear: () => number;
+        getUTCFullYear: () => number;
+        getMonth: () => number;
+        getUTCMonth: () => number;
+        getDate: () => number;
+        getUTCDate: () => number;
+        getDay: () => number;
+        getUTCDay: () => number;
+        getHours: () => number;
+        getUTCHours: () => number;
+        getMinutes: () => number;
+        getUTCMinutes: () => number;
+        getSeconds: () => number;
+        getUTCSeconds: () => number;
+        getMilliseconds: () => number;
+        getUTCMilliseconds: () => number;
+        getTimezoneOffset: () => number;
+        setTime: (time: number) => number;
+        setMilliseconds: (ms: number) => number;
+        setUTCMilliseconds: (ms: number) => number;
+        setSeconds: (sec: number, ms?: number) => number;
+        setUTCSeconds: (sec: number, ms?: number) => number;
+        setMinutes: (min: number, sec?: number, ms?: number) => number;
+        setUTCMinutes: (min: number, sec?: number, ms?: number) => number;
+        setHours: (hours: number, min?: number, sec?: number, ms?: number) => number;
+        setUTCHours: (hours: number, min?: number, sec?: number, ms?: number) => number;
+        setDate: (date: number) => number;
+        setUTCDate: (date: number) => number;
+        setMonth: (month: number, date?: number) => number;
+        setUTCMonth: (month: number, date?: number) => number;
+        setFullYear: (year: number, month?: number, date?: number) => number;
+        setUTCFullYear: (year: number, month?: number, date?: number) => number;
+        toUTCString: () => string;
+        toISOString: () => string;
+        toJSON: (key?: any) => string;
+        getVarDate: () => VarDate;
+        [Symbol.toPrimitive]: {
+            (hint: "default"): string;
+            (hint: "string"): string;
+            (hint: "number"): number;
+            (hint: string): string | number;
+        };
+    } | {
+        toString: () => string;
+        toDateString: () => string;
+        toTimeString: () => string;
+        toLocaleString: {
+            (): string;
+            (locales?: string | string[], options?: Intl.DateTimeFormatOptions): string;
+            (locales?: Intl.LocalesArgument, options?: Intl.DateTimeFormatOptions): string;
+        };
+        toLocaleDateString: {
+            (): string;
+            (locales?: string | string[], options?: Intl.DateTimeFormatOptions): string;
+            (locales?: Intl.LocalesArgument, options?: Intl.DateTimeFormatOptions): string;
+        };
+        toLocaleTimeString: {
+            (): string;
+            (locales?: string | string[], options?: Intl.DateTimeFormatOptions): string;
+            (locales?: Intl.LocalesArgument, options?: Intl.DateTimeFormatOptions): string;
+        };
+        valueOf: () => number;
+        getTime: () => number;
+        getFullYear: () => number;
+        getUTCFullYear: () => number;
+        getMonth: () => number;
+        getUTCMonth: () => number;
+        getDate: () => number;
+        getUTCDate: () => number;
+        getDay: () => number;
+        getUTCDay: () => number;
+        getHours: () => number;
+        getUTCHours: () => number;
+        getMinutes: () => number;
+        getUTCMinutes: () => number;
+        getSeconds: () => number;
+        getUTCSeconds: () => number;
+        getMilliseconds: () => number;
+        getUTCMilliseconds: () => number;
+        getTimezoneOffset: () => number;
+        setTime: (time: number) => number;
+        setMilliseconds: (ms: number) => number;
+        setUTCMilliseconds: (ms: number) => number;
+        setSeconds: (sec: number, ms?: number) => number;
+        setUTCSeconds: (sec: number, ms?: number) => number;
+        setMinutes: (min: number, sec?: number, ms?: number) => number;
+        setUTCMinutes: (min: number, sec?: number, ms?: number) => number;
+        setHours: (hours: number, min?: number, sec?: number, ms?: number) => number;
+        setUTCHours: (hours: number, min?: number, sec?: number, ms?: number) => number;
+        setDate: (date: number) => number;
+        setUTCDate: (date: number) => number;
+        setMonth: (month: number, date?: number) => number;
+        setUTCMonth: (month: number, date?: number) => number;
+        setFullYear: (year: number, month?: number, date?: number) => number;
+        setUTCFullYear: (year: number, month?: number, date?: number) => number;
+        toUTCString: () => string;
+        toISOString: () => string;
+        toJSON: (key?: any) => string;
+        getVarDate: () => VarDate;
+        [Symbol.toPrimitive]: {
+            (hint: "default"): string;
+            (hint: "string"): string;
+            (hint: "number"): number;
+            (hint: string): string | number;
+        };
+    }[]>;
+    onChange: import("@tdesign/shared-hooks").ChangeHandler<import("..").DateRangeValue, [context: {
+        dayjsValue?: import("dayjs").Dayjs[];
+        trigger?: import("..").DatePickerTriggerSource;
+    }]>;
+};

@@ -1,0 +1,89 @@
+.t-comment {
+  font: var(--td-font-body-medium);
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  width: 100%;
+  color: var(--td-text-color-primary);
+}
+.t-comment__inner {
+  display: flex;
+}
+.t-comment__avatar {
+  flex-shrink: 0;
+  margin-right: var(--td-comp-margin-xxl);
+  cursor: pointer;
+  display: flex;
+}
+.t-comment__avatar-image {
+  width: var(--td-comp-size-xxxl);
+  height: var(--td-comp-size-xxxl);
+  border-radius: var(--td-radius-circle);
+}
+.t-comment__content {
+  flex: auto;
+  font: var(--td-font-body-medium);
+}
+.t-comment__author {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: baseline;
+  margin-bottom: var(--td-comp-margin-s);
+}
+.t-comment__name {
+  display: inline-flex;
+  align-items: center;
+  font: var(--td-font-title-medium);
+  padding-right: var(--td-comp-paddingLR-s);
+  cursor: pointer;
+}
+.t-comment__time {
+  font: var(--td-font-body-small);
+  padding-right: var(--td-comp-paddingLR-s);
+  color: var(--td-text-color-placeholder);
+}
+.t-comment__detail {
+  word-break: break-all;
+  font: var(--td-font-body-medium);
+}
+.t-comment__quote {
+  margin-top: var(--td-comp-margin-l);
+  border-left: 4px solid var(--td-component-stroke);
+  padding-left: var(--td-comp-margin-l);
+}
+.t-comment__quote .t-comment__name,
+.t-comment__quote .t-comment__detail {
+  color: var(--td-text-color-secondary);
+}
+.t-comment__actions {
+  margin-top: var(--td-comp-margin-s);
+  display: flex;
+  justify-content: flex-end;
+  list-style: none;
+  padding: 0;
+  gap: var(--td-comp-margin-s);
+}
+.t-comment__actions .t-button--variant-text {
+  color: var(--td-text-color-placeholder);
+}
+.t-comment__actions .t-button--variant-text .t-button__text {
+  gap: var(--td-comp-margin-s);
+}
+.t-comment__reply {
+  margin-top: var(--td-comp-margin-l);
+  margin-left: calc(var(--td-comp-size-xxxl) + var(--td-comp-margin-xxl));
+  background-color: var(--td-bg-color-secondarycontainer);
+  border-radius: var(--td-radius-medium);
+  padding: var(--td-comp-paddingTB-l) var(--td-comp-paddingLR-xl);
+}
+.t-comment__reply .t-button--variant-text {
+  color: var(--td-text-color-placeholder);
+}
+.t-comment__reply .t-button--variant-text:hover {
+  background-color: var(--td-bg-color-secondarycontainer-hover);
+}
+.t-comment__reply .t-button--variant-text .t-button__text {
+  gap: var(--td-comp-margin-s);
+}

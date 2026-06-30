@@ -1,0 +1,43 @@
+{
+  "name": "@vueuse/shared",
+  "version": "14.1.0",
+  "requiresBuild": false,
+  "files": {
+    "dist/index.iife.js": {
+      "checkedAt": 1780883856272,
+      "integrity": "sha512-O6TpcuZt1DlQPE71W5hWlH27LFpXK2rh3W3Q8/Zeyly65uifONTkCe+nyvlhzpdzZCilt/1/AIYwDVdbB3kgBQ==",
+      "mode": 420,
+      "size": 66829
+    },
+    "dist/index.iife.min.js": {
+      "checkedAt": 1780883856272,
+      "integrity": "sha512-iscVMlQj9b8+k3SaL3u3jrFjdQpG63lH5sWpEY8vpaLVFvPM0BpPlI3PRQ2bSWK1H/VOFRQNzzcVMSG2u1x8Ug==",
+      "mode": 420,
+      "size": 22915
+    },
+    "dist/index.js": {
+      "checkedAt": 1780883856273,
+      "integrity": "sha512-wXRlMIHQwoQpBNfQR6MRGPHNlEqDMjp7sE/z7QReNL1jQ0ESRRMyjusEasqwxqeqQ19TOxTiW8oe1DuOtbo+FQ==",
+      "mode": 420,
+      "size": 59919
+    },
+    "package.json": {
+      "checkedAt": 1780883856273,
+      "integrity": "sha512-Crxyvq2Hc2kNjG4HraafraxLfeOQyAuzZc/UN+v2SIvBSRDIS4qqgA246y0HUOMVZLuvJGB+m3t4VZuGrqVxxQ==",
+      "mode": 420,
+      "size": 992
+    },
+    "dist/index.d.ts": {
+      "checkedAt": 1780883856273,
+      "integrity": "sha512-Klx827NxlaoSVXsYlDW62Dx6o6nL1nTRYtODSubpg+iTYBNzHkWIRJ6+P2cpi3tF+VxFKyPKdTY/HpIvsKQ/nw==",
+      "mode": 420,
+      "size": 66933
+    },
+    "LICENSE": {
+      "checkedAt": 1780883856216,
+      "integrity": "sha512-1+cX11Da+6VOHCz5+zeOf7IvOxY1dx8nDSUt4yOyaRhSlkTb1cII3x+QilBOPf1vWlQIMTvdPKsMBuzqpElttg==",
+      "mode": 420,
+      "size": 1101
+    }
+  }
+}

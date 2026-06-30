@@ -1,0 +1,22 @@
+import { type Ref } from "vue";
+import type { CodeLayoutDragDropReferencePosition, CodeLayoutPanelInternal } from "../CodeLayout";
+export declare function checkDropPanelDefault(dragPanel: CodeLayoutPanelInternal, referencePanel: CodeLayoutPanelInternal, dragOverState: Ref<CodeLayoutDragDropReferencePosition>): boolean;
+export declare function getCurrentDragPanel(): CodeLayoutPanelInternal | null;
+export declare function usePanelDraggerRoot(): void;
+export declare function usePanelDragger(): {
+    dragSelfState: Ref<boolean>;
+    handleDragStart: (panel: CodeLayoutPanelInternal, ev: DragEvent) => void;
+    handleDragEnd: (ev: DragEvent) => void;
+};
+export declare function usePanelDragOverDetector(container: Ref<HTMLElement | undefined>, selfPanel: Ref<CodeLayoutPanelInternal> | undefined, horizontal: Ref<boolean> | 'four' | 'center', focusPanel: (dragPanel: CodeLayoutPanelInternal) => void, dragCustomHandler: (e: DragEvent) => boolean, dragoverChecking?: ((dragPanel: CodeLayoutPanelInternal) => boolean) | undefined, tag?: string): {
+    dragPanelState: Ref<boolean>;
+    dragEnterState: Ref<boolean>;
+    dragLightBoxState: import("vue").ComputedRef<boolean>;
+    dragOverState: Ref<CodeLayoutDragDropReferencePosition>;
+    handleDropPreCheck(e: DragEvent): boolean;
+    handleDragOver: (e: DragEvent) => void;
+    handleDragEnter: (e: DragEvent) => void;
+    handleDragLeave: (e: DragEvent) => void;
+    resetDragOverState: () => void;
+    resetDragState: () => void;
+};

@@ -1,0 +1,97 @@
+{
+  "name": "vue-qrcode-reader",
+  "version": "5.7.3",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883830767,
+      "integrity": "sha512-vxGnkhP7XCkA47lkKmmCR27mtu5Ey+W2tfyXKKXeYhc6YxI8unTQ+UWZNupKdhExoiIEx73RgjFV0ldVT4KExw==",
+      "mode": 420,
+      "size": 1069
+    },
+    "dist/vue-qrcode-reader.js": {
+      "checkedAt": 1780883830768,
+      "integrity": "sha512-h2aPF6pjHwO3InBrBAinSoO0cs9sWu/Hh5UMBsRRxkhPft/5aGtMySfoQnnNf90952nl+BOUYb1TVwsucUcz4Q==",
+      "mode": 420,
+      "size": 106857
+    },
+    "dist/vue-qrcode-reader.umd.js": {
+      "checkedAt": 1780883830768,
+      "integrity": "sha512-jpJpC85+t6Nc8hmAORdZK1/p6/f7glHdZEQhsgqT4F7Q2jq2EY3Pvc6QrE2x5sK0H5Ux+Uecg0LvzTw+fOyZWg==",
+      "mode": 420,
+      "size": 73060
+    },
+    "package.json": {
+      "checkedAt": 1780883830769,
+      "integrity": "sha512-O4jZbRh9GMo6QESRntHC1bI/4GMGq8i74doC8Q31fxkZkWijQM043xtRlhBPiucSUf3YUZb2VA9clAFOpWYZVw==",
+      "mode": 420,
+      "size": 2195
+    },
+    "README.md": {
+      "checkedAt": 1780883830769,
+      "integrity": "sha512-+nsRaDSkrNwfSxp5o4MMcnUAWjq1cz97aGYcT0l2hN/gfDBHAEr3diLNTJGB4Xl3biDYL6xDwKjUeY539FJ51g==",
+      "mode": 420,
+      "size": 7785
+    },
+    "dist/misc/callforth.d.ts": {
+      "checkedAt": 1780883830769,
+      "integrity": "sha512-iI+NlyoCNONjS/EmGR80B5i7qBed0jmHxsvZ+G+ZxbvqYFIPfrgulJO1KoPPhcGpX8PStgBVqraDeJ+b+vhcBA==",
+      "mode": 420,
+      "size": 315
+    },
+    "dist/misc/camera.d.ts": {
+      "checkedAt": 1780883830769,
+      "integrity": "sha512-KDosAB/ANDwKWtBg5Dkq54uIrAWLCcOnk+x7vN50qm90zM/VhAM6QpLUuPIsc+1lNVteQOTBVZLQ3VyDgfwOjQ==",
+      "mode": 420,
+      "size": 268
+    },
+    "dist/misc/errors.d.ts": {
+      "checkedAt": 1780883830769,
+      "integrity": "sha512-R19gEsSJB+Cb9b33mN42xgugMp2vm4aS6gqmR1li+UJVKBpzcN7vHXmHwRbmXTmIp1AGf4OYjDnihZLEhkzDKA==",
+      "mode": 420,
+      "size": 456
+    },
+    "dist/index.d.ts": {
+      "checkedAt": 1780883830770,
+      "integrity": "sha512-PqvDts2Mj5xXszYL/r52FwzowbBP5/1VUCHyOAAcetFcZYpyYAVk81T9Bt7cTZl0aGOF9IBb4OmajTnq/UyelA==",
+      "mode": 420,
+      "size": 733
+    },
+    "dist/components/QrcodeCapture.vue.d.ts": {
+      "checkedAt": 1780883830770,
+      "integrity": "sha512-tm9OoTV0hOPk7MEZCOzeZ2nOiFPh4uL070RiXeXYwSWDvlhq3vlfKP540PVkn487T+bMWqAsHzvrU1aTzxKNwA==",
+      "mode": 420,
+      "size": 1380
+    },
+    "dist/components/QrcodeDropZone.vue.d.ts": {
+      "checkedAt": 1780883830770,
+      "integrity": "sha512-Qx6WfN+Vdv6h45luAct+oXj3+RTOrJcYpFsCAJDXByYUQhx88OH6f1RISxy364114xb7Sjh8Iu2Ot8kEpW32Ag==",
+      "mode": 420,
+      "size": 1836
+    },
+    "dist/components/QrcodeStream.vue.d.ts": {
+      "checkedAt": 1780883830770,
+      "integrity": "sha512-ItTMlCubVDw5nk1uov1wwgVhtI9fhFqKVUsa5gwRRIJu6qZb1YW7U8DZA+O3WrLuD86qCWq9xPYubBJRQJr5NA==",
+      "mode": 420,
+      "size": 3706
+    },
+    "dist/misc/scanner.d.ts": {
+      "checkedAt": 1780883830770,
+      "integrity": "sha512-AFxWSSgo+0ATv9oYSdMWCXXxYxSaTbEn4mWFHdaEXHh7NOLMRVhA4ArOgHjrGj5q9e2L9F/IU9g3qKmmdvS4WA==",
+      "mode": 420,
+      "size": 975
+    },
+    "dist/misc/shimGetUserMedia.d.ts": {
+      "checkedAt": 1780883830771,
+      "integrity": "sha512-ovKrYb+QFnJpbVHR5kO0xgTyAGTARSY+0cIroEYV73OMdLhnQjCUDBgdQLJb1cw0jZaMVeUEGGfDKtlIngAT2g==",
+      "mode": 420,
+      "size": 75
+    },
+    "dist/misc/util.d.ts": {
+      "checkedAt": 1780883830771,
+      "integrity": "sha512-WnKyUsPuoy5hnHgllWOjqNIk/zxZKFf9W1ScFtFAIQdzlnMxGQrvns2aTVdbd+KrQfYxm7bWlIragFlJf0b0pA==",
+      "mode": 420,
+      "size": 1168
+    }
+  }
+}

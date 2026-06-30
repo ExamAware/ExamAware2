@@ -1,0 +1,1 @@
+{"version":3,"file":"index.js","sources":["../../src/svg-sprite/index.ts"],"sourcesContent":["import _Icon from './svg-sprite';\n\nexport const Icon = _Icon;\nexport default Icon;\n"],"names":["Icon","_Icon"],"mappings":";;;;;;;;;;;;;IAEaA,OAAOC;;;;;"}

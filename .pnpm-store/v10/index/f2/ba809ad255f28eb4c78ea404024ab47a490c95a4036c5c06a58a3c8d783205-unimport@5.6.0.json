@@ -1,0 +1,91 @@
+{
+  "name": "unimport",
+  "version": "5.6.0",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883853729,
+      "integrity": "sha512-0H9ZZ7yMR5WSAb98yBLqmE/FVA2pWydRjwxGMYPiB/Lcwl3Ch+pVx0YQNsctOnbXNh0S65AKoGpyOqrSaXNlzA==",
+      "mode": 420,
+      "size": 1063
+    },
+    "package.json": {
+      "checkedAt": 1780883853730,
+      "integrity": "sha512-DZSsAylqoQxhmtxDrDEXKm0Raar3VYwyUQboZCjtJd/FQlyMxc9p9ZAaq1Xwf58wGVBm8DkCz0Va/RRFMnYwmA==",
+      "mode": 420,
+      "size": 1726
+    },
+    "README.md": {
+      "checkedAt": 1780883853730,
+      "integrity": "sha512-aczVG5QtG1ks7LIrFKERWec6grbQ5wvfV43UUDpQL6n2bbxjn2hZMrArpN45/LW3ybkh0NPa8wb7/djJvBxGrA==",
+      "mode": 420,
+      "size": 9874
+    },
+    "dist/addons.mjs": {
+      "checkedAt": 1780883853730,
+      "integrity": "sha512-eAdkrO60jOYz7+XB/A0bi72Pb0O6U7d5XD2s3AXAxGJcozgNod12IBOEB04auwhuLQLFsVW6+YpR7ac8r2OSWA==",
+      "mode": 420,
+      "size": 234
+    },
+    "dist/chunks/detect-acorn.mjs": {
+      "checkedAt": 1780883853730,
+      "integrity": "sha512-NCBOSRwkEclzLabNC9PyneG1Pz1/dsSXvHUgVNcSHFZgSpU1WdTJ0PYVlucDgz1UQA/Km+WryJjpOAxyTWeCCg==",
+      "mode": 420,
+      "size": 8306
+    },
+    "dist/index.mjs": {
+      "checkedAt": 1780883853731,
+      "integrity": "sha512-jODJBe8Rl6wlwYEagGzqG+5KvgR7q01G0+mTsjT9fvYuVWtmjMhtDVFtbEwNShQeXBycMp8zcdrrvbG0iTceNQ==",
+      "mode": 420,
+      "size": 1612
+    },
+    "dist/shared/unimport.CWY7iHFZ.mjs": {
+      "checkedAt": 1780883853731,
+      "integrity": "sha512-ZMxJfRRxCkAN9aS1vfYlkOs12MOhmnAb3/4PucCrYi3v5FyRrYVXqu7HReHkGlXFI3un2h3asicx7/x8V4VHxQ==",
+      "mode": 420,
+      "size": 18948
+    },
+    "dist/shared/unimport.u_OYhQoS.mjs": {
+      "checkedAt": 1780883853731,
+      "integrity": "sha512-Wy817pVkn69OfIhuxJU2IxhTtMWVtaj+J+GOeTAv25uOaJn6g0Hg+YAycD7ht/wUurrLo9yOYlBRKYdI2P2IMQ==",
+      "mode": 420,
+      "size": 38345
+    },
+    "dist/unplugin.mjs": {
+      "checkedAt": 1780883853731,
+      "integrity": "sha512-nJQh7Vms09jYd3pGPp36tL7JRz7Sclw5ZCUIHW5/p44GvzjzFTbQHQ5MmOrdJtwTGMNQ3vaiuRMc3qcq75z6SA==",
+      "mode": 420,
+      "size": 1739
+    },
+    "dist/addons.d.mts": {
+      "checkedAt": 1780883853732,
+      "integrity": "sha512-eal6Ujk/g72r44FEnZZGv5wBqwD+7wFtaWUaPbaI08gRHEG9tgjBUz0xY02T6aa94cEfTZNbgpRQewPg2GNIKA==",
+      "mode": 420,
+      "size": 317
+    },
+    "dist/index.d.mts": {
+      "checkedAt": 1780883853732,
+      "integrity": "sha512-1nujqsI22USHQ0duFrOp9wDRssgqy+fGVX4mOW/n8tq4z4+3KqbHatT+UohRe3P1TqlhchzlpX4miiHTZ6E5ng==",
+      "mode": 420,
+      "size": 4425
+    },
+    "dist/shared/unimport.C0UbTDPO.d.mts": {
+      "checkedAt": 1780883853732,
+      "integrity": "sha512-xqI5JB0TfgDFVeyrgIvYGYHz1//01+3DxG0J7mcbZj55IULg6Vyz62YnkFg8c87TFCRkOObbPwaPFk+aM8cU4A==",
+      "mode": 420,
+      "size": 12355
+    },
+    "dist/shared/unimport.C9weIfOZ.d.mts": {
+      "checkedAt": 1780883853732,
+      "integrity": "sha512-GkQ3PNYTAqU0QNjrvrHTiYVTiJdKQG9AKTNFkLT/VeCbZrbTNiLMwKqeG1sxdEtwgLWZfu0rcaFE1w9VGxTMhw==",
+      "mode": 420,
+      "size": 134
+    },
+    "dist/unplugin.d.mts": {
+      "checkedAt": 1780883853733,
+      "integrity": "sha512-hjZqgHJDaY99yaW8Jj1A/zliBkrzcqNoZrwzFsp8vIJDaojezxcFszCDagW3I42HKpEhXJXSlKVMMxLBnBrE8A==",
+      "mode": 420,
+      "size": 772
+    }
+  }
+}

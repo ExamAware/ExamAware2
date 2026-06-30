@@ -1,0 +1,61 @@
+{
+  "name": "electron-builder-squirrel-windows",
+  "version": "24.13.3",
+  "requiresBuild": false,
+  "files": {
+    "out/squirrelPack.js": {
+      "checkedAt": 1780883842868,
+      "integrity": "sha512-qGX9rFTJYgvsjDrNXV+BfYNR05JI+n793fqhFjtgTKEYvaNOWa0TVHowJ2wcGfypYK4OxpqYp7vMbUZJyNoLtA==",
+      "mode": 420,
+      "size": 12825
+    },
+    "out/SquirrelWindowsTarget.js": {
+      "checkedAt": 1780883842868,
+      "integrity": "sha512-Y5rDSNsCOMUxsMx0eqZVZcqNxPhJTQWrxgAbvyH9l32rQYvM2gqHXwjQ+mxP1Lgg19gFXDN1Du1iUNDGCetTnQ==",
+      "mode": 420,
+      "size": 7155
+    },
+    "out/squirrelPack.js.map": {
+      "checkedAt": 1780883842869,
+      "integrity": "sha512-OxMphk8NQdRVgL0DKZu227eNDXEaUI0xHyyZ5pS6hBtkWfQ1Fkal30Ki3+wg8k4Gi02BCUOBSNwl/hbsrUSc7A==",
+      "mode": 420,
+      "size": 22631
+    },
+    "out/SquirrelWindowsTarget.js.map": {
+      "checkedAt": 1780883842869,
+      "integrity": "sha512-Z5aUk9JPWZTc38s/S7joaEMcJ9a2pPMnLkcq3VvY9cre99zU0IE4Yz4uqAJaZ6d3kfYCXmaH4r+A0OEaF0KuLg==",
+      "mode": 420,
+      "size": 11962
+    },
+    "readme.md": {
+      "checkedAt": 1780883842869,
+      "integrity": "sha512-MXY8ibFichUbm5djkv+k+AUF/W5bAlil7ooSP2/3XxlPoa8hyxkKNBvx3m0JBGlY2ZZ9BSAS2khpP2HBSmgXpA==",
+      "mode": 420,
+      "size": 158
+    },
+    "out/squirrelPack.d.ts": {
+      "checkedAt": 1780883842870,
+      "integrity": "sha512-6QF1L/malSMPshQl9+dulV4c7gb84l49Aip3POdNrCKlu/OfyVpjpYbc4Fs3MZaN4CpAp1ZSEADfVI8O6zikGQ==",
+      "mode": 420,
+      "size": 1055
+    },
+    "out/SquirrelWindowsTarget.d.ts": {
+      "checkedAt": 1780883842870,
+      "integrity": "sha512-zznihFySaq6XaQ53X4UD7BCr/HFyM0kUcQckZStm52cu+yljs34XdrD3fW7EZGeIyyCoUtwkShUjbkOzLK0PtA==",
+      "mode": 420,
+      "size": 554
+    },
+    "LICENSE": {
+      "checkedAt": 1780883829545,
+      "integrity": "sha512-25FDnTBl9VH/5AHXEX0oq5l9jfdRt0LVoi6DPGr20fTk3XUOF2jZCsDlK1LxRFsuWf7zwc52e7J3eGqYIHmabw==",
+      "mode": 420,
+      "size": 1084
+    },
+    "package.json": {
+      "checkedAt": 1780883842870,
+      "integrity": "sha512-qBNIvOnTbh2EI9Oj6m9lGYf+A73XZU5Pfr/SlfLVEwGGUU20GBZwrMucBigXeb08XSYQpCBDjA23TZQqciApfQ==",
+      "mode": 420,
+      "size": 804
+    }
+  }
+}

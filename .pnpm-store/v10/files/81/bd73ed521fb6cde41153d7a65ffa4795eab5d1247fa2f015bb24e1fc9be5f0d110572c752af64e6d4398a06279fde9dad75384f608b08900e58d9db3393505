@@ -1,0 +1,1 @@
+{"version":3,"file":"navbar.js","sourceRoot":"","sources":["../../../src/client/typings/navbar.ts"],"names":[],"mappings":"","sourcesContent":["import type { AutoLinkOptions, NavGroup } from \"../../shared/index.js\";\n\nexport type NavbarLinkItem = AutoLinkOptions;\n\nexport type NavbarItem =\n  | NavbarLinkItem\n  | NavGroup<AutoLinkOptions | NavGroup<NavbarLinkItem>>;\n"]}

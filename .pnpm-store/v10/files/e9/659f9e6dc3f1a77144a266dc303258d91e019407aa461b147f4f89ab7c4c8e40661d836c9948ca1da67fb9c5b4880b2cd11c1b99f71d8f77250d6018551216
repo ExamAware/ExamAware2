@@ -1,0 +1,1 @@
+{"version":3,"file":"mhchem.js","sources":["../src/mhchem.ts"],"sourcesContent":["try {\n  await import(\"katex\");\n  await import(\"katex/contrib/mhchem\");\n} catch {\n  // do nothing\n}\n\nexport {};\n"],"names":[],"mappings":"AAAA,GAAI,CACF,KAAM,QAAO,OAAO,EACpB,KAAM,QAAO,sBAAsB,CACrC,MAAQ,CAER"}

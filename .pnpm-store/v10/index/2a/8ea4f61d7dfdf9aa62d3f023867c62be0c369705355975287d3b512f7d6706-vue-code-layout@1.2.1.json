@@ -1,0 +1,457 @@
+{
+  "name": "vue-code-layout",
+  "version": "1.2.1",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883835667,
+      "integrity": "sha512-ARzLfVSruOaplvamNRH3+K6baxiHD2hSh8NtOk/0h7cxAXCuvobmF2xY6kfFwNEpP1COP7620bSTYSlncX7Szw==",
+      "mode": 420,
+      "size": 1084
+    },
+    "lib/vue-code-layout.css": {
+      "checkedAt": 1780883857743,
+      "integrity": "sha512-002FHioxRA2JyGjygyzd+T1eaWCYoHA2L6NhUm5ezB5KUBAvTbe3ahnkLhkK/zWI/JmfqDZCtxJUJ6x841POKw==",
+      "mode": 420,
+      "size": 53209
+    },
+    "lib/vue-code-layout.es.js": {
+      "checkedAt": 1780883857744,
+      "integrity": "sha512-/x4lmIbitbWSeZU3ou01q0xBr1uKWcSSfX2I//FOFcDsjKh8m8bOst3alGmEakN+Jl0t54FXDUnXEoMyiKS2yA==",
+      "mode": 420,
+      "size": 231255
+    },
+    "lib/vue-code-layout.umd.js": {
+      "checkedAt": 1780883857745,
+      "integrity": "sha512-VvsiujW8ZMW3LXqja4hbidTBLXvwvmXUc094npyXL7EdJx2C/u7kovH5KM4xWxKczz1398EU49LVnKgE88EySg==",
+      "mode": 420,
+      "size": 159019
+    },
+    "package.json": {
+      "checkedAt": 1780883857745,
+      "integrity": "sha512-eLKkfC59ze3L6vNDucHok0Skh2P/sEHOXLzr59lz3Wi/Yl72ufrPIz6DYOYRFcsq+qa6CsPHJZ/92uKvmkiM4Q==",
+      "mode": 420,
+      "size": 1935
+    },
+    "lib/vue-code-layout.es.js.map": {
+      "checkedAt": 1780883857746,
+      "integrity": "sha512-9WRYwfgr4rdMYSj+W76rxCIhEc+i/l84cPKvdmoUJIM5hDFc1k4/6E/4mB8ILWAHaKwNRczIBDR8NKLENXVrCA==",
+      "mode": 420,
+      "size": 529718
+    },
+    "lib/vue-code-layout.umd.js.map": {
+      "checkedAt": 1780883857748,
+      "integrity": "sha512-+93GFevafPpSnajqIE+Q8aoyv6A4tHrggTpQl7yfgRKsaBO1v1WXYURyeatObeqgUs2tqBzKQSm9rxOLRExh/Q==",
+      "mode": 420,
+      "size": 509884
+    },
+    "README.CN.md": {
+      "checkedAt": 1780883857748,
+      "integrity": "sha512-MkV4R6KzHFUektg9BG7zSAvLFQA3CRpZFkNnu8jTC6DuCvf3kbzXqVus58+Dza4qwc8OzsGYfZZJT0Bh6XSFgg==",
+      "mode": 420,
+      "size": 1752
+    },
+    "README.md": {
+      "checkedAt": 1780883857748,
+      "integrity": "sha512-Xl+doyw/TQMp4zQAAnhzSJ3IhPs4wVGRyMVrkjdCj61ondRI9UZHWIAf1KWRRGbwQL6IMxPRwnGUIiqyONcIbg==",
+      "mode": 420,
+      "size": 1809
+    },
+    "lib/CodeLayout.d.ts": {
+      "checkedAt": 1780883857749,
+      "integrity": "sha512-wXHrthiggg6ZZQG95elVY886ilxjtfYZArXlOCtC+Af765E14N0AUtc53thVTIfacsbXm1M2mJbsaqrEI+worw==",
+      "mode": 420,
+      "size": 28512
+    },
+    "lib/CodeLayout.vue.d.ts": {
+      "checkedAt": 1780883857749,
+      "integrity": "sha512-GgpqP26AA5jz4tA00E5u+sB0cyWnyikw5tNkArAH4vpglm3w6AEY2hx7TeUu/W1CnGwOBPg9X6NkQHK7RMDMDg==",
+      "mode": 420,
+      "size": 3895
+    },
+    "lib/CodeLayoutActionItem.vue.d.ts": {
+      "checkedAt": 1780883857749,
+      "integrity": "sha512-5Cq7mGGrjZTYIv+47hiUH2u7H7wSAQ/eCFn+D7KVoHySDQfHVOozCAKvquzuGF6XgCBpev9V2kSqkFYZ+4y0xQ==",
+      "mode": 420,
+      "size": 1062
+    },
+    "lib/CodeLayoutActionsRender.vue.d.ts": {
+      "checkedAt": 1780883857749,
+      "integrity": "sha512-7aBuKFNjZm4WJjAO0/HrjaEdW3AzNhNIsA356Rof56sjZKYftnYdvlx5blJtPGvh9YAwxo6PhtXOmNv/0xGKnw==",
+      "mode": 420,
+      "size": 611
+    },
+    "lib/CodeLayoutActivityBar.vue.d.ts": {
+      "checkedAt": 1780883857749,
+      "integrity": "sha512-Y4EXO0FwvonC8srbnQwYNjVY9PKlEbRYei1EzvtE+BqtPScV5fzZoDLrXfAS/XV/kahY4ztZaEoTS/hoQ/sy7g==",
+      "mode": 420,
+      "size": 1132
+    },
+    "lib/CodeLayoutBase.vue.d.ts": {
+      "checkedAt": 1780883857750,
+      "integrity": "sha512-k6gw4ICFLfUVEK6Uk6d84yKJmqV4nRpvMEzmvwMVBszGSFexWjMAx9PSJDOPxBzCOzPgSlrVY6nQmG1ZvRQPPw==",
+      "mode": 420,
+      "size": 2160
+    },
+    "lib/CodeLayoutCollapseTitle.vue.d.ts": {
+      "checkedAt": 1780883857750,
+      "integrity": "sha512-S3nfthw+4UTBRou7WUFdES1IFS218RjTzY8YwdmRpGFHqBnk3x3lx4c9fFvlsh5/6Srekj8KIwUAg9JIkd5Wdw==",
+      "mode": 420,
+      "size": 1902
+    },
+    "lib/Components/CodeLayoutCustomizeLayout.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/CodeLayoutEmpty.vue.d.ts": {
+      "checkedAt": 1780883857750,
+      "integrity": "sha512-iJL0qqG6HRMkv24SBDmKN861VzjtFfqmHLuHNWUAfLq08YZv6oeFwFLSIJ3TC1ERG4+w9dbJxj3fV4fggGAeGw==",
+      "mode": 420,
+      "size": 917
+    },
+    "lib/CodeLayoutGroupDraggerHost.vue.d.ts": {
+      "checkedAt": 1780883857750,
+      "integrity": "sha512-UXGk5LcV+5h+aiJNs6aSYQBHbKzGDo3bc70ymOV1cySGjhqVPb+kwdHY2wmnwGGoKrQQvkdUGAGm8nCqYroxeQ==",
+      "mode": 420,
+      "size": 1033
+    },
+    "lib/CodeLayoutGroupRender.vue.d.ts": {
+      "checkedAt": 1780883857750,
+      "integrity": "sha512-0dYVC6UYGu4DcgQ7alN7Z6qpae34VAh5/Xzic4NyES0zJpzBZBC+IKFfCAF40SjiuTAfp+A5FpDU/1CZL9e26A==",
+      "mode": 420,
+      "size": 1406
+    },
+    "lib/CodeLayoutPanelRender.vue.d.ts": {
+      "checkedAt": 1780883857751,
+      "integrity": "sha512-enrZ4n6XWUxre6V4HjPoEjeAqEzDbIIU+HZcrxfYZ2LpUtBGRL3pVHs92lBAV6PYlagcpK7J95PYmTr2XBWFrw==",
+      "mode": 420,
+      "size": 3566
+    },
+    "lib/Components/CodeLayoutScrollbar.vue.d.ts": {
+      "checkedAt": 1780883857751,
+      "integrity": "sha512-LyNKwJtrZZ+Q3e5tBMNhlvYMOcr1rvNwNnfIV3/t9EfQidtJqlQkNDKJ9Yyz8LUJBmuxn7MkslOPXVo8RsODDA==",
+      "mode": 420,
+      "size": 2418
+    },
+    "lib/CodeLayoutTabItem.vue.d.ts": {
+      "checkedAt": 1780883857751,
+      "integrity": "sha512-ek0G+5JbEYLjUDT4kIxx1H7UrseG2MIhxTebUmtoi9QcsJmGA5aJH4FNIyRyC4yt3zTmT5WXacd9VyOgus8Omw==",
+      "mode": 420,
+      "size": 1105
+    },
+    "lib/Components/CodeLayoutVNodeStringRender.vue.d.ts": {
+      "checkedAt": 1780883857751,
+      "integrity": "sha512-RUzeBMdR0WilwYihFKxgClmt5AncRNJyfOAAi6iA2SQCLDG7TJQpWneIGuvjjBOOamunUSEKl4MzomSkfI6fyQ==",
+      "mode": 420,
+      "size": 767
+    },
+    "lib/Utils/Timer/Debounce.d.ts": {
+      "checkedAt": 1780883857751,
+      "integrity": "sha512-pcKyl5AkvGpp3lh1uVbOjv5AkrsumtjH4vrGas3YAcPgvAdeC0jqx5Khl6Z8OXlmI3hSVy0pXT5xBGLWz1tLFg==",
+      "mode": 420,
+      "size": 201
+    },
+    "lib/Composeable/DragDrop.d.ts": {
+      "checkedAt": 1780883857752,
+      "integrity": "sha512-HFkYSXJSN7zFltbcsLFMQbBxm2p7TJplHH3vGduQQxxTXW8Yw45LMhWJsgpM44xY8IwaqsUA2hclHLQ6wtJEXw==",
+      "mode": 420,
+      "size": 1488
+    },
+    "lib/Composeable/DragEnterLeaveFilter.d.ts": {
+      "checkedAt": 1780883857752,
+      "integrity": "sha512-2RbeShOibX1IbPlGrrOMiaJVfEFzxrOWAn22eCAZkKdRclsbh9RIaOJbdpg2VUPyrszSC/z0FosLzh1sOxM5lA==",
+      "mode": 420,
+      "size": 503
+    },
+    "lib/Language/en.d.ts": {
+      "checkedAt": 1780883857752,
+      "integrity": "sha512-o2E676+Je1+qImj6nYfMvGo80uFzpCo/ZoDuWpbFJKljR4zS3DdFIN3+MA0wnU1n22mEtXd7DIN2M77tCJVj3g==",
+      "mode": 420,
+      "size": 1115
+    },
+    "lib/Utils/EventEmitter.d.ts": {
+      "checkedAt": 1780883857752,
+      "integrity": "sha512-+pFM513DQUNZEYuL4ocTktQzrS9OU3YIlhSA+g3KpdhsAg8FEKT1iDY4CqSt1FzBx6CQqMuaoK14gCjO1jKSZA==",
+      "mode": 420,
+      "size": 1651
+    },
+    "lib/Utils/HtmlUtils.d.ts": {
+      "checkedAt": 1780883857752,
+      "integrity": "sha512-Q0o3kR4mNdi4WSggUjeO5WxSAxe4WwZBtvfkNfyYidYx1S/wtFuoQQ5MxM8jKLZj62p9+FSRPSm4uJzoMj8JDw==",
+      "mode": 420,
+      "size": 1161
+    },
+    "lib/Icons/IconActionClose.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/Icons/IconActionMax.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/Icons/IconArrow.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/Icons/IconCheck.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/Icons/IconClose.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/Icons/IconDot.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/Icons/IconEyeClosedCodicon.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/Icons/IconEyeCodicon.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/Icons/IconMore.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/Icons/IconResetDefault.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "index.d.ts": {
+      "checkedAt": 1780883857753,
+      "integrity": "sha512-fB99SYnaVudxWmFRsfufjRoNw5JmF2CagMeA2jqDchZ+dXSObJM1oh+FrTjqkNd4+ufjPUhau2LOVNO/HKMDPw==",
+      "mode": 420,
+      "size": 120
+    },
+    "lib/index.d.ts": {
+      "checkedAt": 1780883857753,
+      "integrity": "sha512-XYgasHZf4+LFdA8bIzsD2YnsvOHVmqyK0ygKDQsPiaqymxn4PRDCR4x1THPNvnzfwg80LHNbWCXmH1fAnKqATw==",
+      "mode": 420,
+      "size": 1472
+    },
+    "lib/Language/index.d.ts": {
+      "checkedAt": 1780883857753,
+      "integrity": "sha512-rUkqCR2pA5+U6i8wOyXMGX7P6ppaIFKt2BI0tOay+6A/SguSmz4qyojSzgN9ENfyk7hG93xLEUc9wB8OmvQd7g==",
+      "mode": 420,
+      "size": 498
+    },
+    "lib/Composeable/LateClass.d.ts": {
+      "checkedAt": 1780883857753,
+      "integrity": "sha512-oRhc8gNZWQGY6RKz/jKUmb05l7tnO/sHuDkqrXITI7JHJZSQeVO8KYNHs8C0gMiHNKnb6v4WWf9+rts7VXS0YA==",
+      "mode": 420,
+      "size": 469
+    },
+    "lib/Icons/LayoutActivitybarLeftCodicon.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/Icons/LayoutCodicon.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/Icons/LayoutMenubarCodicon.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/Icons/LayoutPanelCenterCodicon.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/Icons/LayoutPanelCodicon.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/Icons/LayoutPanelJustifyCodicon.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/Icons/LayoutPanelLeftCodicon.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/Icons/LayoutPanelOffCodicon.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/Icons/LayoutPanelRightCodicon.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/Icons/LayoutSidebarLeftCodicon.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/Icons/LayoutSidebarLeftOffCodicon.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/Icons/LayoutSidebarRightCodicon.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/Icons/LayoutSidebarRightOffCodicon.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/Icons/LayoutStatusbarCodicon.vue.d.ts": {
+      "checkedAt": 1780883835671,
+      "integrity": "sha512-sPoI8Rk9FPL5ODOmP+s8dfId6s0PelRIW3OaBf5UOMFmXMF471ZFipxF1K2slu8iRzN+f3oqcbMhFmThtY5iMg==",
+      "mode": 420,
+      "size": 267
+    },
+    "lib/Composeable/MiniTimeout.d.ts": {
+      "checkedAt": 1780883835526,
+      "integrity": "sha512-1cFxmHfwacajtFCZYs8K4SDRjQLsUvr7Feki2sdkTRyLisuje1p6GplopxkSniZ9b0euEEfqfpXZvIr53+PQPw==",
+      "mode": 420,
+      "size": 236
+    },
+    "lib/Composeable/MouseHandler.d.ts": {
+      "checkedAt": 1780883857754,
+      "integrity": "sha512-thG+RpZXHiYF7SOTGiAio+CbgJJ9dZ/1fa9DK2P2HStpvZyvy4FWUfi2BJvxSV47e3gFqxWlKaUbvkcNdDZthA==",
+      "mode": 420,
+      "size": 1146
+    },
+    "lib/Components/OverflowCollapseList.vue.d.ts": {
+      "checkedAt": 1780883857754,
+      "integrity": "sha512-rr6GRxF68OvwIvDgfAIvDzczHFwZ/V2OYecUnA/pbjGmwTddGc6zNqYWeSGE54kYUpyrPgz+1B+3dxVyGoFPxg==",
+      "mode": 420,
+      "size": 2985
+    },
+    "lib/Composeable/PanelMenu.d.ts": {
+      "checkedAt": 1780883857754,
+      "integrity": "sha512-3uJmOTV2xsFkaUCsvENhirvvhdJettQQkQHFUFZjiwyzloJ7TZbmRaTDd8FyBuwnpz1X0pwsO1AWX6yPUhSang==",
+      "mode": 420,
+      "size": 1368
+    },
+    "lib/Composeable/ResizeChecker.d.ts": {
+      "checkedAt": 1780883857754,
+      "integrity": "sha512-zrP4eX1Nrcc/rLxTUkCOjDHK6E14AmT6o+ebIOwWu49o8csd4oe7ZOUdQVaio6WhWQTISmpX0wE6haqEYGp3/w==",
+      "mode": 420,
+      "size": 329
+    },
+    "lib/Components/SimpleTooltip.vue.d.ts": {
+      "checkedAt": 1780883857754,
+      "integrity": "sha512-4kXlOTG7Fin9wIIZrSlHuEdqOBZZ3EWqPkRw70/p7eM3r7HXBLMj6aXxcQ174mWoQHMRTcIp4v1PzZM5KzrCNw==",
+      "mode": 420,
+      "size": 2372
+    },
+    "lib/Composeable/SimpleTooltipDelayLock.d.ts": {
+      "checkedAt": 1780883857755,
+      "integrity": "sha512-k+bZJyBE5XQMTgpJh90RbpYEu6dlzrxEE/J3T9EeQbaFEJzUOTi1Gd1kiWsOEAtdZGPm8DM4k/ZWbETaMugOPw==",
+      "mode": 420,
+      "size": 122
+    },
+    "lib/SplitLayout/SplitLayout.vue.d.ts": {
+      "checkedAt": 1780883857755,
+      "integrity": "sha512-bI6+MA+uG3F7Q4CsWU8TB1pV98pGor6pEpdA+VVvOvYFLwA69NpoLxtUFnMxMWoDByQ58LdDUAv9IExQW1QRHg==",
+      "mode": 420,
+      "size": 4275
+    },
+    "lib/SplitLayout/SplitN.d.ts": {
+      "checkedAt": 1780883857755,
+      "integrity": "sha512-2LIUuNeKdcwM++pSic+LVr0ezSPAZPHDYkDyZpcQTJI4jwJSVT7hWcsFRoa0r/0EGb9ztup3lTHAUF421jCq2g==",
+      "mode": 420,
+      "size": 7873
+    },
+    "lib/SplitLayout/SplitN.vue.d.ts": {
+      "checkedAt": 1780883857755,
+      "integrity": "sha512-/e15Dw93McpNnMwplH6LVl5nYzNWtd3wiiJNKVR/zlCpDsa5NK+WOVrClNlLHrpyTiWH33F9gY1NRTwAZDfdAg==",
+      "mode": 420,
+      "size": 2540
+    },
+    "lib/SplitLayout/SplitNest.vue.d.ts": {
+      "checkedAt": 1780883857755,
+      "integrity": "sha512-FrTMa4IocWvfaZcqvy4NkRTfLTu5474VBBrC7qAuGT9i8yEjL64QAGZ/1jUJIh6oiXX+aqUy77vhZf58bjz41g==",
+      "mode": 420,
+      "size": 1223
+    },
+    "lib/SplitLayout/SplitTab.vue.d.ts": {
+      "checkedAt": 1780883857756,
+      "integrity": "sha512-Ir7LCDYxhOpFder7n6OTVOD6CL++Eco+09N4JKDYm2zlqRnKMyjVDN8Y7EEI2NFoJK78Q75zZFXNX2B+yzsLZg==",
+      "mode": 420,
+      "size": 1572
+    },
+    "lib/SplitLayout/SplitTabItem.vue.d.ts": {
+      "checkedAt": 1780883857756,
+      "integrity": "sha512-OymX2fAQST8Xj37y4ZBoT2zljZKROK/mBae7E264V3sb5WLr+Jc0Puyir42FHXEX5QF5SMjsOBLALbaKz2jDMQ==",
+      "mode": 420,
+      "size": 1206
+    },
+    "lib/Utils/Timer/Timer.d.ts": {
+      "checkedAt": 1780883857756,
+      "integrity": "sha512-hnXsnebBDb91BhBE4d584zgIpltjz+KrVRRy0zc6Vibf3BEIbWKKRYUe6UH3JgnEU73zvoBcom/X6Sl6eUGqeg==",
+      "mode": 420,
+      "size": 562
+    },
+    "lib/Composeable/Vector2.d.ts": {
+      "checkedAt": 1780883857756,
+      "integrity": "sha512-9thMCmGyh7Hk4NhszQ7LXXaVw0TMvXDbKp2HUDRG1OZ26+q+zq3uozoWu8O+G+dlZU2gwQvO8r0vuwIYk094eA==",
+      "mode": 420,
+      "size": 1376
+    },
+    "lib/vite.config.d.ts": {
+      "checkedAt": 1780883835674,
+      "integrity": "sha512-4ktAkWMQzuOWDjIEcOhdzso+o3IUeVHBdZIg6Dvwi6f0mmpPWGTrxZAPk9Cc3mtV+xiFaEPb/35aZI81HssQJw==",
+      "mode": 420,
+      "size": 76
+    },
+    "lib/Language/zh.d.ts": {
+      "checkedAt": 1780883857752,
+      "integrity": "sha512-o2E676+Je1+qImj6nYfMvGo80uFzpCo/ZoDuWpbFJKljR4zS3DdFIN3+MA0wnU1n22mEtXd7DIN2M77tCJVj3g==",
+      "mode": 420,
+      "size": 1115
+    }
+  }
+}

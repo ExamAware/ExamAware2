@@ -1,0 +1,118 @@
+import { _ as _defineProperty } from '../_chunks/dep-2cb449a9.js';
+import { defineComponent, computed } from 'vue';
+import renderNode from '../utils/render-fn.js';
+import useSizeProps from '../utils/use-size-props.js';
+import '../style/css.js';
+import '../utils/use-common-classname.js';
+import '../utils/config-context.js';
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var element = {
+  "tag": "svg",
+  "attrs": {
+    "fill": "none",
+    "viewBox": "0 0 24 24",
+    "width": "1em",
+    "height": "1em"
+  },
+  "children": [{
+    "tag": "g",
+    "attrs": {
+      "id": "peach"
+    },
+    "children": [{
+      "tag": "path",
+      "attrs": {
+        "id": "fill1",
+        "fill": "props.fillColor1",
+        "d": "M3 12C3 18 9.5 21 12 22C12.2001 21.8399 12.4034 21.6734 12.6079 21.5C14.3943 20.8115 19.1931 18.0163 20.5 15C22 12 21.5 8 18 6C15.7762 4.72926 13.6692 5.14922 12.5038 5.47383C11.6795 5.15162 10.8209 5 10 5C8 5 3 6 3 12Z"
+      }
+    }, {
+      "tag": "path",
+      "attrs": {
+        "id": "stroke1",
+        "stroke": "props.strokeColor1",
+        "d": "M15 2C13.4119 2 12.6728 4.20763 12.499 5.38264C12.4437 1.99977 10 2 10 2M12.6079 21.5C12.4034 21.6734 12.2001 21.8399 12 22C9.5 21 3 18 3 12C3 6 8 5 10 5C10.8209 5 11.6795 5.15162 12.5038 5.47383C13.6692 5.14922 15.7762 4.72926 18 6C21.5 8 22 12 20.5 15C19.1931 18.0163 14.3943 20.8115 12.6079 21.5ZM12.6079 21.5C14.9578 19.5069 17.46 16.5998 17 12C16.6769 8.76949 15.0869 6.78292 13.1902 5.78691",
+        "strokeLinecap": "square",
+        "strokeWidth": "props.strokeWidth"
+      }
+    }]
+  }]
+};
+var peach = defineComponent({
+  name: "PeachIcon",
+  props: {
+    size: {
+      type: String
+    },
+    onClick: {
+      type: Function
+    },
+    fillColor: {
+      type: [Array, String]
+    },
+    strokeColor: {
+      type: [Array, String]
+    },
+    strokeWidth: {
+      type: Number
+    }
+  },
+  setup(props, _ref) {
+    var {
+      attrs
+    } = _ref;
+    var propsSize = computed(() => props.size);
+    var strokeColor1 = computed(() => {
+      if (!props.strokeColor) return "currentColor";
+      return Array.isArray(props.strokeColor) ? props.strokeColor[0] : props.strokeColor;
+    });
+    var strokeColor2 = computed(() => {
+      var _props$strokeColor$;
+      if (!props.strokeColor) return "currentColor";
+      return Array.isArray(props.strokeColor) ? (_props$strokeColor$ = props.strokeColor[1]) !== null && _props$strokeColor$ !== void 0 ? _props$strokeColor$ : props.strokeColor[0] : props.strokeColor;
+    });
+    var fillColor1 = computed(() => {
+      if (!props.fillColor) return "transparent";
+      return Array.isArray(props.fillColor) ? props.fillColor[0] : props.fillColor;
+    });
+    var fillColor2 = computed(() => {
+      var _props$fillColor$;
+      if (!props.fillColor) return "transparent";
+      return Array.isArray(props.fillColor) ? (_props$fillColor$ = props.fillColor[1]) !== null && _props$fillColor$ !== void 0 ? _props$fillColor$ : props.fillColor[0] : props.fillColor;
+    });
+    var filledColor = computed(() => {
+      if (!props.fillColor) return "currentColor";
+      return Array.isArray(props.fillColor) ? props.fillColor[0] : props.fillColor;
+    });
+    var {
+      className,
+      style
+    } = useSizeProps(propsSize);
+    var finalCls = computed(() => ["t-icon", "t-icon-peach", className.value]);
+    var finalStyle = computed(() => _objectSpread(_objectSpread({
+      fill: "none"
+    }, style.value), attrs.style));
+    var finalProps = computed(() => ({
+      class: finalCls.value,
+      style: finalStyle.value,
+      onClick: e => {
+        var _props$onClick;
+        return (_props$onClick = props.onClick) === null || _props$onClick === void 0 ? void 0 : _props$onClick.call(props, {
+          e
+        });
+      },
+      strokeColor1: strokeColor1.value,
+      strokeColor2: strokeColor2.value,
+      fillColor1: fillColor1.value,
+      fillColor2: fillColor2.value,
+      strokeWidth: props.strokeWidth || 2,
+      filledColor: filledColor.value
+    }));
+    return () => renderNode(element, finalProps.value);
+  }
+});
+
+export default peach;
+//# sourceMappingURL=peach.js.map

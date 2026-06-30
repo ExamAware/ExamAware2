@@ -1,0 +1,67 @@
+{
+  "name": "@vuepress/plugin-shiki",
+  "version": "2.0.0-rc.121",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883861285,
+      "integrity": "sha512-yu3nmzRem/6ZswYlICcbNbUetGNJj7XCiB8wzw/dIJeEcIyppzAhmT7rEi+Lnitnwo5Er6nJOnf43G14mhj2yw==",
+      "mode": 420,
+      "size": 1094
+    },
+    "lib/client/styles/shiki.css": {
+      "checkedAt": 1780883867491,
+      "integrity": "sha512-9z9m7HKSitU+tfBIbx8y7VCg6rz/fVt+o21t2Nu4/0c0yfMGKI4SJTdVsj70khHZm+kWCVvyptkvc//JJSarlA==",
+      "mode": 420,
+      "size": 409
+    },
+    "lib/node/index.js": {
+      "checkedAt": 1780883867491,
+      "integrity": "sha512-VlcJDeyS+GiRvoqWioHYJmcdGurQe79qgL4dcLeUehFyPZznAd8AXsDFlRf8pIL+p7wFnqYbw0+K3/8KMrsIdg==",
+      "mode": 420,
+      "size": 7915
+    },
+    "lib/node/resolveLang.js": {
+      "checkedAt": 1780883867492,
+      "integrity": "sha512-ierhNKl7MOrxL4vU35lo3yGqpxdzN7lyWggDhgtFd8tcANR2mV2AHIeZ0kIVB14da+hw46mVl6+zGn6x1GfJ7Q==",
+      "mode": 420,
+      "size": 184
+    },
+    "package.json": {
+      "checkedAt": 1780883867492,
+      "integrity": "sha512-sJMJnZm9xYd1yKKOTM+hl3G9kSXFwbtWjdqePan3XqE3BJLJSr+VGA4TpO7ahRJEwwS2k2F3CmE6HHenASrhPA==",
+      "mode": 420,
+      "size": 1544
+    },
+    "lib/node/index.js.map": {
+      "checkedAt": 1780883867493,
+      "integrity": "sha512-fF+JMwht0aAPsa1y8sfc1vY6/iQfsqKMJYMJdS3ufFdBpyzvI9YzD4Q41MvOHuybHeUvTtZih7jxCgaYYFWtxQ==",
+      "mode": 420,
+      "size": 38037
+    },
+    "lib/node/resolveLang.js.map": {
+      "checkedAt": 1780883867493,
+      "integrity": "sha512-uMNazKIbTa3URbB8DksHghc6F36NMn+aUb8l0KEP241UGOntqIqDlACfT53M3NH9s94c/TNGZYqPf78GCSbx0A==",
+      "mode": 420,
+      "size": 836
+    },
+    "lib/client/styles/shiki.css.map": {
+      "checkedAt": 1780883867493,
+      "integrity": "sha512-1Awl02OUzHY5LIiSET503eZMGJmfBa5UqEFIpMtQFDMd3Kxr7l+4oplkRT+jseiDRUbrIqH3b3RRu7U7YQykzg==",
+      "mode": 420,
+      "size": 663
+    },
+    "lib/node/index.d.ts": {
+      "checkedAt": 1780883867493,
+      "integrity": "sha512-rLi4lQ4ChsIEM5M/L9USG9+LcDOCICDB10jM7h735Pja69tKFjljW4kFV60yFoHNT1AMzFrjwXk5+rA/ZO8gEg==",
+      "mode": 420,
+      "size": 7277
+    },
+    "lib/node/resolveLang.d.ts": {
+      "checkedAt": 1780883867494,
+      "integrity": "sha512-4Nwdxy7fCzvnJ33hCHADac17QYfZO3moDSZy8mAQTEFHehNAczagHEt9Ax849f5aTzALUAIpAQCwYEunJ1QnVg==",
+      "mode": 420,
+      "size": 203
+    }
+  }
+}

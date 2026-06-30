@@ -1,0 +1,72 @@
+:root {
+  --kotlin-playground-c-bg-header: #eee;
+}
+
+[data-theme="dark"] {
+  --kotlin-playground-c-bg-header: #333;
+}
+
+.kotlin-playground-wrapper {
+  overflow: hidden;
+
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--vp-c-border);
+  border-radius: 6px;
+
+  .header {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--vp-c-border);
+
+    background: var(--kotlin-playground-c-bg-header);
+
+    font-weight: 500;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    overflow-wrap: break-word;
+
+    transition: background var(--vp-t-color) border-color var(--vp-t-color);
+  }
+}
+
+.kotlin-playground-container {
+  .executable-fragment-wrapper {
+    margin-bottom: 24px;
+  }
+
+  .executable-fragment,
+  .output-wrapper,
+  .js-code-output-executor {
+    border: none !important;
+  }
+
+  .run-button {
+    top: 8px;
+    right: 8px;
+  }
+
+  .compiler-info {
+    padding: 6px 0;
+  }
+
+  .console-close {
+    top: 4px;
+    right: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+}
+
+.kotlin-playground {
+  border-radius: 8px;
+  background-color: var(--vp-c-bg-alt);
+
+  pre {
+    padding: 0.5rem 1rem;
+  }
+
+  textarea {
+    resize: none;
+    width: 100%;
+  }
+}

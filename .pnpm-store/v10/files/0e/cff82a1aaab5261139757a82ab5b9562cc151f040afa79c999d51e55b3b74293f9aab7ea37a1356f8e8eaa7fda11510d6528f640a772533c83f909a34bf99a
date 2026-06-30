@@ -1,0 +1,1 @@
+{"version":3,"sourceRoot":"","sources":["../../../src/client/styles/vars.css"],"names":[],"mappings":"AAAA,MACE,2CACA","file":"vars.css","sourcesContent":[":root {\n  --photo-swipe-c-bullet: var(--vp-c-bg-elv);\n  --photo-swipe-c-bullet-active: var(--vp-c-accent);\n}\n"]}

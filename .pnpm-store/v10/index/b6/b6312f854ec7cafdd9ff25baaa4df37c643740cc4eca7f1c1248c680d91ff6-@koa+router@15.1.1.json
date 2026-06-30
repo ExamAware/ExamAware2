@@ -1,0 +1,49 @@
+{
+  "name": "@koa/router",
+  "version": "15.1.1",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883826625,
+      "integrity": "sha512-hMOvi9UecaADKAc89Xi8+YLUO4wFpkRT+Tzv2i+u2J3h8QjpBE/BMqduHB1QCFyi8CFfsXWb/L38BGLrZoUK4A==",
+      "mode": 420,
+      "size": 1102
+    },
+    "README.md": {
+      "checkedAt": 1780883826625,
+      "integrity": "sha512-8xChuv3vh36wLD6LO8Xx559bC/8hz9AcpQsxNKsrdmfZ/uyvmaEEQTyKggbAGKv1cXpVfQIRW5I3eckoKQZCGQ==",
+      "mode": 420,
+      "size": 28758
+    },
+    "package.json": {
+      "checkedAt": 1780883826625,
+      "integrity": "sha512-PUYEHkK9JJL8+ZowEsZP/QWZtbeUcoOl9D+g+KnYrDAyNoyx9GApZny+lb27ta+EEY3sVJHBGLWABLUsI9WXRQ==",
+      "mode": 420,
+      "size": 3526
+    },
+    "dist/index.d.mts": {
+      "checkedAt": 1780883826626,
+      "integrity": "sha512-L/dW4NWRnkfmXbFVcATSKnz8xdTLSAULboj9EZr/Lnho+QEza1y6OTCTUf2faA3j4KRsbmowCcI5pbwKMuem5Q==",
+      "mode": 420,
+      "size": 28592
+    },
+    "dist/index.d.ts": {
+      "checkedAt": 1780883826626,
+      "integrity": "sha512-L/dW4NWRnkfmXbFVcATSKnz8xdTLSAULboj9EZr/Lnho+QEza1y6OTCTUf2faA3j4KRsbmowCcI5pbwKMuem5Q==",
+      "mode": 420,
+      "size": 28592
+    },
+    "dist/index.js": {
+      "checkedAt": 1780883826626,
+      "integrity": "sha512-gG8UiUCZc9u4k3vbjg5YYT7NqmfbrdCXYp06koMyA7Z4P5nEzbuGu0LQAInc8sQmTwsjs/kkNrxniRRaSGO+ZQ==",
+      "mode": 420,
+      "size": 42366
+    },
+    "dist/index.mjs": {
+      "checkedAt": 1780883826626,
+      "integrity": "sha512-4xoSxW9xCTJXJNyX9YdcyC80HTO789VMlSz9YZGJdyA5mFSB5XPwtDPZLjSBaZ899FegCQi8BOuRqsx2Obf0GQ==",
+      "mode": 420,
+      "size": 40366
+    }
+  }
+}

@@ -53,13 +53,15 @@ export function evaluateExamAutoStart(): ExamAutoStartEvaluation {
 
   const now = getCurrentTimeMs()
   const windowStart = firstStart - PRE_EXAM_MS
+  // 考前 15 分钟（含）到最后一科结束前 15 分钟（不含）之间启用；
+  // 最后一科剩余 15 分钟或以内时取消开机自启
   const windowEnd = lastEnd - PRE_EXAM_MS
 
-  // 考前 15 分钟（含）到最后一科结束前 15 分钟（不含）之间启用
   if (now >= windowStart && now < windowEnd) {
+    const isPreExam = now < firstStart
     return {
       shouldEnable: true,
-      reason: '处于考试关联自启时间窗口内',
+      reason: isPreExam ? '考前 15 分钟内，已启用开机自启' : '考试进行中，已启用开机自启',
       firstStartMs: firstStart,
       lastEndMs: lastEnd
     }
@@ -105,20 +107,19 @@ export function applyExamAutoStart(): boolean {
 }
 
 export function startExamAutoStartLoop(): void {
-  stopExamAutoStartLoop()
+  // 先清理旧监听器，避免重复注册
+  disposeExamAutoStart()
 
   // 监听设置开关变化
-  if (!configUnsubscribe) {
-    configUnsubscribe = onConfigChanged((cfg) => {
-      const enabled = cfg?.behavior?.examAutoStart?.enabled
-      if (enabled === false) {
-        stopExamAutoStartLoop()
-      } else if (enabled === true && !checkTimer) {
-        applyExamAutoStart()
-        startInterval()
-      }
-    })
-  }
+  configUnsubscribe = onConfigChanged((cfg) => {
+    const enabled = cfg?.behavior?.examAutoStart?.enabled
+    if (enabled === false) {
+      stopExamAutoStartLoop()
+    } else if (enabled === true && !checkTimer) {
+      applyExamAutoStart()
+      startInterval()
+    }
+  })
 
   if (!isExamAutoStartEnabled()) {
     return

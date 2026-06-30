@@ -1,0 +1,105 @@
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+var defineProperty = require('../_chunks/dep-23fc4c9b.js');
+var vue = require('vue');
+var utils_renderFn = require('../utils/render-fn.js');
+var utils_useSizeProps = require('../utils/use-size-props.js');
+require('../utils/use-common-classname.js');
+require('../utils/config-context.js');
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { defineProperty._defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var element = {
+  "tag": "svg",
+  "attrs": {
+    "fill": "none",
+    "viewBox": "0 0 24 24",
+    "width": "1em",
+    "height": "1em"
+  },
+  "children": [{
+    "tag": "path",
+    "attrs": {
+      "fill": "props.filledColor",
+      "d": "M22.5 2H1.5V22.7038L6.87574 18H22.5V2ZM8.28788 6.55546C9.30471 5.53862 10.9197 5.48455 12.0002 6.39325C13.0806 5.48455 14.6957 5.53862 15.7125 6.55546C16.7864 7.6294 16.7864 9.3706 15.7125 10.4445L12.0002 14.1569L8.28788 10.4445C7.21394 9.3706 7.21394 7.6294 8.28788 6.55546Z"
+    }
+  }]
+};
+var chatHeartFilled = vue.defineComponent({
+  name: "ChatHeartFilledIcon",
+  props: {
+    size: {
+      type: String
+    },
+    onClick: {
+      type: Function
+    },
+    fillColor: {
+      type: [Array, String]
+    },
+    strokeColor: {
+      type: [Array, String]
+    },
+    strokeWidth: {
+      type: Number
+    }
+  },
+  setup(props, _ref) {
+    var {
+      attrs
+    } = _ref;
+    var propsSize = vue.computed(() => props.size);
+    var strokeColor1 = vue.computed(() => {
+      if (!props.strokeColor) return "currentColor";
+      return Array.isArray(props.strokeColor) ? props.strokeColor[0] : props.strokeColor;
+    });
+    var strokeColor2 = vue.computed(() => {
+      var _props$strokeColor$;
+      if (!props.strokeColor) return "currentColor";
+      return Array.isArray(props.strokeColor) ? (_props$strokeColor$ = props.strokeColor[1]) !== null && _props$strokeColor$ !== void 0 ? _props$strokeColor$ : props.strokeColor[0] : props.strokeColor;
+    });
+    var fillColor1 = vue.computed(() => {
+      if (!props.fillColor) return "transparent";
+      return Array.isArray(props.fillColor) ? props.fillColor[0] : props.fillColor;
+    });
+    var fillColor2 = vue.computed(() => {
+      var _props$fillColor$;
+      if (!props.fillColor) return "transparent";
+      return Array.isArray(props.fillColor) ? (_props$fillColor$ = props.fillColor[1]) !== null && _props$fillColor$ !== void 0 ? _props$fillColor$ : props.fillColor[0] : props.fillColor;
+    });
+    var filledColor = vue.computed(() => {
+      if (!props.fillColor) return "currentColor";
+      return Array.isArray(props.fillColor) ? props.fillColor[0] : props.fillColor;
+    });
+    var {
+      className,
+      style
+    } = utils_useSizeProps['default'](propsSize);
+    var finalCls = vue.computed(() => ["t-icon", "t-icon-chat-heart-filled", className.value]);
+    var finalStyle = vue.computed(() => _objectSpread(_objectSpread({
+      fill: "none"
+    }, style.value), attrs.style));
+    var finalProps = vue.computed(() => ({
+      class: finalCls.value,
+      style: finalStyle.value,
+      onClick: e => {
+        var _props$onClick;
+        return (_props$onClick = props.onClick) === null || _props$onClick === void 0 ? void 0 : _props$onClick.call(props, {
+          e
+        });
+      },
+      strokeColor1: strokeColor1.value,
+      strokeColor2: strokeColor2.value,
+      fillColor1: fillColor1.value,
+      fillColor2: fillColor2.value,
+      strokeWidth: props.strokeWidth || 2,
+      filledColor: filledColor.value
+    }));
+    return () => utils_renderFn['default'](element, finalProps.value);
+  }
+});
+
+exports.default = chatHeartFilled;
+//# sourceMappingURL=chat-heart-filled.js.map

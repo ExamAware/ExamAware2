@@ -1,0 +1,2 @@
+import{default as d}from"./components/RedirectModal.js";import{s as u,a as c}from"./setupRedirect-BBJERz7T.js";import{u as x}from"./useRedirectInfo-BzhIENgm.js";import"@vueuse/core";import"vue";import"vuepress/client";import"@vuepress/helper/transition/fade-in-scale-up.css";import"./styles/redirect-modal.css";import"@temp/redirect/map.js";import"@vuepress/helper/client";export{d as RedirectModal,u as setupDevServerRedirect,c as setupRedirect,x as useRedirectInfo};
+//# sourceMappingURL=index.js.map

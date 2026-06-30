@@ -1,0 +1,59 @@
+{
+  "name": "@imengyu/vue-scroll-rect",
+  "version": "0.1.7",
+  "description": "A scroll rect component for Vue3",
+  "main": "lib/vue-scroll-rect.umd.js",
+  "module": "lib/vue-scroll-rect.es.js",
+  "files": [
+    "lib",
+    "index.d.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "scripts": {
+    "build": "vitepress build ./docs",
+    "build-lib": "vite build src",
+    "dev": "cd docs && vitepress dev",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@highlightjs/vue-plugin": "^2.1.0",
+    "@types/node": "^22.13.17",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/tsconfig": "^0.7.0",
+    "highlight.js": "^11.11.1",
+    "sass": "^1.86.1",
+    "vite": "^6.2.1",
+    "vite-plugin-dts": "^4.5.3",
+    "vite-plugin-markdown-preview": "^1.1.1",
+    "vite-plugin-vue-devtools": "^7.7.2",
+    "vitepress": "^1.6.3",
+    "vue": "^3.5.13"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/imengyu/vue-scroll-rect.git"
+  },
+  "keywords": [
+    "vue3",
+    "vue",
+    "scroll",
+    "scrollrect",
+    "scrollbar",
+    "滚动条",
+    "滚动"
+  ],
+  "author": "imengyu",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/imengyu/vue-scroll-rect/issues"
+  },
+  "homepage": "https://github.com/imengyu/vue-scroll-rect#readme"
+}

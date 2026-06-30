@@ -1,0 +1,35 @@
+declare const _default: {
+    getTop: typeof getTop;
+    getLeft: typeof getLeft;
+    getElementIndex: typeof getElementIndex;
+    getElementAbsolutePositionInParent: typeof getElementAbsolutePositionInParent;
+};
+export default _default;
+/**
+ * 获取元素的绝对纵坐标
+ * @param e 元素
+ * @param stopClass 递归向上查找，遇到指定类的父级时停止
+ */
+declare function getTop(e: HTMLElement, stopClassOrEle?: string | HTMLElement): number;
+/**
+ * 获取元素的绝对横坐标
+ * @param e 元素
+ * @param stopClass 递归向上查找，遇到指定类的父级时停止
+ */
+declare function getLeft(e: HTMLElement, stopClassOrEle?: string | HTMLElement): number;
+/**
+ * 获取元素在指定父级的绝对坐标
+ * @param e 元素
+ * @param parent 计算的父级，未指定则是body
+ * @returns
+ */
+declare function getElementAbsolutePositionInParent(e: HTMLElement, parent: HTMLElement | undefined): {
+    x: number;
+    y: number;
+};
+/**
+ * 获取一个元素在它父元素的DOM树位置
+ * @param element 元素
+ * @returns 索引，如果没有，则返回-1
+ */
+declare function getElementIndex(element: HTMLElement): number;

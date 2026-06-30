@@ -1,0 +1,55 @@
+.vp-nav-links {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.vp-nav-item {
+  position: relative;
+  margin: 0 0.25rem;
+  line-height: 2rem;
+
+  &:first-child {
+    margin-inline-start: 0;
+  }
+
+  &:last-child {
+    margin-inline-end: 0;
+  }
+
+  > .auto-link {
+    color: var(--vp-c-text);
+
+    &::before {
+      content: " ";
+
+      position: absolute;
+      inset: auto 50% 0;
+
+      height: 2px;
+      border-radius: 1px;
+
+      background: var(--vp-c-accent-hover);
+
+      visibility: hidden;
+
+      transition: inset 0.2s ease-in-out;
+    }
+
+    &.route-link-active {
+      color: var(--vp-c-accent);
+    }
+
+    &:hover,
+    &.route-link-active {
+      &::before {
+        inset: auto 0 0;
+        visibility: visible;
+      }
+    }
+  }
+
+  .i18n-icon {
+    color: var(--vp-c-text-mute);
+  }
+}

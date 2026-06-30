@@ -1,0 +1,61 @@
+{
+  "name": "@vuepress/plugin-markdown-ext",
+  "version": "2.0.0-rc.121",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883861285,
+      "integrity": "sha512-yu3nmzRem/6ZswYlICcbNbUetGNJj7XCiB8wzw/dIJeEcIyppzAhmT7rEi+Lnitnwo5Er6nJOnf43G14mhj2yw==",
+      "mode": 420,
+      "size": 1094
+    },
+    "lib/client/styles/footnote.css": {
+      "checkedAt": 1780883865977,
+      "integrity": "sha512-wnTid43TkS345Hf3iGt7TblljwQvzjATcRSv+anv7J3ZESIH2gIafBXywaxTb6DPw++jOFz1Q4t7PAfrQk1OFA==",
+      "mode": 420,
+      "size": 313
+    },
+    "lib/client/styles/tasklist.css": {
+      "checkedAt": 1780883865977,
+      "integrity": "sha512-7/G6JLJXgn1vsMHz4dfA/pZGNtlXuwAI2JyCCIeXImY5UqVosqHKRaSuhFBUgckjttj+co4UeNcWAS/FwFXFUg==",
+      "mode": 420,
+      "size": 1349
+    },
+    "lib/node/index.js": {
+      "checkedAt": 1780883865977,
+      "integrity": "sha512-VoNKSSWnQQTQy75NgCWdmwfSYDqdPw5M2Y8L+jmgMDqBOiZEDYI+3XvFreOdVD8TjrIHGA3GBdJk1eoV4GWdUg==",
+      "mode": 420,
+      "size": 1576
+    },
+    "package.json": {
+      "checkedAt": 1780883865978,
+      "integrity": "sha512-JS0MyHL6BxsQItQIZFXOhjKJkGb+qudYvGdLvp9A8/LNXoAOZvqw1fBmnL6Ic8NaxHmNmiLgh7tGwrklFTiy6g==",
+      "mode": 420,
+      "size": 1400
+    },
+    "lib/client/styles/footnote.css.map": {
+      "checkedAt": 1780883865978,
+      "integrity": "sha512-3hutQOpFWvMl8XmmoUoKR3HsevLsTtydQlvtbT7d4vDpkfg6061GmoRVSBXsd2f+m4H8CWEg76G407XtRM6iGQ==",
+      "mode": 420,
+      "size": 564
+    },
+    "lib/node/index.js.map": {
+      "checkedAt": 1780883865978,
+      "integrity": "sha512-mMr0Yzv5FldkzHxjMO5e5Q70Y5VnvH4wUNX5rdMo5uVjtNSYm8Re/aSYDYUWsX2vcP4kf5tYMUEquDltcpiYkg==",
+      "mode": 420,
+      "size": 7729
+    },
+    "lib/client/styles/tasklist.css.map": {
+      "checkedAt": 1780883865978,
+      "integrity": "sha512-XJ/09xxWnNnUZzr+aD7ChyTaDx5uofPUVTd5q1fh9xIZeOeH/oIRRWim4vU2Y7UsDINyd2CXbvaAMy3LqUohXQ==",
+      "mode": 420,
+      "size": 2082
+    },
+    "lib/node/index.d.ts": {
+      "checkedAt": 1780883865979,
+      "integrity": "sha512-WEgiJTr8RNAgqYcKyDlReYX0WlVNt6Th8XPP7bcl44WlKZ+ghlsNdn9sDn7f+Sj4iPPUyFVPGQSYbYx2Cah/Dw==",
+      "mode": 420,
+      "size": 2519
+    }
+  }
+}

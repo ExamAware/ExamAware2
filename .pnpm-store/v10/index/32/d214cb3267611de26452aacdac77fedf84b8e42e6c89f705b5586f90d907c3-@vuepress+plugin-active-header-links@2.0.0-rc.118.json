@@ -1,0 +1,109 @@
+{
+  "name": "@vuepress/plugin-active-header-links",
+  "version": "2.0.0-rc.118",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883861285,
+      "integrity": "sha512-yu3nmzRem/6ZswYlICcbNbUetGNJj7XCiB8wzw/dIJeEcIyppzAhmT7rEi+Lnitnwo5Er6nJOnf43G14mhj2yw==",
+      "mode": 420,
+      "size": 1094
+    },
+    "lib/node/activeHeaderLinksPlugin.js": {
+      "checkedAt": 1780883872197,
+      "integrity": "sha512-VTLV6uQ55Ar+P4kzZcWOPWhzKQI+k2PGigFh9BccN1FJkwrhlBocUdkSDc/FvFiOlXzQVQx9x7NwpBno/EdKxQ==",
+      "mode": 420,
+      "size": 612
+    },
+    "lib/client/config.js": {
+      "checkedAt": 1780883872198,
+      "integrity": "sha512-ue4RFDFKv0VDelFjPTDCo3WHMRGZ+pMtRe9UQM+ErFoAezZkTQVFKUMAgauKjG5rQ861a441jYqGVwrE+V/DAQ==",
+      "mode": 420,
+      "size": 504
+    },
+    "lib/client/composables/index.js": {
+      "checkedAt": 1780883872198,
+      "integrity": "sha512-xm0ZN3Psvz8VOjDSyOQU9f1Uq6CHYgPjrxEZ+g20Z+hh/MyWPm0yeFXgPtFs113K1NTYzzQDkg0rbQzKE2sCyw==",
+      "mode": 420,
+      "size": 43
+    },
+    "lib/client/index.js": {
+      "checkedAt": 1780883864574,
+      "integrity": "sha512-V0zZFhIH1CUoOINGF31f3R6TgKoERGjVshOMWnDmvk592Hgx0Jy+JJAUG2fNENODcFHZ0VZLeHXNFCtbtOfJ6Q==",
+      "mode": 420,
+      "size": 40
+    },
+    "lib/node/index.js": {
+      "checkedAt": 1780883872198,
+      "integrity": "sha512-H5Y+AHiT2u06eDvFuj8FhPzXO3lMRWc5p57tLx+FzG904VoNZQ9FOkRXc1f9Ji3hsYSiz49zTrK24/lSHUd3Bw==",
+      "mode": 420,
+      "size": 46
+    },
+    "lib/client/composables/useActiveHeaderLinks.js": {
+      "checkedAt": 1780883872198,
+      "integrity": "sha512-tTxCRhX+U/IAiUVlqvHzg8lQUChz/EHFJlNys5Nt3LU5P1xeA1P6u0zUg8wZtYNcnu3JeoFsfSydArUPnpUM/w==",
+      "mode": 420,
+      "size": 3988
+    },
+    "package.json": {
+      "checkedAt": 1780883872199,
+      "integrity": "sha512-ivS8GxcCBUkdlAd2tX32N8Zluo2jJidWxSNLwAgES3EuiQBXzJLKkMG5oU6n9TRT9jcZjjvcHol8TCHHLp55cg==",
+      "mode": 420,
+      "size": 1111
+    },
+    "lib/client/config.js.map": {
+      "checkedAt": 1780883872199,
+      "integrity": "sha512-lQiJTICDB8y928pzZOFrJV8VriTZmAWR2nkAwCRZl7ucLT4xbAVrHuQiwVgVccrdSiAa9CaJjAyt7HwrjxSXtA==",
+      "mode": 420,
+      "size": 1054
+    },
+    "lib/client/index.js.map": {
+      "checkedAt": 1780883872199,
+      "integrity": "sha512-JwdUgMIfxnYI2kZvthEK5dhWyt8/uevTcPJzpbLUPwdraxGReSP9w6wkSKvQOsfY6cdAtO4Q0Et3vcL2VOCUqg==",
+      "mode": 420,
+      "size": 6057
+    },
+    "lib/node/index.js.map": {
+      "checkedAt": 1780883872199,
+      "integrity": "sha512-MNGUxFEiq7Pv6GBH7jN3Dvbd4z6dkFyRFOAXyNnQ+L4fyJrHICh09KUI4PtkTTWlauycqs2lFuFzXRais1709g==",
+      "mode": 420,
+      "size": 1997
+    },
+    "lib/node/activeHeaderLinksPlugin.d.ts": {
+      "checkedAt": 1780883872199,
+      "integrity": "sha512-P1Ejq6ZGoLfbr4hpofcbeb796YDek7opT7kO2QlU7kr5cke5yfZaNCzkbMla/AqiGt6lPu0LXfckxuIwtl6naw==",
+      "mode": 420,
+      "size": 987
+    },
+    "lib/client/config.d.ts": {
+      "checkedAt": 1780883864577,
+      "integrity": "sha512-kxeIpmT9QyP53C1Y5aILSYjzAzTAO+I/3+86rSqMevFUNRbi1BdX8PG5PGfcxB8C88oZihWF0pM4QrtX9if/sw==",
+      "mode": 420,
+      "size": 89
+    },
+    "lib/client/composables/index.d.ts": {
+      "checkedAt": 1780883872198,
+      "integrity": "sha512-xm0ZN3Psvz8VOjDSyOQU9f1Uq6CHYgPjrxEZ+g20Z+hh/MyWPm0yeFXgPtFs113K1NTYzzQDkg0rbQzKE2sCyw==",
+      "mode": 420,
+      "size": 43
+    },
+    "lib/client/index.d.ts": {
+      "checkedAt": 1780883864574,
+      "integrity": "sha512-V0zZFhIH1CUoOINGF31f3R6TgKoERGjVshOMWnDmvk592Hgx0Jy+JJAUG2fNENODcFHZ0VZLeHXNFCtbtOfJ6Q==",
+      "mode": 420,
+      "size": 40
+    },
+    "lib/node/index.d.ts": {
+      "checkedAt": 1780883872198,
+      "integrity": "sha512-H5Y+AHiT2u06eDvFuj8FhPzXO3lMRWc5p57tLx+FzG904VoNZQ9FOkRXc1f9Ji3hsYSiz49zTrK24/lSHUd3Bw==",
+      "mode": 420,
+      "size": 46
+    },
+    "lib/client/composables/useActiveHeaderLinks.d.ts": {
+      "checkedAt": 1780883872200,
+      "integrity": "sha512-pc9AWYDRuXacHLbtQaDfm7NuFDJ+rr3mksI9IHj6KZHRwLFYeanohEVx4IBCnPHHMBBSLrI4DcdMcwTmRsaxLw==",
+      "mode": 420,
+      "size": 299
+    }
+  }
+}

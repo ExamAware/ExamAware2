@@ -1,0 +1,37 @@
+{
+  "name": "@mdit-vue/shared",
+  "version": "3.0.2",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883861386,
+      "integrity": "sha512-V8jrj3epJ9iyYRbA3BKBtHI1jl97sBfd2Ptft3tGw2/zpuH+NPTWxThRR/JULqT5zc+aI4GKS8rbkSXruwWzfw==",
+      "mode": 420,
+      "size": 1097
+    },
+    "dist/index.js": {
+      "checkedAt": 1780883862056,
+      "integrity": "sha512-IRqOV2V5KTMHquQ+h3w39V1PKIBBN3GfDf1xyuBlLC8xa5e6qzZoOY+blAqPRpU0VOfkQJLI5DH2WOePOfJeOw==",
+      "mode": 420,
+      "size": 3258
+    },
+    "package.json": {
+      "checkedAt": 1780883862057,
+      "integrity": "sha512-UKCiM0P+8KDs7qAGfHTg5XR6OJDaAOzCDbpl6E4d8dkIjrT31K5lc6X3EoMgKWjdRyUNATZYWIBkz++R7gKCPQ==",
+      "mode": 420,
+      "size": 1134
+    },
+    "README.md": {
+      "checkedAt": 1780883862057,
+      "integrity": "sha512-VDUg+vK2+AOg37n6v4VSpi5Vh36VhjMx3vswIQClegc7fTbnKOz0XDMIdyvCZd6c1E9jusJM3On3OIIxTmSSEQ==",
+      "mode": 420,
+      "size": 193
+    },
+    "dist/index.d.ts": {
+      "checkedAt": 1780883862057,
+      "integrity": "sha512-8OSAOGr1dqP0cne8PoFuk2Tw7hVKnB6b6MM6du9bdWxIGJAs2aedjldHMnS8XWYH2Ccu8Min1fxjYy0hLH5uYg==",
+      "mode": 420,
+      "size": 2308
+    }
+  }
+}

@@ -1,0 +1,97 @@
+@use "vuepress-shared/styles/arrow";
+@use "vuepress-shared/styles/reset";
+@use "container-common";
+
+.vp-md-demo {
+  margin: 0.75rem -0.5rem;
+  transition: all 0.2s;
+
+  &:hover {
+    box-shadow: 0 2px 12px var(--vp-c-shadow);
+  }
+}
+
+.vp-md-demo-toggle-button {
+  @include reset.button;
+  @include arrow.arrow;
+
+  & {
+    position: relative;
+
+    margin: 0.5rem 0.75rem 0.5rem 0.5rem;
+    padding: 0;
+    border-radius: 50%;
+
+    background-color: #ccc;
+    outline: none;
+
+    font-size: 24px;
+
+    cursor: pointer;
+  }
+
+  @media print {
+    display: none;
+  }
+
+  [data-theme="dark"] & {
+    background-color: #555;
+  }
+
+  &:hover {
+    background-color: #aaa;
+
+    [data-theme="dark"] & {
+      background-color: #777;
+    }
+  }
+}
+
+.vp-md-demo-display {
+  position: relative;
+  overflow: auto;
+  padding: 8px;
+
+  @media print {
+    break-inside: avoid;
+  }
+}
+
+.vp-md-demo-code-wrapper {
+  overflow: hidden;
+  transition: height 0.5s;
+
+  @media print {
+    height: auto !important;
+  }
+}
+
+.vp-md-demo-codes {
+  > div[class*="language-"] {
+    border-radius: 0;
+
+    @media (max-width: hope-config.$mobile) {
+      margin: 0.8rem 0;
+
+      &.line-numbers-mode::after {
+        display: none;
+      }
+
+      .line-numbers-wrapper {
+        display: none;
+      }
+
+      pre[class*="language-"] {
+        padding: 1.25rem 1.25rem 1rem;
+      }
+    }
+
+    pre {
+      margin-block: 0 !important;
+    }
+
+    &.line-numbers-mode::after {
+      border-radius: 0;
+    }
+  }
+}

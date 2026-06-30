@@ -1,0 +1,37 @@
+{
+  "name": "@vuepress/bundlerutils",
+  "version": "2.0.0-rc.26",
+  "requiresBuild": false,
+  "files": {
+    "dist/index.js": {
+      "checkedAt": 1780883861327,
+      "integrity": "sha512-X9o92jiumONFIzkJifYEtxWqMrEQ4K5iXtUa/PY8GE2UBTVYXggMXydpomFC6vQLWrrR4PrwKSo3qJSJrX2DgA==",
+      "mode": 420,
+      "size": 1165
+    },
+    "package.json": {
+      "checkedAt": 1780883861327,
+      "integrity": "sha512-WwDWy7UaSFVX+dH081lgwQpLRiY+VYPt9iohiqoKzonH2DC4asMNG9ok+b8DktvcGHKeCC3dY5apdiQe+jA4Xg==",
+      "mode": 420,
+      "size": 1271
+    },
+    "README.md": {
+      "checkedAt": 1780883861327,
+      "integrity": "sha512-Pl4wvFhbSUev7GU0Gf18Tq8fcV2+RRmCfEfsPEuSQ8LanDvc4aZuJl8yG4+zRFGNUlj9REaUHVzMgkOo11f1Mg==",
+      "mode": 420,
+      "size": 374
+    },
+    "dist/index.d.ts": {
+      "checkedAt": 1780883861328,
+      "integrity": "sha512-4r+72NKo6vXqsmjfdF9kKsGHJUk+gOeV0tGHa4dIsQgjiUQjqwab97FfhI0eFx3661YxhGEWQVr6S8ZbxggR2g==",
+      "mode": 420,
+      "size": 977
+    },
+    "LICENSE": {
+      "checkedAt": 1780883861285,
+      "integrity": "sha512-yu3nmzRem/6ZswYlICcbNbUetGNJj7XCiB8wzw/dIJeEcIyppzAhmT7rEi+Lnitnwo5Er6nJOnf43G14mhj2yw==",
+      "mode": 420,
+      "size": 1094
+    }
+  }
+}

@@ -1,0 +1,105 @@
+import { type PropType } from "vue";
+export interface CodeLayoutScrollbarInstance {
+    /**
+     * Force update scrollbar state
+     */
+    refreshScrollState(): void;
+    /**
+     * Get scroll containerElement
+     */
+    getScrollContainer(): HTMLElement | undefined;
+    /**
+     * Scroll to position
+     * @param x X scroll pos (pixel)
+     * @param y Y scroll pos (pixel)
+     */
+    scrollTo(x: number, y: number): void;
+    /**
+     * Scroll to top
+     */
+    scrollToTop(): void;
+    /**
+     * Scroll to bottom
+     */
+    scrollToBottom(): void;
+}
+declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<{
+    /**
+     * Scroll direction
+     */
+    scroll: {
+        type: PropType<"none" | "vertical" | "horizontal" | "both">;
+        default: string;
+    };
+    /**
+     * Scroll bar size (pixel)
+     */
+    scrollBarSize: {
+        type: NumberConstructor;
+        default: number;
+    };
+    /**
+     * CSS class of inner container
+     */
+    containerClass: {
+        type: StringConstructor;
+        default: string;
+    };
+}, {
+    /**
+     * Force update scrollbar state
+     */
+    refreshScrollState(): void;
+    /**
+     * Get scroll containerElement
+     */
+    getScrollContainer(): HTMLElement | undefined;
+    /**
+     * Scroll to position
+     * @param x X scroll pos (pixel)
+     * @param y Y scroll pos (pixel)
+     */
+    scrollTo(x: number, y: number): void;
+    /**
+     * Scroll to top
+     */
+    scrollToTop(): void;
+    /**
+     * Scroll to bottom
+     */
+    scrollToBottom(): void;
+}, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
+    /**
+     * Scroll direction
+     */
+    scroll: {
+        type: PropType<"none" | "vertical" | "horizontal" | "both">;
+        default: string;
+    };
+    /**
+     * Scroll bar size (pixel)
+     */
+    scrollBarSize: {
+        type: NumberConstructor;
+        default: number;
+    };
+    /**
+     * CSS class of inner container
+     */
+    containerClass: {
+        type: StringConstructor;
+        default: string;
+    };
+}>>, {
+    scroll: "none" | "vertical" | "horizontal" | "both";
+    scrollBarSize: number;
+    containerClass: string;
+}, {}>, {
+    default?(_: {}): any;
+}>;
+export default _default;
+type __VLS_WithTemplateSlots<T, S> = T & {
+    new (): {
+        $slots: S;
+    };
+};

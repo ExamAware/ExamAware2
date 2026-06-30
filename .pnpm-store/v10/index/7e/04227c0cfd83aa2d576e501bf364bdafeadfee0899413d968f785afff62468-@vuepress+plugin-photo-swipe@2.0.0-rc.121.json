@@ -1,0 +1,109 @@
+{
+  "name": "@vuepress/plugin-photo-swipe",
+  "version": "2.0.0-rc.121",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883861285,
+      "integrity": "sha512-yu3nmzRem/6ZswYlICcbNbUetGNJj7XCiB8wzw/dIJeEcIyppzAhmT7rEi+Lnitnwo5Er6nJOnf43G14mhj2yw==",
+      "mode": 420,
+      "size": 1094
+    },
+    "lib/client/styles/photo-swipe.css": {
+      "checkedAt": 1780883867330,
+      "integrity": "sha512-NX8f+IHFxAVYYhc8iwpKE4P1slqdO4JnqPy9nd2vRhbtQ2S/67whtcw+o2TaXdpiMXJI49kxU8hBKb009lF1zg==",
+      "mode": 420,
+      "size": 518
+    },
+    "lib/client/styles/vars.css": {
+      "checkedAt": 1780883867330,
+      "integrity": "sha512-GrqzoHrk2sgnWI1Ng0v2qamovLPa+QikLhdos+cLjMrndyqu6tLXMRZsIrYB6JizSqnMXhqk7KABpZQv3Z+Wkg==",
+      "mode": 420,
+      "size": 136
+    },
+    "lib/client/config.js": {
+      "checkedAt": 1780883867330,
+      "integrity": "sha512-XlY4cb4bU5bfN+rB4qyG1K+48ghzA9i7tgtiCtmBYODlB3Jquk8/g8sbTsfoSIN+J5oSDGl5nD5OkOwV+qVXWg==",
+      "mode": 420,
+      "size": 542
+    },
+    "lib/client/index.js": {
+      "checkedAt": 1780883867331,
+      "integrity": "sha512-qjuCLCWQS0c9HKomqntRzi2HJgWtLrde4tKRkoT/J6U4WkmjSTCipl4QQ/OCuHuVC7YWen7Dn7MCug7ZfxKsRw==",
+      "mode": 420,
+      "size": 1018
+    },
+    "lib/node/index.js": {
+      "checkedAt": 1780883867331,
+      "integrity": "sha512-UGN/efSqV7+SLBH6kIqEyednMTtMdLuB7dOg5OKyKWlOSQ4YHaajRX2ibnWcWoBLnylLigo1Zcp+jS/PwFge+Q==",
+      "mode": 420,
+      "size": 4849
+    },
+    "lib/client/usePhotoSwipe-w7wkUXvx.js": {
+      "checkedAt": 1780883867332,
+      "integrity": "sha512-W8tq8HP9pqj0IOZrnE2N9oxtpm1pUKtzCWP01gaC7Tjo1GskLN/ftiHzzs+KxjUSEilPDehGaWQJp8oD1So23Q==",
+      "mode": 420,
+      "size": 4137
+    },
+    "package.json": {
+      "checkedAt": 1780883867332,
+      "integrity": "sha512-ZOqtMB61Yca2uEjeM/V9gCmuoyMH4+gh02qHgE0LRqqo0D6uipQorNSZ8Z7/qR3GRQj6iA4aCl3rlFfTeTIeMA==",
+      "mode": 420,
+      "size": 1253
+    },
+    "lib/client/config.js.map": {
+      "checkedAt": 1780883867333,
+      "integrity": "sha512-Za0LOkY5OjyGVnkdpgGHNgrp9RFnBDo8zhAn6o47OgmY6PkGFsdY3yDjFPz+Glt+6WSBP9AjTeNVaKNhxgRoSQ==",
+      "mode": 420,
+      "size": 1521
+    },
+    "lib/client/index.js.map": {
+      "checkedAt": 1780883867333,
+      "integrity": "sha512-HvNQNalpvc0veP2OlNK3Zzj/E2XxuRagbNKzKRF8Mg6JRzoinbqPrKI0wUprUG1hNjbtoudh9tYrUiXs7Hy1gg==",
+      "mode": 420,
+      "size": 4346
+    },
+    "lib/node/index.js.map": {
+      "checkedAt": 1780883867334,
+      "integrity": "sha512-+e9ryVqQLTi8DGrrLoI4ubdG9l52zELB3f+ftSSUvX9ui0HWdBr7qwPSQxaPJVVREJl72HWj2TTF3mPUxjqoEA==",
+      "mode": 420,
+      "size": 11923
+    },
+    "lib/client/styles/photo-swipe.css.map": {
+      "checkedAt": 1780883867334,
+      "integrity": "sha512-Qmx2xANyrX81PKSnBb/MTLknVunTrY3d3GahEz1Frw7JYQF27Np/Mx9jh3OGEgUJ+4Fe2CWFhirc7PZSBs4+YQ==",
+      "mode": 420,
+      "size": 922
+    },
+    "lib/client/usePhotoSwipe-w7wkUXvx.js.map": {
+      "checkedAt": 1780883867334,
+      "integrity": "sha512-02zIVgw0UNOxsfGaL2IOyfbwOVyUDl8hMHaZ3NEdXGSC141fcReAmd250qZVFtd83aHkrOX4zYBGNCcOT2Qxhg==",
+      "mode": 420,
+      "size": 15987
+    },
+    "lib/client/styles/vars.css.map": {
+      "checkedAt": 1780883867335,
+      "integrity": "sha512-Ds/4KhqqtSYROXV6gqtblWLMFR8ECvp5yZnVHlWzt0KT+aq36jehNW+Ojqp/2hFRDWUo9kCnclM8g/kJo0v5mg==",
+      "mode": 420,
+      "size": 272
+    },
+    "lib/client/config.d.ts": {
+      "checkedAt": 1780883863973,
+      "integrity": "sha512-LWeAJENp2w9V6CDuDmhFRkBSAGOeJcJ1mOZO8TUOQJlM3iCRlNxShqtSSe1wrNWTabQivKTWXQ6CDWhk5SW51w==",
+      "mode": 420,
+      "size": 140
+    },
+    "lib/client/index.d.ts": {
+      "checkedAt": 1780883867335,
+      "integrity": "sha512-iFC81J7TIg4ML+UFyXCrmOFByV8ea5i8F3MbHZs4xLPBrgor/XdUKhEd+TraYHgy1S2kkQ+T8sDz7/XX0mbmIg==",
+      "mode": 420,
+      "size": 4646
+    },
+    "lib/node/index.d.ts": {
+      "checkedAt": 1780883867335,
+      "integrity": "sha512-QOlXQz6mm3waSveLIyQl4uQC5ac5mcKtM8/iYhfgFsUa/33dpF07XJmigrGtXLRgWZ25Zh2ANV1MiwIWksOb1A==",
+      "mode": 420,
+      "size": 2550
+    }
+  }
+}

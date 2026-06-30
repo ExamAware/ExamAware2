@@ -1,6 +1,6 @@
 <template>
   <div class="info-item">
-    <div class="info-label">{{ label }}：</div>
+    <div class="info-label">{{ label }}:</div>
     <div class="info-value" :class="valueClass">{{ value }}</div>
   </div>
 </template>
@@ -20,7 +20,7 @@ defineProps<InfoItemProps>();
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: calc(var(--ui-scale, 1) * 1em);
+  gap: 0;
 }
 
 .info-label {

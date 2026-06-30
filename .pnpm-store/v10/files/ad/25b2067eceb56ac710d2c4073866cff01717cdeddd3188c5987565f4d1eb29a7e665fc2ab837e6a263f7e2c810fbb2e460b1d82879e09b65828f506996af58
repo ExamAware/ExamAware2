@@ -1,0 +1,6394 @@
+var manifest = [{
+  stem: "accessibility-filled",
+  icon: "AccessibilityFilled"
+}, {
+  stem: "accessibility",
+  icon: "Accessibility"
+}, {
+  stem: "activity-filled",
+  icon: "ActivityFilled"
+}, {
+  stem: "activity",
+  icon: "Activity"
+}, {
+  stem: "add-and-subtract",
+  icon: "AddAndSubtract"
+}, {
+  stem: "add-circle-filled",
+  icon: "AddCircleFilled"
+}, {
+  stem: "add-circle",
+  icon: "AddCircle"
+}, {
+  stem: "add-rectangle-filled",
+  icon: "AddRectangleFilled"
+}, {
+  stem: "add-rectangle",
+  icon: "AddRectangle"
+}, {
+  stem: "add",
+  icon: "Add"
+}, {
+  stem: "address-book-filled",
+  icon: "AddressBookFilled"
+}, {
+  stem: "address-book",
+  icon: "AddressBook"
+}, {
+  stem: "adjustment-filled",
+  icon: "AdjustmentFilled"
+}, {
+  stem: "adjustment",
+  icon: "Adjustment"
+}, {
+  stem: "airplay-wave-filled",
+  icon: "AirplayWaveFilled"
+}, {
+  stem: "airplay-wave",
+  icon: "AirplayWave"
+}, {
+  stem: "alarm-add-filled",
+  icon: "AlarmAddFilled"
+}, {
+  stem: "alarm-add",
+  icon: "AlarmAdd"
+}, {
+  stem: "alarm-filled",
+  icon: "AlarmFilled"
+}, {
+  stem: "alarm-off-filled",
+  icon: "AlarmOffFilled"
+}, {
+  stem: "alarm-off",
+  icon: "AlarmOff"
+}, {
+  stem: "alarm",
+  icon: "Alarm"
+}, {
+  stem: "align-bottom",
+  icon: "AlignBottom"
+}, {
+  stem: "align-top",
+  icon: "AlignTop"
+}, {
+  stem: "align-vertical",
+  icon: "AlignVertical"
+}, {
+  stem: "alpha",
+  icon: "Alpha"
+}, {
+  stem: "analytics-filled",
+  icon: "AnalyticsFilled"
+}, {
+  stem: "analytics",
+  icon: "Analytics"
+}, {
+  stem: "anchor",
+  icon: "Anchor"
+}, {
+  stem: "angry-filled",
+  icon: "AngryFilled"
+}, {
+  stem: "angry",
+  icon: "Angry"
+}, {
+  stem: "animation-1-filled",
+  icon: "Animation1Filled"
+}, {
+  stem: "animation-1",
+  icon: "Animation1"
+}, {
+  stem: "animation-filled",
+  icon: "AnimationFilled"
+}, {
+  stem: "animation",
+  icon: "Animation"
+}, {
+  stem: "anticlockwise-filled",
+  icon: "AnticlockwiseFilled"
+}, {
+  stem: "anticlockwise",
+  icon: "Anticlockwise"
+}, {
+  stem: "api",
+  icon: "Api"
+}, {
+  stem: "app-filled",
+  icon: "AppFilled"
+}, {
+  stem: "app",
+  icon: "App"
+}, {
+  stem: "apple-filled",
+  icon: "AppleFilled"
+}, {
+  stem: "apple",
+  icon: "Apple"
+}, {
+  stem: "application-filled",
+  icon: "ApplicationFilled"
+}, {
+  stem: "application",
+  icon: "Application"
+}, {
+  stem: "architecture-hui-style-filled",
+  icon: "ArchitectureHuiStyleFilled"
+}, {
+  stem: "architecture-hui-style",
+  icon: "ArchitectureHuiStyle"
+}, {
+  stem: "archway-1-filled",
+  icon: "Archway1Filled"
+}, {
+  stem: "archway-1",
+  icon: "Archway1"
+}, {
+  stem: "archway-filled",
+  icon: "ArchwayFilled"
+}, {
+  stem: "archway",
+  icon: "Archway"
+}, {
+  stem: "arrow-down-circle-filled",
+  icon: "ArrowDownCircleFilled"
+}, {
+  stem: "arrow-down-circle",
+  icon: "ArrowDownCircle"
+}, {
+  stem: "arrow-down-rectangle-filled",
+  icon: "ArrowDownRectangleFilled"
+}, {
+  stem: "arrow-down-rectangle",
+  icon: "ArrowDownRectangle"
+}, {
+  stem: "arrow-down",
+  icon: "ArrowDown"
+}, {
+  stem: "arrow-left-circle-filled",
+  icon: "ArrowLeftCircleFilled"
+}, {
+  stem: "arrow-left-circle",
+  icon: "ArrowLeftCircle"
+}, {
+  stem: "arrow-left-down-circle-filled",
+  icon: "ArrowLeftDownCircleFilled"
+}, {
+  stem: "arrow-left-down-circle",
+  icon: "ArrowLeftDownCircle"
+}, {
+  stem: "arrow-left-down",
+  icon: "ArrowLeftDown"
+}, {
+  stem: "arrow-left-right-1",
+  icon: "ArrowLeftRight1"
+}, {
+  stem: "arrow-left-right-2",
+  icon: "ArrowLeftRight2"
+}, {
+  stem: "arrow-left-right-3",
+  icon: "ArrowLeftRight3"
+}, {
+  stem: "arrow-left-right-circle-filled",
+  icon: "ArrowLeftRightCircleFilled"
+}, {
+  stem: "arrow-left-right-circle",
+  icon: "ArrowLeftRightCircle"
+}, {
+  stem: "arrow-left-up-circle-filled",
+  icon: "ArrowLeftUpCircleFilled"
+}, {
+  stem: "arrow-left-up-circle",
+  icon: "ArrowLeftUpCircle"
+}, {
+  stem: "arrow-left-up",
+  icon: "ArrowLeftUp"
+}, {
+  stem: "arrow-left",
+  icon: "ArrowLeft"
+}, {
+  stem: "arrow-right-circle-filled",
+  icon: "ArrowRightCircleFilled"
+}, {
+  stem: "arrow-right-circle",
+  icon: "ArrowRightCircle"
+}, {
+  stem: "arrow-right-down-circle-filled",
+  icon: "ArrowRightDownCircleFilled"
+}, {
+  stem: "arrow-right-down-circle",
+  icon: "ArrowRightDownCircle"
+}, {
+  stem: "arrow-right-down",
+  icon: "ArrowRightDown"
+}, {
+  stem: "arrow-right-up-circle-filled",
+  icon: "ArrowRightUpCircleFilled"
+}, {
+  stem: "arrow-right-up-circle",
+  icon: "ArrowRightUpCircle"
+}, {
+  stem: "arrow-right-up",
+  icon: "ArrowRightUp"
+}, {
+  stem: "arrow-right",
+  icon: "ArrowRight"
+}, {
+  stem: "arrow-triangle-down-filled",
+  icon: "ArrowTriangleDownFilled"
+}, {
+  stem: "arrow-triangle-down",
+  icon: "ArrowTriangleDown"
+}, {
+  stem: "arrow-triangle-up-filled",
+  icon: "ArrowTriangleUpFilled"
+}, {
+  stem: "arrow-triangle-up",
+  icon: "ArrowTriangleUp"
+}, {
+  stem: "arrow-up-circle-filled",
+  icon: "ArrowUpCircleFilled"
+}, {
+  stem: "arrow-up-circle",
+  icon: "ArrowUpCircle"
+}, {
+  stem: "arrow-up-down-1",
+  icon: "ArrowUpDown1"
+}, {
+  stem: "arrow-up-down-2",
+  icon: "ArrowUpDown2"
+}, {
+  stem: "arrow-up-down-3",
+  icon: "ArrowUpDown3"
+}, {
+  stem: "arrow-up-down-circle-filled",
+  icon: "ArrowUpDownCircleFilled"
+}, {
+  stem: "arrow-up-down-circle",
+  icon: "ArrowUpDownCircle"
+}, {
+  stem: "arrow-up",
+  icon: "ArrowUp"
+}, {
+  stem: "artboard",
+  icon: "Artboard"
+}, {
+  stem: "article-filled",
+  icon: "ArticleFilled"
+}, {
+  stem: "article",
+  icon: "Article"
+}, {
+  stem: "assignment-checked-filled",
+  icon: "AssignmentCheckedFilled"
+}, {
+  stem: "assignment-checked",
+  icon: "AssignmentChecked"
+}, {
+  stem: "assignment-code-filled",
+  icon: "AssignmentCodeFilled"
+}, {
+  stem: "assignment-code",
+  icon: "AssignmentCode"
+}, {
+  stem: "assignment-error-filled",
+  icon: "AssignmentErrorFilled"
+}, {
+  stem: "assignment-error",
+  icon: "AssignmentError"
+}, {
+  stem: "assignment-filled",
+  icon: "AssignmentFilled"
+}, {
+  stem: "assignment-user-filled",
+  icon: "AssignmentUserFilled"
+}, {
+  stem: "assignment-user",
+  icon: "AssignmentUser"
+}, {
+  stem: "assignment",
+  icon: "Assignment"
+}, {
+  stem: "attach",
+  icon: "Attach"
+}, {
+  stem: "attic-1-filled",
+  icon: "Attic1Filled"
+}, {
+  stem: "attic-1",
+  icon: "Attic1"
+}, {
+  stem: "attic-filled",
+  icon: "AtticFilled"
+}, {
+  stem: "attic",
+  icon: "Attic"
+}, {
+  stem: "audio-filled",
+  icon: "AudioFilled"
+}, {
+  stem: "audio",
+  icon: "Audio"
+}, {
+  stem: "awkward-filled",
+  icon: "AwkwardFilled"
+}, {
+  stem: "awkward",
+  icon: "Awkward"
+}, {
+  stem: "backtop-rectangle-filled",
+  icon: "BacktopRectangleFilled"
+}, {
+  stem: "backtop-rectangle",
+  icon: "BacktopRectangle"
+}, {
+  stem: "backtop",
+  icon: "Backtop"
+}, {
+  stem: "backup-filled",
+  icon: "BackupFilled"
+}, {
+  stem: "backup",
+  icon: "Backup"
+}, {
+  stem: "backward-filled",
+  icon: "BackwardFilled"
+}, {
+  stem: "backward",
+  icon: "Backward"
+}, {
+  stem: "bad-laugh-filled",
+  icon: "BadLaughFilled"
+}, {
+  stem: "bad-laugh",
+  icon: "BadLaugh"
+}, {
+  stem: "bamboo-shoot-filled",
+  icon: "BambooShootFilled"
+}, {
+  stem: "bamboo-shoot",
+  icon: "BambooShoot"
+}, {
+  stem: "banana-filled",
+  icon: "BananaFilled"
+}, {
+  stem: "banana",
+  icon: "Banana"
+}, {
+  stem: "barbecue-filled",
+  icon: "BarbecueFilled"
+}, {
+  stem: "barbecue",
+  icon: "Barbecue"
+}, {
+  stem: "barcode-1",
+  icon: "Barcode1"
+}, {
+  stem: "barcode",
+  icon: "Barcode"
+}, {
+  stem: "base-station",
+  icon: "BaseStation"
+}, {
+  stem: "battery-add-filled",
+  icon: "BatteryAddFilled"
+}, {
+  stem: "battery-add",
+  icon: "BatteryAdd"
+}, {
+  stem: "battery-charging-filled",
+  icon: "BatteryChargingFilled"
+}, {
+  stem: "battery-charging",
+  icon: "BatteryCharging"
+}, {
+  stem: "battery-filled",
+  icon: "BatteryFilled"
+}, {
+  stem: "battery-low-filled",
+  icon: "BatteryLowFilled"
+}, {
+  stem: "battery-low",
+  icon: "BatteryLow"
+}, {
+  stem: "battery",
+  icon: "Battery"
+}, {
+  stem: "bean-filled",
+  icon: "BeanFilled"
+}, {
+  stem: "bean",
+  icon: "Bean"
+}, {
+  stem: "beer-filled",
+  icon: "BeerFilled"
+}, {
+  stem: "beer",
+  icon: "Beer"
+}, {
+  stem: "beta",
+  icon: "Beta"
+}, {
+  stem: "bifurcate-filled",
+  icon: "BifurcateFilled"
+}, {
+  stem: "bifurcate",
+  icon: "Bifurcate"
+}, {
+  stem: "bill-filled",
+  icon: "BillFilled"
+}, {
+  stem: "bill",
+  icon: "Bill"
+}, {
+  stem: "bluetooth",
+  icon: "Bluetooth"
+}, {
+  stem: "bone-filled",
+  icon: "BoneFilled"
+}, {
+  stem: "bone",
+  icon: "Bone"
+}, {
+  stem: "book-filled",
+  icon: "BookFilled"
+}, {
+  stem: "book-open-filled",
+  icon: "BookOpenFilled"
+}, {
+  stem: "book-open",
+  icon: "BookOpen"
+}, {
+  stem: "book-unknown-filled",
+  icon: "BookUnknownFilled"
+}, {
+  stem: "book-unknown",
+  icon: "BookUnknown"
+}, {
+  stem: "book",
+  icon: "Book"
+}, {
+  stem: "bookmark-add-filled",
+  icon: "BookmarkAddFilled"
+}, {
+  stem: "bookmark-add",
+  icon: "BookmarkAdd"
+}, {
+  stem: "bookmark-checked-filled",
+  icon: "BookmarkCheckedFilled"
+}, {
+  stem: "bookmark-checked",
+  icon: "BookmarkChecked"
+}, {
+  stem: "bookmark-double-filled",
+  icon: "BookmarkDoubleFilled"
+}, {
+  stem: "bookmark-double",
+  icon: "BookmarkDouble"
+}, {
+  stem: "bookmark-filled",
+  icon: "BookmarkFilled"
+}, {
+  stem: "bookmark-minus-filled",
+  icon: "BookmarkMinusFilled"
+}, {
+  stem: "bookmark-minus",
+  icon: "BookmarkMinus"
+}, {
+  stem: "bookmark",
+  icon: "Bookmark"
+}, {
+  stem: "braces",
+  icon: "Braces"
+}, {
+  stem: "brackets",
+  icon: "Brackets"
+}, {
+  stem: "bread-filled",
+  icon: "BreadFilled"
+}, {
+  stem: "bread",
+  icon: "Bread"
+}, {
+  stem: "bridge-1-filled",
+  icon: "Bridge1Filled"
+}, {
+  stem: "bridge-1",
+  icon: "Bridge1"
+}, {
+  stem: "bridge-2-filled",
+  icon: "Bridge2Filled"
+}, {
+  stem: "bridge-2",
+  icon: "Bridge2"
+}, {
+  stem: "bridge-3",
+  icon: "Bridge3"
+}, {
+  stem: "bridge-4",
+  icon: "Bridge4"
+}, {
+  stem: "bridge-5-filled",
+  icon: "Bridge5Filled"
+}, {
+  stem: "bridge-5",
+  icon: "Bridge5"
+}, {
+  stem: "bridge-6-filled",
+  icon: "Bridge6Filled"
+}, {
+  stem: "bridge-6",
+  icon: "Bridge6"
+}, {
+  stem: "bridge",
+  icon: "Bridge"
+}, {
+  stem: "brightness-1-filled",
+  icon: "Brightness1Filled"
+}, {
+  stem: "brightness-1",
+  icon: "Brightness1"
+}, {
+  stem: "brightness-filled",
+  icon: "BrightnessFilled"
+}, {
+  stem: "brightness",
+  icon: "Brightness"
+}, {
+  stem: "broccoli-filled",
+  icon: "BroccoliFilled"
+}, {
+  stem: "broccoli",
+  icon: "Broccoli"
+}, {
+  stem: "browse-filled",
+  icon: "BrowseFilled"
+}, {
+  stem: "browse-gallery-filled",
+  icon: "BrowseGalleryFilled"
+}, {
+  stem: "browse-gallery",
+  icon: "BrowseGallery"
+}, {
+  stem: "browse-off-filled",
+  icon: "BrowseOffFilled"
+}, {
+  stem: "browse-off",
+  icon: "BrowseOff"
+}, {
+  stem: "browse",
+  icon: "Browse"
+}, {
+  stem: "brush-filled",
+  icon: "BrushFilled"
+}, {
+  stem: "brush",
+  icon: "Brush"
+}, {
+  stem: "bug-filled",
+  icon: "BugFilled"
+}, {
+  stem: "bug-report-filled",
+  icon: "BugReportFilled"
+}, {
+  stem: "bug-report",
+  icon: "BugReport"
+}, {
+  stem: "bug",
+  icon: "Bug"
+}, {
+  stem: "building-1-filled",
+  icon: "Building1Filled"
+}, {
+  stem: "building-1",
+  icon: "Building1"
+}, {
+  stem: "building-2-filled",
+  icon: "Building2Filled"
+}, {
+  stem: "building-2",
+  icon: "Building2"
+}, {
+  stem: "building-3-filled",
+  icon: "Building3Filled"
+}, {
+  stem: "building-3",
+  icon: "Building3"
+}, {
+  stem: "building-4-filled",
+  icon: "Building4Filled"
+}, {
+  stem: "building-4",
+  icon: "Building4"
+}, {
+  stem: "building-5-filled",
+  icon: "Building5Filled"
+}, {
+  stem: "building-5",
+  icon: "Building5"
+}, {
+  stem: "building-filled",
+  icon: "BuildingFilled"
+}, {
+  stem: "building",
+  icon: "Building"
+}, {
+  stem: "bulletpoint",
+  icon: "Bulletpoint"
+}, {
+  stem: "button-filled",
+  icon: "ButtonFilled"
+}, {
+  stem: "button",
+  icon: "Button"
+}, {
+  stem: "cabbage-filled",
+  icon: "CabbageFilled"
+}, {
+  stem: "cabbage",
+  icon: "Cabbage"
+}, {
+  stem: "cake-filled",
+  icon: "CakeFilled"
+}, {
+  stem: "cake",
+  icon: "Cake"
+}, {
+  stem: "calculation-1-filled",
+  icon: "Calculation1Filled"
+}, {
+  stem: "calculation-1",
+  icon: "Calculation1"
+}, {
+  stem: "calculation",
+  icon: "Calculation"
+}, {
+  stem: "calculator-1",
+  icon: "Calculator1"
+}, {
+  stem: "calculator-filled",
+  icon: "CalculatorFilled"
+}, {
+  stem: "calculator",
+  icon: "Calculator"
+}, {
+  stem: "calendar-1-filled",
+  icon: "Calendar1Filled"
+}, {
+  stem: "calendar-1",
+  icon: "Calendar1"
+}, {
+  stem: "calendar-2-filled",
+  icon: "Calendar2Filled"
+}, {
+  stem: "calendar-2",
+  icon: "Calendar2"
+}, {
+  stem: "calendar-edit-filled",
+  icon: "CalendarEditFilled"
+}, {
+  stem: "calendar-edit",
+  icon: "CalendarEdit"
+}, {
+  stem: "calendar-event-filled",
+  icon: "CalendarEventFilled"
+}, {
+  stem: "calendar-event",
+  icon: "CalendarEvent"
+}, {
+  stem: "calendar-filled",
+  icon: "CalendarFilled"
+}, {
+  stem: "calendar",
+  icon: "Calendar"
+}, {
+  stem: "call-1-filled",
+  icon: "Call1Filled"
+}, {
+  stem: "call-1",
+  icon: "Call1"
+}, {
+  stem: "call-cancel-filled",
+  icon: "CallCancelFilled"
+}, {
+  stem: "call-cancel",
+  icon: "CallCancel"
+}, {
+  stem: "call-filled",
+  icon: "CallFilled"
+}, {
+  stem: "call-forwarded-filled",
+  icon: "CallForwardedFilled"
+}, {
+  stem: "call-forwarded",
+  icon: "CallForwarded"
+}, {
+  stem: "call-incoming-filled",
+  icon: "CallIncomingFilled"
+}, {
+  stem: "call-incoming",
+  icon: "CallIncoming"
+}, {
+  stem: "call-off-filled",
+  icon: "CallOffFilled"
+}, {
+  stem: "call-off",
+  icon: "CallOff"
+}, {
+  stem: "call",
+  icon: "Call"
+}, {
+  stem: "calm-1-filled",
+  icon: "Calm1Filled"
+}, {
+  stem: "calm-1",
+  icon: "Calm1"
+}, {
+  stem: "calm-filled",
+  icon: "CalmFilled"
+}, {
+  stem: "calm",
+  icon: "Calm"
+}, {
+  stem: "camera-1-filled",
+  icon: "Camera1Filled"
+}, {
+  stem: "camera-1",
+  icon: "Camera1"
+}, {
+  stem: "camera-2-filled",
+  icon: "Camera2Filled"
+}, {
+  stem: "camera-2",
+  icon: "Camera2"
+}, {
+  stem: "camera-filled",
+  icon: "CameraFilled"
+}, {
+  stem: "camera-off-filled",
+  icon: "CameraOffFilled"
+}, {
+  stem: "camera-off",
+  icon: "CameraOff"
+}, {
+  stem: "camera",
+  icon: "Camera"
+}, {
+  stem: "candy-filled",
+  icon: "CandyFilled"
+}, {
+  stem: "candy",
+  icon: "Candy"
+}, {
+  stem: "card-filled",
+  icon: "CardFilled"
+}, {
+  stem: "card",
+  icon: "Card"
+}, {
+  stem: "cardmembership-filled",
+  icon: "CardmembershipFilled"
+}, {
+  stem: "cardmembership",
+  icon: "Cardmembership"
+}, {
+  stem: "caret-down-small",
+  icon: "CaretDownSmall"
+}, {
+  stem: "caret-down",
+  icon: "CaretDown"
+}, {
+  stem: "caret-left-small",
+  icon: "CaretLeftSmall"
+}, {
+  stem: "caret-left",
+  icon: "CaretLeft"
+}, {
+  stem: "caret-right-small",
+  icon: "CaretRightSmall"
+}, {
+  stem: "caret-right",
+  icon: "CaretRight"
+}, {
+  stem: "caret-up-small",
+  icon: "CaretUpSmall"
+}, {
+  stem: "caret-up",
+  icon: "CaretUp"
+}, {
+  stem: "cart-add-filled",
+  icon: "CartAddFilled"
+}, {
+  stem: "cart-add",
+  icon: "CartAdd"
+}, {
+  stem: "cart-filled",
+  icon: "CartFilled"
+}, {
+  stem: "cart",
+  icon: "Cart"
+}, {
+  stem: "cast-filled",
+  icon: "CastFilled"
+}, {
+  stem: "cast",
+  icon: "Cast"
+}, {
+  stem: "castle-1-filled",
+  icon: "Castle1Filled"
+}, {
+  stem: "castle-1",
+  icon: "Castle1"
+}, {
+  stem: "castle-2-filled",
+  icon: "Castle2Filled"
+}, {
+  stem: "castle-2",
+  icon: "Castle2"
+}, {
+  stem: "castle-3-filled",
+  icon: "Castle3Filled"
+}, {
+  stem: "castle-3",
+  icon: "Castle3"
+}, {
+  stem: "castle-4-filled",
+  icon: "Castle4Filled"
+}, {
+  stem: "castle-4",
+  icon: "Castle4"
+}, {
+  stem: "castle-5-filled",
+  icon: "Castle5Filled"
+}, {
+  stem: "castle-5",
+  icon: "Castle5"
+}, {
+  stem: "castle-6-filled",
+  icon: "Castle6Filled"
+}, {
+  stem: "castle-6",
+  icon: "Castle6"
+}, {
+  stem: "castle-7-filled",
+  icon: "Castle7Filled"
+}, {
+  stem: "castle-7",
+  icon: "Castle7"
+}, {
+  stem: "castle-filled",
+  icon: "CastleFilled"
+}, {
+  stem: "castle",
+  icon: "Castle"
+}, {
+  stem: "cat-filled",
+  icon: "CatFilled"
+}, {
+  stem: "cat",
+  icon: "Cat"
+}, {
+  stem: "catalog-filled",
+  icon: "CatalogFilled"
+}, {
+  stem: "catalog",
+  icon: "Catalog"
+}, {
+  stem: "cd-filled",
+  icon: "CdFilled"
+}, {
+  stem: "cd",
+  icon: "Cd"
+}, {
+  stem: "celsius",
+  icon: "Celsius"
+}, {
+  stem: "center-focus-strong-filled",
+  icon: "CenterFocusStrongFilled"
+}, {
+  stem: "center-focus-strong",
+  icon: "CenterFocusStrong"
+}, {
+  stem: "centimeter",
+  icon: "Centimeter"
+}, {
+  stem: "certificate-1-filled",
+  icon: "Certificate1Filled"
+}, {
+  stem: "certificate-1",
+  icon: "Certificate1"
+}, {
+  stem: "certificate-filled",
+  icon: "CertificateFilled"
+}, {
+  stem: "certificate",
+  icon: "Certificate"
+}, {
+  stem: "chart-3d-filled",
+  icon: "Chart3DFilled"
+}, {
+  stem: "chart-3d",
+  icon: "Chart3D"
+}, {
+  stem: "chart-add-filled",
+  icon: "ChartAddFilled"
+}, {
+  stem: "chart-add",
+  icon: "ChartAdd"
+}, {
+  stem: "chart-analytics",
+  icon: "ChartAnalytics"
+}, {
+  stem: "chart-area-filled",
+  icon: "ChartAreaFilled"
+}, {
+  stem: "chart-area-multi-filled",
+  icon: "ChartAreaMultiFilled"
+}, {
+  stem: "chart-area-multi",
+  icon: "ChartAreaMulti"
+}, {
+  stem: "chart-area",
+  icon: "ChartArea"
+}, {
+  stem: "chart-bar-filled",
+  icon: "ChartBarFilled"
+}, {
+  stem: "chart-bar",
+  icon: "ChartBar"
+}, {
+  stem: "chart-bubble-filled",
+  icon: "ChartBubbleFilled"
+}, {
+  stem: "chart-bubble",
+  icon: "ChartBubble"
+}, {
+  stem: "chart-column-filled",
+  icon: "ChartColumnFilled"
+}, {
+  stem: "chart-column",
+  icon: "ChartColumn"
+}, {
+  stem: "chart-combo-filled",
+  icon: "ChartComboFilled"
+}, {
+  stem: "chart-combo",
+  icon: "ChartCombo"
+}, {
+  stem: "chart-filled",
+  icon: "ChartFilled"
+}, {
+  stem: "chart-line-data-1",
+  icon: "ChartLineData1"
+}, {
+  stem: "chart-line-data",
+  icon: "ChartLineData"
+}, {
+  stem: "chart-line-multi",
+  icon: "ChartLineMulti"
+}, {
+  stem: "chart-line",
+  icon: "ChartLine"
+}, {
+  stem: "chart-maximum",
+  icon: "ChartMaximum"
+}, {
+  stem: "chart-median",
+  icon: "ChartMedian"
+}, {
+  stem: "chart-minimum",
+  icon: "ChartMinimum"
+}, {
+  stem: "chart-pie-filled",
+  icon: "ChartPieFilled"
+}, {
+  stem: "chart-pie",
+  icon: "ChartPie"
+}, {
+  stem: "chart-radar-filled",
+  icon: "ChartRadarFilled"
+}, {
+  stem: "chart-radar",
+  icon: "ChartRadar"
+}, {
+  stem: "chart-radial",
+  icon: "ChartRadial"
+}, {
+  stem: "chart-ring-1-filled",
+  icon: "ChartRing1Filled"
+}, {
+  stem: "chart-ring-1",
+  icon: "ChartRing1"
+}, {
+  stem: "chart-ring-filled",
+  icon: "ChartRingFilled"
+}, {
+  stem: "chart-ring",
+  icon: "ChartRing"
+}, {
+  stem: "chart-scatter",
+  icon: "ChartScatter"
+}, {
+  stem: "chart-stacked-filled",
+  icon: "ChartStackedFilled"
+}, {
+  stem: "chart-stacked",
+  icon: "ChartStacked"
+}, {
+  stem: "chart",
+  icon: "Chart"
+}, {
+  stem: "chat-add-filled",
+  icon: "ChatAddFilled"
+}, {
+  stem: "chat-add",
+  icon: "ChatAdd"
+}, {
+  stem: "chat-bubble-1-filled",
+  icon: "ChatBubble1Filled"
+}, {
+  stem: "chat-bubble-1",
+  icon: "ChatBubble1"
+}, {
+  stem: "chat-bubble-add-filled",
+  icon: "ChatBubbleAddFilled"
+}, {
+  stem: "chat-bubble-add",
+  icon: "ChatBubbleAdd"
+}, {
+  stem: "chat-bubble-error-filled",
+  icon: "ChatBubbleErrorFilled"
+}, {
+  stem: "chat-bubble-error",
+  icon: "ChatBubbleError"
+}, {
+  stem: "chat-bubble-filled",
+  icon: "ChatBubbleFilled"
+}, {
+  stem: "chat-bubble-help-filled",
+  icon: "ChatBubbleHelpFilled"
+}, {
+  stem: "chat-bubble-help",
+  icon: "ChatBubbleHelp"
+}, {
+  stem: "chat-bubble-history-filled",
+  icon: "ChatBubbleHistoryFilled"
+}, {
+  stem: "chat-bubble-history",
+  icon: "ChatBubbleHistory"
+}, {
+  stem: "chat-bubble-locked-filled",
+  icon: "ChatBubbleLockedFilled"
+}, {
+  stem: "chat-bubble-locked",
+  icon: "ChatBubbleLocked"
+}, {
+  stem: "chat-bubble-smile-filled",
+  icon: "ChatBubbleSmileFilled"
+}, {
+  stem: "chat-bubble-smile",
+  icon: "ChatBubbleSmile"
+}, {
+  stem: "chat-bubble",
+  icon: "ChatBubble"
+}, {
+  stem: "chat-checked-filled",
+  icon: "ChatCheckedFilled"
+}, {
+  stem: "chat-checked",
+  icon: "ChatChecked"
+}, {
+  stem: "chat-clear-filled",
+  icon: "ChatClearFilled"
+}, {
+  stem: "chat-clear",
+  icon: "ChatClear"
+}, {
+  stem: "chat-double-filled",
+  icon: "ChatDoubleFilled"
+}, {
+  stem: "chat-double",
+  icon: "ChatDouble"
+}, {
+  stem: "chat-error-filled",
+  icon: "ChatErrorFilled"
+}, {
+  stem: "chat-error",
+  icon: "ChatError"
+}, {
+  stem: "chat-filled",
+  icon: "ChatFilled"
+}, {
+  stem: "chat-heart-filled",
+  icon: "ChatHeartFilled"
+}, {
+  stem: "chat-heart",
+  icon: "ChatHeart"
+}, {
+  stem: "chat-message-filled",
+  icon: "ChatMessageFilled"
+}, {
+  stem: "chat-message",
+  icon: "ChatMessage"
+}, {
+  stem: "chat-off-filled",
+  icon: "ChatOffFilled"
+}, {
+  stem: "chat-off",
+  icon: "ChatOff"
+}, {
+  stem: "chat-poll-filled",
+  icon: "ChatPollFilled"
+}, {
+  stem: "chat-poll",
+  icon: "ChatPoll"
+}, {
+  stem: "chat-setting-filled",
+  icon: "ChatSettingFilled"
+}, {
+  stem: "chat-setting",
+  icon: "ChatSetting"
+}, {
+  stem: "chat",
+  icon: "Chat"
+}, {
+  stem: "check-circle-filled",
+  icon: "CheckCircleFilled"
+}, {
+  stem: "check-circle",
+  icon: "CheckCircle"
+}, {
+  stem: "check-double",
+  icon: "CheckDouble"
+}, {
+  stem: "check-rectangle-filled",
+  icon: "CheckRectangleFilled"
+}, {
+  stem: "check-rectangle",
+  icon: "CheckRectangle"
+}, {
+  stem: "check",
+  icon: "Check"
+}, {
+  stem: "cheese-filled",
+  icon: "CheeseFilled"
+}, {
+  stem: "cheese",
+  icon: "Cheese"
+}, {
+  stem: "cherry-filled",
+  icon: "CherryFilled"
+}, {
+  stem: "cherry",
+  icon: "Cherry"
+}, {
+  stem: "chevron-down-circle-filled",
+  icon: "ChevronDownCircleFilled"
+}, {
+  stem: "chevron-down-circle",
+  icon: "ChevronDownCircle"
+}, {
+  stem: "chevron-down-double-s",
+  icon: "ChevronDownDoubleS"
+}, {
+  stem: "chevron-down-double",
+  icon: "ChevronDownDouble"
+}, {
+  stem: "chevron-down-rectangle-filled",
+  icon: "ChevronDownRectangleFilled"
+}, {
+  stem: "chevron-down-rectangle",
+  icon: "ChevronDownRectangle"
+}, {
+  stem: "chevron-down-s",
+  icon: "ChevronDownS"
+}, {
+  stem: "chevron-down",
+  icon: "ChevronDown"
+}, {
+  stem: "chevron-left-circle-filled",
+  icon: "ChevronLeftCircleFilled"
+}, {
+  stem: "chevron-left-circle",
+  icon: "ChevronLeftCircle"
+}, {
+  stem: "chevron-left-double-s",
+  icon: "ChevronLeftDoubleS"
+}, {
+  stem: "chevron-left-double",
+  icon: "ChevronLeftDouble"
+}, {
+  stem: "chevron-left-rectangle-filled",
+  icon: "ChevronLeftRectangleFilled"
+}, {
+  stem: "chevron-left-rectangle",
+  icon: "ChevronLeftRectangle"
+}, {
+  stem: "chevron-left-s",
+  icon: "ChevronLeftS"
+}, {
+  stem: "chevron-left",
+  icon: "ChevronLeft"
+}, {
+  stem: "chevron-right-circle-filled",
+  icon: "ChevronRightCircleFilled"
+}, {
+  stem: "chevron-right-circle",
+  icon: "ChevronRightCircle"
+}, {
+  stem: "chevron-right-double-s",
+  icon: "ChevronRightDoubleS"
+}, {
+  stem: "chevron-right-double",
+  icon: "ChevronRightDouble"
+}, {
+  stem: "chevron-right-rectangle-filled",
+  icon: "ChevronRightRectangleFilled"
+}, {
+  stem: "chevron-right-rectangle",
+  icon: "ChevronRightRectangle"
+}, {
+  stem: "chevron-right-s",
+  icon: "ChevronRightS"
+}, {
+  stem: "chevron-right",
+  icon: "ChevronRight"
+}, {
+  stem: "chevron-up-circle-filled",
+  icon: "ChevronUpCircleFilled"
+}, {
+  stem: "chevron-up-circle",
+  icon: "ChevronUpCircle"
+}, {
+  stem: "chevron-up-double-s",
+  icon: "ChevronUpDoubleS"
+}, {
+  stem: "chevron-up-double",
+  icon: "ChevronUpDouble"
+}, {
+  stem: "chevron-up-rectangle-filled",
+  icon: "ChevronUpRectangleFilled"
+}, {
+  stem: "chevron-up-rectangle",
+  icon: "ChevronUpRectangle"
+}, {
+  stem: "chevron-up-s",
+  icon: "ChevronUpS"
+}, {
+  stem: "chevron-up",
+  icon: "ChevronUp"
+}, {
+  stem: "chicken",
+  icon: "Chicken"
+}, {
+  stem: "chili-filled",
+  icon: "ChiliFilled"
+}, {
+  stem: "chili",
+  icon: "Chili"
+}, {
+  stem: "chimney-1-filled",
+  icon: "Chimney1Filled"
+}, {
+  stem: "chimney-1",
+  icon: "Chimney1"
+}, {
+  stem: "chimney-2-filled",
+  icon: "Chimney2Filled"
+}, {
+  stem: "chimney-2",
+  icon: "Chimney2"
+}, {
+  stem: "chimney-filled",
+  icon: "ChimneyFilled"
+}, {
+  stem: "chimney",
+  icon: "Chimney"
+}, {
+  stem: "chinese-cabbage-filled",
+  icon: "ChineseCabbageFilled"
+}, {
+  stem: "chinese-cabbage",
+  icon: "ChineseCabbage"
+}, {
+  stem: "church-filled",
+  icon: "ChurchFilled"
+}, {
+  stem: "church",
+  icon: "Church"
+}, {
+  stem: "circle-filled",
+  icon: "CircleFilled"
+}, {
+  stem: "circle",
+  icon: "Circle"
+}, {
+  stem: "city-1-filled",
+  icon: "City1Filled"
+}, {
+  stem: "city-1",
+  icon: "City1"
+}, {
+  stem: "city-10-filled",
+  icon: "City10Filled"
+}, {
+  stem: "city-10",
+  icon: "City10"
+}, {
+  stem: "city-11-filled",
+  icon: "City11Filled"
+}, {
+  stem: "city-11",
+  icon: "City11"
+}, {
+  stem: "city-12-filled",
+  icon: "City12Filled"
+}, {
+  stem: "city-12",
+  icon: "City12"
+}, {
+  stem: "city-13-filled",
+  icon: "City13Filled"
+}, {
+  stem: "city-13",
+  icon: "City13"
+}, {
+  stem: "city-14-filled",
+  icon: "City14Filled"
+}, {
+  stem: "city-14",
+  icon: "City14"
+}, {
+  stem: "city-15-filled",
+  icon: "City15Filled"
+}, {
+  stem: "city-15",
+  icon: "City15"
+}, {
+  stem: "city-2-filled",
+  icon: "City2Filled"
+}, {
+  stem: "city-2",
+  icon: "City2"
+}, {
+  stem: "city-3-filled",
+  icon: "City3Filled"
+}, {
+  stem: "city-3",
+  icon: "City3"
+}, {
+  stem: "city-4-filled",
+  icon: "City4Filled"
+}, {
+  stem: "city-4",
+  icon: "City4"
+}, {
+  stem: "city-5-filled",
+  icon: "City5Filled"
+}, {
+  stem: "city-5",
+  icon: "City5"
+}, {
+  stem: "city-6-filled",
+  icon: "City6Filled"
+}, {
+  stem: "city-6",
+  icon: "City6"
+}, {
+  stem: "city-7-filled",
+  icon: "City7Filled"
+}, {
+  stem: "city-7",
+  icon: "City7"
+}, {
+  stem: "city-8-filled",
+  icon: "City8Filled"
+}, {
+  stem: "city-8",
+  icon: "City8"
+}, {
+  stem: "city-9-filled",
+  icon: "City9Filled"
+}, {
+  stem: "city-9",
+  icon: "City9"
+}, {
+  stem: "city-ancient-1-filled",
+  icon: "CityAncient1Filled"
+}, {
+  stem: "city-ancient-1",
+  icon: "CityAncient1"
+}, {
+  stem: "city-ancient-2-filled",
+  icon: "CityAncient2Filled"
+}, {
+  stem: "city-ancient-2",
+  icon: "CityAncient2"
+}, {
+  stem: "city-ancient-filled",
+  icon: "CityAncientFilled"
+}, {
+  stem: "city-ancient",
+  icon: "CityAncient"
+}, {
+  stem: "city-filled",
+  icon: "CityFilled"
+}, {
+  stem: "city",
+  icon: "City"
+}, {
+  stem: "clear-filled",
+  icon: "ClearFilled"
+}, {
+  stem: "clear-formatting-1-filled",
+  icon: "ClearFormatting1Filled"
+}, {
+  stem: "clear-formatting-1",
+  icon: "ClearFormatting1"
+}, {
+  stem: "clear-formatting-filled",
+  icon: "ClearFormattingFilled"
+}, {
+  stem: "clear-formatting",
+  icon: "ClearFormatting"
+}, {
+  stem: "clear",
+  icon: "Clear"
+}, {
+  stem: "close-circle-filled",
+  icon: "CloseCircleFilled"
+}, {
+  stem: "close-circle",
+  icon: "CloseCircle"
+}, {
+  stem: "close-octagon-filled",
+  icon: "CloseOctagonFilled"
+}, {
+  stem: "close-octagon",
+  icon: "CloseOctagon"
+}, {
+  stem: "close-rectangle-filled",
+  icon: "CloseRectangleFilled"
+}, {
+  stem: "close-rectangle",
+  icon: "CloseRectangle"
+}, {
+  stem: "close",
+  icon: "Close"
+}, {
+  stem: "cloud-download",
+  icon: "CloudDownload"
+}, {
+  stem: "cloud-filled",
+  icon: "CloudFilled"
+}, {
+  stem: "cloud-upload",
+  icon: "CloudUpload"
+}, {
+  stem: "cloud",
+  icon: "Cloud"
+}, {
+  stem: "cloudy-day-filled",
+  icon: "CloudyDayFilled"
+}, {
+  stem: "cloudy-day",
+  icon: "CloudyDay"
+}, {
+  stem: "cloudy-night-filled",
+  icon: "CloudyNightFilled"
+}, {
+  stem: "cloudy-night-rain-filled",
+  icon: "CloudyNightRainFilled"
+}, {
+  stem: "cloudy-night-rain",
+  icon: "CloudyNightRain"
+}, {
+  stem: "cloudy-night",
+  icon: "CloudyNight"
+}, {
+  stem: "cloudy-rain-filled",
+  icon: "CloudyRainFilled"
+}, {
+  stem: "cloudy-rain",
+  icon: "CloudyRain"
+}, {
+  stem: "cloudy-sunny-filled",
+  icon: "CloudySunnyFilled"
+}, {
+  stem: "cloudy-sunny",
+  icon: "CloudySunny"
+}, {
+  stem: "code-1",
+  icon: "Code1"
+}, {
+  stem: "code-off",
+  icon: "CodeOff"
+}, {
+  stem: "code",
+  icon: "Code"
+}, {
+  stem: "cola-filled",
+  icon: "ColaFilled"
+}, {
+  stem: "cola",
+  icon: "Cola"
+}, {
+  stem: "collage-filled",
+  icon: "CollageFilled"
+}, {
+  stem: "collage",
+  icon: "Collage"
+}, {
+  stem: "collection-filled",
+  icon: "CollectionFilled"
+}, {
+  stem: "collection",
+  icon: "Collection"
+}, {
+  stem: "color-invert-filled",
+  icon: "ColorInvertFilled"
+}, {
+  stem: "color-invert",
+  icon: "ColorInvert"
+}, {
+  stem: "combination-filled",
+  icon: "CombinationFilled"
+}, {
+  stem: "combination",
+  icon: "Combination"
+}, {
+  stem: "command",
+  icon: "Command"
+}, {
+  stem: "compass-1-filled",
+  icon: "Compass1Filled"
+}, {
+  stem: "compass-1",
+  icon: "Compass1"
+}, {
+  stem: "compass-filled",
+  icon: "CompassFilled"
+}, {
+  stem: "compass",
+  icon: "Compass"
+}, {
+  stem: "component-breadcrumb-filled",
+  icon: "ComponentBreadcrumbFilled"
+}, {
+  stem: "component-breadcrumb",
+  icon: "ComponentBreadcrumb"
+}, {
+  stem: "component-checkbox-filled",
+  icon: "ComponentCheckboxFilled"
+}, {
+  stem: "component-checkbox",
+  icon: "ComponentCheckbox"
+}, {
+  stem: "component-divider-horizontal-filled",
+  icon: "ComponentDividerHorizontalFilled"
+}, {
+  stem: "component-divider-horizontal",
+  icon: "ComponentDividerHorizontal"
+}, {
+  stem: "component-divider-vertical-filled",
+  icon: "ComponentDividerVerticalFilled"
+}, {
+  stem: "component-divider-vertical",
+  icon: "ComponentDividerVertical"
+}, {
+  stem: "component-dropdown-filled",
+  icon: "ComponentDropdownFilled"
+}, {
+  stem: "component-dropdown",
+  icon: "ComponentDropdown"
+}, {
+  stem: "component-grid-filled",
+  icon: "ComponentGridFilled"
+}, {
+  stem: "component-grid",
+  icon: "ComponentGrid"
+}, {
+  stem: "component-input-filled",
+  icon: "ComponentInputFilled"
+}, {
+  stem: "component-input",
+  icon: "ComponentInput"
+}, {
+  stem: "component-layout-filled",
+  icon: "ComponentLayoutFilled"
+}, {
+  stem: "component-layout",
+  icon: "ComponentLayout"
+}, {
+  stem: "component-radio",
+  icon: "ComponentRadio"
+}, {
+  stem: "component-space-filled",
+  icon: "ComponentSpaceFilled"
+}, {
+  stem: "component-space",
+  icon: "ComponentSpace"
+}, {
+  stem: "component-steps-filled",
+  icon: "ComponentStepsFilled"
+}, {
+  stem: "component-steps",
+  icon: "ComponentSteps"
+}, {
+  stem: "component-switch-filled",
+  icon: "ComponentSwitchFilled"
+}, {
+  stem: "component-switch",
+  icon: "ComponentSwitch"
+}, {
+  stem: "constraint",
+  icon: "Constraint"
+}, {
+  stem: "contrast-1-filled",
+  icon: "Contrast1Filled"
+}, {
+  stem: "contrast-1",
+  icon: "Contrast1"
+}, {
+  stem: "contrast-filled",
+  icon: "ContrastFilled"
+}, {
+  stem: "contrast",
+  icon: "Contrast"
+}, {
+  stem: "control-platform-filled",
+  icon: "ControlPlatformFilled"
+}, {
+  stem: "control-platform",
+  icon: "ControlPlatform"
+}, {
+  stem: "cooperate-filled",
+  icon: "CooperateFilled"
+}, {
+  stem: "cooperate",
+  icon: "Cooperate"
+}, {
+  stem: "coordinate-system-filled",
+  icon: "CoordinateSystemFilled"
+}, {
+  stem: "coordinate-system",
+  icon: "CoordinateSystem"
+}, {
+  stem: "copy-filled",
+  icon: "CopyFilled"
+}, {
+  stem: "copy",
+  icon: "Copy"
+}, {
+  stem: "copyright-filled",
+  icon: "CopyrightFilled"
+}, {
+  stem: "copyright",
+  icon: "Copyright"
+}, {
+  stem: "corn-filled",
+  icon: "CornFilled"
+}, {
+  stem: "corn",
+  icon: "Corn"
+}, {
+  stem: "coupon-filled",
+  icon: "CouponFilled"
+}, {
+  stem: "coupon",
+  icon: "Coupon"
+}, {
+  stem: "course-filled",
+  icon: "CourseFilled"
+}, {
+  stem: "course",
+  icon: "Course"
+}, {
+  stem: "cpu-filled",
+  icon: "CpuFilled"
+}, {
+  stem: "cpu",
+  icon: "Cpu"
+}, {
+  stem: "crack-filled",
+  icon: "CrackFilled"
+}, {
+  stem: "crack",
+  icon: "Crack"
+}, {
+  stem: "creditcard-add-filled",
+  icon: "CreditcardAddFilled"
+}, {
+  stem: "creditcard-add",
+  icon: "CreditcardAdd"
+}, {
+  stem: "creditcard-filled",
+  icon: "CreditcardFilled"
+}, {
+  stem: "creditcard-off-filled",
+  icon: "CreditcardOffFilled"
+}, {
+  stem: "creditcard-off",
+  icon: "CreditcardOff"
+}, {
+  stem: "creditcard",
+  icon: "Creditcard"
+}, {
+  stem: "crooked-smile-filled",
+  icon: "CrookedSmileFilled"
+}, {
+  stem: "crooked-smile",
+  icon: "CrookedSmile"
+}, {
+  stem: "cry-and-laugh-filled",
+  icon: "CryAndLaughFilled"
+}, {
+  stem: "cry-and-laugh",
+  icon: "CryAndLaugh"
+}, {
+  stem: "cry-loudly-filled",
+  icon: "CryLoudlyFilled"
+}, {
+  stem: "cry-loudly",
+  icon: "CryLoudly"
+}, {
+  stem: "css3-filled",
+  icon: "Css3Filled"
+}, {
+  stem: "css3",
+  icon: "Css3"
+}, {
+  stem: "cucumber",
+  icon: "Cucumber"
+}, {
+  stem: "currency-exchange",
+  icon: "CurrencyExchange"
+}, {
+  stem: "cursor-filled",
+  icon: "CursorFilled"
+}, {
+  stem: "cursor",
+  icon: "Cursor"
+}, {
+  stem: "curtain-filled",
+  icon: "CurtainFilled"
+}, {
+  stem: "curtain",
+  icon: "Curtain"
+}, {
+  stem: "curve",
+  icon: "Curve"
+}, {
+  stem: "cut-1",
+  icon: "Cut1"
+}, {
+  stem: "cut",
+  icon: "Cut"
+}, {
+  stem: "dam-1-filled",
+  icon: "Dam1Filled"
+}, {
+  stem: "dam-1",
+  icon: "Dam1"
+}, {
+  stem: "dam-2-filled",
+  icon: "Dam2Filled"
+}, {
+  stem: "dam-2",
+  icon: "Dam2"
+}, {
+  stem: "dam-3-filled",
+  icon: "Dam3Filled"
+}, {
+  stem: "dam-3",
+  icon: "Dam3"
+}, {
+  stem: "dam-4-filled",
+  icon: "Dam4Filled"
+}, {
+  stem: "dam-4",
+  icon: "Dam4"
+}, {
+  stem: "dam-5-filled",
+  icon: "Dam5Filled"
+}, {
+  stem: "dam-5",
+  icon: "Dam5"
+}, {
+  stem: "dam-6-filled",
+  icon: "Dam6Filled"
+}, {
+  stem: "dam-6",
+  icon: "Dam6"
+}, {
+  stem: "dam-7-filled",
+  icon: "Dam7Filled"
+}, {
+  stem: "dam-7",
+  icon: "Dam7"
+}, {
+  stem: "dam-filled",
+  icon: "DamFilled"
+}, {
+  stem: "dam",
+  icon: "Dam"
+}, {
+  stem: "dart-board-filled",
+  icon: "DartBoardFilled"
+}, {
+  stem: "dart-board",
+  icon: "DartBoard"
+}, {
+  stem: "dashboard-1-filled",
+  icon: "Dashboard1Filled"
+}, {
+  stem: "dashboard-1",
+  icon: "Dashboard1"
+}, {
+  stem: "dashboard-filled",
+  icon: "DashboardFilled"
+}, {
+  stem: "dashboard",
+  icon: "Dashboard"
+}, {
+  stem: "data-base-filled",
+  icon: "DataBaseFilled"
+}, {
+  stem: "data-base",
+  icon: "DataBase"
+}, {
+  stem: "data-checked-filled",
+  icon: "DataCheckedFilled"
+}, {
+  stem: "data-checked",
+  icon: "DataChecked"
+}, {
+  stem: "data-display",
+  icon: "DataDisplay"
+}, {
+  stem: "data-error-filled",
+  icon: "DataErrorFilled"
+}, {
+  stem: "data-error",
+  icon: "DataError"
+}, {
+  stem: "data-filled",
+  icon: "DataFilled"
+}, {
+  stem: "data-search-filled",
+  icon: "DataSearchFilled"
+}, {
+  stem: "data-search",
+  icon: "DataSearch"
+}, {
+  stem: "data",
+  icon: "Data"
+}, {
+  stem: "delete-1-filled",
+  icon: "Delete1Filled"
+}, {
+  stem: "delete-1",
+  icon: "Delete1"
+}, {
+  stem: "delete-filled",
+  icon: "DeleteFilled"
+}, {
+  stem: "delete-time-filled",
+  icon: "DeleteTimeFilled"
+}, {
+  stem: "delete-time",
+  icon: "DeleteTime"
+}, {
+  stem: "delete",
+  icon: "Delete"
+}, {
+  stem: "delta-filled",
+  icon: "DeltaFilled"
+}, {
+  stem: "delta",
+  icon: "Delta"
+}, {
+  stem: "depressed-filled",
+  icon: "DepressedFilled"
+}, {
+  stem: "depressed",
+  icon: "Depressed"
+}, {
+  stem: "desktop-1-filled",
+  icon: "Desktop1Filled"
+}, {
+  stem: "desktop-1",
+  icon: "Desktop1"
+}, {
+  stem: "desktop-filled",
+  icon: "DesktopFilled"
+}, {
+  stem: "desktop",
+  icon: "Desktop"
+}, {
+  stem: "despise-filled",
+  icon: "DespiseFilled"
+}, {
+  stem: "despise",
+  icon: "Despise"
+}, {
+  stem: "device-filled",
+  icon: "DeviceFilled"
+}, {
+  stem: "device",
+  icon: "Device"
+}, {
+  stem: "discount-filled",
+  icon: "DiscountFilled"
+}, {
+  stem: "discount",
+  icon: "Discount"
+}, {
+  stem: "dissatisfaction-filled",
+  icon: "DissatisfactionFilled"
+}, {
+  stem: "dissatisfaction",
+  icon: "Dissatisfaction"
+}, {
+  stem: "divide",
+  icon: "Divide"
+}, {
+  stem: "dividers-1",
+  icon: "Dividers1"
+}, {
+  stem: "dividers",
+  icon: "Dividers"
+}, {
+  stem: "doge-filled",
+  icon: "DogeFilled"
+}, {
+  stem: "doge",
+  icon: "Doge"
+}, {
+  stem: "double-storey-filled",
+  icon: "DoubleStoreyFilled"
+}, {
+  stem: "double-storey",
+  icon: "DoubleStorey"
+}, {
+  stem: "download-1",
+  icon: "Download1"
+}, {
+  stem: "download-2-filled",
+  icon: "Download2Filled"
+}, {
+  stem: "download-2",
+  icon: "Download2"
+}, {
+  stem: "download",
+  icon: "Download"
+}, {
+  stem: "downscale",
+  icon: "Downscale"
+}, {
+  stem: "drag-drop",
+  icon: "DragDrop"
+}, {
+  stem: "drag-move",
+  icon: "DragMove"
+}, {
+  stem: "drink-filled",
+  icon: "DrinkFilled"
+}, {
+  stem: "drink",
+  icon: "Drink"
+}, {
+  stem: "drumstick-filled",
+  icon: "DrumstickFilled"
+}, {
+  stem: "drumstick",
+  icon: "Drumstick"
+}, {
+  stem: "dv-filled",
+  icon: "DvFilled"
+}, {
+  stem: "dv",
+  icon: "Dv"
+}, {
+  stem: "dvd-filled",
+  icon: "DvdFilled"
+}, {
+  stem: "dvd",
+  icon: "Dvd"
+}, {
+  stem: "earphone-filled",
+  icon: "EarphoneFilled"
+}, {
+  stem: "earphone",
+  icon: "Earphone"
+}, {
+  stem: "earth-filled",
+  icon: "EarthFilled"
+}, {
+  stem: "earth",
+  icon: "Earth"
+}, {
+  stem: "edit-1-filled",
+  icon: "Edit1Filled"
+}, {
+  stem: "edit-1",
+  icon: "Edit1"
+}, {
+  stem: "edit-2-filled",
+  icon: "Edit2Filled"
+}, {
+  stem: "edit-2",
+  icon: "Edit2"
+}, {
+  stem: "edit-filled",
+  icon: "EditFilled"
+}, {
+  stem: "edit-off-filled",
+  icon: "EditOffFilled"
+}, {
+  stem: "edit-off",
+  icon: "EditOff"
+}, {
+  stem: "edit",
+  icon: "Edit"
+}, {
+  stem: "education-filled",
+  icon: "EducationFilled"
+}, {
+  stem: "education",
+  icon: "Education"
+}, {
+  stem: "eggplant-filled",
+  icon: "EggplantFilled"
+}, {
+  stem: "eggplant",
+  icon: "Eggplant"
+}, {
+  stem: "ellipsis",
+  icon: "Ellipsis"
+}, {
+  stem: "emo-emotional-filled",
+  icon: "EmoEmotionalFilled"
+}, {
+  stem: "emo-emotional",
+  icon: "EmoEmotional"
+}, {
+  stem: "enter",
+  icon: "Enter"
+}, {
+  stem: "equal",
+  icon: "Equal"
+}, {
+  stem: "error-circle-filled",
+  icon: "ErrorCircleFilled"
+}, {
+  stem: "error-circle",
+  icon: "ErrorCircle"
+}, {
+  stem: "error-triangle-filled",
+  icon: "ErrorTriangleFilled"
+}, {
+  stem: "error-triangle",
+  icon: "ErrorTriangle"
+}, {
+  stem: "error",
+  icon: "Error"
+}, {
+  stem: "excited-1-filled",
+  icon: "Excited1Filled"
+}, {
+  stem: "excited-1",
+  icon: "Excited1"
+}, {
+  stem: "excited-filled",
+  icon: "ExcitedFilled"
+}, {
+  stem: "excited",
+  icon: "Excited"
+}, {
+  stem: "expand-down-filled",
+  icon: "ExpandDownFilled"
+}, {
+  stem: "expand-down",
+  icon: "ExpandDown"
+}, {
+  stem: "expand-horizontal",
+  icon: "ExpandHorizontal"
+}, {
+  stem: "expand-up-filled",
+  icon: "ExpandUpFilled"
+}, {
+  stem: "expand-up",
+  icon: "ExpandUp"
+}, {
+  stem: "expand-vertical",
+  icon: "ExpandVertical"
+}, {
+  stem: "explore-filled",
+  icon: "ExploreFilled"
+}, {
+  stem: "explore-off-filled",
+  icon: "ExploreOffFilled"
+}, {
+  stem: "explore-off",
+  icon: "ExploreOff"
+}, {
+  stem: "explore",
+  icon: "Explore"
+}, {
+  stem: "exposure-filled",
+  icon: "ExposureFilled"
+}, {
+  stem: "exposure",
+  icon: "Exposure"
+}, {
+  stem: "extension-filled",
+  icon: "ExtensionFilled"
+}, {
+  stem: "extension-off-filled",
+  icon: "ExtensionOffFilled"
+}, {
+  stem: "extension-off",
+  icon: "ExtensionOff"
+}, {
+  stem: "extension",
+  icon: "Extension"
+}, {
+  stem: "face-retouching-filled",
+  icon: "FaceRetouchingFilled"
+}, {
+  stem: "face-retouching",
+  icon: "FaceRetouching"
+}, {
+  stem: "fact-check-filled",
+  icon: "FactCheckFilled"
+}, {
+  stem: "fact-check",
+  icon: "FactCheck"
+}, {
+  stem: "fahrenheit-scale",
+  icon: "FahrenheitScale"
+}, {
+  stem: "feel-at-ease-filled",
+  icon: "FeelAtEaseFilled"
+}, {
+  stem: "feel-at-ease",
+  icon: "FeelAtEase"
+}, {
+  stem: "ferocious-filled",
+  icon: "FerociousFilled"
+}, {
+  stem: "ferocious",
+  icon: "Ferocious"
+}, {
+  stem: "ferris-wheel-filled",
+  icon: "FerrisWheelFilled"
+}, {
+  stem: "ferris-wheel",
+  icon: "FerrisWheel"
+}, {
+  stem: "file-1-filled",
+  icon: "File1Filled"
+}, {
+  stem: "file-1",
+  icon: "File1"
+}, {
+  stem: "file-add-1-filled",
+  icon: "FileAdd1Filled"
+}, {
+  stem: "file-add-1",
+  icon: "FileAdd1"
+}, {
+  stem: "file-add-filled",
+  icon: "FileAddFilled"
+}, {
+  stem: "file-add",
+  icon: "FileAdd"
+}, {
+  stem: "file-attachment-filled",
+  icon: "FileAttachmentFilled"
+}, {
+  stem: "file-attachment",
+  icon: "FileAttachment"
+}, {
+  stem: "file-blocked-filled",
+  icon: "FileBlockedFilled"
+}, {
+  stem: "file-blocked",
+  icon: "FileBlocked"
+}, {
+  stem: "file-code-1-filled",
+  icon: "FileCode1Filled"
+}, {
+  stem: "file-code-1",
+  icon: "FileCode1"
+}, {
+  stem: "file-code-filled",
+  icon: "FileCodeFilled"
+}, {
+  stem: "file-code",
+  icon: "FileCode"
+}, {
+  stem: "file-copy-filled",
+  icon: "FileCopyFilled"
+}, {
+  stem: "file-copy",
+  icon: "FileCopy"
+}, {
+  stem: "file-download-filled",
+  icon: "FileDownloadFilled"
+}, {
+  stem: "file-download",
+  icon: "FileDownload"
+}, {
+  stem: "file-excel-filled",
+  icon: "FileExcelFilled"
+}, {
+  stem: "file-excel",
+  icon: "FileExcel"
+}, {
+  stem: "file-export-filled",
+  icon: "FileExportFilled"
+}, {
+  stem: "file-export",
+  icon: "FileExport"
+}, {
+  stem: "file-filled",
+  icon: "FileFilled"
+}, {
+  stem: "file-icon-filled",
+  icon: "FileIconFilled"
+}, {
+  stem: "file-icon",
+  icon: "FileIcon"
+}, {
+  stem: "file-image-filled",
+  icon: "FileImageFilled"
+}, {
+  stem: "file-image",
+  icon: "FileImage"
+}, {
+  stem: "file-import-filled",
+  icon: "FileImportFilled"
+}, {
+  stem: "file-import",
+  icon: "FileImport"
+}, {
+  stem: "file-locked-filled",
+  icon: "FileLockedFilled"
+}, {
+  stem: "file-locked",
+  icon: "FileLocked"
+}, {
+  stem: "file-minus-filled",
+  icon: "FileMinusFilled"
+}, {
+  stem: "file-minus",
+  icon: "FileMinus"
+}, {
+  stem: "file-music-filled",
+  icon: "FileMusicFilled"
+}, {
+  stem: "file-music",
+  icon: "FileMusic"
+}, {
+  stem: "file-onenote-filled",
+  icon: "FileOnenoteFilled"
+}, {
+  stem: "file-onenote",
+  icon: "FileOnenote"
+}, {
+  stem: "file-outlook-filled",
+  icon: "FileOutlookFilled"
+}, {
+  stem: "file-outlook",
+  icon: "FileOutlook"
+}, {
+  stem: "file-paste-filled",
+  icon: "FilePasteFilled"
+}, {
+  stem: "file-paste",
+  icon: "FilePaste"
+}, {
+  stem: "file-pdf-filled",
+  icon: "FilePdfFilled"
+}, {
+  stem: "file-pdf",
+  icon: "FilePdf"
+}, {
+  stem: "file-powerpoint-filled",
+  icon: "FilePowerpointFilled"
+}, {
+  stem: "file-powerpoint",
+  icon: "FilePowerpoint"
+}, {
+  stem: "file-restore-filled",
+  icon: "FileRestoreFilled"
+}, {
+  stem: "file-restore",
+  icon: "FileRestore"
+}, {
+  stem: "file-safety-filled",
+  icon: "FileSafetyFilled"
+}, {
+  stem: "file-safety",
+  icon: "FileSafety"
+}, {
+  stem: "file-search-filled",
+  icon: "FileSearchFilled"
+}, {
+  stem: "file-search",
+  icon: "FileSearch"
+}, {
+  stem: "file-setting-filled",
+  icon: "FileSettingFilled"
+}, {
+  stem: "file-setting",
+  icon: "FileSetting"
+}, {
+  stem: "file-teams-filled",
+  icon: "FileTeamsFilled"
+}, {
+  stem: "file-teams",
+  icon: "FileTeams"
+}, {
+  stem: "file-transmit-double-filled",
+  icon: "FileTransmitDoubleFilled"
+}, {
+  stem: "file-transmit-double",
+  icon: "FileTransmitDouble"
+}, {
+  stem: "file-transmit-filled",
+  icon: "FileTransmitFilled"
+}, {
+  stem: "file-transmit",
+  icon: "FileTransmit"
+}, {
+  stem: "file-unknown-filled",
+  icon: "FileUnknownFilled"
+}, {
+  stem: "file-unknown",
+  icon: "FileUnknown"
+}, {
+  stem: "file-unlocked-filled",
+  icon: "FileUnlockedFilled"
+}, {
+  stem: "file-unlocked",
+  icon: "FileUnlocked"
+}, {
+  stem: "file-word-filled",
+  icon: "FileWordFilled"
+}, {
+  stem: "file-word",
+  icon: "FileWord"
+}, {
+  stem: "file-zip-filled",
+  icon: "FileZipFilled"
+}, {
+  stem: "file-zip",
+  icon: "FileZip"
+}, {
+  stem: "file",
+  icon: "File"
+}, {
+  stem: "fill-color-1-filled",
+  icon: "FillColor1Filled"
+}, {
+  stem: "fill-color-1",
+  icon: "FillColor1"
+}, {
+  stem: "fill-color-filled",
+  icon: "FillColorFilled"
+}, {
+  stem: "fill-color",
+  icon: "FillColor"
+}, {
+  stem: "film-1-filled",
+  icon: "Film1Filled"
+}, {
+  stem: "film-1",
+  icon: "Film1"
+}, {
+  stem: "film-filled",
+  icon: "FilmFilled"
+}, {
+  stem: "film",
+  icon: "Film"
+}, {
+  stem: "filter-1-filled",
+  icon: "Filter1Filled"
+}, {
+  stem: "filter-1",
+  icon: "Filter1"
+}, {
+  stem: "filter-2-filled",
+  icon: "Filter2Filled"
+}, {
+  stem: "filter-2",
+  icon: "Filter2"
+}, {
+  stem: "filter-3-filled",
+  icon: "Filter3Filled"
+}, {
+  stem: "filter-3",
+  icon: "Filter3"
+}, {
+  stem: "filter-clear-filled",
+  icon: "FilterClearFilled"
+}, {
+  stem: "filter-clear",
+  icon: "FilterClear"
+}, {
+  stem: "filter-filled",
+  icon: "FilterFilled"
+}, {
+  stem: "filter-off-filled",
+  icon: "FilterOffFilled"
+}, {
+  stem: "filter-off",
+  icon: "FilterOff"
+}, {
+  stem: "filter-sort-filled",
+  icon: "FilterSortFilled"
+}, {
+  stem: "filter-sort",
+  icon: "FilterSort"
+}, {
+  stem: "filter",
+  icon: "Filter"
+}, {
+  stem: "fingerprint-1",
+  icon: "Fingerprint1"
+}, {
+  stem: "fingerprint-2",
+  icon: "Fingerprint2"
+}, {
+  stem: "fingerprint-3",
+  icon: "Fingerprint3"
+}, {
+  stem: "fingerprint",
+  icon: "Fingerprint"
+}, {
+  stem: "fish-filled",
+  icon: "FishFilled"
+}, {
+  stem: "fish",
+  icon: "Fish"
+}, {
+  stem: "flag-1-filled",
+  icon: "Flag1Filled"
+}, {
+  stem: "flag-1",
+  icon: "Flag1"
+}, {
+  stem: "flag-2-filled",
+  icon: "Flag2Filled"
+}, {
+  stem: "flag-2",
+  icon: "Flag2"
+}, {
+  stem: "flag-3-filled",
+  icon: "Flag3Filled"
+}, {
+  stem: "flag-3",
+  icon: "Flag3"
+}, {
+  stem: "flag-4-filled",
+  icon: "Flag4Filled"
+}, {
+  stem: "flag-4",
+  icon: "Flag4"
+}, {
+  stem: "flag-filled",
+  icon: "FlagFilled"
+}, {
+  stem: "flag",
+  icon: "Flag"
+}, {
+  stem: "flashlight-filled",
+  icon: "FlashlightFilled"
+}, {
+  stem: "flashlight",
+  icon: "Flashlight"
+}, {
+  stem: "flight-landing-filled",
+  icon: "FlightLandingFilled"
+}, {
+  stem: "flight-landing",
+  icon: "FlightLanding"
+}, {
+  stem: "flight-takeoff-filled",
+  icon: "FlightTakeoffFilled"
+}, {
+  stem: "flight-takeoff",
+  icon: "FlightTakeoff"
+}, {
+  stem: "flip-smiling-face-filled",
+  icon: "FlipSmilingFaceFilled"
+}, {
+  stem: "flip-smiling-face",
+  icon: "FlipSmilingFace"
+}, {
+  stem: "flip-to-back-filled",
+  icon: "FlipToBackFilled"
+}, {
+  stem: "flip-to-back",
+  icon: "FlipToBack"
+}, {
+  stem: "flip-to-front-filled",
+  icon: "FlipToFrontFilled"
+}, {
+  stem: "flip-to-front",
+  icon: "FlipToFront"
+}, {
+  stem: "focus-filled",
+  icon: "FocusFilled"
+}, {
+  stem: "focus",
+  icon: "Focus"
+}, {
+  stem: "fog-filled",
+  icon: "FogFilled"
+}, {
+  stem: "fog-night-filled",
+  icon: "FogNightFilled"
+}, {
+  stem: "fog-night",
+  icon: "FogNight"
+}, {
+  stem: "fog-sunny-filled",
+  icon: "FogSunnyFilled"
+}, {
+  stem: "fog-sunny",
+  icon: "FogSunny"
+}, {
+  stem: "fog",
+  icon: "Fog"
+}, {
+  stem: "folder-1-filled",
+  icon: "Folder1Filled"
+}, {
+  stem: "folder-1",
+  icon: "Folder1"
+}, {
+  stem: "folder-add-1-filled",
+  icon: "FolderAdd1Filled"
+}, {
+  stem: "folder-add-1",
+  icon: "FolderAdd1"
+}, {
+  stem: "folder-add-filled",
+  icon: "FolderAddFilled"
+}, {
+  stem: "folder-add",
+  icon: "FolderAdd"
+}, {
+  stem: "folder-blocked-filled",
+  icon: "FolderBlockedFilled"
+}, {
+  stem: "folder-blocked",
+  icon: "FolderBlocked"
+}, {
+  stem: "folder-details-filled",
+  icon: "FolderDetailsFilled"
+}, {
+  stem: "folder-details",
+  icon: "FolderDetails"
+}, {
+  stem: "folder-export-filled",
+  icon: "FolderExportFilled"
+}, {
+  stem: "folder-export",
+  icon: "FolderExport"
+}, {
+  stem: "folder-filled",
+  icon: "FolderFilled"
+}, {
+  stem: "folder-import-filled",
+  icon: "FolderImportFilled"
+}, {
+  stem: "folder-import",
+  icon: "FolderImport"
+}, {
+  stem: "folder-locked-filled",
+  icon: "FolderLockedFilled"
+}, {
+  stem: "folder-locked",
+  icon: "FolderLocked"
+}, {
+  stem: "folder-minus-filled",
+  icon: "FolderMinusFilled"
+}, {
+  stem: "folder-minus",
+  icon: "FolderMinus"
+}, {
+  stem: "folder-move-filled",
+  icon: "FolderMoveFilled"
+}, {
+  stem: "folder-move",
+  icon: "FolderMove"
+}, {
+  stem: "folder-off-filled",
+  icon: "FolderOffFilled"
+}, {
+  stem: "folder-off",
+  icon: "FolderOff"
+}, {
+  stem: "folder-open-1-filled",
+  icon: "FolderOpen1Filled"
+}, {
+  stem: "folder-open-1",
+  icon: "FolderOpen1"
+}, {
+  stem: "folder-open-filled",
+  icon: "FolderOpenFilled"
+}, {
+  stem: "folder-open",
+  icon: "FolderOpen"
+}, {
+  stem: "folder-search-filled",
+  icon: "FolderSearchFilled"
+}, {
+  stem: "folder-search",
+  icon: "FolderSearch"
+}, {
+  stem: "folder-setting-filled",
+  icon: "FolderSettingFilled"
+}, {
+  stem: "folder-setting",
+  icon: "FolderSetting"
+}, {
+  stem: "folder-shared-filled",
+  icon: "FolderSharedFilled"
+}, {
+  stem: "folder-shared",
+  icon: "FolderShared"
+}, {
+  stem: "folder-unlocked-filled",
+  icon: "FolderUnlockedFilled"
+}, {
+  stem: "folder-unlocked",
+  icon: "FolderUnlocked"
+}, {
+  stem: "folder-zip-filled",
+  icon: "FolderZipFilled"
+}, {
+  stem: "folder-zip",
+  icon: "FolderZip"
+}, {
+  stem: "folder",
+  icon: "Folder"
+}, {
+  stem: "forest-filled",
+  icon: "ForestFilled"
+}, {
+  stem: "forest",
+  icon: "Forest"
+}, {
+  stem: "fork-filled",
+  icon: "ForkFilled"
+}, {
+  stem: "fork",
+  icon: "Fork"
+}, {
+  stem: "form-filled",
+  icon: "FormFilled"
+}, {
+  stem: "form",
+  icon: "Form"
+}, {
+  stem: "format-horizontal-align-bottom",
+  icon: "FormatHorizontalAlignBottom"
+}, {
+  stem: "format-horizontal-align-center",
+  icon: "FormatHorizontalAlignCenter"
+}, {
+  stem: "format-horizontal-align-top",
+  icon: "FormatHorizontalAlignTop"
+}, {
+  stem: "format-vertical-align-center",
+  icon: "FormatVerticalAlignCenter"
+}, {
+  stem: "format-vertical-align-left",
+  icon: "FormatVerticalAlignLeft"
+}, {
+  stem: "format-vertical-align-right",
+  icon: "FormatVerticalAlignRight"
+}, {
+  stem: "forward-filled",
+  icon: "ForwardFilled"
+}, {
+  stem: "forward",
+  icon: "Forward"
+}, {
+  stem: "frame-1-filled",
+  icon: "Frame1Filled"
+}, {
+  stem: "frame-1",
+  icon: "Frame1"
+}, {
+  stem: "frame-filled",
+  icon: "FrameFilled"
+}, {
+  stem: "frame",
+  icon: "Frame"
+}, {
+  stem: "fries-filled",
+  icon: "FriesFilled"
+}, {
+  stem: "fries",
+  icon: "Fries"
+}, {
+  stem: "fullscreen-1",
+  icon: "Fullscreen1"
+}, {
+  stem: "fullscreen-2",
+  icon: "Fullscreen2"
+}, {
+  stem: "fullscreen-exit-1",
+  icon: "FullscreenExit1"
+}, {
+  stem: "fullscreen-exit",
+  icon: "FullscreenExit"
+}, {
+  stem: "fullscreen",
+  icon: "Fullscreen"
+}, {
+  stem: "function-curve",
+  icon: "FunctionCurve"
+}, {
+  stem: "functions-1",
+  icon: "Functions1"
+}, {
+  stem: "functions",
+  icon: "Functions"
+}, {
+  stem: "gamepad-1-filled",
+  icon: "Gamepad1Filled"
+}, {
+  stem: "gamepad-1",
+  icon: "Gamepad1"
+}, {
+  stem: "gamepad-filled",
+  icon: "GamepadFilled"
+}, {
+  stem: "gamepad",
+  icon: "Gamepad"
+}, {
+  stem: "gamma",
+  icon: "Gamma"
+}, {
+  stem: "garlic-filled",
+  icon: "GarlicFilled"
+}, {
+  stem: "garlic",
+  icon: "Garlic"
+}, {
+  stem: "gender-female",
+  icon: "GenderFemale"
+}, {
+  stem: "gender-male",
+  icon: "GenderMale"
+}, {
+  stem: "gesture-applause-filled",
+  icon: "GestureApplauseFilled"
+}, {
+  stem: "gesture-applause",
+  icon: "GestureApplause"
+}, {
+  stem: "gesture-click-filled",
+  icon: "GestureClickFilled"
+}, {
+  stem: "gesture-click",
+  icon: "GestureClick"
+}, {
+  stem: "gesture-down-filled",
+  icon: "GestureDownFilled"
+}, {
+  stem: "gesture-down",
+  icon: "GestureDown"
+}, {
+  stem: "gesture-expansion-filled",
+  icon: "GestureExpansionFilled"
+}, {
+  stem: "gesture-expansion",
+  icon: "GestureExpansion"
+}, {
+  stem: "gesture-left-filled",
+  icon: "GestureLeftFilled"
+}, {
+  stem: "gesture-left-slip-filled",
+  icon: "GestureLeftSlipFilled"
+}, {
+  stem: "gesture-left-slip",
+  icon: "GestureLeftSlip"
+}, {
+  stem: "gesture-left",
+  icon: "GestureLeft"
+}, {
+  stem: "gesture-open-filled",
+  icon: "GestureOpenFilled"
+}, {
+  stem: "gesture-open",
+  icon: "GestureOpen"
+}, {
+  stem: "gesture-pray-filled",
+  icon: "GesturePrayFilled"
+}, {
+  stem: "gesture-pray",
+  icon: "GesturePray"
+}, {
+  stem: "gesture-press-filled",
+  icon: "GesturePressFilled"
+}, {
+  stem: "gesture-press",
+  icon: "GesturePress"
+}, {
+  stem: "gesture-ranslation-filled",
+  icon: "GestureRanslationFilled"
+}, {
+  stem: "gesture-ranslation",
+  icon: "GestureRanslation"
+}, {
+  stem: "gesture-right-filled",
+  icon: "GestureRightFilled"
+}, {
+  stem: "gesture-right-slip-filled",
+  icon: "GestureRightSlipFilled"
+}, {
+  stem: "gesture-right-slip",
+  icon: "GestureRightSlip"
+}, {
+  stem: "gesture-right",
+  icon: "GestureRight"
+}, {
+  stem: "gesture-slide-left-and-right-filled",
+  icon: "GestureSlideLeftAndRightFilled"
+}, {
+  stem: "gesture-slide-left-and-right",
+  icon: "GestureSlideLeftAndRight"
+}, {
+  stem: "gesture-slide-up-filled",
+  icon: "GestureSlideUpFilled"
+}, {
+  stem: "gesture-slide-up",
+  icon: "GestureSlideUp"
+}, {
+  stem: "gesture-typing-filled",
+  icon: "GestureTypingFilled"
+}, {
+  stem: "gesture-typing",
+  icon: "GestureTyping"
+}, {
+  stem: "gesture-up-and-down-filled",
+  icon: "GestureUpAndDownFilled"
+}, {
+  stem: "gesture-up-and-down",
+  icon: "GestureUpAndDown"
+}, {
+  stem: "gesture-up-filled",
+  icon: "GestureUpFilled"
+}, {
+  stem: "gesture-up",
+  icon: "GestureUp"
+}, {
+  stem: "gesture-wipe-down-filled",
+  icon: "GestureWipeDownFilled"
+}, {
+  stem: "gesture-wipe-down",
+  icon: "GestureWipeDown"
+}, {
+  stem: "gift-filled",
+  icon: "GiftFilled"
+}, {
+  stem: "gift",
+  icon: "Gift"
+}, {
+  stem: "giggle-filled",
+  icon: "GiggleFilled"
+}, {
+  stem: "giggle",
+  icon: "Giggle"
+}, {
+  stem: "git-branch-filled",
+  icon: "GitBranchFilled"
+}, {
+  stem: "git-branch",
+  icon: "GitBranch"
+}, {
+  stem: "git-commit-filled",
+  icon: "GitCommitFilled"
+}, {
+  stem: "git-commit",
+  icon: "GitCommit"
+}, {
+  stem: "git-merge-filled",
+  icon: "GitMergeFilled"
+}, {
+  stem: "git-merge",
+  icon: "GitMerge"
+}, {
+  stem: "git-pull-request-filled",
+  icon: "GitPullRequestFilled"
+}, {
+  stem: "git-pull-request",
+  icon: "GitPullRequest"
+}, {
+  stem: "git-repository-commits-filled",
+  icon: "GitRepositoryCommitsFilled"
+}, {
+  stem: "git-repository-commits",
+  icon: "GitRepositoryCommits"
+}, {
+  stem: "git-repository-filled",
+  icon: "GitRepositoryFilled"
+}, {
+  stem: "git-repository-private-filled",
+  icon: "GitRepositoryPrivateFilled"
+}, {
+  stem: "git-repository-private",
+  icon: "GitRepositoryPrivate"
+}, {
+  stem: "git-repository",
+  icon: "GitRepository"
+}, {
+  stem: "gps-filled",
+  icon: "GpsFilled"
+}, {
+  stem: "gps",
+  icon: "Gps"
+}, {
+  stem: "grape-filled",
+  icon: "GrapeFilled"
+}, {
+  stem: "grape",
+  icon: "Grape"
+}, {
+  stem: "greater-than-or-equal",
+  icon: "GreaterThanOrEqual"
+}, {
+  stem: "greater-than",
+  icon: "GreaterThan"
+}, {
+  stem: "green-onion",
+  icon: "GreenOnion"
+}, {
+  stem: "grid-add-filled",
+  icon: "GridAddFilled"
+}, {
+  stem: "grid-add",
+  icon: "GridAdd"
+}, {
+  stem: "grid-view-filled",
+  icon: "GridViewFilled"
+}, {
+  stem: "grid-view",
+  icon: "GridView"
+}, {
+  stem: "guitar-filled",
+  icon: "GuitarFilled"
+}, {
+  stem: "guitar",
+  icon: "Guitar"
+}, {
+  stem: "hamburger-filled",
+  icon: "HamburgerFilled"
+}, {
+  stem: "hamburger",
+  icon: "Hamburger"
+}, {
+  stem: "happy-filled",
+  icon: "HappyFilled"
+}, {
+  stem: "happy",
+  icon: "Happy"
+}, {
+  stem: "hard-disk-storage-filled",
+  icon: "HardDiskStorageFilled"
+}, {
+  stem: "hard-disk-storage",
+  icon: "HardDiskStorage"
+}, {
+  stem: "hard-drive-filled",
+  icon: "HardDriveFilled"
+}, {
+  stem: "hard-drive",
+  icon: "HardDrive"
+}, {
+  stem: "hashtag",
+  icon: "Hashtag"
+}, {
+  stem: "hd-filled",
+  icon: "HdFilled"
+}, {
+  stem: "hd",
+  icon: "Hd"
+}, {
+  stem: "heart-filled",
+  icon: "HeartFilled"
+}, {
+  stem: "heart",
+  icon: "Heart"
+}, {
+  stem: "help-circle-filled",
+  icon: "HelpCircleFilled"
+}, {
+  stem: "help-circle",
+  icon: "HelpCircle"
+}, {
+  stem: "help-rectangle-filled",
+  icon: "HelpRectangleFilled"
+}, {
+  stem: "help-rectangle",
+  icon: "HelpRectangle"
+}, {
+  stem: "help",
+  icon: "Help"
+}, {
+  stem: "highlight-1-filled",
+  icon: "Highlight1Filled"
+}, {
+  stem: "highlight-1",
+  icon: "Highlight1"
+}, {
+  stem: "highlight",
+  icon: "Highlight"
+}, {
+  stem: "history-setting",
+  icon: "HistorySetting"
+}, {
+  stem: "history",
+  icon: "History"
+}, {
+  stem: "home-filled",
+  icon: "HomeFilled"
+}, {
+  stem: "home",
+  icon: "Home"
+}, {
+  stem: "horizontal-filled",
+  icon: "HorizontalFilled"
+}, {
+  stem: "horizontal",
+  icon: "Horizontal"
+}, {
+  stem: "hospital-1-filled",
+  icon: "Hospital1Filled"
+}, {
+  stem: "hospital-1",
+  icon: "Hospital1"
+}, {
+  stem: "hospital-filled",
+  icon: "HospitalFilled"
+}, {
+  stem: "hospital",
+  icon: "Hospital"
+}, {
+  stem: "hotspot-wave-filled",
+  icon: "HotspotWaveFilled"
+}, {
+  stem: "hotspot-wave",
+  icon: "HotspotWave"
+}, {
+  stem: "hourglass-filled",
+  icon: "HourglassFilled"
+}, {
+  stem: "hourglass",
+  icon: "Hourglass"
+}, {
+  stem: "houses-1-filled",
+  icon: "Houses1Filled"
+}, {
+  stem: "houses-1",
+  icon: "Houses1"
+}, {
+  stem: "houses-2-filled",
+  icon: "Houses2Filled"
+}, {
+  stem: "houses-2",
+  icon: "Houses2"
+}, {
+  stem: "houses-filled",
+  icon: "HousesFilled"
+}, {
+  stem: "houses",
+  icon: "Houses"
+}, {
+  stem: "html5-filled",
+  icon: "Html5Filled"
+}, {
+  stem: "html5",
+  icon: "Html5"
+}, {
+  stem: "https-filled",
+  icon: "HttpsFilled"
+}, {
+  stem: "https",
+  icon: "Https"
+}, {
+  stem: "ice-cream-filled",
+  icon: "IceCreamFilled"
+}, {
+  stem: "ice-cream",
+  icon: "IceCream"
+}, {
+  stem: "icon-filled",
+  icon: "IconFilled"
+}, {
+  stem: "icon",
+  icon: "Icon"
+}, {
+  stem: "image-1-filled",
+  icon: "Image1Filled"
+}, {
+  stem: "image-1",
+  icon: "Image1"
+}, {
+  stem: "image-add-filled",
+  icon: "ImageAddFilled"
+}, {
+  stem: "image-add",
+  icon: "ImageAdd"
+}, {
+  stem: "image-edit-filled",
+  icon: "ImageEditFilled"
+}, {
+  stem: "image-edit",
+  icon: "ImageEdit"
+}, {
+  stem: "image-error-filled",
+  icon: "ImageErrorFilled"
+}, {
+  stem: "image-error",
+  icon: "ImageError"
+}, {
+  stem: "image-filled",
+  icon: "ImageFilled"
+}, {
+  stem: "image-off-filled",
+  icon: "ImageOffFilled"
+}, {
+  stem: "image-off",
+  icon: "ImageOff"
+}, {
+  stem: "image-search-filled",
+  icon: "ImageSearchFilled"
+}, {
+  stem: "image-search",
+  icon: "ImageSearch"
+}, {
+  stem: "image",
+  icon: "Image"
+}, {
+  stem: "indent-left",
+  icon: "IndentLeft"
+}, {
+  stem: "indent-right",
+  icon: "IndentRight"
+}, {
+  stem: "indicator-filled",
+  icon: "IndicatorFilled"
+}, {
+  stem: "indicator",
+  icon: "Indicator"
+}, {
+  stem: "info-circle-filled",
+  icon: "InfoCircleFilled"
+}, {
+  stem: "info-circle",
+  icon: "InfoCircle"
+}, {
+  stem: "ink-filled",
+  icon: "InkFilled"
+}, {
+  stem: "ink",
+  icon: "Ink"
+}, {
+  stem: "install-desktop-filled",
+  icon: "InstallDesktopFilled"
+}, {
+  stem: "install-desktop",
+  icon: "InstallDesktop"
+}, {
+  stem: "install-filled",
+  icon: "InstallFilled"
+}, {
+  stem: "install-mobile-filled",
+  icon: "InstallMobileFilled"
+}, {
+  stem: "install-mobile",
+  icon: "InstallMobile"
+}, {
+  stem: "install",
+  icon: "Install"
+}, {
+  stem: "institution-checked-filled",
+  icon: "InstitutionCheckedFilled"
+}, {
+  stem: "institution-checked",
+  icon: "InstitutionChecked"
+}, {
+  stem: "institution-filled",
+  icon: "InstitutionFilled"
+}, {
+  stem: "institution",
+  icon: "Institution"
+}, {
+  stem: "internet-filled",
+  icon: "InternetFilled"
+}, {
+  stem: "internet",
+  icon: "Internet"
+}, {
+  stem: "ipod-filled",
+  icon: "IpodFilled"
+}, {
+  stem: "ipod",
+  icon: "Ipod"
+}, {
+  stem: "joyful-filled",
+  icon: "JoyfulFilled"
+}, {
+  stem: "joyful",
+  icon: "Joyful"
+}, {
+  stem: "jump-double",
+  icon: "JumpDouble"
+}, {
+  stem: "jump-off",
+  icon: "JumpOff"
+}, {
+  stem: "jump",
+  icon: "Jump"
+}, {
+  stem: "key-filled",
+  icon: "KeyFilled"
+}, {
+  stem: "key",
+  icon: "Key"
+}, {
+  stem: "keyboard-filled",
+  icon: "KeyboardFilled"
+}, {
+  stem: "keyboard",
+  icon: "Keyboard"
+}, {
+  stem: "laptop-filled",
+  icon: "LaptopFilled"
+}, {
+  stem: "laptop",
+  icon: "Laptop"
+}, {
+  stem: "layers-filled",
+  icon: "LayersFilled"
+}, {
+  stem: "layers",
+  icon: "Layers"
+}, {
+  stem: "layout-filled",
+  icon: "LayoutFilled"
+}, {
+  stem: "layout",
+  icon: "Layout"
+}, {
+  stem: "leaderboard-filled",
+  icon: "LeaderboardFilled"
+}, {
+  stem: "leaderboard",
+  icon: "Leaderboard"
+}, {
+  stem: "lemon-filled",
+  icon: "LemonFilled"
+}, {
+  stem: "lemon-slice-filled",
+  icon: "LemonSliceFilled"
+}, {
+  stem: "lemon-slice",
+  icon: "LemonSlice"
+}, {
+  stem: "lemon",
+  icon: "Lemon"
+}, {
+  stem: "less-than-or-equal",
+  icon: "LessThanOrEqual"
+}, {
+  stem: "less-than",
+  icon: "LessThan"
+}, {
+  stem: "letters-a",
+  icon: "LettersA"
+}, {
+  stem: "letters-b",
+  icon: "LettersB"
+}, {
+  stem: "letters-c",
+  icon: "LettersC"
+}, {
+  stem: "letters-d",
+  icon: "LettersD"
+}, {
+  stem: "letters-e",
+  icon: "LettersE"
+}, {
+  stem: "letters-f",
+  icon: "LettersF"
+}, {
+  stem: "letters-g",
+  icon: "LettersG"
+}, {
+  stem: "letters-h",
+  icon: "LettersH"
+}, {
+  stem: "letters-i",
+  icon: "LettersI"
+}, {
+  stem: "letters-j",
+  icon: "LettersJ"
+}, {
+  stem: "letters-k",
+  icon: "LettersK"
+}, {
+  stem: "letters-l",
+  icon: "LettersL"
+}, {
+  stem: "letters-m",
+  icon: "LettersM"
+}, {
+  stem: "letters-n",
+  icon: "LettersN"
+}, {
+  stem: "letters-o",
+  icon: "LettersO"
+}, {
+  stem: "letters-p",
+  icon: "LettersP"
+}, {
+  stem: "letters-q",
+  icon: "LettersQ"
+}, {
+  stem: "letters-r",
+  icon: "LettersR"
+}, {
+  stem: "letters-s",
+  icon: "LettersS"
+}, {
+  stem: "letters-t",
+  icon: "LettersT"
+}, {
+  stem: "letters-u",
+  icon: "LettersU"
+}, {
+  stem: "letters-v",
+  icon: "LettersV"
+}, {
+  stem: "letters-w",
+  icon: "LettersW"
+}, {
+  stem: "letters-x",
+  icon: "LettersX"
+}, {
+  stem: "letters-y",
+  icon: "LettersY"
+}, {
+  stem: "letters-z",
+  icon: "LettersZ"
+}, {
+  stem: "lightbulb-circle-filled",
+  icon: "LightbulbCircleFilled"
+}, {
+  stem: "lightbulb-circle",
+  icon: "LightbulbCircle"
+}, {
+  stem: "lightbulb-filled",
+  icon: "LightbulbFilled"
+}, {
+  stem: "lightbulb",
+  icon: "Lightbulb"
+}, {
+  stem: "lighthouse-1-filled",
+  icon: "Lighthouse1Filled"
+}, {
+  stem: "lighthouse-1",
+  icon: "Lighthouse1"
+}, {
+  stem: "lighthouse-2-filled",
+  icon: "Lighthouse2Filled"
+}, {
+  stem: "lighthouse-2",
+  icon: "Lighthouse2"
+}, {
+  stem: "lighthouse-filled",
+  icon: "LighthouseFilled"
+}, {
+  stem: "lighthouse",
+  icon: "Lighthouse"
+}, {
+  stem: "lighting-circle-filled",
+  icon: "LightingCircleFilled"
+}, {
+  stem: "lighting-circle",
+  icon: "LightingCircle"
+}, {
+  stem: "line-height",
+  icon: "LineHeight"
+}, {
+  stem: "link-1",
+  icon: "Link1"
+}, {
+  stem: "link-unlink",
+  icon: "LinkUnlink"
+}, {
+  stem: "link",
+  icon: "Link"
+}, {
+  stem: "liquor-filled",
+  icon: "LiquorFilled"
+}, {
+  stem: "liquor",
+  icon: "Liquor"
+}, {
+  stem: "list-numbered",
+  icon: "ListNumbered"
+}, {
+  stem: "load",
+  icon: "Load"
+}, {
+  stem: "loading",
+  icon: "Loading"
+}, {
+  stem: "location-1-filled",
+  icon: "Location1Filled"
+}, {
+  stem: "location-1",
+  icon: "Location1"
+}, {
+  stem: "location-enlargement-filled",
+  icon: "LocationEnlargementFilled"
+}, {
+  stem: "location-enlargement",
+  icon: "LocationEnlargement"
+}, {
+  stem: "location-error-filled",
+  icon: "LocationErrorFilled"
+}, {
+  stem: "location-error",
+  icon: "LocationError"
+}, {
+  stem: "location-filled",
+  icon: "LocationFilled"
+}, {
+  stem: "location-parking-place-filled",
+  icon: "LocationParkingPlaceFilled"
+}, {
+  stem: "location-parking-place",
+  icon: "LocationParkingPlace"
+}, {
+  stem: "location-reduction-filled",
+  icon: "LocationReductionFilled"
+}, {
+  stem: "location-reduction",
+  icon: "LocationReduction"
+}, {
+  stem: "location-setting-filled",
+  icon: "LocationSettingFilled"
+}, {
+  stem: "location-setting",
+  icon: "LocationSetting"
+}, {
+  stem: "location",
+  icon: "Location"
+}, {
+  stem: "lock-off-filled",
+  icon: "LockOffFilled"
+}, {
+  stem: "lock-off",
+  icon: "LockOff"
+}, {
+  stem: "lock-on-filled",
+  icon: "LockOnFilled"
+}, {
+  stem: "lock-on",
+  icon: "LockOn"
+}, {
+  stem: "lock-time-filled",
+  icon: "LockTimeFilled"
+}, {
+  stem: "lock-time",
+  icon: "LockTime"
+}, {
+  stem: "login",
+  icon: "Login"
+}, {
+  stem: "logo-adobe-illustrate-filled",
+  icon: "LogoAdobeIllustrateFilled"
+}, {
+  stem: "logo-adobe-illustrate",
+  icon: "LogoAdobeIllustrate"
+}, {
+  stem: "logo-adobe-lightroom-filled",
+  icon: "LogoAdobeLightroomFilled"
+}, {
+  stem: "logo-adobe-lightroom",
+  icon: "LogoAdobeLightroom"
+}, {
+  stem: "logo-adobe-photoshop-filled",
+  icon: "LogoAdobePhotoshopFilled"
+}, {
+  stem: "logo-adobe-photoshop",
+  icon: "LogoAdobePhotoshop"
+}, {
+  stem: "logo-alipay-filled",
+  icon: "LogoAlipayFilled"
+}, {
+  stem: "logo-alipay",
+  icon: "LogoAlipay"
+}, {
+  stem: "logo-android-filled",
+  icon: "LogoAndroidFilled"
+}, {
+  stem: "logo-android",
+  icon: "LogoAndroid"
+}, {
+  stem: "logo-apple-filled",
+  icon: "LogoAppleFilled"
+}, {
+  stem: "logo-apple",
+  icon: "LogoApple"
+}, {
+  stem: "logo-behance-filled",
+  icon: "LogoBehanceFilled"
+}, {
+  stem: "logo-behance",
+  icon: "LogoBehance"
+}, {
+  stem: "logo-chrome-filled",
+  icon: "LogoChromeFilled"
+}, {
+  stem: "logo-chrome",
+  icon: "LogoChrome"
+}, {
+  stem: "logo-cinema4d-filled",
+  icon: "LogoCinema4DFilled"
+}, {
+  stem: "logo-cinema4d",
+  icon: "LogoCinema4D"
+}, {
+  stem: "logo-cnb-filled",
+  icon: "LogoCnbFilled"
+}, {
+  stem: "logo-cnb",
+  icon: "LogoCnb"
+}, {
+  stem: "logo-codepen",
+  icon: "LogoCodepen"
+}, {
+  stem: "logo-codesandbox",
+  icon: "LogoCodesandbox"
+}, {
+  stem: "logo-dribbble-filled",
+  icon: "LogoDribbbleFilled"
+}, {
+  stem: "logo-dribbble",
+  icon: "LogoDribbble"
+}, {
+  stem: "logo-facebook-filled",
+  icon: "LogoFacebookFilled"
+}, {
+  stem: "logo-facebook",
+  icon: "LogoFacebook"
+}, {
+  stem: "logo-figma-filled",
+  icon: "LogoFigmaFilled"
+}, {
+  stem: "logo-figma",
+  icon: "LogoFigma"
+}, {
+  stem: "logo-framer-filled",
+  icon: "LogoFramerFilled"
+}, {
+  stem: "logo-framer",
+  icon: "LogoFramer"
+}, {
+  stem: "logo-github-filled",
+  icon: "LogoGithubFilled"
+}, {
+  stem: "logo-github",
+  icon: "LogoGithub"
+}, {
+  stem: "logo-gitlab-filled",
+  icon: "LogoGitlabFilled"
+}, {
+  stem: "logo-gitlab",
+  icon: "LogoGitlab"
+}, {
+  stem: "logo-ie-filled",
+  icon: "LogoIeFilled"
+}, {
+  stem: "logo-ie",
+  icon: "LogoIe"
+}, {
+  stem: "logo-instagram-filled",
+  icon: "LogoInstagramFilled"
+}, {
+  stem: "logo-instagram",
+  icon: "LogoInstagram"
+}, {
+  stem: "logo-miniprogram-filled",
+  icon: "LogoMiniprogramFilled"
+}, {
+  stem: "logo-miniprogram",
+  icon: "LogoMiniprogram"
+}, {
+  stem: "logo-qq-filled",
+  icon: "LogoQqFilled"
+}, {
+  stem: "logo-qq",
+  icon: "LogoQq"
+}, {
+  stem: "logo-stackblitz-filled",
+  icon: "LogoStackblitzFilled"
+}, {
+  stem: "logo-stackblitz",
+  icon: "LogoStackblitz"
+}, {
+  stem: "logo-twitter-filled",
+  icon: "LogoTwitterFilled"
+}, {
+  stem: "logo-twitter",
+  icon: "LogoTwitter"
+}, {
+  stem: "logo-wechat-stroke-filled",
+  icon: "LogoWechatStrokeFilled"
+}, {
+  stem: "logo-wechat-stroke",
+  icon: "LogoWechatStroke"
+}, {
+  stem: "logo-wechatpay-filled",
+  icon: "LogoWechatpayFilled"
+}, {
+  stem: "logo-wechatpay",
+  icon: "LogoWechatpay"
+}, {
+  stem: "logo-wecom-filled",
+  icon: "LogoWecomFilled"
+}, {
+  stem: "logo-wecom",
+  icon: "LogoWecom"
+}, {
+  stem: "logo-windows-filled",
+  icon: "LogoWindowsFilled"
+}, {
+  stem: "logo-windows",
+  icon: "LogoWindows"
+}, {
+  stem: "logo-youtube-filled",
+  icon: "LogoYoutubeFilled"
+}, {
+  stem: "logo-youtube",
+  icon: "LogoYoutube"
+}, {
+  stem: "logout",
+  icon: "Logout"
+}, {
+  stem: "look-around-filled",
+  icon: "LookAroundFilled"
+}, {
+  stem: "look-around",
+  icon: "LookAround"
+}, {
+  stem: "loudspeaker-filled",
+  icon: "LoudspeakerFilled"
+}, {
+  stem: "loudspeaker",
+  icon: "Loudspeaker"
+}, {
+  stem: "mail-filled",
+  icon: "MailFilled"
+}, {
+  stem: "mail",
+  icon: "Mail"
+}, {
+  stem: "map-3d-filled",
+  icon: "Map3DFilled"
+}, {
+  stem: "map-3d",
+  icon: "Map3D"
+}, {
+  stem: "map-add-filled",
+  icon: "MapAddFilled"
+}, {
+  stem: "map-add",
+  icon: "MapAdd"
+}, {
+  stem: "map-aiming-filled",
+  icon: "MapAimingFilled"
+}, {
+  stem: "map-aiming",
+  icon: "MapAiming"
+}, {
+  stem: "map-blocked-filled",
+  icon: "MapBlockedFilled"
+}, {
+  stem: "map-blocked",
+  icon: "MapBlocked"
+}, {
+  stem: "map-bubble-filled",
+  icon: "MapBubbleFilled"
+}, {
+  stem: "map-bubble",
+  icon: "MapBubble"
+}, {
+  stem: "map-cancel-filled",
+  icon: "MapCancelFilled"
+}, {
+  stem: "map-cancel",
+  icon: "MapCancel"
+}, {
+  stem: "map-chat-filled",
+  icon: "MapChatFilled"
+}, {
+  stem: "map-chat",
+  icon: "MapChat"
+}, {
+  stem: "map-checked-filled",
+  icon: "MapCheckedFilled"
+}, {
+  stem: "map-checked",
+  icon: "MapChecked"
+}, {
+  stem: "map-collection-filled",
+  icon: "MapCollectionFilled"
+}, {
+  stem: "map-collection",
+  icon: "MapCollection"
+}, {
+  stem: "map-connection-filled",
+  icon: "MapConnectionFilled"
+}, {
+  stem: "map-connection",
+  icon: "MapConnection"
+}, {
+  stem: "map-distance-filled",
+  icon: "MapDistanceFilled"
+}, {
+  stem: "map-distance",
+  icon: "MapDistance"
+}, {
+  stem: "map-double-filled",
+  icon: "MapDoubleFilled"
+}, {
+  stem: "map-double",
+  icon: "MapDouble"
+}, {
+  stem: "map-edit-filled",
+  icon: "MapEditFilled"
+}, {
+  stem: "map-edit",
+  icon: "MapEdit"
+}, {
+  stem: "map-filled",
+  icon: "MapFilled"
+}, {
+  stem: "map-grid-filled",
+  icon: "MapGridFilled"
+}, {
+  stem: "map-grid",
+  icon: "MapGrid"
+}, {
+  stem: "map-information-1-filled",
+  icon: "MapInformation1Filled"
+}, {
+  stem: "map-information-1",
+  icon: "MapInformation1"
+}, {
+  stem: "map-information-2-filled",
+  icon: "MapInformation2Filled"
+}, {
+  stem: "map-information-2",
+  icon: "MapInformation2"
+}, {
+  stem: "map-information-filled",
+  icon: "MapInformationFilled"
+}, {
+  stem: "map-information",
+  icon: "MapInformation"
+}, {
+  stem: "map-location-filled",
+  icon: "MapLocationFilled"
+}, {
+  stem: "map-location",
+  icon: "MapLocation"
+}, {
+  stem: "map-locked-filled",
+  icon: "MapLockedFilled"
+}, {
+  stem: "map-locked",
+  icon: "MapLocked"
+}, {
+  stem: "map-marked-filled",
+  icon: "MapMarkedFilled"
+}, {
+  stem: "map-marked",
+  icon: "MapMarked"
+}, {
+  stem: "map-navigation-filled",
+  icon: "MapNavigationFilled"
+}, {
+  stem: "map-navigation",
+  icon: "MapNavigation"
+}, {
+  stem: "map-outline-filled",
+  icon: "MapOutlineFilled"
+}, {
+  stem: "map-outline",
+  icon: "MapOutline"
+}, {
+  stem: "map-route-planning-filled",
+  icon: "MapRoutePlanningFilled"
+}, {
+  stem: "map-route-planning",
+  icon: "MapRoutePlanning"
+}, {
+  stem: "map-ruler-filled",
+  icon: "MapRulerFilled"
+}, {
+  stem: "map-ruler",
+  icon: "MapRuler"
+}, {
+  stem: "map-safety-filled",
+  icon: "MapSafetyFilled"
+}, {
+  stem: "map-safety",
+  icon: "MapSafety"
+}, {
+  stem: "map-search-1-filled",
+  icon: "MapSearch1Filled"
+}, {
+  stem: "map-search-1",
+  icon: "MapSearch1"
+}, {
+  stem: "map-search-filled",
+  icon: "MapSearchFilled"
+}, {
+  stem: "map-search",
+  icon: "MapSearch"
+}, {
+  stem: "map-setting-filled",
+  icon: "MapSettingFilled"
+}, {
+  stem: "map-setting",
+  icon: "MapSetting"
+}, {
+  stem: "map-unlocked-filled",
+  icon: "MapUnlockedFilled"
+}, {
+  stem: "map-unlocked",
+  icon: "MapUnlocked"
+}, {
+  stem: "map",
+  icon: "Map"
+}, {
+  stem: "mark-as-unread-filled",
+  icon: "MarkAsUnreadFilled"
+}, {
+  stem: "mark-as-unread",
+  icon: "MarkAsUnread"
+}, {
+  stem: "markup-filled",
+  icon: "MarkupFilled"
+}, {
+  stem: "markup",
+  icon: "Markup"
+}, {
+  stem: "mathematics-filled",
+  icon: "MathematicsFilled"
+}, {
+  stem: "mathematics",
+  icon: "Mathematics"
+}, {
+  stem: "measurement-1-filled",
+  icon: "Measurement1Filled"
+}, {
+  stem: "measurement-1",
+  icon: "Measurement1"
+}, {
+  stem: "measurement-2-filled",
+  icon: "Measurement2Filled"
+}, {
+  stem: "measurement-2",
+  icon: "Measurement2"
+}, {
+  stem: "measurement-filled",
+  icon: "MeasurementFilled"
+}, {
+  stem: "measurement",
+  icon: "Measurement"
+}, {
+  stem: "meat-pepper-filled",
+  icon: "MeatPepperFilled"
+}, {
+  stem: "meat-pepper",
+  icon: "MeatPepper"
+}, {
+  stem: "media-library-filled",
+  icon: "MediaLibraryFilled"
+}, {
+  stem: "media-library",
+  icon: "MediaLibrary"
+}, {
+  stem: "member-filled",
+  icon: "MemberFilled"
+}, {
+  stem: "member",
+  icon: "Member"
+}, {
+  stem: "menu-application",
+  icon: "MenuApplication"
+}, {
+  stem: "menu-filled",
+  icon: "MenuFilled"
+}, {
+  stem: "menu-fold",
+  icon: "MenuFold"
+}, {
+  stem: "menu-unfold",
+  icon: "MenuUnfold"
+}, {
+  stem: "menu",
+  icon: "Menu"
+}, {
+  stem: "merge-cells-filled",
+  icon: "MergeCellsFilled"
+}, {
+  stem: "merge-cells",
+  icon: "MergeCells"
+}, {
+  stem: "microphone-1-filled",
+  icon: "Microphone1Filled"
+}, {
+  stem: "microphone-1",
+  icon: "Microphone1"
+}, {
+  stem: "microphone-2-filled",
+  icon: "Microphone2Filled"
+}, {
+  stem: "microphone-2",
+  icon: "Microphone2"
+}, {
+  stem: "microphone-filled",
+  icon: "MicrophoneFilled"
+}, {
+  stem: "microphone",
+  icon: "Microphone"
+}, {
+  stem: "milk-filled",
+  icon: "MilkFilled"
+}, {
+  stem: "milk",
+  icon: "Milk"
+}, {
+  stem: "minus-circle-filled",
+  icon: "MinusCircleFilled"
+}, {
+  stem: "minus-circle",
+  icon: "MinusCircle"
+}, {
+  stem: "minus-rectangle-filled",
+  icon: "MinusRectangleFilled"
+}, {
+  stem: "minus-rectangle",
+  icon: "MinusRectangle"
+}, {
+  stem: "minus",
+  icon: "Minus"
+}, {
+  stem: "mirror-filled",
+  icon: "MirrorFilled"
+}, {
+  stem: "mirror",
+  icon: "Mirror"
+}, {
+  stem: "mobile-blocked-filled",
+  icon: "MobileBlockedFilled"
+}, {
+  stem: "mobile-blocked",
+  icon: "MobileBlocked"
+}, {
+  stem: "mobile-filled",
+  icon: "MobileFilled"
+}, {
+  stem: "mobile-list-filled",
+  icon: "MobileListFilled"
+}, {
+  stem: "mobile-list",
+  icon: "MobileList"
+}, {
+  stem: "mobile-navigation-filled",
+  icon: "MobileNavigationFilled"
+}, {
+  stem: "mobile-navigation",
+  icon: "MobileNavigation"
+}, {
+  stem: "mobile-shortcut-filled",
+  icon: "MobileShortcutFilled"
+}, {
+  stem: "mobile-shortcut",
+  icon: "MobileShortcut"
+}, {
+  stem: "mobile-vibrate-filled",
+  icon: "MobileVibrateFilled"
+}, {
+  stem: "mobile-vibrate",
+  icon: "MobileVibrate"
+}, {
+  stem: "mobile",
+  icon: "Mobile"
+}, {
+  stem: "mode-dark-filled",
+  icon: "ModeDarkFilled"
+}, {
+  stem: "mode-dark",
+  icon: "ModeDark"
+}, {
+  stem: "mode-light-filled",
+  icon: "ModeLightFilled"
+}, {
+  stem: "mode-light",
+  icon: "ModeLight"
+}, {
+  stem: "module-filled",
+  icon: "ModuleFilled"
+}, {
+  stem: "module",
+  icon: "Module"
+}, {
+  stem: "money-filled",
+  icon: "MoneyFilled"
+}, {
+  stem: "money",
+  icon: "Money"
+}, {
+  stem: "monument-filled",
+  icon: "MonumentFilled"
+}, {
+  stem: "monument",
+  icon: "Monument"
+}, {
+  stem: "moon-fall-filled",
+  icon: "MoonFallFilled"
+}, {
+  stem: "moon-fall",
+  icon: "MoonFall"
+}, {
+  stem: "moon-filled",
+  icon: "MoonFilled"
+}, {
+  stem: "moon-rising-filled",
+  icon: "MoonRisingFilled"
+}, {
+  stem: "moon-rising",
+  icon: "MoonRising"
+}, {
+  stem: "moon",
+  icon: "Moon"
+}, {
+  stem: "more",
+  icon: "More"
+}, {
+  stem: "mosque-1-filled",
+  icon: "Mosque1Filled"
+}, {
+  stem: "mosque-1",
+  icon: "Mosque1"
+}, {
+  stem: "mosque-filled",
+  icon: "MosqueFilled"
+}, {
+  stem: "mosque",
+  icon: "Mosque"
+}, {
+  stem: "mouse-filled",
+  icon: "MouseFilled"
+}, {
+  stem: "mouse",
+  icon: "Mouse"
+}, {
+  stem: "move-1",
+  icon: "Move1"
+}, {
+  stem: "move",
+  icon: "Move"
+}, {
+  stem: "movie-clapper-filled",
+  icon: "MovieClapperFilled"
+}, {
+  stem: "movie-clapper",
+  icon: "MovieClapper"
+}, {
+  stem: "multiply",
+  icon: "Multiply"
+}, {
+  stem: "museum-1-filled",
+  icon: "Museum1Filled"
+}, {
+  stem: "museum-1",
+  icon: "Museum1"
+}, {
+  stem: "museum-2-filled",
+  icon: "Museum2Filled"
+}, {
+  stem: "museum-2",
+  icon: "Museum2"
+}, {
+  stem: "museum-filled",
+  icon: "MuseumFilled"
+}, {
+  stem: "museum",
+  icon: "Museum"
+}, {
+  stem: "mushroom-1-filled",
+  icon: "Mushroom1Filled"
+}, {
+  stem: "mushroom-1",
+  icon: "Mushroom1"
+}, {
+  stem: "mushroom-filled",
+  icon: "MushroomFilled"
+}, {
+  stem: "mushroom",
+  icon: "Mushroom"
+}, {
+  stem: "music-1-filled",
+  icon: "Music1Filled"
+}, {
+  stem: "music-1",
+  icon: "Music1"
+}, {
+  stem: "music-2-filled",
+  icon: "Music2Filled"
+}, {
+  stem: "music-2",
+  icon: "Music2"
+}, {
+  stem: "music-filled",
+  icon: "MusicFilled"
+}, {
+  stem: "music-rectangle-add-filled",
+  icon: "MusicRectangleAddFilled"
+}, {
+  stem: "music-rectangle-add",
+  icon: "MusicRectangleAdd"
+}, {
+  stem: "music",
+  icon: "Music"
+}, {
+  stem: "navigation-arrow-filled",
+  icon: "NavigationArrowFilled"
+}, {
+  stem: "navigation-arrow",
+  icon: "NavigationArrow"
+}, {
+  stem: "next-filled",
+  icon: "NextFilled"
+}, {
+  stem: "next",
+  icon: "Next"
+}, {
+  stem: "no-expression-filled",
+  icon: "NoExpressionFilled"
+}, {
+  stem: "no-expression",
+  icon: "NoExpression"
+}, {
+  stem: "no-result-filled",
+  icon: "NoResultFilled"
+}, {
+  stem: "no-result",
+  icon: "NoResult"
+}, {
+  stem: "noodle-filled",
+  icon: "NoodleFilled"
+}, {
+  stem: "noodle",
+  icon: "Noodle"
+}, {
+  stem: "notification-add-filled",
+  icon: "NotificationAddFilled"
+}, {
+  stem: "notification-add",
+  icon: "NotificationAdd"
+}, {
+  stem: "notification-circle-filled",
+  icon: "NotificationCircleFilled"
+}, {
+  stem: "notification-circle",
+  icon: "NotificationCircle"
+}, {
+  stem: "notification-error-filled",
+  icon: "NotificationErrorFilled"
+}, {
+  stem: "notification-error",
+  icon: "NotificationError"
+}, {
+  stem: "notification-filled",
+  icon: "NotificationFilled"
+}, {
+  stem: "notification",
+  icon: "Notification"
+}, {
+  stem: "numbers-0-1",
+  icon: "Numbers01"
+}, {
+  stem: "numbers-0",
+  icon: "Numbers0"
+}, {
+  stem: "numbers-1-1",
+  icon: "Numbers11"
+}, {
+  stem: "numbers-1",
+  icon: "Numbers1"
+}, {
+  stem: "numbers-2-1",
+  icon: "Numbers21"
+}, {
+  stem: "numbers-2",
+  icon: "Numbers2"
+}, {
+  stem: "numbers-3-1",
+  icon: "Numbers31"
+}, {
+  stem: "numbers-3",
+  icon: "Numbers3"
+}, {
+  stem: "numbers-4-1",
+  icon: "Numbers41"
+}, {
+  stem: "numbers-4",
+  icon: "Numbers4"
+}, {
+  stem: "numbers-5-1",
+  icon: "Numbers51"
+}, {
+  stem: "numbers-5",
+  icon: "Numbers5"
+}, {
+  stem: "numbers-6-1",
+  icon: "Numbers61"
+}, {
+  stem: "numbers-6",
+  icon: "Numbers6"
+}, {
+  stem: "numbers-7-1",
+  icon: "Numbers71"
+}, {
+  stem: "numbers-7",
+  icon: "Numbers7"
+}, {
+  stem: "numbers-8-1",
+  icon: "Numbers81"
+}, {
+  stem: "numbers-8",
+  icon: "Numbers8"
+}, {
+  stem: "numbers-9-1",
+  icon: "Numbers91"
+}, {
+  stem: "numbers-9",
+  icon: "Numbers9"
+}, {
+  stem: "nut-filled",
+  icon: "NutFilled"
+}, {
+  stem: "nut",
+  icon: "Nut"
+}, {
+  stem: "object-storage",
+  icon: "ObjectStorage"
+}, {
+  stem: "open-mouth-filled",
+  icon: "OpenMouthFilled"
+}, {
+  stem: "open-mouth",
+  icon: "OpenMouth"
+}, {
+  stem: "opera-filled",
+  icon: "OperaFilled"
+}, {
+  stem: "opera",
+  icon: "Opera"
+}, {
+  stem: "order-adjustment-column",
+  icon: "OrderAdjustmentColumn"
+}, {
+  stem: "order-ascending",
+  icon: "OrderAscending"
+}, {
+  stem: "order-descending",
+  icon: "OrderDescending"
+}, {
+  stem: "outbox-filled",
+  icon: "OutboxFilled"
+}, {
+  stem: "outbox",
+  icon: "Outbox"
+}, {
+  stem: "page-first",
+  icon: "PageFirst"
+}, {
+  stem: "page-head-filled",
+  icon: "PageHeadFilled"
+}, {
+  stem: "page-head",
+  icon: "PageHead"
+}, {
+  stem: "page-last",
+  icon: "PageLast"
+}, {
+  stem: "palace-1-filled",
+  icon: "Palace1Filled"
+}, {
+  stem: "palace-1",
+  icon: "Palace1"
+}, {
+  stem: "palace-2-filled",
+  icon: "Palace2Filled"
+}, {
+  stem: "palace-2",
+  icon: "Palace2"
+}, {
+  stem: "palace-3-filled",
+  icon: "Palace3Filled"
+}, {
+  stem: "palace-3",
+  icon: "Palace3"
+}, {
+  stem: "palace-4-filled",
+  icon: "Palace4Filled"
+}, {
+  stem: "palace-4",
+  icon: "Palace4"
+}, {
+  stem: "palace-filled",
+  icon: "PalaceFilled"
+}, {
+  stem: "palace",
+  icon: "Palace"
+}, {
+  stem: "palette-1-filled",
+  icon: "Palette1Filled"
+}, {
+  stem: "palette-1",
+  icon: "Palette1"
+}, {
+  stem: "palette-filled",
+  icon: "PaletteFilled"
+}, {
+  stem: "palette",
+  icon: "Palette"
+}, {
+  stem: "panorama-horizontal-filled",
+  icon: "PanoramaHorizontalFilled"
+}, {
+  stem: "panorama-horizontal",
+  icon: "PanoramaHorizontal"
+}, {
+  stem: "panorama-vertical-filled",
+  icon: "PanoramaVerticalFilled"
+}, {
+  stem: "panorama-vertical",
+  icon: "PanoramaVertical"
+}, {
+  stem: "pantone-filled",
+  icon: "PantoneFilled"
+}, {
+  stem: "pantone",
+  icon: "Pantone"
+}, {
+  stem: "parabola",
+  icon: "Parabola"
+}, {
+  stem: "parentheses",
+  icon: "Parentheses"
+}, {
+  stem: "paste-filled",
+  icon: "PasteFilled"
+}, {
+  stem: "paste",
+  icon: "Paste"
+}, {
+  stem: "patio-filled",
+  icon: "PatioFilled"
+}, {
+  stem: "patio",
+  icon: "Patio"
+}, {
+  stem: "pause-circle-filled",
+  icon: "PauseCircleFilled"
+}, {
+  stem: "pause-circle-stroke-filled",
+  icon: "PauseCircleStrokeFilled"
+}, {
+  stem: "pause-circle-stroke",
+  icon: "PauseCircleStroke"
+}, {
+  stem: "pause-circle",
+  icon: "PauseCircle"
+}, {
+  stem: "pause",
+  icon: "Pause"
+}, {
+  stem: "pea-filled",
+  icon: "PeaFilled"
+}, {
+  stem: "pea",
+  icon: "Pea"
+}, {
+  stem: "peach-filled",
+  icon: "PeachFilled"
+}, {
+  stem: "peach",
+  icon: "Peach"
+}, {
+  stem: "pear-filled",
+  icon: "PearFilled"
+}, {
+  stem: "pear",
+  icon: "Pear"
+}, {
+  stem: "pearl-of-the-orient-filled",
+  icon: "PearlOfTheOrientFilled"
+}, {
+  stem: "pearl-of-the-orient",
+  icon: "PearlOfTheOrient"
+}, {
+  stem: "pen-ball-filled",
+  icon: "PenBallFilled"
+}, {
+  stem: "pen-ball",
+  icon: "PenBall"
+}, {
+  stem: "pen-brush-filled",
+  icon: "PenBrushFilled"
+}, {
+  stem: "pen-brush",
+  icon: "PenBrush"
+}, {
+  stem: "pen-filled",
+  icon: "PenFilled"
+}, {
+  stem: "pen-mark-filled",
+  icon: "PenMarkFilled"
+}, {
+  stem: "pen-mark",
+  icon: "PenMark"
+}, {
+  stem: "pen-quill-filled",
+  icon: "PenQuillFilled"
+}, {
+  stem: "pen-quill",
+  icon: "PenQuill"
+}, {
+  stem: "pen",
+  icon: "Pen"
+}, {
+  stem: "pending-filled",
+  icon: "PendingFilled"
+}, {
+  stem: "pending",
+  icon: "Pending"
+}, {
+  stem: "percent",
+  icon: "Percent"
+}, {
+  stem: "personal-information-filled",
+  icon: "PersonalInformationFilled"
+}, {
+  stem: "personal-information",
+  icon: "PersonalInformation"
+}, {
+  stem: "phone-locked-filled",
+  icon: "PhoneLockedFilled"
+}, {
+  stem: "phone-locked",
+  icon: "PhoneLocked"
+}, {
+  stem: "phone-search-filled",
+  icon: "PhoneSearchFilled"
+}, {
+  stem: "phone-search",
+  icon: "PhoneSearch"
+}, {
+  stem: "pi",
+  icon: "Pi"
+}, {
+  stem: "piano-filled",
+  icon: "PianoFilled"
+}, {
+  stem: "piano",
+  icon: "Piano"
+}, {
+  stem: "pin-filled",
+  icon: "PinFilled"
+}, {
+  stem: "pin",
+  icon: "Pin"
+}, {
+  stem: "play-circle-filled",
+  icon: "PlayCircleFilled"
+}, {
+  stem: "play-circle-stroke-add-filled",
+  icon: "PlayCircleStrokeAddFilled"
+}, {
+  stem: "play-circle-stroke-add",
+  icon: "PlayCircleStrokeAdd"
+}, {
+  stem: "play-circle-stroke-filled",
+  icon: "PlayCircleStrokeFilled"
+}, {
+  stem: "play-circle-stroke",
+  icon: "PlayCircleStroke"
+}, {
+  stem: "play-circle",
+  icon: "PlayCircle"
+}, {
+  stem: "play-demo-filled",
+  icon: "PlayDemoFilled"
+}, {
+  stem: "play-demo",
+  icon: "PlayDemo"
+}, {
+  stem: "play-rectangle-filled",
+  icon: "PlayRectangleFilled"
+}, {
+  stem: "play-rectangle",
+  icon: "PlayRectangle"
+}, {
+  stem: "play",
+  icon: "Play"
+}, {
+  stem: "plus",
+  icon: "Plus"
+}, {
+  stem: "popsicle-filled",
+  icon: "PopsicleFilled"
+}, {
+  stem: "popsicle",
+  icon: "Popsicle"
+}, {
+  stem: "portrait-filled",
+  icon: "PortraitFilled"
+}, {
+  stem: "portrait",
+  icon: "Portrait"
+}, {
+  stem: "pout-filled",
+  icon: "PoutFilled"
+}, {
+  stem: "pout",
+  icon: "Pout"
+}, {
+  stem: "poweroff",
+  icon: "Poweroff"
+}, {
+  stem: "precise-monitor",
+  icon: "PreciseMonitor"
+}, {
+  stem: "previous-filled",
+  icon: "PreviousFilled"
+}, {
+  stem: "previous",
+  icon: "Previous"
+}, {
+  stem: "print-filled",
+  icon: "PrintFilled"
+}, {
+  stem: "print",
+  icon: "Print"
+}, {
+  stem: "pumpkin-filled",
+  icon: "PumpkinFilled"
+}, {
+  stem: "pumpkin",
+  icon: "Pumpkin"
+}, {
+  stem: "pyramid-filled",
+  icon: "PyramidFilled"
+}, {
+  stem: "pyramid-maya-filled",
+  icon: "PyramidMayaFilled"
+}, {
+  stem: "pyramid-maya",
+  icon: "PyramidMaya"
+}, {
+  stem: "pyramid",
+  icon: "Pyramid"
+}, {
+  stem: "qrcode",
+  icon: "Qrcode"
+}, {
+  stem: "quadratic",
+  icon: "Quadratic"
+}, {
+  stem: "questionnaire-double-filled",
+  icon: "QuestionnaireDoubleFilled"
+}, {
+  stem: "questionnaire-double",
+  icon: "QuestionnaireDouble"
+}, {
+  stem: "questionnaire-filled",
+  icon: "QuestionnaireFilled"
+}, {
+  stem: "questionnaire",
+  icon: "Questionnaire"
+}, {
+  stem: "queue-filled",
+  icon: "QueueFilled"
+}, {
+  stem: "queue",
+  icon: "Queue"
+}, {
+  stem: "quote-filled",
+  icon: "QuoteFilled"
+}, {
+  stem: "quote",
+  icon: "Quote"
+}, {
+  stem: "radar",
+  icon: "Radar"
+}, {
+  stem: "radio-1-filled",
+  icon: "Radio1Filled"
+}, {
+  stem: "radio-1",
+  icon: "Radio1"
+}, {
+  stem: "radio-2-filled",
+  icon: "Radio2Filled"
+}, {
+  stem: "radio-2",
+  icon: "Radio2"
+}, {
+  stem: "radish-filled",
+  icon: "RadishFilled"
+}, {
+  stem: "radish",
+  icon: "Radish"
+}, {
+  stem: "rain-heavy",
+  icon: "RainHeavy"
+}, {
+  stem: "rain-light-filled",
+  icon: "RainLightFilled"
+}, {
+  stem: "rain-light",
+  icon: "RainLight"
+}, {
+  stem: "rain-medium",
+  icon: "RainMedium"
+}, {
+  stem: "rainbow",
+  icon: "Rainbow"
+}, {
+  stem: "rectangle-filled",
+  icon: "RectangleFilled"
+}, {
+  stem: "rectangle",
+  icon: "Rectangle"
+}, {
+  stem: "refresh",
+  icon: "Refresh"
+}, {
+  stem: "relation",
+  icon: "Relation"
+}, {
+  stem: "relativity-filled",
+  icon: "RelativityFilled"
+}, {
+  stem: "relativity",
+  icon: "Relativity"
+}, {
+  stem: "remote-wave-filled",
+  icon: "RemoteWaveFilled"
+}, {
+  stem: "remote-wave",
+  icon: "RemoteWave"
+}, {
+  stem: "remove",
+  icon: "Remove"
+}, {
+  stem: "replay-filled",
+  icon: "ReplayFilled"
+}, {
+  stem: "replay",
+  icon: "Replay"
+}, {
+  stem: "rice-ball-filled",
+  icon: "RiceBallFilled"
+}, {
+  stem: "rice-ball",
+  icon: "RiceBall"
+}, {
+  stem: "rice-filled",
+  icon: "RiceFilled"
+}, {
+  stem: "rice",
+  icon: "Rice"
+}, {
+  stem: "roast-filled",
+  icon: "RoastFilled"
+}, {
+  stem: "roast",
+  icon: "Roast"
+}, {
+  stem: "rocket-filled",
+  icon: "RocketFilled"
+}, {
+  stem: "rocket",
+  icon: "Rocket"
+}, {
+  stem: "rollback",
+  icon: "Rollback"
+}, {
+  stem: "rollfront",
+  icon: "Rollfront"
+}, {
+  stem: "root-list-filled",
+  icon: "RootListFilled"
+}, {
+  stem: "root-list",
+  icon: "RootList"
+}, {
+  stem: "rotate-locked-filled",
+  icon: "RotateLockedFilled"
+}, {
+  stem: "rotate-locked",
+  icon: "RotateLocked"
+}, {
+  stem: "rotate",
+  icon: "Rotate"
+}, {
+  stem: "rotation",
+  icon: "Rotation"
+}, {
+  stem: "round-filled",
+  icon: "RoundFilled"
+}, {
+  stem: "round",
+  icon: "Round"
+}, {
+  stem: "router-wave-filled",
+  icon: "RouterWaveFilled"
+}, {
+  stem: "router-wave",
+  icon: "RouterWave"
+}, {
+  stem: "rss",
+  icon: "Rss"
+}, {
+  stem: "ruler-filled",
+  icon: "RulerFilled"
+}, {
+  stem: "ruler",
+  icon: "Ruler"
+}, {
+  stem: "sailing-hotel-filled",
+  icon: "SailingHotelFilled"
+}, {
+  stem: "sailing-hotel",
+  icon: "SailingHotel"
+}, {
+  stem: "sandwich-filled",
+  icon: "SandwichFilled"
+}, {
+  stem: "sandwich",
+  icon: "Sandwich"
+}, {
+  stem: "saturation-filled",
+  icon: "SaturationFilled"
+}, {
+  stem: "saturation",
+  icon: "Saturation"
+}, {
+  stem: "sausage-filled",
+  icon: "SausageFilled"
+}, {
+  stem: "sausage",
+  icon: "Sausage"
+}, {
+  stem: "save-filled",
+  icon: "SaveFilled"
+}, {
+  stem: "save",
+  icon: "Save"
+}, {
+  stem: "saving-pot-filled",
+  icon: "SavingPotFilled"
+}, {
+  stem: "saving-pot",
+  icon: "SavingPot"
+}, {
+  stem: "scan",
+  icon: "Scan"
+}, {
+  stem: "screen-4k-filled",
+  icon: "Screen4KFilled"
+}, {
+  stem: "screen-4k",
+  icon: "Screen4K"
+}, {
+  stem: "screencast-filled",
+  icon: "ScreencastFilled"
+}, {
+  stem: "screencast",
+  icon: "Screencast"
+}, {
+  stem: "screenshot",
+  icon: "Screenshot"
+}, {
+  stem: "scroll-bar-filled",
+  icon: "ScrollBarFilled"
+}, {
+  stem: "scroll-bar",
+  icon: "ScrollBar"
+}, {
+  stem: "sd-card-1-filled",
+  icon: "SdCard1Filled"
+}, {
+  stem: "sd-card-1",
+  icon: "SdCard1"
+}, {
+  stem: "sd-card-filled",
+  icon: "SdCardFilled"
+}, {
+  stem: "sd-card",
+  icon: "SdCard"
+}, {
+  stem: "seal-filled",
+  icon: "SealFilled"
+}, {
+  stem: "seal",
+  icon: "Seal"
+}, {
+  stem: "search-error-filled",
+  icon: "SearchErrorFilled"
+}, {
+  stem: "search-error",
+  icon: "SearchError"
+}, {
+  stem: "search-filled",
+  icon: "SearchFilled"
+}, {
+  stem: "search",
+  icon: "Search"
+}, {
+  stem: "secured-filled",
+  icon: "SecuredFilled"
+}, {
+  stem: "secured",
+  icon: "Secured"
+}, {
+  stem: "send-cancel-filled",
+  icon: "SendCancelFilled"
+}, {
+  stem: "send-cancel",
+  icon: "SendCancel"
+}, {
+  stem: "send-filled",
+  icon: "SendFilled"
+}, {
+  stem: "send",
+  icon: "Send"
+}, {
+  stem: "sensors-1",
+  icon: "Sensors1"
+}, {
+  stem: "sensors-2",
+  icon: "Sensors2"
+}, {
+  stem: "sensors-off",
+  icon: "SensorsOff"
+}, {
+  stem: "sensors",
+  icon: "Sensors"
+}, {
+  stem: "sequence-filled",
+  icon: "SequenceFilled"
+}, {
+  stem: "sequence",
+  icon: "Sequence"
+}, {
+  stem: "serenity-filled",
+  icon: "SerenityFilled"
+}, {
+  stem: "serenity",
+  icon: "Serenity"
+}, {
+  stem: "server-filled",
+  icon: "ServerFilled"
+}, {
+  stem: "server",
+  icon: "Server"
+}, {
+  stem: "service-filled",
+  icon: "ServiceFilled"
+}, {
+  stem: "service",
+  icon: "Service"
+}, {
+  stem: "setting-1-filled",
+  icon: "Setting1Filled"
+}, {
+  stem: "setting-1",
+  icon: "Setting1"
+}, {
+  stem: "setting-filled",
+  icon: "SettingFilled"
+}, {
+  stem: "setting",
+  icon: "Setting"
+}, {
+  stem: "share-1-filled",
+  icon: "Share1Filled"
+}, {
+  stem: "share-1",
+  icon: "Share1"
+}, {
+  stem: "share-filled",
+  icon: "ShareFilled"
+}, {
+  stem: "share",
+  icon: "Share"
+}, {
+  stem: "sharpness-filled",
+  icon: "SharpnessFilled"
+}, {
+  stem: "sharpness",
+  icon: "Sharpness"
+}, {
+  stem: "shield-error-filled",
+  icon: "ShieldErrorFilled"
+}, {
+  stem: "shield-error",
+  icon: "ShieldError"
+}, {
+  stem: "shimen-filled",
+  icon: "ShimenFilled"
+}, {
+  stem: "shimen",
+  icon: "Shimen"
+}, {
+  stem: "shop-1-filled",
+  icon: "Shop1Filled"
+}, {
+  stem: "shop-1",
+  icon: "Shop1"
+}, {
+  stem: "shop-2-filled",
+  icon: "Shop2Filled"
+}, {
+  stem: "shop-2",
+  icon: "Shop2"
+}, {
+  stem: "shop-3-filled",
+  icon: "Shop3Filled"
+}, {
+  stem: "shop-3",
+  icon: "Shop3"
+}, {
+  stem: "shop-4-filled",
+  icon: "Shop4Filled"
+}, {
+  stem: "shop-4",
+  icon: "Shop4"
+}, {
+  stem: "shop-5-filled",
+  icon: "Shop5Filled"
+}, {
+  stem: "shop-5",
+  icon: "Shop5"
+}, {
+  stem: "shop-filled",
+  icon: "ShopFilled"
+}, {
+  stem: "shop",
+  icon: "Shop"
+}, {
+  stem: "shrimp-filled",
+  icon: "ShrimpFilled"
+}, {
+  stem: "shrimp",
+  icon: "Shrimp"
+}, {
+  stem: "shrink-horizontal",
+  icon: "ShrinkHorizontal"
+}, {
+  stem: "shrink-vertical",
+  icon: "ShrinkVertical"
+}, {
+  stem: "shutter-filled",
+  icon: "ShutterFilled"
+}, {
+  stem: "shutter",
+  icon: "Shutter"
+}, {
+  stem: "shutup-filled",
+  icon: "ShutupFilled"
+}, {
+  stem: "shutup",
+  icon: "Shutup"
+}, {
+  stem: "sim-card-1-filled",
+  icon: "SimCard1Filled"
+}, {
+  stem: "sim-card-1",
+  icon: "SimCard1"
+}, {
+  stem: "sim-card-2-filled",
+  icon: "SimCard2Filled"
+}, {
+  stem: "sim-card-2",
+  icon: "SimCard2"
+}, {
+  stem: "sim-card-filled",
+  icon: "SimCardFilled"
+}, {
+  stem: "sim-card",
+  icon: "SimCard"
+}, {
+  stem: "sinister-smile-filled",
+  icon: "SinisterSmileFilled"
+}, {
+  stem: "sinister-smile",
+  icon: "SinisterSmile"
+}, {
+  stem: "sip-filled",
+  icon: "SipFilled"
+}, {
+  stem: "sip",
+  icon: "Sip"
+}, {
+  stem: "sitemap-filled",
+  icon: "SitemapFilled"
+}, {
+  stem: "sitemap",
+  icon: "Sitemap"
+}, {
+  stem: "slash",
+  icon: "Slash"
+}, {
+  stem: "sleep-filled",
+  icon: "SleepFilled"
+}, {
+  stem: "sleep",
+  icon: "Sleep"
+}, {
+  stem: "slice-filled",
+  icon: "SliceFilled"
+}, {
+  stem: "slice",
+  icon: "Slice"
+}, {
+  stem: "slideshow-filled",
+  icon: "SlideshowFilled"
+}, {
+  stem: "slideshow",
+  icon: "Slideshow"
+}, {
+  stem: "smile-filled",
+  icon: "SmileFilled"
+}, {
+  stem: "smile",
+  icon: "Smile"
+}, {
+  stem: "sneer-filled",
+  icon: "SneerFilled"
+}, {
+  stem: "sneer",
+  icon: "Sneer"
+}, {
+  stem: "snowflake",
+  icon: "Snowflake"
+}, {
+  stem: "sonic",
+  icon: "Sonic"
+}, {
+  stem: "sound-down-filled",
+  icon: "SoundDownFilled"
+}, {
+  stem: "sound-down",
+  icon: "SoundDown"
+}, {
+  stem: "sound-filled",
+  icon: "SoundFilled"
+}, {
+  stem: "sound-high-filled",
+  icon: "SoundHighFilled"
+}, {
+  stem: "sound-high",
+  icon: "SoundHigh"
+}, {
+  stem: "sound-low-filled",
+  icon: "SoundLowFilled"
+}, {
+  stem: "sound-low",
+  icon: "SoundLow"
+}, {
+  stem: "sound-mute-1-filled",
+  icon: "SoundMute1Filled"
+}, {
+  stem: "sound-mute-1",
+  icon: "SoundMute1"
+}, {
+  stem: "sound-mute-filled",
+  icon: "SoundMuteFilled"
+}, {
+  stem: "sound-mute",
+  icon: "SoundMute"
+}, {
+  stem: "sound-up-filled",
+  icon: "SoundUpFilled"
+}, {
+  stem: "sound-up",
+  icon: "SoundUp"
+}, {
+  stem: "sound",
+  icon: "Sound"
+}, {
+  stem: "space",
+  icon: "Space"
+}, {
+  stem: "speechless-1-filled",
+  icon: "Speechless1Filled"
+}, {
+  stem: "speechless-1",
+  icon: "Speechless1"
+}, {
+  stem: "speechless-filled",
+  icon: "SpeechlessFilled"
+}, {
+  stem: "speechless",
+  icon: "Speechless"
+}, {
+  stem: "star-filled",
+  icon: "StarFilled"
+}, {
+  stem: "star",
+  icon: "Star"
+}, {
+  stem: "statue-of-jesus-filled",
+  icon: "StatueOfJesusFilled"
+}, {
+  stem: "statue-of-jesus",
+  icon: "StatueOfJesus"
+}, {
+  stem: "sticky-note-filled",
+  icon: "StickyNoteFilled"
+}, {
+  stem: "sticky-note",
+  icon: "StickyNote"
+}, {
+  stem: "stop-circle-filled",
+  icon: "StopCircleFilled"
+}, {
+  stem: "stop-circle-stroke-filled",
+  icon: "StopCircleStrokeFilled"
+}, {
+  stem: "stop-circle-stroke",
+  icon: "StopCircleStroke"
+}, {
+  stem: "stop-circle",
+  icon: "StopCircle"
+}, {
+  stem: "stop",
+  icon: "Stop"
+}, {
+  stem: "store-filled",
+  icon: "StoreFilled"
+}, {
+  stem: "store",
+  icon: "Store"
+}, {
+  stem: "street-road-1-filled",
+  icon: "StreetRoad1Filled"
+}, {
+  stem: "street-road-1",
+  icon: "StreetRoad1"
+}, {
+  stem: "street-road-filled",
+  icon: "StreetRoadFilled"
+}, {
+  stem: "street-road",
+  icon: "StreetRoad"
+}, {
+  stem: "subtitle-filled",
+  icon: "SubtitleFilled"
+}, {
+  stem: "subtitle",
+  icon: "Subtitle"
+}, {
+  stem: "subway-line-filled",
+  icon: "SubwayLineFilled"
+}, {
+  stem: "subway-line",
+  icon: "SubwayLine"
+}, {
+  stem: "sum",
+  icon: "Sum"
+}, {
+  stem: "sun-fall-filled",
+  icon: "SunFallFilled"
+}, {
+  stem: "sun-fall",
+  icon: "SunFall"
+}, {
+  stem: "sun-rising-filled",
+  icon: "SunRisingFilled"
+}, {
+  stem: "sun-rising",
+  icon: "SunRising"
+}, {
+  stem: "sunny-filled",
+  icon: "SunnyFilled"
+}, {
+  stem: "sunny",
+  icon: "Sunny"
+}, {
+  stem: "support-filled",
+  icon: "SupportFilled"
+}, {
+  stem: "support",
+  icon: "Support"
+}, {
+  stem: "surprised-1-filled",
+  icon: "Surprised1Filled"
+}, {
+  stem: "surprised-1",
+  icon: "Surprised1"
+}, {
+  stem: "surprised-filled",
+  icon: "SurprisedFilled"
+}, {
+  stem: "surprised",
+  icon: "Surprised"
+}, {
+  stem: "swap-left",
+  icon: "SwapLeft"
+}, {
+  stem: "swap-right",
+  icon: "SwapRight"
+}, {
+  stem: "swap",
+  icon: "Swap"
+}, {
+  stem: "swear-1-filled",
+  icon: "Swear1Filled"
+}, {
+  stem: "swear-1",
+  icon: "Swear1"
+}, {
+  stem: "swear-2-filled",
+  icon: "Swear2Filled"
+}, {
+  stem: "swear-2",
+  icon: "Swear2"
+}, {
+  stem: "system-2",
+  icon: "System2"
+}, {
+  stem: "system-3-filled",
+  icon: "System3Filled"
+}, {
+  stem: "system-3",
+  icon: "System3"
+}, {
+  stem: "system-application-filled",
+  icon: "SystemApplicationFilled"
+}, {
+  stem: "system-application",
+  icon: "SystemApplication"
+}, {
+  stem: "system-blocked-filled",
+  icon: "SystemBlockedFilled"
+}, {
+  stem: "system-blocked",
+  icon: "SystemBlocked"
+}, {
+  stem: "system-code-filled",
+  icon: "SystemCodeFilled"
+}, {
+  stem: "system-code",
+  icon: "SystemCode"
+}, {
+  stem: "system-components-filled",
+  icon: "SystemComponentsFilled"
+}, {
+  stem: "system-components",
+  icon: "SystemComponents"
+}, {
+  stem: "system-coordinate-filled",
+  icon: "SystemCoordinateFilled"
+}, {
+  stem: "system-coordinate",
+  icon: "SystemCoordinate"
+}, {
+  stem: "system-device-filled",
+  icon: "SystemDeviceFilled"
+}, {
+  stem: "system-device",
+  icon: "SystemDevice"
+}, {
+  stem: "system-interface-filled",
+  icon: "SystemInterfaceFilled"
+}, {
+  stem: "system-interface",
+  icon: "SystemInterface"
+}, {
+  stem: "system-location-filled",
+  icon: "SystemLocationFilled"
+}, {
+  stem: "system-location",
+  icon: "SystemLocation"
+}, {
+  stem: "system-locked-filled",
+  icon: "SystemLockedFilled"
+}, {
+  stem: "system-locked",
+  icon: "SystemLocked"
+}, {
+  stem: "system-log-filled",
+  icon: "SystemLogFilled"
+}, {
+  stem: "system-log",
+  icon: "SystemLog"
+}, {
+  stem: "system-marked-filled",
+  icon: "SystemMarkedFilled"
+}, {
+  stem: "system-marked",
+  icon: "SystemMarked"
+}, {
+  stem: "system-messages-filled",
+  icon: "SystemMessagesFilled"
+}, {
+  stem: "system-messages",
+  icon: "SystemMessages"
+}, {
+  stem: "system-regulation-filled",
+  icon: "SystemRegulationFilled"
+}, {
+  stem: "system-regulation",
+  icon: "SystemRegulation"
+}, {
+  stem: "system-search-filled",
+  icon: "SystemSearchFilled"
+}, {
+  stem: "system-search",
+  icon: "SystemSearch"
+}, {
+  stem: "system-setting-filled",
+  icon: "SystemSettingFilled"
+}, {
+  stem: "system-setting",
+  icon: "SystemSetting"
+}, {
+  stem: "system-storage-filled",
+  icon: "SystemStorageFilled"
+}, {
+  stem: "system-storage",
+  icon: "SystemStorage"
+}, {
+  stem: "system-sum",
+  icon: "SystemSum"
+}, {
+  stem: "system-unlocked-filled",
+  icon: "SystemUnlockedFilled"
+}, {
+  stem: "system-unlocked",
+  icon: "SystemUnlocked"
+}, {
+  stem: "tab-filled",
+  icon: "TabFilled"
+}, {
+  stem: "tab",
+  icon: "Tab"
+}, {
+  stem: "table-1-filled",
+  icon: "Table1Filled"
+}, {
+  stem: "table-1",
+  icon: "Table1"
+}, {
+  stem: "table-2-filled",
+  icon: "Table2Filled"
+}, {
+  stem: "table-2",
+  icon: "Table2"
+}, {
+  stem: "table-add-filled",
+  icon: "TableAddFilled"
+}, {
+  stem: "table-add",
+  icon: "TableAdd"
+}, {
+  stem: "table-filled",
+  icon: "TableFilled"
+}, {
+  stem: "table-split-filled",
+  icon: "TableSplitFilled"
+}, {
+  stem: "table-split",
+  icon: "TableSplit"
+}, {
+  stem: "table",
+  icon: "Table"
+}, {
+  stem: "tag-filled",
+  icon: "TagFilled"
+}, {
+  stem: "tag",
+  icon: "Tag"
+}, {
+  stem: "tangerinr-filled",
+  icon: "TangerinrFilled"
+}, {
+  stem: "tangerinr",
+  icon: "Tangerinr"
+}, {
+  stem: "tape-filled",
+  icon: "TapeFilled"
+}, {
+  stem: "tape",
+  icon: "Tape"
+}, {
+  stem: "task-1-filled",
+  icon: "Task1Filled"
+}, {
+  stem: "task-1",
+  icon: "Task1"
+}, {
+  stem: "task-add-1",
+  icon: "TaskAdd1"
+}, {
+  stem: "task-add-filled",
+  icon: "TaskAddFilled"
+}, {
+  stem: "task-add",
+  icon: "TaskAdd"
+}, {
+  stem: "task-checked-1",
+  icon: "TaskChecked1"
+}, {
+  stem: "task-checked-filled",
+  icon: "TaskCheckedFilled"
+}, {
+  stem: "task-checked",
+  icon: "TaskChecked"
+}, {
+  stem: "task-double-filled",
+  icon: "TaskDoubleFilled"
+}, {
+  stem: "task-double",
+  icon: "TaskDouble"
+}, {
+  stem: "task-error-filled",
+  icon: "TaskErrorFilled"
+}, {
+  stem: "task-error",
+  icon: "TaskError"
+}, {
+  stem: "task-filled",
+  icon: "TaskFilled"
+}, {
+  stem: "task-location-filled",
+  icon: "TaskLocationFilled"
+}, {
+  stem: "task-location",
+  icon: "TaskLocation"
+}, {
+  stem: "task-marked-filled",
+  icon: "TaskMarkedFilled"
+}, {
+  stem: "task-marked",
+  icon: "TaskMarked"
+}, {
+  stem: "task-setting-filled",
+  icon: "TaskSettingFilled"
+}, {
+  stem: "task-setting",
+  icon: "TaskSetting"
+}, {
+  stem: "task-time-filled",
+  icon: "TaskTimeFilled"
+}, {
+  stem: "task-time",
+  icon: "TaskTime"
+}, {
+  stem: "task-visible-filled",
+  icon: "TaskVisibleFilled"
+}, {
+  stem: "task-visible",
+  icon: "TaskVisible"
+}, {
+  stem: "task",
+  icon: "Task"
+}, {
+  stem: "tea-filled",
+  icon: "TeaFilled"
+}, {
+  stem: "tea",
+  icon: "Tea"
+}, {
+  stem: "teahouse-filled",
+  icon: "TeahouseFilled"
+}, {
+  stem: "teahouse",
+  icon: "Teahouse"
+}, {
+  stem: "template-filled",
+  icon: "TemplateFilled"
+}, {
+  stem: "template",
+  icon: "Template"
+}, {
+  stem: "temple-filled",
+  icon: "TempleFilled"
+}, {
+  stem: "temple",
+  icon: "Temple"
+}, {
+  stem: "terminal-rectangle-1-filled",
+  icon: "TerminalRectangle1Filled"
+}, {
+  stem: "terminal-rectangle-1",
+  icon: "TerminalRectangle1"
+}, {
+  stem: "terminal-rectangle-filled",
+  icon: "TerminalRectangleFilled"
+}, {
+  stem: "terminal-rectangle",
+  icon: "TerminalRectangle"
+}, {
+  stem: "terminal-window-filled",
+  icon: "TerminalWindowFilled"
+}, {
+  stem: "terminal-window",
+  icon: "TerminalWindow"
+}, {
+  stem: "terminal",
+  icon: "Terminal"
+}, {
+  stem: "textbox-filled",
+  icon: "TextboxFilled"
+}, {
+  stem: "textbox",
+  icon: "Textbox"
+}, {
+  stem: "textformat-bold",
+  icon: "TextformatBold"
+}, {
+  stem: "textformat-color",
+  icon: "TextformatColor"
+}, {
+  stem: "textformat-italic",
+  icon: "TextformatItalic"
+}, {
+  stem: "textformat-strikethrough",
+  icon: "TextformatStrikethrough"
+}, {
+  stem: "textformat-underline",
+  icon: "TextformatUnderline"
+}, {
+  stem: "textformat-wrap",
+  icon: "TextformatWrap"
+}, {
+  stem: "theaters-filled",
+  icon: "TheatersFilled"
+}, {
+  stem: "theaters",
+  icon: "Theaters"
+}, {
+  stem: "thumb-down-1-filled",
+  icon: "ThumbDown1Filled"
+}, {
+  stem: "thumb-down-1",
+  icon: "ThumbDown1"
+}, {
+  stem: "thumb-down-2-filled",
+  icon: "ThumbDown2Filled"
+}, {
+  stem: "thumb-down-2",
+  icon: "ThumbDown2"
+}, {
+  stem: "thumb-down-filled",
+  icon: "ThumbDownFilled"
+}, {
+  stem: "thumb-down",
+  icon: "ThumbDown"
+}, {
+  stem: "thumb-up-1-filled",
+  icon: "ThumbUp1Filled"
+}, {
+  stem: "thumb-up-1",
+  icon: "ThumbUp1"
+}, {
+  stem: "thumb-up-2-filled",
+  icon: "ThumbUp2Filled"
+}, {
+  stem: "thumb-up-2",
+  icon: "ThumbUp2"
+}, {
+  stem: "thumb-up-filled",
+  icon: "ThumbUpFilled"
+}, {
+  stem: "thumb-up",
+  icon: "ThumbUp"
+}, {
+  stem: "thunder",
+  icon: "Thunder"
+}, {
+  stem: "thunderstorm-night-filled",
+  icon: "ThunderstormNightFilled"
+}, {
+  stem: "thunderstorm-night",
+  icon: "ThunderstormNight"
+}, {
+  stem: "thunderstorm-sunny-filled",
+  icon: "ThunderstormSunnyFilled"
+}, {
+  stem: "thunderstorm-sunny",
+  icon: "ThunderstormSunny"
+}, {
+  stem: "thunderstorm",
+  icon: "Thunderstorm"
+}, {
+  stem: "ticket-filled",
+  icon: "TicketFilled"
+}, {
+  stem: "ticket",
+  icon: "Ticket"
+}, {
+  stem: "time-filled",
+  icon: "TimeFilled"
+}, {
+  stem: "time",
+  icon: "Time"
+}, {
+  stem: "tips-double-filled",
+  icon: "TipsDoubleFilled"
+}, {
+  stem: "tips-double",
+  icon: "TipsDouble"
+}, {
+  stem: "tips-filled",
+  icon: "TipsFilled"
+}, {
+  stem: "tips",
+  icon: "Tips"
+}, {
+  stem: "tomato-filled",
+  icon: "TomatoFilled"
+}, {
+  stem: "tomato",
+  icon: "Tomato"
+}, {
+  stem: "tools-circle-filled",
+  icon: "ToolsCircleFilled"
+}, {
+  stem: "tools-circle",
+  icon: "ToolsCircle"
+}, {
+  stem: "tools-filled",
+  icon: "ToolsFilled"
+}, {
+  stem: "tools",
+  icon: "Tools"
+}, {
+  stem: "tornado",
+  icon: "Tornado"
+}, {
+  stem: "tower-1-filled",
+  icon: "Tower1Filled"
+}, {
+  stem: "tower-1",
+  icon: "Tower1"
+}, {
+  stem: "tower-2-filled",
+  icon: "Tower2Filled"
+}, {
+  stem: "tower-2",
+  icon: "Tower2"
+}, {
+  stem: "tower-3-filled",
+  icon: "Tower3Filled"
+}, {
+  stem: "tower-3",
+  icon: "Tower3"
+}, {
+  stem: "tower-clock-filled",
+  icon: "TowerClockFilled"
+}, {
+  stem: "tower-clock",
+  icon: "TowerClock"
+}, {
+  stem: "tower-filled",
+  icon: "TowerFilled"
+}, {
+  stem: "tower",
+  icon: "Tower"
+}, {
+  stem: "town-filled",
+  icon: "TownFilled"
+}, {
+  stem: "town",
+  icon: "Town"
+}, {
+  stem: "traffic-events-filled",
+  icon: "TrafficEventsFilled"
+}, {
+  stem: "traffic-events",
+  icon: "TrafficEvents"
+}, {
+  stem: "traffic-filled",
+  icon: "TrafficFilled"
+}, {
+  stem: "traffic",
+  icon: "Traffic"
+}, {
+  stem: "transform-1-filled",
+  icon: "Transform1Filled"
+}, {
+  stem: "transform-1",
+  icon: "Transform1"
+}, {
+  stem: "transform-2",
+  icon: "Transform2"
+}, {
+  stem: "transform-3",
+  icon: "Transform3"
+}, {
+  stem: "transform-filled",
+  icon: "TransformFilled"
+}, {
+  stem: "transform",
+  icon: "Transform"
+}, {
+  stem: "translate-1",
+  icon: "Translate1"
+}, {
+  stem: "translate",
+  icon: "Translate"
+}, {
+  stem: "tree-list",
+  icon: "TreeList"
+}, {
+  stem: "tree-round-dot-filled",
+  icon: "TreeRoundDotFilled"
+}, {
+  stem: "tree-round-dot-vertical-filled",
+  icon: "TreeRoundDotVerticalFilled"
+}, {
+  stem: "tree-round-dot-vertical",
+  icon: "TreeRoundDotVertical"
+}, {
+  stem: "tree-round-dot",
+  icon: "TreeRoundDot"
+}, {
+  stem: "tree-square-dot-filled",
+  icon: "TreeSquareDotFilled"
+}, {
+  stem: "tree-square-dot-vertical-filled",
+  icon: "TreeSquareDotVerticalFilled"
+}, {
+  stem: "tree-square-dot-vertical",
+  icon: "TreeSquareDotVertical"
+}, {
+  stem: "tree-square-dot",
+  icon: "TreeSquareDot"
+}, {
+  stem: "trending-down",
+  icon: "TrendingDown"
+}, {
+  stem: "trending-up",
+  icon: "TrendingUp"
+}, {
+  stem: "tv-1-filled",
+  icon: "Tv1Filled"
+}, {
+  stem: "tv-1",
+  icon: "Tv1"
+}, {
+  stem: "tv-2-filled",
+  icon: "Tv2Filled"
+}, {
+  stem: "tv-2",
+  icon: "Tv2"
+}, {
+  stem: "tv-filled",
+  icon: "TvFilled"
+}, {
+  stem: "tv",
+  icon: "Tv"
+}, {
+  stem: "typography-filled",
+  icon: "TypographyFilled"
+}, {
+  stem: "typography",
+  icon: "Typography"
+}, {
+  stem: "uncomfortable-1-filled",
+  icon: "Uncomfortable1Filled"
+}, {
+  stem: "uncomfortable-1",
+  icon: "Uncomfortable1"
+}, {
+  stem: "uncomfortable-2-filled",
+  icon: "Uncomfortable2Filled"
+}, {
+  stem: "uncomfortable-2",
+  icon: "Uncomfortable2"
+}, {
+  stem: "uncomfortable-filled",
+  icon: "UncomfortableFilled"
+}, {
+  stem: "uncomfortable",
+  icon: "Uncomfortable"
+}, {
+  stem: "undertake-delivery-filled",
+  icon: "UndertakeDeliveryFilled"
+}, {
+  stem: "undertake-delivery",
+  icon: "UndertakeDelivery"
+}, {
+  stem: "undertake-environment-protection-filled",
+  icon: "UndertakeEnvironmentProtectionFilled"
+}, {
+  stem: "undertake-environment-protection",
+  icon: "UndertakeEnvironmentProtection"
+}, {
+  stem: "undertake-filled",
+  icon: "UndertakeFilled"
+}, {
+  stem: "undertake-hold-up-filled",
+  icon: "UndertakeHoldUpFilled"
+}, {
+  stem: "undertake-hold-up",
+  icon: "UndertakeHoldUp"
+}, {
+  stem: "undertake-transaction-filled",
+  icon: "UndertakeTransactionFilled"
+}, {
+  stem: "undertake-transaction",
+  icon: "UndertakeTransaction"
+}, {
+  stem: "undertake",
+  icon: "Undertake"
+}, {
+  stem: "unfold-less",
+  icon: "UnfoldLess"
+}, {
+  stem: "unfold-more",
+  icon: "UnfoldMore"
+}, {
+  stem: "unhappy-1-filled",
+  icon: "Unhappy1Filled"
+}, {
+  stem: "unhappy-1",
+  icon: "Unhappy1"
+}, {
+  stem: "unhappy-filled",
+  icon: "UnhappyFilled"
+}, {
+  stem: "unhappy",
+  icon: "Unhappy"
+}, {
+  stem: "uninstall-filled",
+  icon: "UninstallFilled"
+}, {
+  stem: "uninstall",
+  icon: "Uninstall"
+}, {
+  stem: "upload-1",
+  icon: "Upload1"
+}, {
+  stem: "upload",
+  icon: "Upload"
+}, {
+  stem: "upscale",
+  icon: "Upscale"
+}, {
+  stem: "usb-filled",
+  icon: "UsbFilled"
+}, {
+  stem: "usb",
+  icon: "Usb"
+}, {
+  stem: "user-1-filled",
+  icon: "User1Filled"
+}, {
+  stem: "user-1",
+  icon: "User1"
+}, {
+  stem: "user-add-filled",
+  icon: "UserAddFilled"
+}, {
+  stem: "user-add",
+  icon: "UserAdd"
+}, {
+  stem: "user-arrow-down-filled",
+  icon: "UserArrowDownFilled"
+}, {
+  stem: "user-arrow-down",
+  icon: "UserArrowDown"
+}, {
+  stem: "user-arrow-left-filled",
+  icon: "UserArrowLeftFilled"
+}, {
+  stem: "user-arrow-left",
+  icon: "UserArrowLeft"
+}, {
+  stem: "user-arrow-right-filled",
+  icon: "UserArrowRightFilled"
+}, {
+  stem: "user-arrow-right",
+  icon: "UserArrowRight"
+}, {
+  stem: "user-arrow-up-filled",
+  icon: "UserArrowUpFilled"
+}, {
+  stem: "user-arrow-up",
+  icon: "UserArrowUp"
+}, {
+  stem: "user-avatar-filled",
+  icon: "UserAvatarFilled"
+}, {
+  stem: "user-avatar",
+  icon: "UserAvatar"
+}, {
+  stem: "user-blocked-filled",
+  icon: "UserBlockedFilled"
+}, {
+  stem: "user-blocked",
+  icon: "UserBlocked"
+}, {
+  stem: "user-business-filled",
+  icon: "UserBusinessFilled"
+}, {
+  stem: "user-business",
+  icon: "UserBusiness"
+}, {
+  stem: "user-checked-1-filled",
+  icon: "UserChecked1Filled"
+}, {
+  stem: "user-checked-1",
+  icon: "UserChecked1"
+}, {
+  stem: "user-checked-filled",
+  icon: "UserCheckedFilled"
+}, {
+  stem: "user-checked",
+  icon: "UserChecked"
+}, {
+  stem: "user-circle-filled",
+  icon: "UserCircleFilled"
+}, {
+  stem: "user-circle",
+  icon: "UserCircle"
+}, {
+  stem: "user-clear-filled",
+  icon: "UserClearFilled"
+}, {
+  stem: "user-clear",
+  icon: "UserClear"
+}, {
+  stem: "user-error-1-filled",
+  icon: "UserError1Filled"
+}, {
+  stem: "user-error-1",
+  icon: "UserError1"
+}, {
+  stem: "user-filled",
+  icon: "UserFilled"
+}, {
+  stem: "user-invisible-filled",
+  icon: "UserInvisibleFilled"
+}, {
+  stem: "user-invisible",
+  icon: "UserInvisible"
+}, {
+  stem: "user-list-filled",
+  icon: "UserListFilled"
+}, {
+  stem: "user-list",
+  icon: "UserList"
+}, {
+  stem: "user-locked-filled",
+  icon: "UserLockedFilled"
+}, {
+  stem: "user-locked",
+  icon: "UserLocked"
+}, {
+  stem: "user-marked-filled",
+  icon: "UserMarkedFilled"
+}, {
+  stem: "user-marked",
+  icon: "UserMarked"
+}, {
+  stem: "user-password-filled",
+  icon: "UserPasswordFilled"
+}, {
+  stem: "user-password",
+  icon: "UserPassword"
+}, {
+  stem: "user-safety-filled",
+  icon: "UserSafetyFilled"
+}, {
+  stem: "user-safety",
+  icon: "UserSafety"
+}, {
+  stem: "user-search-filled",
+  icon: "UserSearchFilled"
+}, {
+  stem: "user-search",
+  icon: "UserSearch"
+}, {
+  stem: "user-setting-filled",
+  icon: "UserSettingFilled"
+}, {
+  stem: "user-setting",
+  icon: "UserSetting"
+}, {
+  stem: "user-talk-1-filled",
+  icon: "UserTalk1Filled"
+}, {
+  stem: "user-talk-1",
+  icon: "UserTalk1"
+}, {
+  stem: "user-talk-filled",
+  icon: "UserTalkFilled"
+}, {
+  stem: "user-talk-off-1-filled",
+  icon: "UserTalkOff1Filled"
+}, {
+  stem: "user-talk-off-1",
+  icon: "UserTalkOff1"
+}, {
+  stem: "user-talk",
+  icon: "UserTalk"
+}, {
+  stem: "user-time-filled",
+  icon: "UserTimeFilled"
+}, {
+  stem: "user-time",
+  icon: "UserTime"
+}, {
+  stem: "user-transmit-filled",
+  icon: "UserTransmitFilled"
+}, {
+  stem: "user-transmit",
+  icon: "UserTransmit"
+}, {
+  stem: "user-unknown-filled",
+  icon: "UserUnknownFilled"
+}, {
+  stem: "user-unknown",
+  icon: "UserUnknown"
+}, {
+  stem: "user-unlocked-filled",
+  icon: "UserUnlockedFilled"
+}, {
+  stem: "user-unlocked",
+  icon: "UserUnlocked"
+}, {
+  stem: "user-vip-filled",
+  icon: "UserVipFilled"
+}, {
+  stem: "user-vip",
+  icon: "UserVip"
+}, {
+  stem: "user-visible-filled",
+  icon: "UserVisibleFilled"
+}, {
+  stem: "user-visible",
+  icon: "UserVisible"
+}, {
+  stem: "user",
+  icon: "User"
+}, {
+  stem: "usercase-filled",
+  icon: "UsercaseFilled"
+}, {
+  stem: "usercase-link-filled",
+  icon: "UsercaseLinkFilled"
+}, {
+  stem: "usercase-link",
+  icon: "UsercaseLink"
+}, {
+  stem: "usercase",
+  icon: "Usercase"
+}, {
+  stem: "usergroup-add-filled",
+  icon: "UsergroupAddFilled"
+}, {
+  stem: "usergroup-add",
+  icon: "UsergroupAdd"
+}, {
+  stem: "usergroup-clear-filled",
+  icon: "UsergroupClearFilled"
+}, {
+  stem: "usergroup-clear",
+  icon: "UsergroupClear"
+}, {
+  stem: "usergroup-filled",
+  icon: "UsergroupFilled"
+}, {
+  stem: "usergroup",
+  icon: "Usergroup"
+}, {
+  stem: "vehicle-filled",
+  icon: "VehicleFilled"
+}, {
+  stem: "vehicle",
+  icon: "Vehicle"
+}, {
+  stem: "verified-filled",
+  icon: "VerifiedFilled"
+}, {
+  stem: "verified",
+  icon: "Verified"
+}, {
+  stem: "verify-filled",
+  icon: "VerifyFilled"
+}, {
+  stem: "verify",
+  icon: "Verify"
+}, {
+  stem: "vertical-filled",
+  icon: "VerticalFilled"
+}, {
+  stem: "vertical",
+  icon: "Vertical"
+}, {
+  stem: "video-camera-1-filled",
+  icon: "VideoCamera1Filled"
+}, {
+  stem: "video-camera-1",
+  icon: "VideoCamera1"
+}, {
+  stem: "video-camera-2-filled",
+  icon: "VideoCamera2Filled"
+}, {
+  stem: "video-camera-2",
+  icon: "VideoCamera2"
+}, {
+  stem: "video-camera-dollar-filled",
+  icon: "VideoCameraDollarFilled"
+}, {
+  stem: "video-camera-dollar",
+  icon: "VideoCameraDollar"
+}, {
+  stem: "video-camera-filled",
+  icon: "VideoCameraFilled"
+}, {
+  stem: "video-camera-minus-filled",
+  icon: "VideoCameraMinusFilled"
+}, {
+  stem: "video-camera-minus",
+  icon: "VideoCameraMinus"
+}, {
+  stem: "video-camera-music-filled",
+  icon: "VideoCameraMusicFilled"
+}, {
+  stem: "video-camera-music",
+  icon: "VideoCameraMusic"
+}, {
+  stem: "video-camera-off-filled",
+  icon: "VideoCameraOffFilled"
+}, {
+  stem: "video-camera-off",
+  icon: "VideoCameraOff"
+}, {
+  stem: "video-camera",
+  icon: "VideoCamera"
+}, {
+  stem: "video-filled",
+  icon: "VideoFilled"
+}, {
+  stem: "video-library-filled",
+  icon: "VideoLibraryFilled"
+}, {
+  stem: "video-library",
+  icon: "VideoLibrary"
+}, {
+  stem: "video",
+  icon: "Video"
+}, {
+  stem: "view-agenda-filled",
+  icon: "ViewAgendaFilled"
+}, {
+  stem: "view-agenda",
+  icon: "ViewAgenda"
+}, {
+  stem: "view-column",
+  icon: "ViewColumn"
+}, {
+  stem: "view-in-ar-filled",
+  icon: "ViewInArFilled"
+}, {
+  stem: "view-in-ar",
+  icon: "ViewInAr"
+}, {
+  stem: "view-list",
+  icon: "ViewList"
+}, {
+  stem: "view-module-filled",
+  icon: "ViewModuleFilled"
+}, {
+  stem: "view-module",
+  icon: "ViewModule"
+}, {
+  stem: "visual-recognition-filled",
+  icon: "VisualRecognitionFilled"
+}, {
+  stem: "visual-recognition",
+  icon: "VisualRecognition"
+}, {
+  stem: "wallet-filled",
+  icon: "WalletFilled"
+}, {
+  stem: "wallet",
+  icon: "Wallet"
+}, {
+  stem: "watch-filled",
+  icon: "WatchFilled"
+}, {
+  stem: "watch",
+  icon: "Watch"
+}, {
+  stem: "watermelon-filled",
+  icon: "WatermelonFilled"
+}, {
+  stem: "watermelon",
+  icon: "Watermelon"
+}, {
+  stem: "wave-bye-filled",
+  icon: "WaveByeFilled"
+}, {
+  stem: "wave-bye",
+  icon: "WaveBye"
+}, {
+  stem: "wave-left-filled",
+  icon: "WaveLeftFilled"
+}, {
+  stem: "wave-left",
+  icon: "WaveLeft"
+}, {
+  stem: "wave-right-filled",
+  icon: "WaveRightFilled"
+}, {
+  stem: "wave-right",
+  icon: "WaveRight"
+}, {
+  stem: "wealth-1-filled",
+  icon: "Wealth1Filled"
+}, {
+  stem: "wealth-1",
+  icon: "Wealth1"
+}, {
+  stem: "wealth-filled",
+  icon: "WealthFilled"
+}, {
+  stem: "wealth",
+  icon: "Wealth"
+}, {
+  stem: "widget-filled",
+  icon: "WidgetFilled"
+}, {
+  stem: "widget",
+  icon: "Widget"
+}, {
+  stem: "wifi-1-filled",
+  icon: "Wifi1Filled"
+}, {
+  stem: "wifi-1",
+  icon: "Wifi1"
+}, {
+  stem: "wifi-no-filled",
+  icon: "WifiNoFilled"
+}, {
+  stem: "wifi-no",
+  icon: "WifiNo"
+}, {
+  stem: "wifi-off-1-filled",
+  icon: "WifiOff1Filled"
+}, {
+  stem: "wifi-off-1",
+  icon: "WifiOff1"
+}, {
+  stem: "wifi-off",
+  icon: "WifiOff"
+}, {
+  stem: "wifi",
+  icon: "Wifi"
+}, {
+  stem: "window-1-filled",
+  icon: "Window1Filled"
+}, {
+  stem: "window-1",
+  icon: "Window1"
+}, {
+  stem: "window-filled",
+  icon: "WindowFilled"
+}, {
+  stem: "window",
+  icon: "Window"
+}, {
+  stem: "windy-rain",
+  icon: "WindyRain"
+}, {
+  stem: "windy",
+  icon: "Windy"
+}, {
+  stem: "wink-filled",
+  icon: "WinkFilled"
+}, {
+  stem: "wink",
+  icon: "Wink"
+}, {
+  stem: "work-filled",
+  icon: "WorkFilled"
+}, {
+  stem: "work-history-filled",
+  icon: "WorkHistoryFilled"
+}, {
+  stem: "work-history",
+  icon: "WorkHistory"
+}, {
+  stem: "work-off-filled",
+  icon: "WorkOffFilled"
+}, {
+  stem: "work-off",
+  icon: "WorkOff"
+}, {
+  stem: "work",
+  icon: "Work"
+}, {
+  stem: "wry-smile-filled",
+  icon: "WrySmileFilled"
+}, {
+  stem: "wry-smile",
+  icon: "WrySmile"
+}, {
+  stem: "zoom-in-filled",
+  icon: "ZoomInFilled"
+}, {
+  stem: "zoom-in",
+  icon: "ZoomIn"
+}, {
+  stem: "zoom-out-filled",
+  icon: "ZoomOutFilled"
+}, {
+  stem: "zoom-out",
+  icon: "ZoomOut"
+}];
+
+export { manifest };
+//# sourceMappingURL=manifest.js.map

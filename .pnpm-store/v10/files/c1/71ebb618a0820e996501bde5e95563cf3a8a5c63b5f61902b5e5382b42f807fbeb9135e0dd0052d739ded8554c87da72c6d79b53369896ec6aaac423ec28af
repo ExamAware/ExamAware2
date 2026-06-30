@@ -1,0 +1,817 @@
+import { type VNode } from "vue";
+import { LateClass } from "./Composeable/LateClass";
+import type { CodeLayoutLangDefine } from "./Language";
+import { type PanelMenuRegistryItem } from "./Composeable/PanelMenu";
+/**
+ * Layout Type Definition
+ *
+ * Default data can be copied when creating objects:
+ * ```ts
+  import { defaultCodeLayoutConfig } from 'vue-code-layout';
+
+  const config = reactive<CodeLayoutConfig>({
+    ...defaultCodeLayoutConfig,
+    primarySideBarWidth: 40,
+  });
+  ```
+ */
+export interface CodeLayoutConfig {
+    /**
+     * Control whether to switch the display of the primarySideBar when clicking on the selected item in the activity bar
+     */
+    primarySideBarSwitchWithActivityBar: boolean;
+    /**
+     * The position of the primarySideBar
+     */
+    primarySideBarPosition: 'left' | 'right';
+    /**
+     * The size of the primarySideBar (0-100, percentage)
+     */
+    primarySideBarWidth: number;
+    /**
+     * The minimum size of the primarySideBar in pixels
+     */
+    primarySideBarMinWidth: number;
+    /**
+     * The size of the secondarySideBar (0-100, percentage)
+     */
+    secondarySideBarWidth: number;
+    /**
+     * The minimum size of the secondarySideBar in pixels
+     */
+    secondarySideBarMinWidth: number;
+    /**
+     * The size of the bottomPanel (0-100, percentage)
+     */
+    bottomPanelHeight: number;
+    /**
+     * The minimum size of the bottomPanel in pixels
+     */
+    bottomPanelMinHeight: number;
+    /**
+     * The minimum Height of center area in pixels
+     */
+    centerMinHeight: number;
+    /**
+     * The minimum Width of center area in pixels
+     */
+    centerMinWidth: number;
+    /**
+     * The layout position of the bottomPanel
+     * * left: At the bottom left
+     * * center: At the bottom center
+     * * right: At the bottom right
+     * * justify: At the bottom center and justify
+     * * left-side: Center left
+     * * right-side: Center right
+     */
+    panelAlignment: 'left' | 'center' | 'right' | 'justify' | 'left-side' | 'right-side';
+    /**
+     * The position of the panel
+     */
+    panelPosition: 'top' | 'bottom';
+    /**
+     * The position of the activityBar
+     * * side: Main left
+     * * top: In primarySideBar top
+     * * hidden: No activityBar
+     */
+    activityBarPosition: 'side' | 'top' | 'hidden' | 'bottom';
+    /**
+     * The height of the panel title in pixels
+     */
+    panelHeaderHeight: number;
+    /**
+     * The minimum height (in pixels) for all panels
+     */
+    panelMinHeight: number;
+    /**
+     * Show title bar?
+     */
+    titleBar: boolean;
+    /**
+     * Display Customize layout pop-up at the top of the title bar?
+     */
+    titleBarShowCustomizeLayout: boolean;
+    /**
+     * Show activity bar?
+     */
+    activityBar: boolean;
+    /**
+     * Show primarySideBar?
+     */
+    primarySideBar: boolean;
+    /**
+     * Show secondarySideBar?
+     */
+    secondarySideBar: boolean;
+    /**
+     * Make secondary panel control as activity bar?
+     */
+    secondarySideBarAsActivityBar: boolean;
+    /**
+    * The position of the secondary panel's activityBar when `secondarySideBarAsActivityBar` is true.
+    * * side: Main left
+    * * top: In primarySideBar top
+    * * hidden: No activityBar
+    */
+    secondaryActivityBarPosition: 'side' | 'top' | 'hidden' | 'bottom';
+    /**
+     * Show bottomPanel?
+     */
+    bottomPanel: boolean;
+    /**
+     * Can the bottomPanel be maximized?
+     */
+    bottomPanelMaximize: boolean;
+    /**
+     * Show statusBar?
+     */
+    statusBar: boolean;
+    /**
+     * Show menuBar?
+     */
+    menuBar: boolean;
+    /**
+     * Panel Menu configuration
+     */
+    menuConfigs: {
+        /**
+         * Set the built-in menu items.
+         *
+          |Name|Desc|
+          |---|---|
+          |toggleVisible|Hide the current panel|
+          |toggleBadge|Switch whether the current panel marker is displayed or not|
+          |otherPanelsCheck|Other panels display/hide switch|
+          |panelPosition|Control the display position of the main grid (sidebar, panel)|
+         */
+        builtinMenus: string[];
+        /**
+         * Add custom menu items.
+         */
+        customMenus: PanelMenuRegistryItem[];
+    };
+    /**
+     * When the user clicks the reset button in the custom layout pop-up, this callback is triggered
+     */
+    onResetDefault?: () => void;
+    /**
+     * When the user starts dragging the panel, this callback is triggered, which can return false to prevent the user from dragging
+     */
+    onStartDrag?: (panel: CodeLayoutPanelInternal) => boolean;
+    /**
+     * Trigger this callback when the user completes dragging the panel
+     */
+    onEndDrag?: (panel: CodeLayoutPanelInternal) => void;
+    /**
+     * When the user drags a panel to a root group, this callback is triggered, which can return false to prevent the user from dragging
+     */
+    onDropToGrid?: (panel: CodeLayoutPanelInternal, grid: CodeLayoutGrid) => boolean;
+    /**
+     * When the user drags a panel to another panel, this callback is triggered, which can return false to prevent the user from dragging
+     */
+    onDropToPanel?: (reference: CodeLayoutPanelInternal, referencePosition: CodeLayoutDragDropReferencePosition, panel: CodeLayoutPanelInternal, dropTo: CodeLayoutDragDropReferenceAreaType) => boolean;
+    /**
+     * When the user drags a panel to a group, this callback is triggered to customize and modify the panel data that will eventually be added to the group
+     */
+    onGridFirstDrop?: (grid: CodeLayoutGrid, panel: CodeLayoutPanelInternal) => CodeLayoutPanelInternal;
+    /**
+     * When a non shrinking TAB group is set to attempt to shrink, this callback will be triggered
+     */
+    onNoAutoShinkTabGroup?: (group: CodeLayoutPanelInternal) => void;
+    /**
+     * This callback is triggered when a regular group that is set to not shrink attempts to shrink
+     */
+    onNoAutoShinkNormalGroup?: (group: CodeLayoutPanelInternal) => void;
+    /**
+     * This callback is triggered when  user drag a non-panel data into component. You can check here whether dragging is allowed or not.
+     * @param e Raw DragEvent
+     * @returns Return true allows drop, false prevent drop.
+     */
+    onNonPanelDrag?: (e: DragEvent, sourcePosition: CodeLayoutDragDropReferenceAreaType) => boolean;
+    /**
+     * This callback is triggered when user drop a non-panel data into component.
+     * @param e Raw DragEvent
+     * @param reference Drop source panel.
+     * @param referencePosition Drop source position.
+     */
+    onNonPanelDrop?: (e: DragEvent, sourcePosition: CodeLayoutDragDropReferenceAreaType, reference: CodeLayoutPanelInternal | undefined, referencePosition: CodeLayoutDragDropReferencePosition | undefined) => void;
+}
+/**
+ * Language Layout Definition
+ */
+export interface CodeLayoutLangConfig {
+    /**
+     * Language of component
+     */
+    lang: string;
+    /**
+     * Override some strings of current language.
+     *
+     * * The complete list can be viewed in source code Language/en.ts
+     */
+    stringsOverride?: Partial<CodeLayoutLangDefine>;
+}
+/**
+ * Default CodeLayoutConfig
+ */
+export declare const defaultCodeLayoutConfig: CodeLayoutConfig;
+export type CodeLayoutGrid = 'primarySideBar' | 'secondarySideBar' | 'bottomPanel' | 'centerArea' | 'centerArea1' | 'centerArea2' | 'rootGrid' | 'none';
+export type CodeLayoutPanelCloseType = 'unSave' | 'close' | 'none';
+/**
+ * Instance of CodeLayout.
+ *
+ * Can use like this:
+ * ```
+ * const codeLayout = ref<CodeLayoutInstance>();
+ * codeLayout.value.addGroup(...);
+ * ```
+ */
+export interface CodeLayoutInstance {
+    /**
+     * Get panel instance by name.
+     * @param name The panel name.
+     * @returns Found panel instance, if this panel is not found in the component, return undefined
+     */
+    getPanelByName(name: string): CodeLayoutPanelInternal | undefined;
+    /**
+     * Add top level group to layout.
+     * @param panel Group define.
+     * @param target Target grid.
+     * @returns Group instance.
+     */
+    addGroup: (panel: CodeLayoutPanel, target: CodeLayoutGrid) => CodeLayoutPanelInternal;
+    /**
+     * Remove top level group from layout.
+     * @param panel Group instance.
+     */
+    removeGroup(panel: CodeLayoutPanelInternal): void;
+    /**
+     * Get the internal root grid instance.
+     * @param target Grid name.
+     * @returns Top level grid instance
+     */
+    getRootGrid(target: CodeLayoutGrid): CodeLayoutGridInternal;
+    /**
+     * Force relayout all group.
+     * @returns
+     */
+    relayoutAll: () => void;
+    /**
+     * Force relayout a group.
+     * @param name Group name.
+     */
+    relayoutGroup(name: string): void;
+    /**
+     * Save the layout dragged by the user to the JSON data, and after the next entry, call 'loadLayout' to reload and restore the original layout from the JSON data.
+     *
+     * Note: Some basic layout data (CodeLayoutConfig) needs to be save after called this function.
+     */
+    saveLayout(): any;
+    /**
+     * Clear all panels.
+     */
+    clearLayout(): void;
+    /**
+     * Load the previous layout from JSON data, will clear all panels,
+     * instantiatePanelCallback will sequentially call all panels, where you can process panel data.
+     * @param json json data from `saveLayout`.
+     * @param instantiatePanelCallback process layout data panel.
+     */
+    loadLayout(json: any, instantiatePanelCallback: (data: CodeLayoutPanel) => CodeLayoutPanel): void;
+}
+export interface CodeLayoutPanelHosterContext {
+    panelInstances: Map<string, CodeLayoutPanelInternal>;
+    /**
+     * Get the root layout component instance.
+     *
+     * @returns CodeLayoutInstance if in codelayout, CodeLayoutSplitNInstance if in splitlayout.
+     */
+    getRef(): any;
+    childGridActiveChildChanged(panel: CodeLayoutPanelInternal): void;
+    removePanelInternal(panel: CodeLayoutPanelInternal): undefined | CodeLayoutPanelInternal;
+    closePanelInternal(panel: CodeLayoutPanelInternal): void;
+}
+export declare class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPanel {
+    constructor(context: CodeLayoutPanelHosterContext);
+    private _size;
+    private _open;
+    private _visible;
+    context: CodeLayoutPanelHosterContext;
+    /**
+     * Title of this panel.
+     *
+     * * Display in header.
+     */
+    title: string;
+    /**
+     * Name of this panel.
+     *
+     * Don't change this value after panel added to layout.
+     *
+     * You can obtain an instance of a panel using this name in the `CodeLayout.getPanelByName` instance method.
+     *
+     * * This name needs to be unique in a CodeLayout/SplitLayout.
+     */
+    name: string;
+    /**
+     * Open state of this panel.
+     *
+     * * Only used in CodeLayout.
+     * In SplitLayout, all panels are always in open state.
+     */
+    get open(): boolean;
+    set open(value: boolean);
+    /**
+     * Set user can resize this panel.
+     *
+     * * Only used in CodeLayout.
+     */
+    resizeable: boolean;
+    /**
+     * Show panel?
+     *
+     * * Used in CodeLayout/SplitLayout.
+     *
+     * After changed, need call `relayoutAfterToggleVisible` to apply.
+     */
+    get visible(): boolean;
+    set visible(value: boolean);
+    /**
+     * Show badge?
+     */
+    showBadge: boolean;
+    get size(): number;
+    set size(value: number);
+    /**
+     * Child panel of this grid.
+     */
+    children: CodeLayoutPanelInternal[];
+    /**
+     * Active child of this grid.
+     *
+     * * Use in Tab
+     */
+    activePanel: CodeLayoutPanelInternal | null;
+    /**
+     * Parent grid instance of this panel.
+     */
+    parentGroup: CodeLayoutPanelInternal | null;
+    /**
+     * Parent toplevel grid name of this panel.
+     */
+    parentGrid: CodeLayoutGrid;
+    inhertParentGrid: boolean;
+    tooltip?: string;
+    badge?: string | (() => VNode) | undefined;
+    accept?: CodeLayoutGrid[];
+    draggable: boolean;
+    preDropCheck?: (dropPanel: CodeLayoutPanel, targetGrid: CodeLayoutGrid, referencePanel?: CodeLayoutPanel | undefined, referencePosition?: CodeLayoutDragDropReferencePosition | undefined) => boolean;
+    onResize?: (this: CodeLayoutPanelInternal, size: number) => void;
+    onVisibleChange?: (this: CodeLayoutPanelInternal, visible: boolean) => void;
+    onOpenChange?: (this: CodeLayoutPanelInternal, state: boolean) => void;
+    tabStyle?: CodeLayoutPanelTabStyle;
+    noAutoShink: boolean;
+    noHide: boolean;
+    minSize?: number | number[] | undefined;
+    startOpen?: boolean | undefined;
+    iconLarge?: string | (() => VNode) | undefined;
+    iconSmall?: string | (() => VNode) | undefined;
+    closeType: CodeLayoutPanelCloseType;
+    actions?: CodeLayoutActionButton[] | undefined;
+    data?: any;
+    /**
+     * Add child panel to this grid.
+     * @param panel Child panel
+     * @param startOpen Is the sub panel in an open state
+     * @returns Child panel instance
+     */
+    addPanel(panel: CodeLayoutPanel, startOpen?: boolean, index?: number): {
+        context: {
+            panelInstances: Map<string, any> & Omit<Map<string, CodeLayoutPanelInternal>, keyof Map<any, any>>;
+            getRef: () => any;
+            childGridActiveChildChanged: (panel: CodeLayoutPanelInternal) => void;
+            removePanelInternal: (panel: CodeLayoutPanelInternal) => CodeLayoutPanelInternal | undefined;
+            closePanelInternal: (panel: CodeLayoutPanelInternal) => void;
+        };
+        title: string;
+        name: string;
+        open: boolean;
+        resizeable: boolean;
+        visible: boolean;
+        showBadge: boolean;
+        size: number;
+        children: any[];
+        activePanel: any | null;
+        parentGroup: any | null;
+        parentGrid: CodeLayoutGrid;
+        inhertParentGrid: boolean;
+        tooltip?: string | undefined;
+        badge?: string | (() => VNode<import("vue").RendererNode, import("vue").RendererElement, {
+            [key: string]: any;
+        }>) | undefined;
+        accept?: CodeLayoutGrid[] | undefined;
+        draggable: boolean;
+        preDropCheck?: ((dropPanel: CodeLayoutPanel, targetGrid: CodeLayoutGrid, referencePanel?: CodeLayoutPanel | undefined, referencePosition?: CodeLayoutDragDropReferencePosition | undefined) => boolean) | undefined;
+        onResize?: ((this: CodeLayoutPanelInternal, size: number) => void) | undefined;
+        onVisibleChange?: ((this: CodeLayoutPanelInternal, visible: boolean) => void) | undefined;
+        onOpenChange?: ((this: CodeLayoutPanelInternal, state: boolean) => void) | undefined;
+        tabStyle?: CodeLayoutPanelTabStyle | undefined;
+        noAutoShink: boolean;
+        noHide: boolean;
+        minSize?: number | number[] | undefined;
+        startOpen?: boolean | undefined;
+        iconLarge?: string | (() => VNode<import("vue").RendererNode, import("vue").RendererElement, {
+            [key: string]: any;
+        }>) | undefined;
+        iconSmall?: string | (() => VNode<import("vue").RendererNode, import("vue").RendererElement, {
+            [key: string]: any;
+        }>) | undefined;
+        closeType: CodeLayoutPanelCloseType;
+        actions?: {
+            name?: string | undefined;
+            render?: (() => VNode<import("vue").RendererNode, import("vue").RendererElement, {
+                [key: string]: any;
+            }>) | undefined;
+            icon?: string | (() => VNode<import("vue").RendererNode, import("vue").RendererElement, {
+                [key: string]: any;
+            }>) | undefined;
+            text?: string | undefined;
+            tooltip?: string | undefined;
+            tooltipDirection?: "left" | "right" | "top" | "bottom" | undefined;
+            onClick?: (() => void) | undefined;
+        }[] | undefined;
+        data?: any;
+        addPanel: (panel: CodeLayoutPanel, startOpen?: boolean, index?: number) => any;
+        removePanel: (panel: CodeLayoutPanelInternal, shrink?: boolean) => CodeLayoutPanelInternal;
+        openPanel: (closeOthers?: boolean) => void;
+        closePanel: () => void;
+        togglePanel: () => boolean;
+        removeSelf: () => CodeLayoutPanelInternal | undefined;
+        removeSelfWithShrink: () => CodeLayoutPanelInternal | undefined;
+        setActiveChild: (child: CodeLayoutPanelInternal | null) => void;
+        reselectActiveChild: () => void;
+        activeSelf: () => void;
+        isSelfActived: () => boolean;
+        isChildren: (panel: CodeLayoutPanelInternal) => boolean;
+        getContainerSize: () => number;
+        notifyRelayout: () => void;
+        relayoutAllWithNewPanel: (panels: CodeLayoutPanelInternal[], referencePanel?: CodeLayoutPanelInternal | undefined) => void;
+        relayoutAfterToggleVisible: (panel?: CodeLayoutPanelInternal | undefined) => void;
+        relayoutAllWithRemovePanel: (panel: CodeLayoutPanelInternal) => void;
+        relayoutAllWithResizedSize: (resizedContainerSize: number) => void;
+        addChild: (child: CodeLayoutPanelInternal, index?: number | undefined) => void;
+        addChilds: (childs: CodeLayoutPanelInternal[], startIndex?: number | undefined) => void;
+        removeChild: (child: CodeLayoutPanelInternal) => void;
+        replaceChild: (oldChild: CodeLayoutPanelInternal, child: CodeLayoutPanelInternal) => void;
+        hasChild: (child: CodeLayoutPanelInternal) => boolean;
+        lastRelayoutSize: number;
+        lastLayoutSizeCounter: number;
+        getIsTabContainer: () => boolean;
+        getIsTopGroup: () => boolean;
+        getIsInTab: () => boolean;
+        getParent: () => CodeLayoutPanelInternal | null;
+        getIndexInParent: () => number;
+        getLastChildOrSelf: () => CodeLayoutPanelInternal;
+        getFlatternChildOrSelf: () => CodeLayoutPanelInternal[];
+        toString: () => string;
+        toJson: () => any;
+        loadFromJson: (json: any) => void;
+        listenLateAction: (name: string, cb: import("./Composeable/LateClass").LateClassCallback) => void;
+        unlistenLateAction: (name: string) => void;
+        unlistenAllLateAction: () => void;
+        applyLateActions: (name: string) => void;
+        pushLateAction: (name: string, ...args: any[]) => Promise<any>;
+    };
+    /**
+     * Remove panel from this group.
+     * @param panel Panel instance.
+     * @param shrink Automatically shrink? Default true
+     */
+    removePanel(panel: CodeLayoutPanelInternal, shrink?: boolean): CodeLayoutPanelInternal;
+    /**
+     * Open this panel.
+     * @param closeOthers When opening oneself, do you also close other panels at the same level, Default: false
+     */
+    openPanel(closeOthers?: boolean): void;
+    /**
+     * Close this panel.
+     */
+    closePanel(): void;
+    /**
+     * Toggle open state of this panel.
+     * @returns Return new open state
+     */
+    togglePanel(): boolean;
+    /**
+     * Remove the current panel/grid from its parent.
+     * @returns
+     */
+    removeSelf(): CodeLayoutPanelInternal | undefined;
+    /**
+     * Remove the current panel/grid from its parent and
+     * trigger automatic shrink operations.
+     * @returns
+     */
+    removeSelfWithShrink(): CodeLayoutPanelInternal | undefined;
+    /**
+     * Set activePanel.
+     * @param child The panel to be activated
+     */
+    setActiveChild(child: CodeLayoutPanelInternal | null): void;
+    /**
+     * Auto select a visible panel as activePanel.
+     */
+    reselectActiveChild(): void;
+    /**
+     * Set parent activePanel to self.
+     */
+    activeSelf(): void;
+    /**
+     * Get is this panel actived in parent (Tab)
+     */
+    isSelfActived(): boolean;
+    /**
+     * Check panel is children.
+     */
+    isChildren(panel: CodeLayoutPanelInternal): boolean;
+    /**
+     * Get grid hoster container size (pixel).
+     * @returns
+     */
+    getContainerSize(): number;
+    /**
+     * Notify hoster container force relayout.
+     */
+    notifyRelayout(): void;
+    /**
+     * Notify hoster container there has new grids was added and needs to relayout.
+     *
+     * * This method is called internally, and generally you do not need to use this method.
+     * @param panels New panels
+     * @param referencePanel Drop grid.
+     */
+    relayoutAllWithNewPanel(panels: CodeLayoutPanelInternal[], referencePanel?: CodeLayoutPanelInternal): void;
+    /**
+     * Notify hoster container there has grids was visible changed and needs to relayout.
+     * @param panel Changed panel.
+     */
+    relayoutAfterToggleVisible(panel?: CodeLayoutPanelInternal): void;
+    /**
+     * Notify hoster container there has grids was removed and needs to relayout.
+     *
+     * * This method is called internally, and generally you do not need to use this method.
+     * @param panel Removed panel.
+     */
+    relayoutAllWithRemovePanel(panel: CodeLayoutPanelInternal): void;
+    /**
+     * Notify hoster container to relayout when container size changed.
+     *
+     * * This method is called internally, and generally you do not need to use this method.
+     * @param resizedContainerSize
+     */
+    relayoutAllWithResizedSize(resizedContainerSize: number): void;
+    addChild(child: CodeLayoutPanelInternal, index?: number): void;
+    addChilds(childs: CodeLayoutPanelInternal[], startIndex?: number): void;
+    removeChild(child: CodeLayoutPanelInternal): void;
+    replaceChild(oldChild: CodeLayoutPanelInternal, child: CodeLayoutPanelInternal): void;
+    hasChild(child: CodeLayoutPanelInternal): boolean;
+    lastRelayoutSize: number;
+    lastLayoutSizeCounter: number;
+    getIsTabContainer(): boolean;
+    getIsTopGroup(): boolean;
+    getIsInTab(): boolean;
+    getParent(): CodeLayoutPanelInternal | null;
+    getIndexInParent(): number;
+    getLastChildOrSelf(): CodeLayoutPanelInternal;
+    getFlatternChildOrSelf(): CodeLayoutPanelInternal[];
+    toString(): string;
+    toJson(): any;
+    loadFromJson(json: any): void;
+}
+/**
+ * Definition of top-level grid group instance class.
+ */
+export declare class CodeLayoutGridInternal extends CodeLayoutPanelInternal {
+    constructor(name: CodeLayoutGrid, tabStyle: CodeLayoutPanelTabStyle, context: CodeLayoutPanelHosterContext, onSwitchCollapse: (open: boolean) => void, onActiveSelf: () => void);
+    private onSwitchCollapse?;
+    private onActiveSelf?;
+    activeSelf(): void;
+    /**
+     * Open or collapse the current top-level grid.
+     * @param open Is open?
+     */
+    collapse(open: boolean): void;
+    toString(): string;
+}
+export type CodeLayoutPanelTabStyle = 'none' | 'single' | 'text' | 'text-bottom' | 'icon' | 'icon-bottom' | 'hidden';
+/**
+ * Panel User Type Definition
+ */
+export interface CodeLayoutPanel {
+    /**
+     * Title of this panel.
+     *
+     * * Display in header.
+     */
+    title: string;
+    /**
+     * Tooltip of this panel.
+     */
+    tooltip?: string;
+    /**
+     * Name of this panel.
+     *
+     * You can obtain an instance of a panel using this name in the `CodeLayout.getPanelByName` instance method.
+     *
+     * * This name needs to be unique in a CodeLayout/SplitLayout.
+     */
+    name: string;
+    /**
+     * Badge of this panel.
+     */
+    badge?: string | (() => VNode) | undefined;
+    /**
+     * Show panel?
+     */
+    visible?: boolean;
+    /**
+     * Show badge?
+     */
+    showBadge?: boolean;
+    /**
+     * Is this panel draggable?
+     *
+     * Default is true.
+     */
+    draggable?: boolean;
+    /**
+     * Set which grids the current panel can be dragged and dropped onto.
+     */
+    accept?: CodeLayoutGrid[];
+    /**
+     * Custom check callback before this panel drop.
+     * @param dropPanel The panel being prepared for drop.
+     * @param targetGrid Target grid.
+     * @param referencePanel Drop reference panel.
+     * @param referencePosition Place position relative to the reference panel.
+     * @returns Return true to allow user drop, false to reject.
+     */
+    preDropCheck?: (dropPanel: CodeLayoutPanel, targetGrid: CodeLayoutGrid, referencePanel?: CodeLayoutPanel | undefined, referencePosition?: CodeLayoutDragDropReferencePosition | undefined) => boolean;
+    /**
+     * Resize callback for this panel
+     * @param size New size
+     * @returns
+     */
+    onResize?: (this: CodeLayoutPanelInternal, size: number) => void;
+    /**
+     * Visible change callback for this panel.
+     * @param visible New visible state.
+     */
+    onVisibleChange?: (this: CodeLayoutPanelInternal, visible: boolean) => void;
+    /**
+     * Open state change callback for this panel.
+     *
+     * * Only used in CodeLayout.
+     */
+    onOpenChange?: (this: CodeLayoutPanelInternal, state: boolean) => void;
+    /**
+     * Set tab style of this grid.
+     *
+     * * Only used in CodeLayout.
+     *
+     * Tab style:
+     * * none: No tab control.
+     * * single: Used internal.
+     * * text: Tab control and header only show text.
+     * * icon: Tab control and header only show icon.
+     * * text-bottom: Same as text but header in bottom.
+     * * icon-bottom: Same as icon but header in bottom.
+     * * hidden: Has tab control but tab header was hidden.
+     *
+     * Default: 'none'
+     */
+    tabStyle?: CodeLayoutPanelTabStyle;
+    /**
+     * Set whether the current grid triggers its own remove/merge
+     * operation after all subpanels/grids are removed.
+     *
+     * Set to true will keep grid display, even if it does not have child panels/grids.
+     *
+     * Default: false
+     */
+    noAutoShink?: boolean;
+    /**
+     * Set whether users cannot hide this panel.
+     *
+     * * Only used in CodeLayout.
+     *
+     * Default: false
+     */
+    noHide?: boolean;
+    /**
+     * Size of this panel.
+     *
+     * * In CodeLayout, it's pixel size.
+     * * In SplitLayout, it's percentage size.
+     */
+    size?: number | undefined;
+    /**
+     * Min size of this gird/panel. (In pixel)
+     *
+     * * If is a array, means x and y minium size.
+     * * 0 means no limit.
+     *
+     * Default: 0
+     */
+    minSize?: number | number[] | undefined;
+    /**
+     * Is the sub panel in an open state when added to a grid.
+     *
+     * * Only used in CodeLayout.
+     */
+    startOpen?: boolean | undefined;
+    /**
+     * Icon of this panel (Large, render in ActionBar).
+     */
+    iconLarge?: string | (() => VNode) | undefined;
+    /**
+     * Icon of this panel (Small, render in TabBar, Header).
+     */
+    iconSmall?: string | (() => VNode) | undefined;
+    /**
+     * Set close button type of this panel.
+     *
+     * * Only used in SplitLayout.
+     *
+     * Type:
+     * * unSave: A dot remind users that file are not save (⚪).
+     * * close: Normal close button (X).
+     * * none: No close button.
+     *
+     * Default: 'none'
+     */
+    closeType?: CodeLayoutPanelCloseType | undefined;
+    /**
+    * Custom user actions.
+    *
+    * * Only used in CodeLayout.
+    */
+    actions?: CodeLayoutActionButton[] | undefined;
+    /**
+     * Should this panel inherit `parentGrid` field from parent ?
+     * @default true
+     */
+    inhertParentGrid?: boolean;
+    /**
+     * Custom data attached to the current panel.
+     */
+    data?: any;
+}
+/**
+ * Panel Action button Type Definition
+ */
+export interface CodeLayoutActionButton {
+    name?: string;
+    /**
+     * Render this action button by yourself.
+     */
+    render?: (() => VNode) | undefined;
+    /**
+     * Render icon of this action button.
+     */
+    icon?: string | (() => VNode);
+    /**
+     * Text of this action button.
+     */
+    text?: string;
+    /**
+     * Tooltip of this action button.
+     */
+    tooltip?: string;
+    /**
+     * Tooltip direction.
+     */
+    tooltipDirection?: 'left' | 'top' | 'right' | 'bottom';
+    /**
+     * Click callback
+     * @returns
+     */
+    onClick?: () => void;
+}
+/**
+ * Drop source postition Definition
+ */
+export type CodeLayoutDragDropReferencePosition = '' | 'up' | 'down' | 'left' | 'right' | 'center' | '';
+/**
+ * Drop source area Definition
+ */
+export type CodeLayoutDragDropReferenceAreaType = 'normal' | 'empty' | 'tab-header' | 'tab-content' | 'activiy-bar';
+export interface CodeLayoutContext {
+    dragDropToGrid: (grid: CodeLayoutGrid, panel: CodeLayoutPanelInternal) => void;
+    dragDropToPanelNear: (reference: CodeLayoutPanelInternal, referencePosition: CodeLayoutDragDropReferencePosition, panel: CodeLayoutPanelInternal, dropTo: CodeLayoutDragDropReferenceAreaType) => void;
+    dragDropNonPanel(e: DragEvent, isDrop: boolean, sourcePosition: CodeLayoutDragDropReferenceAreaType, reference?: CodeLayoutPanelInternal, referencePosition?: CodeLayoutDragDropReferencePosition): boolean;
+    relayoutTopGridProp: (grid: CodeLayoutGrid, visible: boolean) => void;
+    instance: CodeLayoutInstance;
+}

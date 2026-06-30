@@ -1,0 +1,42 @@
+{
+  "name": "@electron-toolkit/preload",
+  "version": "3.0.2",
+  "description": "Toolkit for electron preload scripts.",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "author": "Alex Wei<https://github.com/alex8088>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alex8088/electron-toolkit.git",
+    "directory": "packages/preload"
+  },
+  "bugs": {
+    "url": "https://github.com/alex8088/electron-toolkit/issues"
+  },
+  "homepage": "https://github.com/alex8088/electron-toolkit/tree/master/packages/preload#readme",
+  "keywords": [
+    "electron",
+    "toolkit",
+    "preload",
+    "ipcRenderer",
+    "webFrame"
+  ],
+  "scripts": {
+    "build": "rollup -c rollup.config.ts --configPlugin typescript"
+  },
+  "peerDependencies": {
+    "electron": ">=13.0.0"
+  }
+}

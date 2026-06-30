@@ -1,0 +1,1 @@
+{"version":3,"file":"index.js","sources":["../../../../components/list/consts/index.ts"],"sourcesContent":["export const LOAD_MORE = 'load-more';\nexport const LOADING = 'loading';\n"],"names":["LOAD_MORE","LOADING"],"mappings":";;;;;;AAAO,IAAMA,SAAY,GAAA,YAAA;AAClB,IAAMC,OAAU,GAAA;;;;"}

@@ -1,0 +1,1 @@
+{"version":3,"file":"input-group-props.js","sources":["../../../components/input/input-group-props.ts"],"sourcesContent":["/* eslint-disable */\n\n/**\n * 该文件为脚本自动生成文件，请勿随意修改。如需修改请联系 PMC\n * */\n\nexport default {\n  /** 多个输入框之间是否需要间隔 */\n  separate: Boolean,\n};\n"],"names":["separate","Boolean"],"mappings":";;;;;;AAMA,sBAAe;AAEbA,EAAAA,QAAU,EAAAC,OAAAA;AACZ,CAAA;;;;"}

@@ -1,0 +1,117 @@
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+var defineProperty = require('../_chunks/dep-23fc4c9b.js');
+var vue = require('vue');
+var utils_renderFn = require('../utils/render-fn.js');
+var utils_useSizeProps = require('../utils/use-size-props.js');
+require('../utils/use-common-classname.js');
+require('../utils/config-context.js');
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { defineProperty._defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var element = {
+  "tag": "svg",
+  "attrs": {
+    "fill": "none",
+    "viewBox": "0 0 24 24",
+    "width": "1em",
+    "height": "1em"
+  },
+  "children": [{
+    "tag": "path",
+    "attrs": {
+      "fill": "props.filledColor",
+      "d": "M4.7638 1H0V3H3.2362L5.96648 13.011L4.71922 18H22V16H7.28078L7.78078 14H19.7208L23.3874 3H5.30925L4.7638 1ZM17 9.5H14.5V12H12.5V9.5H10V7.5H12.5V5H14.5V7.5H17V9.5Z"
+    }
+  }, {
+    "tag": "path",
+    "attrs": {
+      "fill": "props.filledColor",
+      "d": "M6 19C4.89543 19 4 19.8954 4 21C4 22.1046 4.89543 23 6 23C7.10457 23 8 22.1046 8 21C8 19.8954 7.10457 19 6 19Z"
+    }
+  }, {
+    "tag": "path",
+    "attrs": {
+      "fill": "props.filledColor",
+      "d": "M20 19C18.8954 19 18 19.8954 18 21C18 22.1046 18.8954 23 20 23C21.1046 23 22 22.1046 22 21C22 19.8954 21.1046 19 20 19Z"
+    }
+  }]
+};
+var cartAddFilled = vue.defineComponent({
+  name: "CartAddFilledIcon",
+  props: {
+    size: {
+      type: String
+    },
+    onClick: {
+      type: Function
+    },
+    fillColor: {
+      type: [Array, String]
+    },
+    strokeColor: {
+      type: [Array, String]
+    },
+    strokeWidth: {
+      type: Number
+    }
+  },
+  setup(props, _ref) {
+    var {
+      attrs
+    } = _ref;
+    var propsSize = vue.computed(() => props.size);
+    var strokeColor1 = vue.computed(() => {
+      if (!props.strokeColor) return "currentColor";
+      return Array.isArray(props.strokeColor) ? props.strokeColor[0] : props.strokeColor;
+    });
+    var strokeColor2 = vue.computed(() => {
+      var _props$strokeColor$;
+      if (!props.strokeColor) return "currentColor";
+      return Array.isArray(props.strokeColor) ? (_props$strokeColor$ = props.strokeColor[1]) !== null && _props$strokeColor$ !== void 0 ? _props$strokeColor$ : props.strokeColor[0] : props.strokeColor;
+    });
+    var fillColor1 = vue.computed(() => {
+      if (!props.fillColor) return "transparent";
+      return Array.isArray(props.fillColor) ? props.fillColor[0] : props.fillColor;
+    });
+    var fillColor2 = vue.computed(() => {
+      var _props$fillColor$;
+      if (!props.fillColor) return "transparent";
+      return Array.isArray(props.fillColor) ? (_props$fillColor$ = props.fillColor[1]) !== null && _props$fillColor$ !== void 0 ? _props$fillColor$ : props.fillColor[0] : props.fillColor;
+    });
+    var filledColor = vue.computed(() => {
+      if (!props.fillColor) return "currentColor";
+      return Array.isArray(props.fillColor) ? props.fillColor[0] : props.fillColor;
+    });
+    var {
+      className,
+      style
+    } = utils_useSizeProps['default'](propsSize);
+    var finalCls = vue.computed(() => ["t-icon", "t-icon-cart-add-filled", className.value]);
+    var finalStyle = vue.computed(() => _objectSpread(_objectSpread({
+      fill: "none"
+    }, style.value), attrs.style));
+    var finalProps = vue.computed(() => ({
+      class: finalCls.value,
+      style: finalStyle.value,
+      onClick: e => {
+        var _props$onClick;
+        return (_props$onClick = props.onClick) === null || _props$onClick === void 0 ? void 0 : _props$onClick.call(props, {
+          e
+        });
+      },
+      strokeColor1: strokeColor1.value,
+      strokeColor2: strokeColor2.value,
+      fillColor1: fillColor1.value,
+      fillColor2: fillColor2.value,
+      strokeWidth: props.strokeWidth || 2,
+      filledColor: filledColor.value
+    }));
+    return () => utils_renderFn['default'](element, finalProps.value);
+  }
+});
+
+exports.default = cartAddFilled;
+//# sourceMappingURL=cart-add-filled.js.map

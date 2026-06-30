@@ -1,0 +1,102 @@
+import { _ as _defineProperty } from '../_chunks/dep-2cb449a9.js';
+import { defineComponent, computed } from 'vue';
+import renderNode from '../utils/render-fn.js';
+import useSizeProps from '../utils/use-size-props.js';
+import '../style/css.js';
+import '../utils/use-common-classname.js';
+import '../utils/config-context.js';
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var element = {
+  "tag": "svg",
+  "attrs": {
+    "fill": "none",
+    "viewBox": "0 0 24 24",
+    "width": "1em",
+    "height": "1em"
+  },
+  "children": [{
+    "tag": "path",
+    "attrs": {
+      "fill": "props.filledColor",
+      "d": "M23 22V6L18.4649 6C18.8052 5.41165 19 4.72857 19 4C19 1.79086 17.2091 -9.65645e-08 15 0C13.8053 5.22217e-08 12.7329 0.523756 12 1.35418C11.2671 0.523756 10.1947 2.10047e-07 9 2.62269e-07C6.79086 3.58834e-07 5 1.79086 5 4C5 4.72858 5.19479 5.41165 5.53513 6H1L1 22H23ZM13 4C13 2.89543 13.8954 2 15 2C16.1046 2 17 2.89543 17 4C17 5.10457 16.1046 6 15 6C13.8954 6 13 5.10457 13 4ZM14.4142 8L21 8V14H3L3 8L9.58579 8L6.58579 11L8 12.4142L12 8.41421L16 12.4142L17.4142 11L14.4142 8ZM11 4C11 5.10457 10.1046 6 9 6C7.89543 6 7 5.10457 7 4C7 2.89543 7.89543 2 9 2C10.1046 2 11 2.89543 11 4Z"
+    }
+  }]
+};
+var giftFilled = defineComponent({
+  name: "GiftFilledIcon",
+  props: {
+    size: {
+      type: String
+    },
+    onClick: {
+      type: Function
+    },
+    fillColor: {
+      type: [Array, String]
+    },
+    strokeColor: {
+      type: [Array, String]
+    },
+    strokeWidth: {
+      type: Number
+    }
+  },
+  setup(props, _ref) {
+    var {
+      attrs
+    } = _ref;
+    var propsSize = computed(() => props.size);
+    var strokeColor1 = computed(() => {
+      if (!props.strokeColor) return "currentColor";
+      return Array.isArray(props.strokeColor) ? props.strokeColor[0] : props.strokeColor;
+    });
+    var strokeColor2 = computed(() => {
+      var _props$strokeColor$;
+      if (!props.strokeColor) return "currentColor";
+      return Array.isArray(props.strokeColor) ? (_props$strokeColor$ = props.strokeColor[1]) !== null && _props$strokeColor$ !== void 0 ? _props$strokeColor$ : props.strokeColor[0] : props.strokeColor;
+    });
+    var fillColor1 = computed(() => {
+      if (!props.fillColor) return "transparent";
+      return Array.isArray(props.fillColor) ? props.fillColor[0] : props.fillColor;
+    });
+    var fillColor2 = computed(() => {
+      var _props$fillColor$;
+      if (!props.fillColor) return "transparent";
+      return Array.isArray(props.fillColor) ? (_props$fillColor$ = props.fillColor[1]) !== null && _props$fillColor$ !== void 0 ? _props$fillColor$ : props.fillColor[0] : props.fillColor;
+    });
+    var filledColor = computed(() => {
+      if (!props.fillColor) return "currentColor";
+      return Array.isArray(props.fillColor) ? props.fillColor[0] : props.fillColor;
+    });
+    var {
+      className,
+      style
+    } = useSizeProps(propsSize);
+    var finalCls = computed(() => ["t-icon", "t-icon-gift-filled", className.value]);
+    var finalStyle = computed(() => _objectSpread(_objectSpread({
+      fill: "none"
+    }, style.value), attrs.style));
+    var finalProps = computed(() => ({
+      class: finalCls.value,
+      style: finalStyle.value,
+      onClick: e => {
+        var _props$onClick;
+        return (_props$onClick = props.onClick) === null || _props$onClick === void 0 ? void 0 : _props$onClick.call(props, {
+          e
+        });
+      },
+      strokeColor1: strokeColor1.value,
+      strokeColor2: strokeColor2.value,
+      fillColor1: fillColor1.value,
+      fillColor2: fillColor2.value,
+      strokeWidth: props.strokeWidth || 2,
+      filledColor: filledColor.value
+    }));
+    return () => renderNode(element, finalProps.value);
+  }
+});
+
+export default giftFilled;
+//# sourceMappingURL=gift-filled.js.map

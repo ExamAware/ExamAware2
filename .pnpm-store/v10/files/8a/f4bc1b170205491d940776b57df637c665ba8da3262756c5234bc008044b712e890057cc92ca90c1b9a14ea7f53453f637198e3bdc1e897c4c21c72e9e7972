@@ -1,0 +1,45 @@
+{
+  "name": "@vuepress/plugin-active-header-links",
+  "version": "2.0.0-rc.118",
+  "description": "VuePress plugin - active header links",
+  "keywords": [
+    "vuepress-plugin",
+    "vuepress",
+    "plugin",
+    "active",
+    "links"
+  ],
+  "homepage": "https://ecosystem.vuejs.press/plugins/development/active-header-links.html",
+  "bugs": {
+    "url": "https://github.com/vuepress/ecosystem/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vuepress/ecosystem.git",
+    "directory": "plugins/development/plugin-active-header-links"
+  },
+  "license": "MIT",
+  "author": "meteorlxy",
+  "type": "module",
+  "exports": {
+    ".": "./lib/node/index.js",
+    "./client": "./lib/client/index.js",
+    "./package.json": "./package.json"
+  },
+  "main": "./lib/node/index.js",
+  "types": "./lib/node/index.d.ts",
+  "files": [
+    "lib"
+  ],
+  "dependencies": {
+    "@vueuse/core": "^14.0.0",
+    "vue": "^3.5.22"
+  },
+  "peerDependencies": {
+    "vuepress": "2.0.0-rc.26"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "4774aad325506b6ed08b0c18fbe35aab8f28c525"
+}

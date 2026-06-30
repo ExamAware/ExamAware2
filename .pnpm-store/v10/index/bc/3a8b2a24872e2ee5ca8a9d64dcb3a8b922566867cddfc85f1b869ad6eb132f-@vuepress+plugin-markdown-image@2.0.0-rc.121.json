@@ -1,0 +1,61 @@
+{
+  "name": "@vuepress/plugin-markdown-image",
+  "version": "2.0.0-rc.121",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883861285,
+      "integrity": "sha512-yu3nmzRem/6ZswYlICcbNbUetGNJj7XCiB8wzw/dIJeEcIyppzAhmT7rEi+Lnitnwo5Er6nJOnf43G14mhj2yw==",
+      "mode": 420,
+      "size": 1094
+    },
+    "lib/client/styles/figure.css": {
+      "checkedAt": 1780883866059,
+      "integrity": "sha512-nF9Cwz7o/TpGW1YVN/QRlNoPEJuOVM/p2fTeGVB/9oPCpEUm/Haw9KS16Yfuz76pg8nu1oSw6W2DIXkzIu/Wkg==",
+      "mode": 420,
+      "size": 175
+    },
+    "lib/client/styles/mark.css": {
+      "checkedAt": 1780883866060,
+      "integrity": "sha512-6+xLP2YumvR6rC2KPpyAM661aM7Xoq1Azp2hne5rTXOzh4wBo1OR7Iu5/D0OFIPHJpxHXing6F5FbpSyQOrgDA==",
+      "mode": 420,
+      "size": 301
+    },
+    "lib/node/index.js": {
+      "checkedAt": 1780883866060,
+      "integrity": "sha512-jVJifoS6YFym1BXfaspyPwFO7ONrz+xTE+IaPZRLcrNKF49G5xR0M3upsFDiTCWPeZy+cWPVr7i3jZj18OB6jw==",
+      "mode": 420,
+      "size": 857
+    },
+    "package.json": {
+      "checkedAt": 1780883866060,
+      "integrity": "sha512-bnTScgyCs+zK2N7Bnxx0u2jo2Xzo7RO/tyGuH/mKBpHG+YxnOM+ls8DmNO1eP6sTwP4/5QEyHksmdfABlDUQMA==",
+      "mode": 420,
+      "size": 1502
+    },
+    "lib/client/styles/figure.css.map": {
+      "checkedAt": 1780883866060,
+      "integrity": "sha512-iK9nB5qeX0M6I/IZaONoaa9dTyRIa3gFxd4L0YNWgnmvNYwGGO4jiXxKnquEuP7YoPSaEXoDPM5Dz1u4KW5j6w==",
+      "mode": 420,
+      "size": 390
+    },
+    "lib/node/index.js.map": {
+      "checkedAt": 1780883866061,
+      "integrity": "sha512-7v0OiuYbrQSPiXI5E1LcPl0vyj9MasZebGlS3Na4I7iccL3dGOlTBDHwTYt8mCvRVlOvQCJIPqRDmU/llYi/BQ==",
+      "mode": 420,
+      "size": 3371
+    },
+    "lib/client/styles/mark.css.map": {
+      "checkedAt": 1780883866061,
+      "integrity": "sha512-WI6e5mbJ9z3cw+djVuQxD8Nz2uUfuY8oYLXXqVzNXnmLlxmp2co3YFUMO+74U8HbHWu+YipAOBcMCJKzPNqWtQ==",
+      "mode": 420,
+      "size": 462
+    },
+    "lib/node/index.d.ts": {
+      "checkedAt": 1780883866061,
+      "integrity": "sha512-QVe6J35mugJkcsAzJct7ZU4uv254XzQJqIF+7vhCKjgmPmRiN4jjjcXjkmyp5OXFkSKcoXeLLT1WJY9KjqvPVA==",
+      "mode": 420,
+      "size": 1823
+    }
+  }
+}

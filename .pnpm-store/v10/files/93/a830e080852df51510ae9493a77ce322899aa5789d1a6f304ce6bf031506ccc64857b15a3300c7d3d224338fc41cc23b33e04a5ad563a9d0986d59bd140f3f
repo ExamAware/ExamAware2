@@ -1,0 +1,67 @@
+import { type PropType } from 'vue';
+import type { CodeLayoutConfig } from './CodeLayout';
+import { type CodeLayoutSplitNGridInternal, type CodeLayoutSplitNInstance } from './SplitLayout/SplitN';
+export interface CodeLayoutBaseInstance {
+    getRef: () => HTMLElement | undefined;
+    getSplitLayoutRef: () => CodeLayoutSplitNInstance | undefined;
+    saveGridLayoutDataToConfig: () => void;
+}
+declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<{
+    config: {
+        type: PropType<CodeLayoutConfig>;
+        required: true;
+    };
+    bottom: {
+        type: PropType<CodeLayoutSplitNGridInternal>;
+        required: false;
+    };
+    primary: {
+        type: PropType<CodeLayoutSplitNGridInternal>;
+        required: false;
+    };
+    secondary: {
+        type: PropType<CodeLayoutSplitNGridInternal>;
+        required: false;
+    };
+}, {
+    getRef: () => HTMLElement | undefined;
+    getSplitLayoutRef: () => CodeLayoutSplitNInstance | undefined;
+    saveGridLayoutDataToConfig: () => void;
+}, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+    layoutChanged: (...args: any[]) => void;
+}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
+    config: {
+        type: PropType<CodeLayoutConfig>;
+        required: true;
+    };
+    bottom: {
+        type: PropType<CodeLayoutSplitNGridInternal>;
+        required: false;
+    };
+    primary: {
+        type: PropType<CodeLayoutSplitNGridInternal>;
+        required: false;
+    };
+    secondary: {
+        type: PropType<CodeLayoutSplitNGridInternal>;
+        required: false;
+    };
+}>> & {
+    onLayoutChanged?: ((...args: any[]) => any) | undefined;
+}, {}, {}>, Partial<Record<any, (_: {}) => any>> & {
+    titleBarTop?(_: {}): any;
+    titleBarIcon?(_: {}): any;
+    titleBarMenu?(_: {}): any;
+    titleBarCenter?(_: {}): any;
+    titleBarRight?(_: {}): any;
+    titleBarBottom?(_: {}): any;
+    activityBar?(_: {}): any;
+    activityBarSecondary?(_: {}): any;
+    statusBar?(_: {}): any;
+}>;
+export default _default;
+type __VLS_WithTemplateSlots<T, S> = T & {
+    new (): {
+        $slots: S;
+    };
+};

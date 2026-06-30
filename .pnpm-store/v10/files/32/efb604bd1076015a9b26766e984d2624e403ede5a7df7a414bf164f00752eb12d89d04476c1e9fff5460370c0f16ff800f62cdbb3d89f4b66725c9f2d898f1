@@ -1,0 +1,277 @@
+/**
+ * tdesign v1.17.7
+ * (c) 2025 tdesign
+ * @license MIT
+ */
+
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+var _toConsumableArray = require('@babel/runtime/helpers/toConsumableArray');
+var treeStore = require('../../_chunks/dep-ba34f9a7.js');
+var Vue = require('vue');
+require('@babel/runtime/helpers/typeof');
+require('../../_chunks/dep-953a77eb.js');
+require('../../config-provider/hooks/useConfig.js');
+require('@babel/runtime/helpers/slicedToArray');
+require('../../_chunks/dep-cc66acf1.js');
+require('@babel/runtime/helpers/defineProperty');
+require('tdesign-icons-vue-next');
+require('../../checkbox/index.js');
+require('../../loading/index.js');
+require('@babel/runtime/helpers/asyncToGenerator');
+require('@babel/runtime/helpers/classCallCheck');
+require('@babel/runtime/helpers/createClass');
+require('@babel/runtime/regenerator');
+var pick = require('../../_chunks/dep-b5e1f81f.js');
+require('mitt');
+require('../../_chunks/dep-08a97e23.js');
+require('../../_chunks/dep-733b2b51.js');
+require('../../_chunks/dep-d45110a6.js');
+require('../../_chunks/dep-b3b464e8.js');
+require('../../_chunks/dep-05f89f0d.js');
+require('../../_chunks/dep-ace0b57c.js');
+require('../../_chunks/dep-71fa6bfc.js');
+require('../../_chunks/dep-87589faa.js');
+require('../../_chunks/dep-80a478d7.js');
+require('../../_chunks/dep-8adeee89.js');
+require('../../_chunks/dep-92e23f17.js');
+require('../../_chunks/dep-0ff616fe.js');
+require('../../_chunks/dep-5f52cd42.js');
+require('../../_chunks/dep-48f60c78.js');
+require('../../_chunks/dep-0813861e.js');
+require('../../_chunks/dep-f57bcb19.js');
+require('../../_chunks/dep-dc4bbc14.js');
+require('../../_chunks/dep-e27ea667.js');
+require('../../_chunks/dep-165ca38a.js');
+require('../../_chunks/dep-32412d92.js');
+require('../../_chunks/dep-a8a3d718.js');
+require('../../_chunks/dep-4d2ef282.js');
+require('../../_chunks/dep-929933ce.js');
+require('../../_chunks/dep-6b1f0ef8.js');
+require('../../_chunks/dep-ac11336c.js');
+require('../../_chunks/dep-11b67e11.js');
+require('../../_chunks/dep-72c4cc44.js');
+require('../../_chunks/dep-5d7e2375.js');
+require('../../_chunks/dep-94a7dc2d.js');
+require('../../_chunks/dep-8abdfb41.js');
+require('dayjs');
+require('../../_chunks/dep-54e566d9.js');
+require('../../_chunks/dep-591a72de.js');
+require('../../_chunks/dep-dcb859c6.js');
+require('../../_chunks/dep-cd8cfdc0.js');
+require('../../_chunks/dep-fd5a369e.js');
+require('../../_chunks/dep-990979bb.js');
+require('../../_chunks/dep-4ccaead1.js');
+require('../../_chunks/dep-6f2064e4.js');
+require('../../_chunks/dep-a55e8a08.js');
+require('../../_chunks/dep-01738d56.js');
+require('../../_chunks/dep-8b33876c.js');
+require('../../_chunks/dep-445924d5.js');
+require('../../_chunks/dep-422dd97f.js');
+require('../../_chunks/dep-427dabac.js');
+require('../../_chunks/dep-ee355a9a.js');
+require('../../checkbox/checkbox.js');
+require('../../checkbox/props.js');
+require('../../_chunks/dep-47c460dd.js');
+require('../../_chunks/dep-06276759.js');
+require('../../_chunks/dep-4fa46641.js');
+require('../../_chunks/dep-23f77e26.js');
+require('../../_chunks/dep-8382953f.js');
+require('../../_chunks/dep-ecaaae91.js');
+require('../../_chunks/dep-874d2900.js');
+require('../../_chunks/dep-bc848944.js');
+require('../../_chunks/dep-0b6215b5.js');
+require('../../_chunks/dep-c3dee00a.js');
+require('../../_chunks/dep-e8ff2c13.js');
+require('../../checkbox/consts/index.js');
+require('../../checkbox/hooks/useCheckboxLazyLoad.js');
+require('../../_chunks/dep-fb83a452.js');
+require('../../checkbox/hooks/useKeyboardEvent.js');
+require('../../_chunks/dep-6280a7f6.js');
+require('../../checkbox/group.js');
+require('../../checkbox/checkbox-group-props.js');
+require('../../_chunks/dep-3565d523.js');
+require('../../_chunks/dep-a58d79da.js');
+require('../../_chunks/dep-d62a674d.js');
+require('../../_chunks/dep-95261778.js');
+require('../../loading/plugin.js');
+require('../../_chunks/dep-237ed01f.js');
+require('../../loading/icon/gradient.js');
+require('../../_chunks/dep-55c70201.js');
+require('@babel/runtime/helpers/objectWithoutProperties');
+require('../../loading/props.js');
+require('../../_chunks/dep-9cc695aa.js');
+require('../../_chunks/dep-48de95ee.js');
+require('../../_chunks/dep-912c9727.js');
+require('../../_chunks/dep-0b8a4740.js');
+require('../../_chunks/dep-9ce6873a.js');
+require('../../_chunks/dep-779f6290.js');
+require('../../_chunks/dep-04599720.js');
+
+function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
+
+var _toConsumableArray__default = /*#__PURE__*/_interopDefaultLegacy(_toConsumableArray);
+
+function useTreeStore(state) {
+  var props = state.props,
+    context = state.context,
+    refProps = state.refProps;
+  var valueMode = props.valueMode,
+    filter = props.filter,
+    keys = props.keys;
+  var store = new treeStore.TreeStore({
+    valueMode: valueMode,
+    filter: filter
+  });
+  var tValue = state.vmValue[0];
+  var tActived = state.vmActived[0];
+  var tExpanded = state.vmExpanded[0];
+  var updateStoreConfig = function updateStoreConfig() {
+    var storeProps = pick.pick(props, ["expandAll", "expandLevel", "expandMutex", "expandParent", "activable", "activeMultiple", "disabled", "disableCheck", "checkable", "draggable", "checkStrictly", "load", "lazy", "valueMode", "filter", "allowFoldNodeOnFilter"]);
+    store.setConfig(storeProps);
+  };
+  var updateExpanded = function updateExpanded() {
+    var expandParent = props.expandParent;
+    if (!Array.isArray(tExpanded.value)) return;
+    var expandedMap = /* @__PURE__ */new Map();
+    tExpanded.value.forEach(function (val) {
+      expandedMap.set(val, true);
+      if (expandParent) {
+        var node = store.getNode(val);
+        if (node) {
+          node.getModel().getParents().forEach(function (tn) {
+            expandedMap.set(tn.value, true);
+          });
+        }
+      }
+    });
+    var expandedArr = Array.from(expandedMap.keys());
+    store.setExpanded(expandedArr);
+  };
+  var filterChanged = false;
+  var prevExpanded = null;
+  var expandFilterPath = function expandFilterPath() {
+    if (!props.allowFoldNodeOnFilter) return;
+    if (!filterChanged) return;
+    filterChanged = false;
+    if (props.filter) {
+      if (!prevExpanded) {
+        prevExpanded = store.getExpanded();
+      }
+      var pathValues = [];
+      var allNodes = store.getNodes();
+      allNodes.forEach(function (node) {
+        if (node.vmIsLocked) {
+          pathValues.push(node.value);
+        }
+      });
+      store.setExpanded(pathValues);
+    } else if (prevExpanded) {
+      store.replaceExpanded(prevExpanded);
+      prevExpanded = null;
+    }
+  };
+  var checkFilterExpand = function checkFilterExpand(newFilter, previousFilter) {
+    if (!props.allowFoldNodeOnFilter) return;
+    filterChanged = newFilter !== previousFilter;
+  };
+  var handleLoad = function handleLoad(info) {
+    var node = info.node;
+    var evtCtx = {
+      node: node.getModel()
+    };
+    if (Array.isArray(tValue.value) && tValue.value.length > 0) {
+      store.replaceChecked(tValue.value);
+    }
+    if (Array.isArray(tExpanded.value) && tExpanded.value.length > 0) {
+      store.replaceExpanded(tExpanded.value);
+    }
+    if (Array.isArray(tActived.value) && tActived.value.length > 0) {
+      store.replaceActived(tActived.value);
+    }
+    if (props !== null && props !== void 0 && props.onLoad) {
+      props === null || props === void 0 || props.onLoad(evtCtx);
+    }
+    context.emit("load", evtCtx);
+  };
+  var rebuild = function rebuild(list) {
+    store.reload(list || []);
+    store.refreshNodes();
+    if (Array.isArray(tValue.value)) {
+      store.setChecked(tValue.value);
+    }
+    updateExpanded();
+    if (Array.isArray(tActived.value)) {
+      store.setActived(tActived.value);
+    }
+    store.refreshState();
+  };
+  function initStore() {
+    store.setConfig({
+      keys: keys
+    });
+    updateStoreConfig();
+    store.append(props.data || []);
+    store.refreshNodes();
+    if (Array.isArray(tValue.value)) {
+      store.setChecked(tValue.value);
+    }
+    updateExpanded();
+    if (Array.isArray(tActived.value)) {
+      store.setActived(tActived.value);
+    }
+    store.emitter.on("load", handleLoad);
+    store.emitter.on("update", expandFilterPath);
+  }
+  initStore();
+  state.setStore(store);
+  Vue.watch(function () {
+    return _toConsumableArray__default["default"](tValue.value || []);
+  }, function (nVal) {
+    store.replaceChecked(nVal);
+  });
+  Vue.watch(function () {
+    return _toConsumableArray__default["default"](tExpanded.value || []);
+  }, function (nVal) {
+    store.replaceExpanded(nVal);
+  });
+  Vue.watch(function () {
+    return _toConsumableArray__default["default"](tActived.value || []);
+  }, function (nVal) {
+    store.replaceActived(nVal);
+  });
+  Vue.watch(refProps.filter, function (nVal, previousVal) {
+    checkFilterExpand(nVal, previousVal);
+  });
+  Vue.watch(refProps.keys, function (keys2) {
+    store.setConfig({
+      keys: keys2
+    });
+  });
+  Vue.watch(refProps.expandAll, function (nVal) {
+    if (nVal) {
+      var valueList = store.getNodes().filter(function (node) {
+        return Array.isArray(node.children) && node.children.length;
+      }).map(function (node) {
+        return node.value;
+      });
+      store.setExpanded(valueList);
+    } else {
+      store.replaceExpanded(prevExpanded);
+      prevExpanded = null;
+    }
+  });
+  return {
+    store: store,
+    rebuild: rebuild,
+    checkFilterExpand: checkFilterExpand,
+    updateStoreConfig: updateStoreConfig,
+    updateExpanded: updateExpanded,
+    expandFilterPath: expandFilterPath
+  };
+}
+
+exports["default"] = useTreeStore;
+//# sourceMappingURL=useTreeStore.js.map

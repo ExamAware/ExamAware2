@@ -1,0 +1,49 @@
+{
+  "name": "@commitlint/parse",
+  "version": "20.2.0",
+  "requiresBuild": false,
+  "files": {
+    "lib/index.js": {
+      "checkedAt": 1780883859834,
+      "integrity": "sha512-nihy7s6W2O0uSoBea9uq6xYRte0MEkJYD/ah4tJ7j+GWCx+iQoNr76enzkvIRKBUy3TaS3Kg5Cphg6KfkHM+AA==",
+      "mode": 420,
+      "size": 564
+    },
+    "package.json": {
+      "checkedAt": 1780883859834,
+      "integrity": "sha512-ND+kTsxaUFUs9120Lv3rb9JNFdanQAZLXLNCSNK0BujYH6GcZXB9V8fVo4r3OF6FvFwHiU/rs8nVIhOYbNkoUQ==",
+      "mode": 420,
+      "size": 1155
+    },
+    "lib/index.d.ts.map": {
+      "checkedAt": 1780883859834,
+      "integrity": "sha512-vfSbe4dfvg3l5fgfIM4IeLdXoXUb+mSDJfB7Yiuw5FOSK9L09gez6mWL1sLDpSVnx9SeKsiM2AYodd7rMRS/1Q==",
+      "mode": 420,
+      "size": 350
+    },
+    "lib/index.js.map": {
+      "checkedAt": 1780883859834,
+      "integrity": "sha512-QLpL7fGoo/yNppuJsq3ltv+qllYnab9DPEb2o9CQ7yAvMRT6U7tMHmkUgW02WM3kncLqRKZKJbxy1HJI1jaREg==",
+      "mode": 420,
+      "size": 591
+    },
+    "license.md": {
+      "checkedAt": 1780883859554,
+      "integrity": "sha512-Gd6hReKhspV9eKzmpFXEIz85f6nIx7nUtlC5469iDtUEcTqNh0tuBdyn00Y5XgSAtAXHDYfsnzbJBGtUcAPd/w==",
+      "mode": 420,
+      "size": 1087
+    },
+    "README.md": {
+      "checkedAt": 1780883859835,
+      "integrity": "sha512-jF29VfMjc+HxdbbHf0oB4EpWWj/N5tSa+qnaf+rBfGLa6Y74ziPR/zp+5O4PRx+iy2aTWtUy6AY5UT+vsOCB/A==",
+      "mode": 420,
+      "size": 589
+    },
+    "lib/index.d.ts": {
+      "checkedAt": 1780883859835,
+      "integrity": "sha512-5fjyqu/2jHIbeNefwy8ynBz7ZKehcxruL/x3XKlm0XajaFkVw5m6/fulzfxpQxqN2AGGvtFnSoqFs/xNFPYJUA==",
+      "mode": 420,
+      "size": 283
+    }
+  }
+}

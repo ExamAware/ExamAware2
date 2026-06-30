@@ -1,0 +1,121 @@
+{
+  "name": "electron",
+  "version": "39.2.7",
+  "requiresBuild": true,
+  "files": {
+    "abi_version": {
+      "checkedAt": 1780883824996,
+      "integrity": "sha512-0e80qe3yPJCWP467pk58fuv0Ous/2R02VKVwWrMaG5vy8mQSDkam6MxAHA9KvMlYnG4iLTOY/jZr0RqYSqL2Kw==",
+      "mode": 384,
+      "size": 3
+    },
+    "LICENSE": {
+      "checkedAt": 1780883824996,
+      "integrity": "sha512-P/u6LkzWifNiN49rD2BgVx9X4ijTdVvdMIKDvmy774wuhL61/Pc+DDyBzZRNAe4/zxQXM8TYs7AWLlQ+C58+Yw==",
+      "mode": 384,
+      "size": 1096
+    },
+    "cli.js": {
+      "checkedAt": 1780883824996,
+      "integrity": "sha512-jHw3TICWITesvP8bGgpKWoCzw2ISFY2yv+W7Wjs7sW3eXq678N6LZvVBGFL5Ixb58RY8zJrsHRtldBNOyPPGww==",
+      "mode": 457,
+      "size": 612
+    },
+    "index.js": {
+      "checkedAt": 1780883824996,
+      "integrity": "sha512-THDReIoJBkqhc7G+bGQg4C0dLE7EdrjIlaB9oifUEBqcgoN9g0crPCRCTnkaDhXJoqTFCwvwpNkuWiMyIjScrA==",
+      "mode": 384,
+      "size": 659
+    },
+    "install.js": {
+      "checkedAt": 1780883824997,
+      "integrity": "sha512-SBgYTaYm2n693f0ew3jQae+72liPxV1bk02MGMVF51zYPZzMYp3TamUGDVBU2GZYrU0x6sDUA+9WAd776uzufw==",
+      "mode": 384,
+      "size": 3172
+    },
+    "checksums.json": {
+      "checkedAt": 1780883824997,
+      "integrity": "sha512-SOcr27BZWB7M1sOogNSr0ExgAi3wERaNyqDnxDF1fEivHMerHpJ4a5Fze48ZTpfQqVnmV/k61QApl/MFe5Mh3Q==",
+      "mode": 384,
+      "size": 8126
+    },
+    "package.json": {
+      "checkedAt": 1780883824997,
+      "integrity": "sha512-85nNrAA0wkLYmCNzJt7yyNwwPenlNVp7UqNOgihW1SabRu+uC2utHFGfmA/KTh6y6lRnp2mKULMnVhkMnkJbfg==",
+      "mode": 384,
+      "size": 586
+    },
+    "README.md": {
+      "checkedAt": 1780883824997,
+      "integrity": "sha512-tAEKGkJ2YCoT4j9VeBXEtS18IjTzlvR3w+3cqrZqCxkOZP/J3sYb9oRFtGDuXqWG/kmtqcKiirC65XY0a7tzjA==",
+      "mode": 384,
+      "size": 4762
+    },
+    "electron.d.ts": {
+      "checkedAt": 1780883825001,
+      "integrity": "sha512-owzrcnsosAfejejcmK8pOG4bSYpmo0eJMHE4uZL35rH9miJK1ZmEnSmLMFDvDsSRkOPE9I0NiJMIuy3fgY02Kw==",
+      "mode": 384,
+      "size": 1065099
+    }
+  },
+  "sideEffects": {
+    "linux;x64;node24;deps=XMkd2ke8cQVQ9ENPdzJxl0jZJfwLjhqRC8VZKQwzbeE=": {
+      "added": {
+        "abi_version": {
+          "checkedAt": 1782781629893,
+          "integrity": "sha512-0e80qe3yPJCWP467pk58fuv0Ous/2R02VKVwWrMaG5vy8mQSDkam6MxAHA9KvMlYnG4iLTOY/jZr0RqYSqL2Kw==",
+          "mode": 420,
+          "size": 3
+        },
+        "LICENSE": {
+          "checkedAt": 1782781629893,
+          "integrity": "sha512-P/u6LkzWifNiN49rD2BgVx9X4ijTdVvdMIKDvmy774wuhL61/Pc+DDyBzZRNAe4/zxQXM8TYs7AWLlQ+C58+Yw==",
+          "mode": 420,
+          "size": 1096
+        },
+        "cli.js": {
+          "checkedAt": 1782781629893,
+          "integrity": "sha512-jHw3TICWITesvP8bGgpKWoCzw2ISFY2yv+W7Wjs7sW3eXq678N6LZvVBGFL5Ixb58RY8zJrsHRtldBNOyPPGww==",
+          "mode": 493,
+          "size": 612
+        },
+        "index.js": {
+          "checkedAt": 1782781629897,
+          "integrity": "sha512-THDReIoJBkqhc7G+bGQg4C0dLE7EdrjIlaB9oifUEBqcgoN9g0crPCRCTnkaDhXJoqTFCwvwpNkuWiMyIjScrA==",
+          "mode": 420,
+          "size": 659
+        },
+        "install.js": {
+          "checkedAt": 1782781629897,
+          "integrity": "sha512-SBgYTaYm2n693f0ew3jQae+72liPxV1bk02MGMVF51zYPZzMYp3TamUGDVBU2GZYrU0x6sDUA+9WAd776uzufw==",
+          "mode": 420,
+          "size": 3172
+        },
+        "checksums.json": {
+          "checkedAt": 1782781629893,
+          "integrity": "sha512-SOcr27BZWB7M1sOogNSr0ExgAi3wERaNyqDnxDF1fEivHMerHpJ4a5Fze48ZTpfQqVnmV/k61QApl/MFe5Mh3Q==",
+          "mode": 420,
+          "size": 8126
+        },
+        "package.json": {
+          "checkedAt": 1782781629898,
+          "integrity": "sha512-85nNrAA0wkLYmCNzJt7yyNwwPenlNVp7UqNOgihW1SabRu+uC2utHFGfmA/KTh6y6lRnp2mKULMnVhkMnkJbfg==",
+          "mode": 420,
+          "size": 586
+        },
+        "README.md": {
+          "checkedAt": 1782781629893,
+          "integrity": "sha512-tAEKGkJ2YCoT4j9VeBXEtS18IjTzlvR3w+3cqrZqCxkOZP/J3sYb9oRFtGDuXqWG/kmtqcKiirC65XY0a7tzjA==",
+          "mode": 420,
+          "size": 4762
+        },
+        "electron.d.ts": {
+          "checkedAt": 1782781629897,
+          "integrity": "sha512-owzrcnsosAfejejcmK8pOG4bSYpmo0eJMHE4uZL35rH9miJK1ZmEnSmLMFDvDsSRkOPE9I0NiJMIuy3fgY02Kw==",
+          "mode": 420,
+          "size": 1065099
+        }
+      }
+    }
+  }
+}

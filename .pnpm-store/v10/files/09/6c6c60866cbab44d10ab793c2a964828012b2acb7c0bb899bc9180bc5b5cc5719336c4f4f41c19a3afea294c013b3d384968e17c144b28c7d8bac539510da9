@@ -1,0 +1,1 @@
+@import'./vars.css';.fade-in-enter-active,.fade-in-leave-active{transition:all var(--transition-duration) var(--transition-ease-in-out) !important}.fade-in-enter-from,.fade-in-leave-to{opacity:0 !important}.fade-in-leave-from,.fade-in-enter-to{opacity:1}/*# sourceMappingURL=fade-in.css.map */

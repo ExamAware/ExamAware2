@@ -1,0 +1,47 @@
+.t-statistic {
+  display: inline-block;
+  font-size: var(--td-font-size-body-medium);
+  line-height: var(--td-line-height-body-medium);
+  color: var(--td-text-color-secondary);
+}
+.t-statistic-title {
+  font-size: var(--td-font-body-medium);
+  margin-bottom: var(--td-comp-margin-s);
+}
+.t-statistic-content {
+  display: inline-block;
+  color: var(--td-text-color-primary);
+  text-align: left;
+  white-space: nowrap;
+}
+.t-statistic-content-value {
+  font-size: var(--td-font-size-headline-medium);
+  line-height: var(--td-line-height-headline-medium);
+  font-family: TCloudNumber, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Hiragino Sans GB, Microsoft YaHei UI, Microsoft YaHei, Source Han Sans CN, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
+}
+.t-statistic-content-unit {
+  font-size: var(--td-font-size-body-medium);
+  margin-left: var(--td-comp-margin-xs);
+  font-family: TCloudNumber, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Hiragino Sans GB, Microsoft YaHei UI, Microsoft YaHei, Source Han Sans CN, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
+}
+.t-statistic-content-suffix {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--td-font-size-title-large);
+  margin-left: var(--td-comp-margin-s);
+}
+.t-statistic-content-prefix {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--td-font-size-title-large);
+  margin-right: var(--td-comp-margin-s);
+}
+.t-statistic-content-prefix .t-icon {
+  font-size: var(--td-font-size-title-large);
+}
+.t-statistic-extra {
+  margin-top: 8px;
+}
+.t-statistic-extra .t-space .t-space-item {
+  display: flex;
+}

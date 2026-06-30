@@ -1,0 +1,157 @@
+{
+  "name": "electron-builder",
+  "version": "26.0.12",
+  "requiresBuild": false,
+  "files": {
+    "out/builder.js": {
+      "checkedAt": 1780883839574,
+      "integrity": "sha512-uNqA008jKkLw2DhjVbyBhlCqu//g3QqYBzm4Ai2AdmS0IqZmqSKDeBGiB7fPbCC6q4HX3HrIvjQ7B2uYUIq/lg==",
+      "mode": 420,
+      "size": 9298
+    },
+    "cli.js": {
+      "checkedAt": 1780883839574,
+      "integrity": "sha512-5ejdZGnn5OHSZRBRNGDfwpyio0tLtMn2WTd/AdYk31TyMNPGDVTf5PBs6nn2ymFKQR50uzoq6rqrN937iAVy8w==",
+      "mode": 493,
+      "size": 90
+    },
+    "out/cli/cli.js": {
+      "checkedAt": 1780883839575,
+      "integrity": "sha512-T8078l0yatclG0W3psQDKWXHvxzgjsUWYphc0pEOyU1OYZN7ab0ayDiLdxvyY2wW76wvxDXt2Phe0uhB8XL50g==",
+      "mode": 420,
+      "size": 3555
+    },
+    "out/cli/create-self-signed-cert.js": {
+      "checkedAt": 1780883839575,
+      "integrity": "sha512-dIH7MdLhhAQb9O6iA4Z45oS/vFoqk+wNj3U8smwOYFs4zNNbCI5Hi4qZlH+1g+GzncCbU22VrmrIEZAifQ8k/Q==",
+      "mode": 420,
+      "size": 2440
+    },
+    "out/index.js": {
+      "checkedAt": 1780883839575,
+      "integrity": "sha512-SKRtGwvv2nnGd4vaIR1xH+pr8Dxm6WsmeB0B4IBixaqOoEi4wZqev2PtLMpsrVpxeKN55yfsP0XXGU1C/OZOpQ==",
+      "mode": 420,
+      "size": 3372
+    },
+    "install-app-deps.js": {
+      "checkedAt": 1780883839575,
+      "integrity": "sha512-u9fNcHwxD/aZdmLnIKvBXq0w6jlbt4e6FXnOCYUEvz3/rktMcfLfNtl81bOlN5G3GTv9e0neeeD8GzcsKSe+mQ==",
+      "mode": 493,
+      "size": 103
+    },
+    "out/cli/install-app-deps.js": {
+      "checkedAt": 1780883839576,
+      "integrity": "sha512-ETDENamKqcRIe+2PySOTs9lO6q+ZRR168NJuiwZu39w8QnrvB4sEeORJ0JnxDdXd+g0d/AGH7pkUAUx5SsY7Bw==",
+      "mode": 420,
+      "size": 3009
+    },
+    "out/publish.js": {
+      "checkedAt": 1780883839576,
+      "integrity": "sha512-MtJR/B+1frftrgnuqjcqARKGUw60lcwbHS2GOCF96ynUCuPC5Rn6rREwZ2jk6NnmDv4nTvC1GrNE9ybD/koblQ==",
+      "mode": 420,
+      "size": 4576
+    },
+    "out/cli/start.js": {
+      "checkedAt": 1780883839576,
+      "integrity": "sha512-kzMYv2ZGGJSROQBDQsx2qDXZJ2vc089E9EVCm0FCmmfi8Nr0VkgcXd01LCrJpjUIA4mkXOPOvWXoQTWoLxs0sg==",
+      "mode": 420,
+      "size": 245
+    },
+    "package.json": {
+      "checkedAt": 1780883839576,
+      "integrity": "sha512-mX7R/7+H3v0YSytuaUK9cFdek5ekWqdrlQbXM3gwOvA8MV72n/z5HJUOWWuS1H1hazijhOZ0Brhg9u62M4k3Rg==",
+      "mode": 420,
+      "size": 1680
+    },
+    "out/builder.js.map": {
+      "checkedAt": 1780883839577,
+      "integrity": "sha512-WHYDgoUpIMLr68zNpVGf4qFYzzDrIc/kCHvHiey72X1QEyVyBBuhGgDXuAVGmXJqYTdb2VwIHFozKsntnRnN/A==",
+      "mode": 420,
+      "size": 17453
+    },
+    "out/cli/cli.js.map": {
+      "checkedAt": 1780883839577,
+      "integrity": "sha512-ucQhjJenB50HaqcGIt1mOOfELVdl6b3Liw+h1zJi0IbMlzkBC2s3QoljpJqxwqg+Nso/9o5n5PUIKBK9Sp0J+Q==",
+      "mode": 420,
+      "size": 6142
+    },
+    "out/cli/create-self-signed-cert.js.map": {
+      "checkedAt": 1780883839577,
+      "integrity": "sha512-gK/cfQbMBlXySe9jUJvhwqZe6LrO8dRiK6XBzeV+boiisaytr6xM3uqcz0Xg6gd5JgGHnmA7ewXov4rIaehUkA==",
+      "mode": 420,
+      "size": 4182
+    },
+    "out/index.js.map": {
+      "checkedAt": 1780883839577,
+      "integrity": "sha512-MzjJVsnee+o6V5lcT/HPTF+59D/sDu1Lz6LNN2LcyIgQEv5cd7s59yZqPm5nEHvOR9c1oM3y8QXQdlcd+Ua+nw==",
+      "mode": 420,
+      "size": 2326
+    },
+    "out/cli/install-app-deps.js.map": {
+      "checkedAt": 1780883839578,
+      "integrity": "sha512-Yxp4nrVBq/9l9AkO8o1vvcGn639L7EVU+N0HUWgZbruD1/NXx0muKniCWJeBijUxNizZS9tv5z4tQOUJ75YVOg==",
+      "mode": 420,
+      "size": 4860
+    },
+    "out/publish.js.map": {
+      "checkedAt": 1780883839578,
+      "integrity": "sha512-zhcrJ3suOVRw8y4teTS3e8nRu3hXJF6E/VdoGirS+tAw6ly4RgFN/Yv6kGim2v6cHBKaARknt4WvJarwJ7svqQ==",
+      "mode": 420,
+      "size": 8110
+    },
+    "out/cli/start.js.map": {
+      "checkedAt": 1780883839578,
+      "integrity": "sha512-z7dfr54xnZSoQUK0XGcM7yBxYSP3FpvQxrx6MZrCN1fECvRf0dhNCDnjqWx19P7vTq0B6WoS1oP9NqzrifLdtw==",
+      "mode": 420,
+      "size": 372
+    },
+    "out/builder.d.ts": {
+      "checkedAt": 1780883839578,
+      "integrity": "sha512-aw0bxW2T+7URT+0UyUySKB39IP0CqAEtjaDEv42/zGAwZD4VzFN+RjYIoKbL/lJiQsG16T6lYzkNlqwwOhR4iA==",
+      "mode": 420,
+      "size": 1002
+    },
+    "out/cli/cli.d.ts": {
+      "checkedAt": 1780883839579,
+      "integrity": "sha512-61Xbva7rOIiUdLwpbjn9iIx2Dc7wzTcLsqRIy1uQqmm3nh6rYqkab0Us4HOMoFDf1HcRsIofZXyYWO+egawnlA==",
+      "mode": 420,
+      "size": 32
+    },
+    "out/cli/create-self-signed-cert.d.ts": {
+      "checkedAt": 1780883830734,
+      "integrity": "sha512-TuHIj4w/TkzTTLbAAzm/nW0Db/St469J6HHMiWa4THKdi3VJKsxkE8mmZKwApXlYIjrBPEIp2oxi6+alPk94Pw==",
+      "mode": 420,
+      "size": 11
+    },
+    "out/index.d.ts": {
+      "checkedAt": 1780883839579,
+      "integrity": "sha512-B4wBC4TpQhZTlnQD+lBqtMksH7TRqJ/8oQbHI8WDtw1andtokd1JYot5U5GlgKVFJVPb8svObT7w0cJ/zeByFg==",
+      "mode": 420,
+      "size": 1482
+    },
+    "out/cli/install-app-deps.d.ts": {
+      "checkedAt": 1780883839579,
+      "integrity": "sha512-61Xbva7rOIiUdLwpbjn9iIx2Dc7wzTcLsqRIy1uQqmm3nh6rYqkab0Us4HOMoFDf1HcRsIofZXyYWO+egawnlA==",
+      "mode": 420,
+      "size": 32
+    },
+    "out/publish.d.ts": {
+      "checkedAt": 1780883839579,
+      "integrity": "sha512-pWmWSYfMdXb/rQOZIpXxKPnUf0EZBVHbGMvLn3bYK1jjejaxBVIHieR/5SmN8aG99iUDgsfrPanwvC3fPlq8iQ==",
+      "mode": 420,
+      "size": 529
+    },
+    "out/cli/start.d.ts": {
+      "checkedAt": 1780883830734,
+      "integrity": "sha512-TuHIj4w/TkzTTLbAAzm/nW0Db/St469J6HHMiWa4THKdi3VJKsxkE8mmZKwApXlYIjrBPEIp2oxi6+alPk94Pw==",
+      "mode": 420,
+      "size": 11
+    },
+    "LICENSE": {
+      "checkedAt": 1780883829545,
+      "integrity": "sha512-25FDnTBl9VH/5AHXEX0oq5l9jfdRt0LVoi6DPGr20fTk3XUOF2jZCsDlK1LxRFsuWf7zwc52e7J3eGqYIHmabw==",
+      "mode": 420,
+      "size": 1084
+    }
+  }
+}

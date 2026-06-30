@@ -1,0 +1,91 @@
+{
+  "name": "eslint-plugin-oxlint",
+  "version": "1.36.0",
+  "description": "Turn off all rules already supported by oxlint",
+  "keywords": [
+    "eslint",
+    "oxc",
+    "oxlint",
+    "rules"
+  ],
+  "homepage": "https://github.com/oxc-project/eslint-plugin-oxlint",
+  "license": "MIT",
+  "author": "Dunqing <dengqing0821@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:oxc-project/eslint-plugin-oxlint.git"
+  },
+  "files": [
+    "dist",
+    "src",
+    "!**/*.snap",
+    "!**/*.spec.ts"
+  ],
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.mjs"
+    },
+    "./rules-by-category": {
+      "types": "./dist/generated/rules-by-category.d.ts",
+      "import": "./dist/generated/rules-by-category.mjs",
+      "require": "./dist/generated/rules-by-category.cjs",
+      "default": "./dist/generated/rules-by-category.mjs"
+    },
+    "./rules-by-scope": {
+      "types": "./dist/generated/rules-by-scope.d.ts",
+      "import": "./dist/generated/rules-by-scope.mjs",
+      "require": "./dist/generated/rules-by-scope.cjs",
+      "default": "./dist/generated/rules-by-scope.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "prepare": "husky",
+    "generate": "node --import @oxc-node/core/register ./scripts/generate.ts",
+    "build": "vite build",
+    "lint": "npx oxlint --tsconfig=tsconfig.json && npx eslint",
+    "format": "npx oxfmt",
+    "type-check": "tsc --noEmit",
+    "test": "vitest --reporter=verbose"
+  },
+  "dependencies": {
+    "jsonc-parser": "^3.3.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.13.0",
+    "@oxc-node/core": "^0.0.35",
+    "@types/node": "^25.0.0",
+    "@types/shelljs": "^0.10.0",
+    "@vitest/coverage-v8": "^4.0.0",
+    "dedent": "^1.5.3",
+    "eslint": "^9.13.0",
+    "eslint-plugin-unicorn": "^62.0.0",
+    "husky": "^9.1.6",
+    "jiti": "^2.4.2",
+    "lint-staged": "^16.0.0",
+    "memfs": "^4.14.0",
+    "oxfmt": "^0.21.0",
+    "oxlint": "^1.36.0",
+    "oxlint-tsgolint": "^0.1.5",
+    "scule": "^1.3.0",
+    "shelljs": "^0.10.0",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.10.0",
+    "vite": "^7.0.0",
+    "vite-plugin-dts": "^4.2.4",
+    "vitest": "^4.0.0"
+  },
+  "lint-staged": {
+    "*.{js,cjs,ts}": "eslint",
+    "*": "oxfmt ."
+  },
+  "volta": {
+    "node": "20.14.0"
+  },
+  "packageManager": "pnpm@10.26.2"
+}

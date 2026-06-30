@@ -1,0 +1,120 @@
+import { _ as _defineProperty } from '../_chunks/dep-2cb449a9.js';
+import { defineComponent, computed } from 'vue';
+import renderNode from '../utils/render-fn.js';
+import useSizeProps from '../utils/use-size-props.js';
+import '../style/css.js';
+import '../utils/use-common-classname.js';
+import '../utils/config-context.js';
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var element = {
+  "tag": "svg",
+  "attrs": {
+    "fill": "none",
+    "viewBox": "0 0 25 24",
+    "width": "1em",
+    "height": "1em"
+  },
+  "children": [{
+    "tag": "path",
+    "attrs": {
+      "fill": "props.filledColor",
+      "d": "M19.3175 3.05085L20.8863 2.26995L21.6672 0.701172L22.4481 2.26996L24.0169 3.05085L22.4481 3.83175L21.6672 5.40053L20.8863 3.83175L19.3175 3.05085Z"
+    }
+  }, {
+    "tag": "path",
+    "attrs": {
+      "fill": "props.filledColor",
+      "d": "M9.05475 3.71882L7.95764 1.51477L6.86054 3.71882L4.6565 4.81592L6.86054 5.91302L7.95764 8.11706L9.05475 5.91302L11.2588 4.81592L9.05475 3.71882Z"
+    }
+  }, {
+    "tag": "path",
+    "attrs": {
+      "fill": "props.filledColor",
+      "d": "M17.5544 13.3825L12.4057 8.23379L2.14819 18.4913L7.29695 23.64L17.5544 13.3825Z"
+    }
+  }, {
+    "tag": "path",
+    "attrs": {
+      "fill": "props.filledColor",
+      "d": "M22.3861 8.55085L17.2373 3.4021L13.8201 6.81934L18.9688 11.9681L22.3861 8.55085Z"
+    }
+  }]
+};
+var filter2Filled = defineComponent({
+  name: "Filter2FilledIcon",
+  props: {
+    size: {
+      type: String
+    },
+    onClick: {
+      type: Function
+    },
+    fillColor: {
+      type: [Array, String]
+    },
+    strokeColor: {
+      type: [Array, String]
+    },
+    strokeWidth: {
+      type: Number
+    }
+  },
+  setup(props, _ref) {
+    var {
+      attrs
+    } = _ref;
+    var propsSize = computed(() => props.size);
+    var strokeColor1 = computed(() => {
+      if (!props.strokeColor) return "currentColor";
+      return Array.isArray(props.strokeColor) ? props.strokeColor[0] : props.strokeColor;
+    });
+    var strokeColor2 = computed(() => {
+      var _props$strokeColor$;
+      if (!props.strokeColor) return "currentColor";
+      return Array.isArray(props.strokeColor) ? (_props$strokeColor$ = props.strokeColor[1]) !== null && _props$strokeColor$ !== void 0 ? _props$strokeColor$ : props.strokeColor[0] : props.strokeColor;
+    });
+    var fillColor1 = computed(() => {
+      if (!props.fillColor) return "transparent";
+      return Array.isArray(props.fillColor) ? props.fillColor[0] : props.fillColor;
+    });
+    var fillColor2 = computed(() => {
+      var _props$fillColor$;
+      if (!props.fillColor) return "transparent";
+      return Array.isArray(props.fillColor) ? (_props$fillColor$ = props.fillColor[1]) !== null && _props$fillColor$ !== void 0 ? _props$fillColor$ : props.fillColor[0] : props.fillColor;
+    });
+    var filledColor = computed(() => {
+      if (!props.fillColor) return "currentColor";
+      return Array.isArray(props.fillColor) ? props.fillColor[0] : props.fillColor;
+    });
+    var {
+      className,
+      style
+    } = useSizeProps(propsSize);
+    var finalCls = computed(() => ["t-icon", "t-icon-filter-2-filled", className.value]);
+    var finalStyle = computed(() => _objectSpread(_objectSpread({
+      fill: "none"
+    }, style.value), attrs.style));
+    var finalProps = computed(() => ({
+      class: finalCls.value,
+      style: finalStyle.value,
+      onClick: e => {
+        var _props$onClick;
+        return (_props$onClick = props.onClick) === null || _props$onClick === void 0 ? void 0 : _props$onClick.call(props, {
+          e
+        });
+      },
+      strokeColor1: strokeColor1.value,
+      strokeColor2: strokeColor2.value,
+      fillColor1: fillColor1.value,
+      fillColor2: fillColor2.value,
+      strokeWidth: props.strokeWidth || 2,
+      filledColor: filledColor.value
+    }));
+    return () => renderNode(element, finalProps.value);
+  }
+});
+
+export default filter2Filled;
+//# sourceMappingURL=filter-2-filled.js.map

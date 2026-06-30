@@ -1,0 +1,109 @@
+{
+  "name": "7zip-bin",
+  "version": "5.2.0",
+  "requiresBuild": false,
+  "files": {
+    "linux/arm/7za": {
+      "checkedAt": 1780883842750,
+      "integrity": "sha512-5nyxg+Tn+O4w18qOM1dXOs9sBPoxQVhi11cDqVNuHEbCo0D0tvigYhOgXYAtDNiwRNHoTVGk45IRiWuj0fn7XQ==",
+      "mode": 420,
+      "size": 1006780
+    },
+    "linux/arm64/7za": {
+      "checkedAt": 1780883842754,
+      "integrity": "sha512-AsRH20eAE+jURSvgFyIszSYdaoGMKOIQv6yMTC7SysoWwLi8gpCvX91hB33kP6NssBIAdgknlxQFFkDdJ2vhvg==",
+      "mode": 420,
+      "size": 1155640
+    },
+    "linux/ia32/7za": {
+      "checkedAt": 1780883842759,
+      "integrity": "sha512-Ena/+EMXeg1Ma27b5Ly6JriBZIU/16UY1q3BFOH4fQHOPv48uPPoqDNVs3ibf02lMjGg6ZTgMUuOOPzuIOZ04Q==",
+      "mode": 420,
+      "size": 1638192
+    },
+    "linux/x64/7za": {
+      "checkedAt": 1780883842764,
+      "integrity": "sha512-eWGIY1Jxy9fb1qfzfLTU1bOUyKMC3GIAjEC0vlBzgpJe64pVDKEegceR1dvaI4+V3t7L3Q2t34SQfE+jqbHKWQ==",
+      "mode": 420,
+      "size": 1457384
+    },
+    "mac/arm64/7za": {
+      "checkedAt": 1780883842767,
+      "integrity": "sha512-uFDeDh6F2uY+pLhXEp7B6wvLfq48IQCp+mANLV9Nm8jaoNB+FIoqVweeVJamgBPANyWsjdOjkxHlFmDyfSnR3g==",
+      "mode": 420,
+      "size": 988208
+    },
+    "mac/x64/7za": {
+      "checkedAt": 1780883842777,
+      "integrity": "sha512-X6hvbsUODy+ofsfPoOmM8r/hWANeWvAk4BfM5N2zOupjEAjkMyjmBJ4PlejGPayLHgPTyUmzStKj6Uq5ecrQ4A==",
+      "mode": 420,
+      "size": 2941888
+    },
+    "win/arm64/7za.exe": {
+      "checkedAt": 1780883842781,
+      "integrity": "sha512-1r7I1xtnFqKOHDmeOcFlKzVHEdgIHswJdGGE3PCiiqsRFExbiTzT2XVWRBGSk1jXqK+MEatF1BXoZLXL5b8UwQ==",
+      "mode": 420,
+      "size": 1089024
+    },
+    "win/ia32/7za.exe": {
+      "checkedAt": 1780883842784,
+      "integrity": "sha512-BBOt7MVWDdsYEz7scLOnF9gnOPMEvb5utuLa2a2lcxTGC71IrAqpSK93rnb31SKtpPYIn/+riPiChyxWvRLKIA==",
+      "mode": 420,
+      "size": 792064
+    },
+    "win/x64/7za.exe": {
+      "checkedAt": 1780883842788,
+      "integrity": "sha512-VElJ8SE4F1mf2wnbuYNK7rNws/YiXD2DWil5ewBr02qje4okaiIgQnf0DThloBvI0CmlMdF9a7Q9nd09tzcFgA==",
+      "mode": 420,
+      "size": 1231360
+    },
+    "index.js": {
+      "checkedAt": 1780883842788,
+      "integrity": "sha512-Dzss4HTt4CB5vatCKfbU3tXrfsZFRsO58QMRSquzUJP+z9BGd6CoTTaR+0m66KbFSJzulGx/X0uGrsPpZDTfrA==",
+      "mode": 420,
+      "size": 500
+    },
+    "package.json": {
+      "checkedAt": 1780883842789,
+      "integrity": "sha512-MeBq7z/n/w5ul8jMTX2GZq1f1zAnm4B+RDp1mx1jbRdDlllaDEVBfRent9KLrdPK03Dkx2AmS9xHdzCovzoOYg==",
+      "mode": 420,
+      "size": 297
+    },
+    "README.md": {
+      "checkedAt": 1780883842789,
+      "integrity": "sha512-b4MNDmNq7mjSjYfZ4S4Vs4e2v830DLtyzjnUx0TSEC1Xw1pPstU02F2fmDfgzEjCdoX8mzJldLjDlQAh13INOA==",
+      "mode": 420,
+      "size": 27
+    },
+    "7x.sh": {
+      "checkedAt": 1780883842789,
+      "integrity": "sha512-JYRLeXXVVntw15M2k0IhG6xc610X/ufMegpqCiuNQvQYgRlUSSfagc2IwRX62dCZk/LvYe4ijtFvwg4KsyNIKg==",
+      "mode": 420,
+      "size": 235
+    },
+    "linux/x64/build.sh": {
+      "checkedAt": 1780883842789,
+      "integrity": "sha512-kU0tqUcA48kZdNpxsWNm38iXKtWe1kcZxOt4Baie4+0bEnEqKSyccxZM25+d9vbPqEfrEjOH7UmSBdkVfNvmXw==",
+      "mode": 420,
+      "size": 266
+    },
+    "linux/x64/do-build.sh": {
+      "checkedAt": 1780883842790,
+      "integrity": "sha512-zRfHWbHngAJg63C+/TfCc8eLNMRCgCkNYNQG7+ChdMs0pye8LPQuj7gLtlkkrEBRdb/2nzTBFVJ+vFc6akMLQg==",
+      "mode": 420,
+      "size": 646
+    },
+    "index.d.ts": {
+      "checkedAt": 1780883842790,
+      "integrity": "sha512-ZIyK1uy2JbagLgg4w8qvplsogH4VIBh2NDQELSvTJRpxX0u6j+F63aG5jceCii/r4+aT3fcs5q9F7o1GcplmHw==",
+      "mode": 420,
+      "size": 56
+    },
+    "LICENSE.txt": {
+      "checkedAt": 1780883842790,
+      "integrity": "sha512-ofLWsN3IrPiNKnc8do5fd4KbnT/WzQStmH34pO4VMmHem6u39Iep4Mo8nIrMr9LeCJBuCuWu4fHGO5aWgIchFA==",
+      "mode": 420,
+      "size": 1087
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "name": "giscus",
+  "version": "1.6.0",
+  "requiresBuild": false,
+  "files": {
+    "package.json": {
+      "checkedAt": 1780883863862,
+      "integrity": "sha512-G1/2Jr8sCqRk8pBakIAjWriLmH2dHNGpC7BzrHgN3+Y/evDvD3z+Uv6LX11FNFYl8DZbA+5G23HCWrK4YLjvxA==",
+      "mode": 420,
+      "size": 978
+    },
+    "README.md": {
+      "checkedAt": 1780883863862,
+      "integrity": "sha512-FMc67q9l0edMNbZmEO1OKWEd/KdHlj7dHmbLcdn3qCyRqTzERrf0aLEjN+i714dyozjafUjk/Fkqnio7fnf7jQ==",
+      "mode": 420,
+      "size": 140
+    },
+    "dist/giscus.mjs": {
+      "checkedAt": 1780883863863,
+      "integrity": "sha512-2MuTCKuCO98nTi712LhVTCpnCoODscJLDXZ0qnxY8IYHye6O3c7ufiUTai4mxQnBJfbpHLBfFCUDL8/BcGJ43A==",
+      "mode": 420,
+      "size": 7761
+    },
+    "types/giscus.d.ts": {
+      "checkedAt": 1780883863863,
+      "integrity": "sha512-CiNfGUPWn481f8aO1osMcm/CM0NgzLZAnpt2zXBy0RHZ6jnveTP5qVnYVMLXfC8aNEzBlBhNXk42WkL2VXAqqw==",
+      "mode": 420,
+      "size": 3154
+    },
+    "types/types.d.ts": {
+      "checkedAt": 1780883863863,
+      "integrity": "sha512-IFIYmAmrQ6zs1zeHMtHHocV1XanKn/cI9asbWzWUKgNXefB+TDapnK2iisHErqn8IrsA1sIpPWe84FN9z8RLZQ==",
+      "mode": 420,
+      "size": 1144
+    }
+  }
+}

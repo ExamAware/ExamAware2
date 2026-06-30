@@ -1,0 +1,104 @@
+import { type PropType } from 'vue';
+declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<{
+    /**
+     * The content of the tooltip.
+     */
+    content: {
+        type: StringConstructor;
+        default: string;
+    };
+    /**
+     * Whether to enable the tooltip.
+     */
+    enable: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    /**
+     * The direction of the tooltip.
+     *
+     * Default is 'right'.
+     *
+     * * mouse: follow the mouse position and no arrow.
+     */
+    direction: {
+        type: PropType<"left" | "right" | "top" | "bottom" | "mouse">;
+        default: string;
+    };
+    /**
+     * The teleport target of the tooltip.
+     *
+     * Default is 'body'.
+     */
+    teleport: {
+        type: StringConstructor;
+        default: string;
+    };
+    /**
+     * The main direction offset of the tooltip. (px)
+     *
+     * Default is 5.
+     */
+    offset: {
+        type: NumberConstructor;
+        default: number;
+    };
+}, {}, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
+    /**
+     * The content of the tooltip.
+     */
+    content: {
+        type: StringConstructor;
+        default: string;
+    };
+    /**
+     * Whether to enable the tooltip.
+     */
+    enable: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    /**
+     * The direction of the tooltip.
+     *
+     * Default is 'right'.
+     *
+     * * mouse: follow the mouse position and no arrow.
+     */
+    direction: {
+        type: PropType<"left" | "right" | "top" | "bottom" | "mouse">;
+        default: string;
+    };
+    /**
+     * The teleport target of the tooltip.
+     *
+     * Default is 'body'.
+     */
+    teleport: {
+        type: StringConstructor;
+        default: string;
+    };
+    /**
+     * The main direction offset of the tooltip. (px)
+     *
+     * Default is 5.
+     */
+    offset: {
+        type: NumberConstructor;
+        default: number;
+    };
+}>>, {
+    direction: "left" | "right" | "top" | "bottom" | "mouse";
+    content: string;
+    enable: boolean;
+    teleport: string;
+    offset: number;
+}, {}>, {
+    default?(_: {}): any;
+}>;
+export default _default;
+type __VLS_WithTemplateSlots<T, S> = T & {
+    new (): {
+        $slots: S;
+    };
+};

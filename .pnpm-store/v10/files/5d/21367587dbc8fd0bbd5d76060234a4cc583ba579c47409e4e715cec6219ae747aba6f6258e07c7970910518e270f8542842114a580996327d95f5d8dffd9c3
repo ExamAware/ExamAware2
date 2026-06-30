@@ -1,0 +1,27 @@
+{
+    "name": "@types/dom-webcodecs",
+    "version": "0.1.18",
+    "description": "TypeScript definitions for dom-webcodecs",
+    "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/dom-webcodecs",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "Ben Wagner",
+            "githubUsername": "dogben",
+            "url": "https://github.com/dogben"
+        }
+    ],
+    "main": "",
+    "types": "index.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/dom-webcodecs"
+    },
+    "scripts": {},
+    "dependencies": {},
+    "peerDependencies": {},
+    "typesPublisherContentHash": "f5d40972699d9dd9351294d3be0f6b0fdaa7fbc7a49f1f3cd186f94fd1d71cda",
+    "typeScriptVersion": "5.8",
+    "nonNpm": true
+}

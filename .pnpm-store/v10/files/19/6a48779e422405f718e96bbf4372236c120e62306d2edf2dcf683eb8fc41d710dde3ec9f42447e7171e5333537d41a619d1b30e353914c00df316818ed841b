@@ -1,0 +1,1 @@
+{"version":3,"file":"isActiveSidebarItem.d.ts","sourceRoot":"","sources":["../../../../src/client/utils/sidebar/isActiveSidebarItem.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,6BAA6B,EAAE,MAAM,iBAAiB,CAAC;AAGrE,OAAO,KAAK,EAAE,WAAW,EAAE,MAAM,6BAA6B,CAAC;AAG/D,eAAO,MAAM,mBAAmB,GAC9B,OAAO,6BAA6B,EACpC,MAAM,WAAW,KAChB,OAI4B,CAAC"}

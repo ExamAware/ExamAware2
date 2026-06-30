@@ -1,8 +1,6 @@
 <template>
   <div class="exam-table-row" :class="{ 'is-current': isCurrent }">
-    <div class="cell cell-date">
-      <template v-if="date">{{ date }} {{ period }}</template>
-    </div>
+    <div class="cell cell-period">{{ period }}</div>
     <div class="cell cell-subject">{{ subject }}</div>
     <div class="cell cell-time">{{ startTime }}</div>
     <div class="cell cell-time">{{ endTime }}</div>
@@ -16,7 +14,6 @@
 import { computed } from 'vue';
 
 export interface ExamInfoItemProps {
-  date: string;
   period: string;
   subject: string;
   startTime: string;
@@ -46,10 +43,10 @@ const statusClass = computed(() => {
 <style scoped>
 .exam-table-row {
   display: grid;
-  grid-template-columns: 1fr 2fr 1.2fr 1.2fr 1fr;
+  grid-template-columns: 0.6fr 1.6fr 1fr 1fr 0.8fr;
   align-items: center;
-  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.5rem);
-  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.6rem) 0;
+  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.4rem);
+  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.45rem) 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -59,16 +56,16 @@ const statusClass = computed(() => {
 
 .cell {
   color: rgba(255, 255, 255, 0.9);
-  font-size: calc(var(--ui-scale, 1) * 1.3rem);
+  font-size: calc(var(--ui-scale, 1) * 1.2rem);
   font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.cell-date {
-  color: rgba(255, 255, 255, 0.75);
-  font-family: 'TCloudNumber', 'MiSans', monospace;
+.cell-period {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: calc(var(--ui-scale, 1) * 1.1rem);
 }
 
 .cell-subject {
@@ -87,10 +84,10 @@ const statusClass = computed(() => {
 }
 
 .status-badge {
-  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.25rem)
-    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.75rem);
+  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.2rem)
+    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.6rem);
   border-radius: calc(var(--ui-scale, 1) * 4px);
-  font-size: calc(var(--ui-scale, 1) * 1.1rem);
+  font-size: calc(var(--ui-scale, 1) * 1rem);
   font-weight: 600;
   white-space: nowrap;
   line-height: 1.2;
@@ -107,16 +104,16 @@ const statusClass = computed(() => {
 }
 
 .status-pending {
-  background: rgba(227, 115, 24, 0.2);
-  color: #e37318;
+  background: rgba(255, 152, 0, 0.2);
+  color: #ff9800;
 }
 
 .exam-table-row.is-current {
   background: rgba(255, 255, 255, 0.06);
   border-radius: calc(var(--ui-scale, 1) * 6px);
-  margin: 0 calc(var(--ui-scale, 1) * var(--density-scale, 1) * -0.5rem);
-  padding-left: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.5rem);
-  padding-right: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.5rem);
+  margin: 0 calc(var(--ui-scale, 1) * var(--density-scale, 1) * -0.4rem);
+  padding-left: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.4rem);
+  padding-right: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 0.4rem);
 }
 
 .exam-table-row.is-current .cell-subject {

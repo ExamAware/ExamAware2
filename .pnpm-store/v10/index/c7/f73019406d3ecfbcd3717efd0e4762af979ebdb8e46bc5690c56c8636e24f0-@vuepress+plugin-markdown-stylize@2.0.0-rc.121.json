@@ -1,0 +1,37 @@
+{
+  "name": "@vuepress/plugin-markdown-stylize",
+  "version": "2.0.0-rc.121",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883861285,
+      "integrity": "sha512-yu3nmzRem/6ZswYlICcbNbUetGNJj7XCiB8wzw/dIJeEcIyppzAhmT7rEi+Lnitnwo5Er6nJOnf43G14mhj2yw==",
+      "mode": 420,
+      "size": 1094
+    },
+    "lib/node/index.js": {
+      "checkedAt": 1780883866744,
+      "integrity": "sha512-SXNcvTryQDsq/dYG1ZTTR1OTDnk3zShxqZrgPHFRijMvoxMyXnsqFa7HWz64+UC0KTwdUz3fJOkkyXc01BmRug==",
+      "mode": 420,
+      "size": 923
+    },
+    "package.json": {
+      "checkedAt": 1780883866745,
+      "integrity": "sha512-lkIJs9u4LpYFfA+7c3olK9iyYTeOgimfyV/V8oxIlvVgaGAqbBWYO4PEdIP14igvPfKjFDIexJIRhCy9wKZmXA==",
+      "mode": 420,
+      "size": 1489
+    },
+    "lib/node/index.js.map": {
+      "checkedAt": 1780883866745,
+      "integrity": "sha512-0rgIk1XSVdVzQVtdvtlLL4awX2JhBxQRCVPhxomTNkw7abJbZDhVSTanaSBuyeSubZ5/KH+Ogc/s4bt2aM+t2A==",
+      "mode": 420,
+      "size": 3393
+    },
+    "lib/node/index.d.ts": {
+      "checkedAt": 1780883866745,
+      "integrity": "sha512-bS5WMQhM1rsuziAP/J5CYMK4JRnUeC3whNwxTD0j915uA77js2ItSwI29+VOdOfj/g3FJl15XPO4IikIYG81TQ==",
+      "mode": 420,
+      "size": 1962
+    }
+  }
+}

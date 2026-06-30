@@ -1,0 +1,78 @@
+@use "sass:color";
+@use "sass:list";
+
+.vp-tag-list {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+
+  padding-inline-start: 0;
+
+  list-style: none;
+}
+
+.vp-tag-item {
+  display: inline-block;
+  margin: 4px 6px;
+}
+
+.vp-tag {
+  position: relative;
+
+  display: inline-block;
+  vertical-align: middle;
+
+  overflow: hidden;
+
+  min-width: 24px;
+  padding: 3px 8px;
+  border-radius: 8px;
+
+  background: var(--vp-c-grey-soft);
+  color: var(--vp-c-text);
+  box-shadow: 0 1px 6px 0 var(--vp-c-shadow);
+
+  font-size: 12px;
+  text-align: center;
+  overflow-wrap: anywhere;
+
+  cursor: pointer;
+
+  transition:
+    background var(--vp-t-color),
+    box-shadow var(--vp-t-transform),
+    transform var(--vp-t-transform);
+
+  &:hover {
+    box-shadow: 0 1px 4px 0 var(--vp-c-shadow);
+    cursor: pointer;
+  }
+
+  &.active {
+    box-shadow: 0 1px 4px 0 var(--vp-c-shadow);
+    transform: scale(1.05);
+  }
+
+  a {
+    color: inherit;
+  }
+
+  @each $color in hope-config.$colors {
+    $index: list.index(hope-config.$colors, $color) - 1;
+
+    &.color#{$index} {
+      background: color.scale($color, $lightness: 35%);
+
+      [data-theme="dark"] & {
+        background: color.scale($color, $lightness: -30%);
+      }
+    }
+  }
+}
+
+.vp-tag-count {
+  margin-inline-start: 0.5em;
+}

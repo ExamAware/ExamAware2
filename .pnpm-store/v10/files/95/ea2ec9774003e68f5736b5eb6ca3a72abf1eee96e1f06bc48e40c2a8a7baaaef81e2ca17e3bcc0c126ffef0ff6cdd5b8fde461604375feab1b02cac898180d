@@ -1,0 +1,46 @@
+{
+  "name": "@commitlint/config-conventional",
+  "type": "module",
+  "version": "20.2.0",
+  "description": "Shareable commitlint config enforcing conventional commits",
+  "main": "lib/index.js",
+  "files": [
+    "lib/"
+  ],
+  "scripts": {
+    "deps": "dep-check",
+    "pkg": "pkg-check"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/conventional-changelog/commitlint.git",
+    "directory": "@commitlint/config-conventional"
+  },
+  "keywords": [
+    "conventional-changelog",
+    "commitlint",
+    "commitlint-config",
+    "angular"
+  ],
+  "author": "Mario Nebl <hello@herebecode.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/conventional-changelog/commitlint/issues"
+  },
+  "homepage": "https://commitlint.js.org/",
+  "engines": {
+    "node": ">=v18"
+  },
+  "devDependencies": {
+    "@commitlint/lint": "^20.2.0",
+    "@commitlint/utils": "^20.0.0"
+  },
+  "dependencies": {
+    "@commitlint/types": "^20.2.0",
+    "conventional-changelog-conventionalcommits": "^7.0.2"
+  },
+  "gitHead": "ddad9b44d6dd98b983f338bee1ff44dfa9dc1ab1"
+}

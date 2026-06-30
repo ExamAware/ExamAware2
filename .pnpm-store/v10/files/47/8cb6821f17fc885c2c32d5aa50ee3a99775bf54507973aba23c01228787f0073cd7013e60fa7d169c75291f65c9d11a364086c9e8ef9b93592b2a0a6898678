@@ -1,0 +1,126 @@
+.vp-pagination {
+  margin: 1.25rem 0 0.75rem;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 2;
+}
+
+.vp-pagination-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-evenly;
+
+  user-select: none;
+}
+
+.vp-pagination-number {
+  display: flex;
+  align-items: stretch;
+
+  overflow: hidden;
+
+  height: 30px;
+  margin: 0 0.5rem;
+  border: 1px solid var(--vp-c-border);
+  border-radius: 0.25rem;
+
+  div {
+    position: relative;
+
+    padding: 0 0.5rem;
+
+    background: var(--vp-c-bg);
+    color: var(--vp-c-accent);
+
+    cursor: pointer;
+
+    &::before {
+      content: " ";
+
+      position: absolute;
+      inset-inline-start: 0;
+      top: 0;
+      bottom: 0;
+
+      width: 1px;
+
+      background: var(--vp-c-border);
+    }
+
+    &:first-child::before {
+      background: transparent;
+    }
+
+    &:hover {
+      color: var(--vp-c-accent-hover);
+    }
+
+    &.active {
+      background: var(--vp-c-accent-bg);
+      color: var(--vp-c-white);
+
+      &::before {
+        background: var(--vp-c-accent-bg);
+      }
+    }
+
+    &.active + div::before {
+      background: var(--vp-c-accent-bg);
+    }
+
+    &.prev,
+    &.next {
+      font-size: 13px;
+      line-height: 30px;
+    }
+
+    &.active,
+    &.ellipsis {
+      cursor: default;
+    }
+  }
+}
+
+.vp-pagination-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.5rem;
+
+  input {
+    width: 3.5rem;
+    margin: 6px 5px;
+    border: 1px solid var(--vp-c-border);
+    border-radius: 0.25em;
+
+    background: var(--vp-c-bg);
+    color: var(--vp-c-text);
+    outline: none;
+
+    line-height: 2;
+    text-align: center;
+  }
+}
+
+.vp-pagination-button {
+  overflow: hidden;
+
+  padding: 0 0.75em;
+  border: 1px solid var(--vp-c-border);
+  border-radius: 0.25em;
+
+  background: var(--vp-c-bg);
+  color: var(--vp-c-accent);
+  outline: none;
+
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 2;
+
+  cursor: pointer;
+
+  &:hover {
+    color: var(--vp-c-accent-hover);
+  }
+}

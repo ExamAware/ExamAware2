@@ -1,0 +1,667 @@
+{
+  "name": "@electron/node-gyp",
+  "version": "10.2.0-electron.1",
+  "requiresBuild": false,
+  "files": {
+    "gyp/gyp": {
+      "checkedAt": 1780883840907,
+      "integrity": "sha512-sj95hhPXkFXKefEYzJOLfiadGgoxaoAiED5AlwJR9h2Fw/j+eJL1K79OAoqbBNbYcfhi5t3aAuwEcI3q6RLVeQ==",
+      "mode": 493,
+      "size": 240
+    },
+    "gyp/LICENSE": {
+      "checkedAt": 1780883840903,
+      "integrity": "sha512-mt/hljcSed2bfMzP36/E+Kufk/1FgqDG+79MUt++ST+C276arpETwa/nOuX0Cstt59tXSlyk54LrePs37qyRcw==",
+      "mode": 420,
+      "size": 1537
+    },
+    "gyp/pylib/packaging/LICENSE": {
+      "checkedAt": 1780883840923,
+      "integrity": "sha512-HmnIlVj/455cHrtnKMTw62AjVjx6fzG1QXqO/MkGN40uKvew4GpmmA+6q3mWrrKuHqORj9vl/8w/d+qIimjvvA==",
+      "mode": 420,
+      "size": 197
+    },
+    "LICENSE": {
+      "checkedAt": 1780883840896,
+      "integrity": "sha512-YTUClbksN7rfFIgm/yXOFAS036EAiHjmSyDZyTCm3YAbqCaafqhajyHBFdfE5LzMIx0koFqIz8gOx8pCugPpXQ==",
+      "mode": 420,
+      "size": 1102
+    },
+    "gyp/pylib/packaging/LICENSE.APACHE": {
+      "checkedAt": 1780883840924,
+      "integrity": "sha512-J7jAJS6uUMo84Cq3xWcGZMDIJOA+s9oQifPwoA0j5kipVry59TZFxteWdKh8TMhtEIXcM1kRvgIQ1pEzaxIYVw==",
+      "mode": 420,
+      "size": 10174
+    },
+    "gyp/gyp.bat": {
+      "checkedAt": 1780883840907,
+      "integrity": "sha512-zXzWYZIj+9/qURg5dDG+eiaj38Hm1lPUBGDCn7HPH5lmLWYhFJdkqqNHCSycv0/87jdBXWhighpc7ltRzo2ndw==",
+      "mode": 493,
+      "size": 201
+    },
+    "gyp/pylib/packaging/LICENSE.BSD": {
+      "checkedAt": 1780883840924,
+      "integrity": "sha512-lsMnPVG4O2rhq4X++4FNzWweYNMR1BIkJAWqQpzIYEEkd8vW7OFxQI27hfDE/XQuOvIMdYAVvEhAaqZaGrb2Cg==",
+      "mode": 420,
+      "size": 1344
+    },
+    "gyp/data/win/large-pdb-shim.cc": {
+      "checkedAt": 1780883840904,
+      "integrity": "sha512-PzUTPv0HQSRtoBA4aeQvqL2tXMpvCDhKB0QbEdBoeCnQu5oXYWT7VE/wpXoIxSW4q9YYZ35CAItXhfu1nGj/4A==",
+      "mode": 420,
+      "size": 653
+    },
+    "src/win_delay_load_hook.cc": {
+      "checkedAt": 1780883840942,
+      "integrity": "sha512-GkFMqjICJCC8FyVaxncENmLwG9kjKdn33/VdQVSX0WkJBTt19BiWkLWEWrBS94zHfCpNtMdqM89VNAt8LX5Njw==",
+      "mode": 420,
+      "size": 872
+    },
+    "lib/Find-VisualStudio.cs": {
+      "checkedAt": 1780883840935,
+      "integrity": "sha512-OgzdEMo8Ak8nH1aXo6FEf+nH6PsAvW3fbV80dZ+RSP0v5362//0YI9d/5D4O3Myk2M/3AUa2nUXDms98tqURdQ==",
+      "mode": 420,
+      "size": 7931
+    },
+    "addon.gypi": {
+      "checkedAt": 1780883840897,
+      "integrity": "sha512-p8xFkx1opOMWzbNaw6ZDLjNgfD7zvHRXOEQYrydIYpzOsduC72j1NOSzIq0vQcahhBKeTVAZ5TCulflUwvBlXw==",
+      "mode": 420,
+      "size": 5940
+    },
+    "lib/build.js": {
+      "checkedAt": 1780883840935,
+      "integrity": "sha512-iIkPKokX6HrheLFUZxxuwZRDTOoOX3YS74o1j6kkXrwZlwHuZDYB9rxQDocSw2c2fYBS8To3YjXbTtNTX83LIQ==",
+      "mode": 420,
+      "size": 6487
+    },
+    "lib/clean.js": {
+      "checkedAt": 1780883840935,
+      "integrity": "sha512-Qyxa8s5S9zeUZlOr8m/4OwHePTnFHx3LmfpXPx5w5n1VnNWDfCl0sv9+0kyzkH/5/rpgg7HTFYDet6mpwd8oFA==",
+      "mode": 420,
+      "size": 397
+    },
+    "lib/configure.js": {
+      "checkedAt": 1780883840936,
+      "integrity": "sha512-Y0MADpbW/3p5OjeyyWrg/yYSun5ZL3mr+mokqwzkDTuVrz7VxIoS/dxCWRkBsy9l40wy7qIpUK7+3KKqPrgwmg==",
+      "mode": 420,
+      "size": 11908
+    },
+    "lib/create-config-gypi.js": {
+      "checkedAt": 1780883840936,
+      "integrity": "sha512-rzusc2YKxCvj4E61jKDXGwIxE7yq5HFaU9kkzM27kwhZQPvR8HbGAIHCt6gI8Oi65w+QD9LjRi4X/WKykyuU7Q==",
+      "mode": 420,
+      "size": 4717
+    },
+    "lib/download.js": {
+      "checkedAt": 1780883840936,
+      "integrity": "sha512-69FNM0BZ8eePnZ0z+hIS1Pdydzr/9Pe6ZL9KPXnQzklsmuwuVZKGMJ1+jsM/xVxMLqakrCNnl760Zaas+st7BA==",
+      "mode": 420,
+      "size": 969
+    },
+    "lib/find-node-directory.js": {
+      "checkedAt": 1780883840937,
+      "integrity": "sha512-WtGXVh+WumWIEUY6/6dY5KAdMdeCtmKHSmeBMh5DfKYZYuNAtWoNmgWIyZHW6cqqpAa7Lm7T7eG5NFRV13QGrQ==",
+      "mode": 420,
+      "size": 2378
+    },
+    "lib/find-python.js": {
+      "checkedAt": 1780883840937,
+      "integrity": "sha512-R+LBDmRRbvp3UChIXfw0ZSguEm3oUA7tBFwPO4er1cx3KG+l4sAO/mMjrbTYvyy8V10d4AOksI1Yafb24qQUbg==",
+      "mode": 420,
+      "size": 10981
+    },
+    "lib/find-visualstudio.js": {
+      "checkedAt": 1780883840937,
+      "integrity": "sha512-W4AU+qGPopmsduQpZblRaSphxlo3i1W735gMXcJz92RYJrJ1KZ4l2uC7CBb/rWK3D9ohESWsIDsn9vucv9zDGA==",
+      "mode": 420,
+      "size": 19674
+    },
+    "lib/fs.js": {
+      "checkedAt": 1780883840938,
+      "integrity": "sha512-E9BI/b5pjqjP3O/vVnZ0C+aY5Ce4HoVn+cpg6lfLjzte9aTYb/AuCuKuK0Di46wgav22A4PxCR1cVAZOmO+Jvg==",
+      "mode": 420,
+      "size": 675
+    },
+    "lib/glob.js": {
+      "checkedAt": 1780883840938,
+      "integrity": "sha512-IH87JaMDdFezzviPYO9qVnf/W/uPYjD6YRQE/fHl5MetfGEEb24HIzT9g9vfFRhQ1ji4V7l/TgxxNIgNVLXUhw==",
+      "mode": 420,
+      "size": 118
+    },
+    "lib/install.js": {
+      "checkedAt": 1780883840938,
+      "integrity": "sha512-X6rlmKm3Iie3SVIz6pwRDfGHv5oN1j1K3/2hh45mjAMaqS6iaVSwu/EStDv6bimEtVCvMZ0WfVh7iZ1WgBsI+Q==",
+      "mode": 420,
+      "size": 14282
+    },
+    "lib/list.js": {
+      "checkedAt": 1780883840938,
+      "integrity": "sha512-u0GtI7oQMPp+XtWPnLCehwwgU1usgnUpapFxKVu8QxdAT0D77qcLUT4F5MUZnix7kXUH5iEDefShfCHBeZXIPQ==",
+      "mode": 420,
+      "size": 578
+    },
+    "lib/log.js": {
+      "checkedAt": 1780883840939,
+      "integrity": "sha512-e3+cqEcvqawRaef3NeLH6blO3bACKltsuana56wp5adl4wybc3j6PGUmxcssOMj2vx7suIvQwt6c2e+ID/1t1A==",
+      "mode": 420,
+      "size": 3563
+    },
+    "bin/node-gyp.js": {
+      "checkedAt": 1780883840897,
+      "integrity": "sha512-Ys3jcTVVsLcNOfIyPZQdo2rx2IqK7ymRvrrqzKhX98TvTe08hEsPx1K8tVXBgrnHwYq+x+Q2Yv3lxpzWQQEZcg==",
+      "mode": 493,
+      "size": 3414
+    },
+    "lib/node-gyp.js": {
+      "checkedAt": 1780883840939,
+      "integrity": "sha512-xItk0NlXZ5WELr9rkz/k7JT2Chq0TJCHHHddKmrLhFAKiSSx+JvlF5aQ1KBv7wIr2QLKIfQsqtkCmDbn9NN0jQ==",
+      "mode": 420,
+      "size": 4738
+    },
+    "lib/process-release.js": {
+      "checkedAt": 1780883840939,
+      "integrity": "sha512-aUOsrnmzGIcDp0g5h8/ZKosvD0wxEB3vu3JFQiAXIRv/SaRWuTEkJT8MKCP+mJPWPTTr4JT3tOE8GHPBMdsBIA==",
+      "mode": 420,
+      "size": 5727
+    },
+    "lib/rebuild.js": {
+      "checkedAt": 1780883840940,
+      "integrity": "sha512-BVVwZoL2wVxAERTBkPZ4e+m2GDw9l97A3MB5d1NdTs900sPh+IlI2cROhwMf1QHGpF6U8CY+xkheWSkxvgsG1w==",
+      "mode": 420,
+      "size": 281
+    },
+    "lib/remove.js": {
+      "checkedAt": 1780883840940,
+      "integrity": "sha512-HuuZuTqoMeKzRSbVLe0hxduwfW49DZyBs7/aw1Q/VzbXx9I/AECW2ArcHSir6BGKV2m6YKybs6Sq7ax8M9WwEg==",
+      "mode": 420,
+      "size": 1216
+    },
+    "lib/util.js": {
+      "checkedAt": 1780883840940,
+      "integrity": "sha512-Body8K0bJBCKr+4b581KHw6nWPoi7e6c6EykQUzmWmFp5lhOaQYqcFSRQtRlnYzJWWMFeKMGfMgGhkHUagyc7w==",
+      "mode": 420,
+      "size": 2221
+    },
+    ".release-please-manifest.json": {
+      "checkedAt": 1780883840895,
+      "integrity": "sha512-ZA3I3SV9FdEH5ITKGt5bmWM7ewx++9JQKN5gPhWwdq6m6wco4V1rIKJgOy2n95fmiY/agjlOzBMihTwhvslfRg==",
+      "mode": 420,
+      "size": 22
+    },
+    "gyp/.release-please-manifest.json": {
+      "checkedAt": 1780883840901,
+      "integrity": "sha512-DYycTcBXigoaqXbksWnlnSQrp+S1glM6nT3KH204HlTEgOGRFROp5g84eoBAR4WnLyHHZqTY9bQ6uDF8uPdvMQ==",
+      "mode": 420,
+      "size": 22
+    },
+    "package.json": {
+      "checkedAt": 1780883840941,
+      "integrity": "sha512-jKh3Oca3MJnY2CTQZsY7Dm36R8+iQTayVs8A1U2qC4P0OWlAvdg3Ye/xLOgi/gqtsh/nzUzKDpknsbSrrMlGfw==",
+      "mode": 420,
+      "size": 1256
+    },
+    "gyp/release-please-config.json": {
+      "checkedAt": 1780883840929,
+      "integrity": "sha512-vqkJSI0Psoz8NrLS3+jcSmPyphtocm78yzr7QTkDopQrOsfDbcOvdAKs1vh2icnprII1VNaUZl3nUtK267/fIg==",
+      "mode": 420,
+      "size": 279
+    },
+    "release-please-config.json": {
+      "checkedAt": 1780883840941,
+      "integrity": "sha512-qeCqcC84ssD2uVMexU/FGzkS2OI6AgPd7+hrdtfFCQ9LSk29Notcr21ZwF/NRht8svG78/6IwbozyueGiL4v9A==",
+      "mode": 420,
+      "size": 2405
+    },
+    "CHANGELOG.md": {
+      "checkedAt": 1780883840895,
+      "integrity": "sha512-oMZzDFCkxERHPSPdgP4lw8BHEvwOnj+ehYUrblKW5ZcwF8qK4aUYU+FG/BsN5p+HJZ9Fyi3B1wosMERL6q49lA==",
+      "mode": 420,
+      "size": 106710
+    },
+    "CODE_OF_CONDUCT.md": {
+      "checkedAt": 1780883840895,
+      "integrity": "sha512-woQFAbMstUqKbtR2Iq4EmbNjk6m2GgHgc+z8hGpsCP6AsEeiPMy44d4/p8aBwavmsmRFS7h1qLKqNY9b+mT/mQ==",
+      "mode": 420,
+      "size": 207
+    },
+    "CONTRIBUTING.md": {
+      "checkedAt": 1780883840896,
+      "integrity": "sha512-0c52QFqijlHyFy9Svodaif/2mi7oZj3NjjuK+pKnzwZdS2JCKDJHX9TBDi2yfufISlV/rWwsOhlkXvLKmqVH6w==",
+      "mode": 420,
+      "size": 1381
+    },
+    "gyp/docs/GypVsCMake.md": {
+      "checkedAt": 1780883840904,
+      "integrity": "sha512-vqzFKw2f7OCVnqT5FvNT4tFcfdk60g/vvchdkyTMDGd4sUMODrfyedHtDJ3dy+/HXwu4Iz3XsMJsjmUzRaP+dA==",
+      "mode": 420,
+      "size": 6291
+    },
+    "gyp/docs/Hacking.md": {
+      "checkedAt": 1780883840905,
+      "integrity": "sha512-GXPvliL2Xor7TQmTblxt3HBPW5fOcpRhzoD2dX/9GlJMowI4lvBCGajNGg6VMUTrTMm3qdDR2bgyd2r+B43vCA==",
+      "mode": 420,
+      "size": 1195
+    },
+    "gyp/docs/InputFormatReference.md": {
+      "checkedAt": 1780883840905,
+      "integrity": "sha512-vWAZQkE/XFrxeHbwv6zh1JimWASO6s/4jlqPBK47PPPqP+J8ejvXTZIQ7LlHp4C5pFAEECuZsZbYLItdff4ROw==",
+      "mode": 420,
+      "size": 38936
+    },
+    "gyp/docs/LanguageSpecification.md": {
+      "checkedAt": 1780883840906,
+      "integrity": "sha512-lCtHk9W9v3I0aSWMh/8FJI0pDprpmjpXfe+7xW1qMT2AxO3/llkBh0qChVoIICpzXOp4LFMdxypxg+TCuumXZw==",
+      "mode": 420,
+      "size": 22146
+    },
+    "gyp/docs/README.md": {
+      "checkedAt": 1780883840906,
+      "integrity": "sha512-woLj3bYvraNeJU7npvLNCDHk34IIt6xVz6KyGVbRnP0avUVcZ/5xnXbd8N8lng3usBz4ucnsPfADPU3w7nbx7A==",
+      "mode": 420,
+      "size": 1143
+    },
+    "gyp/README.md": {
+      "checkedAt": 1780883840903,
+      "integrity": "sha512-5O3swljn1Ilt8WCbXv2PfjgCMT/t7N21QaNAJu7Z0fnRNqSAuQFPe5xflcUxOLuoUHs3pdqdwhmhDBR2AxvGXQ==",
+      "mode": 420,
+      "size": 1044
+    },
+    "README.md": {
+      "checkedAt": 1780883840896,
+      "integrity": "sha512-C79/+GNKogUwwSYk5RGtiP4boWBb5TCwD5P682uyXddW1tjzRLbDUzVWIKAJ+2e/K7qqEzuQAvwRUmyZuWhZfg==",
+      "mode": 420,
+      "size": 13438
+    },
+    "SECURITY.md": {
+      "checkedAt": 1780883840896,
+      "integrity": "sha512-ums00htm9W6bWuCLuQBQVnX7dTNceg4LQDoxVOex+iVGQFGpGYM87xinZOazQKRK/SXE/DzZHnrLCHARbmQKNg==",
+      "mode": 420,
+      "size": 151
+    },
+    "gyp/docs/Testing.md": {
+      "checkedAt": 1780883840906,
+      "integrity": "sha512-BV6AsLF/yc46T7h+f8aU3XkRDEi7HfmpX4kFrqCibxpDCXEWe1jWP4+JAYPLMFXLvTWXrddo654l6XriWf1eAg==",
+      "mode": 420,
+      "size": 11871
+    },
+    "gyp/docs/UserDocumentation.md": {
+      "checkedAt": 1780883840907,
+      "integrity": "sha512-/6tFNcKm2t4xHXsPyWNwGbtNBmPwkyGRFfLw8m1JlkMceN7taal/FxWlu7wPuz2/fRr/DrA8KPgd5XMoptcO1w==",
+      "mode": 420,
+      "size": 25797
+    },
+    "gyp/data/ninja/build.ninja": {
+      "checkedAt": 1780883840904,
+      "integrity": "sha512-aLuCrA6RG2LJInL+qATLdW5G7Cmofb+3+4l25qOfLGYsjixbumh2sxSJj1iHxe/L1qUo9DNFqly1MotQ48/QxA==",
+      "mode": 420,
+      "size": 56
+    },
+    "gyp/pylib/gyp/__init__.py": {
+      "checkedAt": 1780883840911,
+      "integrity": "sha512-4F614ocOo4RGv3rmZOaKqbvE/LklTVDcMrrKtetCX3u+lzGDpuhH++SP7fjIaYbDxvMKG0bNaLnVL6/l1w5Bjg==",
+      "mode": 493,
+      "size": 24134
+    },
+    "gyp/pylib/gyp/generator/__init__.py": {
+      "checkedAt": 1780883830784,
+      "integrity": "sha512-z4PhNX7vuL3xVChQ1m2AB9Yg5AULVxXcg/SpIdNs6c5H0NE8XYXysP+DGNKHfuwvY7kxvUdBeoGlODJ6+SfaPg==",
+      "mode": 420,
+      "size": 0
+    },
+    "gyp/pylib/packaging/__init__.py": {
+      "checkedAt": 1780883840924,
+      "integrity": "sha512-4poJ131TVCBgGhFs6F8wAnAg7YnpfNqZkFZvBzmel+6wTDyRPWEw2nQIi2vD7e7BIkYZCre/uf+Mfiicxn6ojw==",
+      "mode": 420,
+      "size": 501
+    },
+    "gyp/pylib/packaging/_elffile.py": {
+      "checkedAt": 1780883840925,
+      "integrity": "sha512-tcqko5HXMav+iVPtgwCFI/Ax9aaTwf/xSDfi/k4IucIFqSHCL7B2wOyEz+qK64lREeVPDN4ZQFNq0Q5OjzCpcg==",
+      "mode": 420,
+      "size": 3266
+    },
+    "gyp/pylib/packaging/_manylinux.py": {
+      "checkedAt": 1780883840925,
+      "integrity": "sha512-48CdRvuhazqDtpUDwTl8J2ha0CN0KXGC4LTdFTWI3uqQUVxDjQTLT8ybN0l1xIXW2kfpDbL1UH0DPmNTkIEYLQ==",
+      "mode": 420,
+      "size": 9526
+    },
+    "gyp/pylib/packaging/_musllinux.py": {
+      "checkedAt": 1780883840925,
+      "integrity": "sha512-pwWsgMh0R81tqePVY/eU6DTW4BNtzTnu6CHB8sL/z9BKoo5I3p99PgLvJfu4AXYCTxzSqWCsGIsAoir6UTuqmw==",
+      "mode": 420,
+      "size": 2676
+    },
+    "gyp/pylib/packaging/_parser.py": {
+      "checkedAt": 1780883840926,
+      "integrity": "sha512-91GM6IZA0vd+06p/QonYS7ur8hly0YnuKdXq46dTB+eQzPJesOzIuYU+o1OZ8zFxF8GHHzQz3Q+cezfqQ9y/4g==",
+      "mode": 420,
+      "size": 10382
+    },
+    "gyp/pylib/packaging/_structures.py": {
+      "checkedAt": 1780883840926,
+      "integrity": "sha512-z/Gack+sOHWZ2YwKNlhJB428vqZe/KHuRF8Vgmi5JB5VIhKpnn4LNDlNJG46BsmZp/GpZ/ZLJyTKm2I9Yplsbw==",
+      "mode": 420,
+      "size": 1431
+    },
+    "gyp/pylib/packaging/_tokenizer.py": {
+      "checkedAt": 1780883840926,
+      "integrity": "sha512-EPbIMJosQmFxW25eJr7PMSUuCWSHkofnnGKq+T7tOlAk5QZqYtMdtk1giWrlNNThDyGwdf7vVItTL0eX/1BnZg==",
+      "mode": 420,
+      "size": 5292
+    },
+    "gyp/pylib/gyp/generator/analyzer.py": {
+      "checkedAt": 1780883840913,
+      "integrity": "sha512-oEE3ZzfFdDpBXNDf2HzTpmMHrUvem4sd++MN0TlKzFuriAkMeLC+ReyFndzAaGp/vBYY920wHBxiP8lP1MFTdw==",
+      "mode": 420,
+      "size": 31562
+    },
+    "gyp/pylib/gyp/generator/android.py": {
+      "checkedAt": 1780883840913,
+      "integrity": "sha512-jwOigDbTtrPqplcdD5DGzDlAa9di8zGr+FkvsxqeaAupYhzjEywz71W/rswTi+PgJB5quDGlfQMqTI6ubooiGQ==",
+      "mode": 420,
+      "size": 49951
+    },
+    "gyp/pylib/gyp/generator/cmake.py": {
+      "checkedAt": 1780883840913,
+      "integrity": "sha512-ASFu9bhniPJhTXKHCkflAQDerh+wKK4cLHwjvOxZjWbVWi9G1CoMZwhqNGFUIFXmaK1Pn/p+O3d/zt4RQnWiXw==",
+      "mode": 420,
+      "size": 49196
+    },
+    "gyp/pylib/gyp/common_test.py": {
+      "checkedAt": 1780883840911,
+      "integrity": "sha512-G7M8sE4D0WHlTjLZY/YE7XC0IXEDp/zDBDyJH1cwG3WJHf1n5zFipxqDtD72Yo6GnLOfoUM+CspCY6LSKqIfGQ==",
+      "mode": 493,
+      "size": 5714
+    },
+    "gyp/pylib/gyp/common.py": {
+      "checkedAt": 1780883840911,
+      "integrity": "sha512-XW/h8/HPImmcj7N07ZQ/zVXgs+fu5AiHzL0tiiUUwyq7addiuu9z97/AWJszkbEcqIxhMiW8yvbu7eV3JWnBNA==",
+      "mode": 420,
+      "size": 24592
+    },
+    "gyp/pylib/gyp/generator/compile_commands_json.py": {
+      "checkedAt": 1780883840914,
+      "integrity": "sha512-L5UfCPCm/h8Q1m50l/ICulFXnsxN4dcJ6DQQkTjCxO8Y3oSUcrznTaieccKz5TdZm4kunqnJhUrtun463Y+NSg==",
+      "mode": 420,
+      "size": 4848
+    },
+    "gyp/pylib/gyp/generator/dump_dependency_json.py": {
+      "checkedAt": 1780883840914,
+      "integrity": "sha512-EKSZZsF7cnFWyfiNQcyth9wcJ1RMqC0ZdRw6SSpLqbOR5917E7sZ3ZCwMtiu+LNFOFD7B8owJBGv3kXp4RXbgg==",
+      "mode": 420,
+      "size": 3101
+    },
+    "gyp/pylib/gyp/easy_xml_test.py": {
+      "checkedAt": 1780883840912,
+      "integrity": "sha512-ZLxKb4k+UEECiOcuHAOITGRu3UamAeHgos54d13XLjF9qeO7Gx3BxMpWlW9G+WmaFI1GJeulKGvqa52dThYIPQ==",
+      "mode": 493,
+      "size": 3950
+    },
+    "gyp/pylib/gyp/easy_xml.py": {
+      "checkedAt": 1780883840912,
+      "integrity": "sha512-lEMa02SParBcltb6c/b0+lFmsfmRi/M7pRNzBrYEE7bedFQhn5gMsNpfUUS/RmRmEb1N3hd9dwO81AqoV4eRWw==",
+      "mode": 420,
+      "size": 5425
+    },
+    "gyp/pylib/gyp/generator/eclipse.py": {
+      "checkedAt": 1780883840914,
+      "integrity": "sha512-QfUejXo2nbo3j+gge8/iXspGOEygxfzxWVmlQgJHl0gkH7oP7J03qtpIz16eQYsJa9KeM3PEfnkDjrD/Eycz3g==",
+      "mode": 420,
+      "size": 17501
+    },
+    "gyp/pylib/gyp/flock_tool.py": {
+      "checkedAt": 1780883840912,
+      "integrity": "sha512-QZz1tYR7H9JC2x9JaUFB32VCUTkxnukcFd6G2f+UO1yHAHyibVrFp6mohjicvbfzhyY1rjO3wgSn0FmRDi78xw==",
+      "mode": 493,
+      "size": 1886
+    },
+    "gyp/gyp_main.py": {
+      "checkedAt": 1780883840907,
+      "integrity": "sha512-Z8qmlInR5F2EwpPUWHR8/PYR7ySTCRu9IpUuzslL1VLl5Tk/jzMLSx/ychCK1BTWCJ8HzKPaYI0lmLrd0NnzFQ==",
+      "mode": 493,
+      "size": 1250
+    },
+    "gyp/pylib/gyp/generator/gypd.py": {
+      "checkedAt": 1780883840915,
+      "integrity": "sha512-R+WTQdkVON5sunvWjiLfvISWoDGHuaHzuPl4i0W2AjmVjw1/u4SFMaLenM8G0R9Is31Oo3rp0vaOnFPWlDqlDQ==",
+      "mode": 420,
+      "size": 3505
+    },
+    "gyp/pylib/gyp/generator/gypsh.py": {
+      "checkedAt": 1780883840915,
+      "integrity": "sha512-qCtzYZFTO3J3lV1isL/rwLo2Hqy0/WvLz0aMXTM+gN+x+7GJ4LoHUJeM1tWX90uuYlrIvnjzeq2z0i9e4CEW0g==",
+      "mode": 420,
+      "size": 1694
+    },
+    "gyp/pylib/gyp/input_test.py": {
+      "checkedAt": 1780883840919,
+      "integrity": "sha512-F4pffGYEog0GUiN5an48ofKUwiO7NMgAyGnZEItIju5eZFT5h+UTEIeMJcxvnVOrx01tmdxVWkis/LXaQ9d94w==",
+      "mode": 493,
+      "size": 3425
+    },
+    "gyp/pylib/gyp/input.py": {
+      "checkedAt": 1780883840919,
+      "integrity": "sha512-hk9HKdHg2GHtZUV93aPE4KS0kNira2i0n29PDfZg4RbZ02H9K2avu4ZSYUZlvcjyZnRDE7gmVLiWSPoWyl8AHA==",
+      "mode": 420,
+      "size": 126296
+    },
+    "gyp/pylib/gyp/mac_tool.py": {
+      "checkedAt": 1780883840920,
+      "integrity": "sha512-k13TvqG0Zj0qj3S2mCy1fIIoP0MRfv5wTvxoI6lhYlsT97yOyutGpH5eivuufCLEy8NVpbihN1kwAvoGRUGOYw==",
+      "mode": 493,
+      "size": 30260
+    },
+    "gyp/pylib/gyp/generator/make.py": {
+      "checkedAt": 1780883840916,
+      "integrity": "sha512-cp5yVxlLC+8Ad8HCaqw/L/GDzvptOOFV11QZ+WYivff8Np5q7ZBUWoDj/FAgGhn5AcYcO3L1tD3X0RHtKrtIlg==",
+      "mode": 420,
+      "size": 111482
+    },
+    "gyp/pylib/packaging/markers.py": {
+      "checkedAt": 1780883840927,
+      "integrity": "sha512-9ogCshnSPu+4Urueyb2UWb6z7UQae5/MxrrPcfLkDJfP5GhikhUdccmozAMd8fxbnKJO4tlXudWRnruKdBDsGQ==",
+      "mode": 420,
+      "size": 8208
+    },
+    "gyp/pylib/packaging/metadata.py": {
+      "checkedAt": 1780883840927,
+      "integrity": "sha512-EkG7aL+hBCQlsxRY2P3S1w/S6MIx1SjCquvnVIj8YzHOd0/dgWcTFj1fW8pzkUcxxHXm30QKtvaZRPxLqatX+g==",
+      "mode": 420,
+      "size": 33036
+    },
+    "gyp/pylib/gyp/msvs_emulation.py": {
+      "checkedAt": 1780883840920,
+      "integrity": "sha512-n+ebIktQlBsg3pd7jKM77cc8DyjYoAdC6gSYfVM5kwhIh4FrSc35nEYuN0Hv+7brxLEJ/SuX0ZbNJD3wgRqdPQ==",
+      "mode": 420,
+      "size": 54102
+    },
+    "gyp/pylib/gyp/generator/msvs_test.py": {
+      "checkedAt": 1780883840917,
+      "integrity": "sha512-4WoMlck2aG9qoLJDMzs5jJKb5SzzGhmnvxRRorLbFvoOGLhPQMr/N+S5J7QcEuqwhiAJ57poC8UsYbuRE8Oa/A==",
+      "mode": 493,
+      "size": 1266
+    },
+    "gyp/pylib/gyp/generator/msvs.py": {
+      "checkedAt": 1780883840916,
+      "integrity": "sha512-MFv8yCUe1BmfyV/V+tbLrOHMzFukpa1piZDLdYbKw0rHrbnibEt2yFvKooJfDl0n7aWCNuPNKdrNkuSu51TrkQ==",
+      "mode": 420,
+      "size": 150898
+    },
+    "gyp/pylib/gyp/MSVSNew.py": {
+      "checkedAt": 1780883840908,
+      "integrity": "sha512-UOzz+nOZGIq1NhZkJZkhFtO188cL4egEQt0YlEfPTEEGRV0R9PnlK5d3qbgFcZCZi0cgi6qn59lzPQZ+u3/WVg==",
+      "mode": 420,
+      "size": 13029
+    },
+    "gyp/pylib/gyp/MSVSProject.py": {
+      "checkedAt": 1780883840908,
+      "integrity": "sha512-ky+vHtFdvLshPDUtrE2x3MMhUv/1ivdvOSx4AYyxdPeJYm9Lw70hqPO+xbcg2lT23yiYnBODlsezhSW6AsCJ6A==",
+      "mode": 420,
+      "size": 6739
+    },
+    "gyp/pylib/gyp/MSVSSettings_test.py": {
+      "checkedAt": 1780883840909,
+      "integrity": "sha512-5NbpHh4J60ZiBqJkynVhy+jEvRldOXfq0YQD/FJuNS7nX3inese7S3aXejoKEsi42wuY8QohnAcZJZ+CXR9Zow==",
+      "mode": 493,
+      "size": 74297
+    },
+    "gyp/pylib/gyp/MSVSSettings.py": {
+      "checkedAt": 1780883840908,
+      "integrity": "sha512-WFEinUNeQUlxJtT0of9yvzPkq6ohKVke3sCLbR2FFLMzMh4hzTUx4wYZSnHk5OawLZ0IiOTIjVnqXUl1nEriRw==",
+      "mode": 420,
+      "size": 45450
+    },
+    "gyp/pylib/gyp/MSVSToolFile.py": {
+      "checkedAt": 1780883840909,
+      "integrity": "sha512-xrP/o/DxRu66KRg/g1m6q0ckwmBEaTtVzOFRFSiTDvVy4e4WG+mxeW4uT2GjiKEkTBrmPPvpsBAC1CZ3V5fSzw==",
+      "mode": 420,
+      "size": 1789
+    },
+    "gyp/pylib/gyp/MSVSUserFile.py": {
+      "checkedAt": 1780883840910,
+      "integrity": "sha512-/kO5rBOHuurfnjY7iuPJ78TnRfUjp0VzU9Q/0rUHAASInlLTDcM0BiI05QTg8ALx4XNf6059vETVK1Qdw5B/ow==",
+      "mode": 420,
+      "size": 5333
+    },
+    "gyp/pylib/gyp/MSVSUtil.py": {
+      "checkedAt": 1780883840910,
+      "integrity": "sha512-6emf/O3jyTN/CddQ8LWV/5w80VejyovLRjOq9Mf5XTIllwEmynnYl6iW7w2uSUQc/chcvhh2zX9qLW8IxGXDsA==",
+      "mode": 420,
+      "size": 10231
+    },
+    "gyp/pylib/gyp/MSVSVersion.py": {
+      "checkedAt": 1780883840910,
+      "integrity": "sha512-XVR7UsE3NxRkJwbG1C4cNc589jo7hrHTt52FXJ/W/T5kJNgcb6BX+KOaQOmXCLQ52sG3GQBkib/SjKN+xUhUHA==",
+      "mode": 420,
+      "size": 19742
+    },
+    "gyp/pylib/gyp/ninja_syntax.py": {
+      "checkedAt": 1780883840920,
+      "integrity": "sha512-D2GmV5dklRfMUhd+hbEJKKdJ7WGAGQDJoLgaBSMTtsaihpl2faQySNz8e6qQ/OsWL5tIEEUhTFdZcd/j1ipkIQ==",
+      "mode": 420,
+      "size": 5640
+    },
+    "gyp/pylib/gyp/generator/ninja_test.py": {
+      "checkedAt": 1780883840918,
+      "integrity": "sha512-s43BIl6pVFMxtwqWR8OQIBo34dYptLLNAWyyMe6fijgDQL4bUVIZtCzWcXqaycGyFX8RW+MDudQ6mjWnGb15pw==",
+      "mode": 420,
+      "size": 2420
+    },
+    "gyp/pylib/gyp/generator/ninja.py": {
+      "checkedAt": 1780883840917,
+      "integrity": "sha512-KQ7jevrcJtV+80mDAuhPAyDpeAlP1RStoYCOslvT7tZzlMCuQP661vwG6Po1LQ7KI9c1VCH0Zk9VydDlkbS0sA==",
+      "mode": 420,
+      "size": 119384
+    },
+    "gyp/pylib/packaging/requirements.py": {
+      "checkedAt": 1780883840927,
+      "integrity": "sha512-uMcWxOwxIBZrscPsmWuQMLvzJad/nkSiW+n5OfM5FwWcPl5vb3b/N9ETpNQLa9JOH09HBcnf4X0mzwTKZ3wS9A==",
+      "mode": 420,
+      "size": 2952
+    },
+    "gyp/pylib/gyp/simple_copy.py": {
+      "checkedAt": 1780883840921,
+      "integrity": "sha512-67xuMU4QR1Iy2SRNQ2eeW+6L0NLG2hpPEbcOm+y5H9p+3mcl0yk1tzBFmFrlSe3C+iyb3b/ig5h+/egqo37tXQ==",
+      "mode": 420,
+      "size": 1293
+    },
+    "gyp/pylib/packaging/specifiers.py": {
+      "checkedAt": 1780883840928,
+      "integrity": "sha512-XqgnJa1fzCtVftrLTEODrveHekgtcCbmUyOI2vjP1EwHjIms7JkbzyOlI2hrfu9kjltiJ1hkR+WGezMpOeXwwQ==",
+      "mode": 420,
+      "size": 39969
+    },
+    "gyp/pylib/packaging/tags.py": {
+      "checkedAt": 1780883840928,
+      "integrity": "sha512-XG7NVe8zA0RwWNj2IOPhbdSPD4ksWy5WKdY9JmZXkhZr0lFnUpgE2UAGqpolcM3HAG5aVvltRcVISSCOAyv9ww==",
+      "mode": 420,
+      "size": 18355
+    },
+    "gyp/test_gyp.py": {
+      "checkedAt": 1780883840930,
+      "integrity": "sha512-OBrm6ymdKezleWzkGIANIPF7YuLHx9fBpfL4mgA87o8vnL98aNMtSRdjFv9cny1755ckh3Q+wAWNN8USpklNYg==",
+      "mode": 493,
+      "size": 7691
+    },
+    "gyp/pylib/packaging/utils.py": {
+      "checkedAt": 1780883840928,
+      "integrity": "sha512-VDl8L4iiRAmZvC/86G2u8LWiZXsbr7I+WoHrtlXYkww536pDBu1nlvFLvOI5HszeyZO1zYU9tY+QdvElKWk5vQ==",
+      "mode": 420,
+      "size": 5268
+    },
+    "gyp/pylib/packaging/version.py": {
+      "checkedAt": 1780883840929,
+      "integrity": "sha512-VFXzJAV4OlZPeU9TRuXUhBZrYKIf1nms/mtB7orwWc/6yFf5Dv4BZLgfNGnhLfRHE7kK/E7XWhSa5QDe4/hqoQ==",
+      "mode": 420,
+      "size": 16236
+    },
+    "gyp/pylib/gyp/win_tool.py": {
+      "checkedAt": 1780883840921,
+      "integrity": "sha512-yGwF+rKI0LvlDlTvmB5Oy1YLDkw8C4L0xMP4nLXA6bQNyzPnPm2NrlnB2zMtu/ti80qktDARqZDCzd5kMwafpw==",
+      "mode": 493,
+      "size": 15131
+    },
+    "gyp/pylib/gyp/xcode_emulation_test.py": {
+      "checkedAt": 1780883840922,
+      "integrity": "sha512-G0qMa/hpLYHuribsM4DvBVRWbTn5roe/uMrEfDYZtad8LX3cN9tgJ/Y+ouIWoT3bVNb5Q2H2d7LlfgKcOCOG+w==",
+      "mode": 420,
+      "size": 1488
+    },
+    "gyp/pylib/gyp/xcode_emulation.py": {
+      "checkedAt": 1780883840922,
+      "integrity": "sha512-gDFEbM82ZzcAgc5611HxyXmvdcZq3EFBZobXJNs+puX7qCcYN/8N/AXjL4MlAaijnfxmteBNmFXRE8E/pqUFmQ==",
+      "mode": 420,
+      "size": 81950
+    },
+    "gyp/pylib/gyp/xcode_ninja.py": {
+      "checkedAt": 1780883840922,
+      "integrity": "sha512-qe4Ji5woOV3GfQ32jQNFhm7lgv0mVfDsSe2ZXP90AhMfw/77cxiXydpD5HU3GXjyrBmg5cO5GY8wLUHz4tTgvw==",
+      "mode": 420,
+      "size": 12124
+    },
+    "gyp/pylib/gyp/generator/xcode_test.py": {
+      "checkedAt": 1780883840918,
+      "integrity": "sha512-pUSJUKRkGK23EbKJ+XKYWjbiwIf6tzMk8wa2R6gEcd27wgbN+CWzk0Ro4KKYEGyYDBVtZHu/HoO+pC5kCJwxgQ==",
+      "mode": 420,
+      "size": 672
+    },
+    "gyp/pylib/gyp/generator/xcode.py": {
+      "checkedAt": 1780883840918,
+      "integrity": "sha512-X0+YyqSS36wO/hyj1ciLAgCWlrcRZiBLbx75owjLFn/H0lvo29gOFjtNgcKoXc1WryNHdL1nLYgNwN+XLcmG+w==",
+      "mode": 420,
+      "size": 66020
+    },
+    "gyp/pylib/gyp/xcodeproj_file.py": {
+      "checkedAt": 1780883840923,
+      "integrity": "sha512-cPPW6OJ7LEzUYBtjPnXQgwKEhT9deOymEH0sHCgjCT0y4p65lpT2iyb/c03B8sbY5sue6cvz0X0TaiD9/oheoA==",
+      "mode": 420,
+      "size": 135641
+    },
+    "gyp/pylib/gyp/xml_fix.py": {
+      "checkedAt": 1780883840923,
+      "integrity": "sha512-K9O9+sOfK8brDayVCEnpi4R8bwQGTztoMErWnw0zgDdfhmu2hTpkIv5Qiqm35m/FNoAKCwcoYi6AHxDaDE7+0g==",
+      "mode": 420,
+      "size": 2245
+    },
+    "macOS_Catalina_acid_test.sh": {
+      "checkedAt": 1780883840941,
+      "integrity": "sha512-apz1/K79CgOyr9jT0bes2KLugxudd3s22rNQ1kSxoifF57KBq0TNiE/AwAfHYXUIRouTTTLu2KLo10Tayjmkqw==",
+      "mode": 420,
+      "size": 495
+    },
+    "gyp/pyproject.toml": {
+      "checkedAt": 1780883840929,
+      "integrity": "sha512-JI9Cm8rOIWHRnKtq824Mg+s96I91IFnquX1dFO3hddB23oOMVaF7kZR8vd6rGVIhz8ON9I9y162TZzjzVWJgyA==",
+      "mode": 420,
+      "size": 2936
+    },
+    "gyp/pylib/packaging/py.typed": {
+      "checkedAt": 1780883830784,
+      "integrity": "sha512-z4PhNX7vuL3xVChQ1m2AB9Yg5AULVxXcg/SpIdNs6c5H0NE8XYXysP+DGNKHfuwvY7kxvUdBeoGlODJ6+SfaPg==",
+      "mode": 420,
+      "size": 0
+    }
+  }
+}

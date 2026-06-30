@@ -1,0 +1,2 @@
+import{h as t}from"vue";import{defineClientConfig as e}from"vuepress/client";import"./styles/vars.css";import{P as m}from"./VPPreview-Dzr-2ZZL.js";import"@vuepress/helper/client";import"@vueuse/core";import"./styles/vp-preview.css";var p=e({enhance:({app:o})=>{o.component("VPPreview",(r,{slots:i})=>t(m,{locales:__PREVIEW_LOCALES__,...r},i))}});export{p as default};
+//# sourceMappingURL=config.js.map

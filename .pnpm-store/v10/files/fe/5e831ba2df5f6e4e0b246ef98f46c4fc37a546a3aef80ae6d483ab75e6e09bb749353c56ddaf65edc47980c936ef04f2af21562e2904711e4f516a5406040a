@@ -1,0 +1,43 @@
+{
+    "name": "@types/koa-bodyparser",
+    "version": "4.3.13",
+    "description": "TypeScript definitions for koa-bodyparser",
+    "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/koa-bodyparser",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "Jerry Chin",
+            "githubUsername": "hellopao",
+            "url": "https://github.com/hellopao"
+        },
+        {
+            "name": "Hiroshi Ioka",
+            "githubUsername": "hirochachacha",
+            "url": "https://github.com/hirochachacha"
+        },
+        {
+            "name": "Alexi Maschas",
+            "githubUsername": "amaschas",
+            "url": "https://github.com/amaschas"
+        },
+        {
+            "name": "Pirasis Leelatanon",
+            "githubUsername": "1pete",
+            "url": "https://github.com/1pete"
+        }
+    ],
+    "main": "",
+    "types": "index.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/koa-bodyparser"
+    },
+    "scripts": {},
+    "dependencies": {
+        "@types/koa": "*"
+    },
+    "peerDependencies": {},
+    "typesPublisherContentHash": "dd7d64bec4b2dd59e0099a65c14f68243535198f206bbf65a91ed8ca2c0a87f0",
+    "typeScriptVersion": "5.2"
+}

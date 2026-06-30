@@ -1,0 +1,105 @@
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+var defineProperty = require('../_chunks/dep-23fc4c9b.js');
+var vue = require('vue');
+var utils_renderFn = require('../utils/render-fn.js');
+var utils_useSizeProps = require('../utils/use-size-props.js');
+require('../utils/use-common-classname.js');
+require('../utils/config-context.js');
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { defineProperty._defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var element = {
+  "tag": "svg",
+  "attrs": {
+    "fill": "none",
+    "viewBox": "0 0 24 24",
+    "width": "1em",
+    "height": "1em"
+  },
+  "children": [{
+    "tag": "path",
+    "attrs": {
+      "fill": "props.filledColor",
+      "d": "M23 12C23 18.0751 18.0751 23 12 23C5.92487 23 1 18.0751 1 12C1 5.92487 5.92487 1 12 1C18.0751 1 23 5.92487 23 12ZM14.501 15.5C15.0533 15.5 15.501 15.9477 15.501 16.5V17.5H17.501V16.5C17.501 14.8431 16.1578 13.5 14.501 13.5C13.7016 13.5 12.9734 13.814 12.4365 14.3233C12.3501 14.4053 12.2803 14.4548 12.2299 14.4813C12.2058 14.4939 12.1916 14.4985 12.186 14.5H11.816C11.8103 14.4985 11.7961 14.4939 11.7721 14.4813C11.7217 14.4548 11.6519 14.4053 11.5655 14.3233C11.0286 13.814 10.3004 13.5 9.50098 13.5C7.84411 13.5 6.50098 14.8431 6.50098 16.5V17.5H8.50098V16.5C8.50098 15.9477 8.94868 15.5 9.50098 15.5C9.76805 15.5 10.0088 15.6034 10.189 15.7743C10.5113 16.08 11.0674 16.5 11.8102 16.5H12.1917C12.9346 16.5 13.4907 16.08 13.813 15.7743C13.9931 15.6034 14.2339 15.5 14.501 15.5ZM6.76855 11.8658L10.2327 9.86584L9.23266 8.13379L5.76855 10.1338L6.76855 11.8658ZM18.2327 10.1338L14.7686 8.13379L13.7686 9.86584L17.2327 11.8658L18.2327 10.1338Z"
+    }
+  }]
+};
+var uncomfortableFilled = vue.defineComponent({
+  name: "UncomfortableFilledIcon",
+  props: {
+    size: {
+      type: String
+    },
+    onClick: {
+      type: Function
+    },
+    fillColor: {
+      type: [Array, String]
+    },
+    strokeColor: {
+      type: [Array, String]
+    },
+    strokeWidth: {
+      type: Number
+    }
+  },
+  setup(props, _ref) {
+    var {
+      attrs
+    } = _ref;
+    var propsSize = vue.computed(() => props.size);
+    var strokeColor1 = vue.computed(() => {
+      if (!props.strokeColor) return "currentColor";
+      return Array.isArray(props.strokeColor) ? props.strokeColor[0] : props.strokeColor;
+    });
+    var strokeColor2 = vue.computed(() => {
+      var _props$strokeColor$;
+      if (!props.strokeColor) return "currentColor";
+      return Array.isArray(props.strokeColor) ? (_props$strokeColor$ = props.strokeColor[1]) !== null && _props$strokeColor$ !== void 0 ? _props$strokeColor$ : props.strokeColor[0] : props.strokeColor;
+    });
+    var fillColor1 = vue.computed(() => {
+      if (!props.fillColor) return "transparent";
+      return Array.isArray(props.fillColor) ? props.fillColor[0] : props.fillColor;
+    });
+    var fillColor2 = vue.computed(() => {
+      var _props$fillColor$;
+      if (!props.fillColor) return "transparent";
+      return Array.isArray(props.fillColor) ? (_props$fillColor$ = props.fillColor[1]) !== null && _props$fillColor$ !== void 0 ? _props$fillColor$ : props.fillColor[0] : props.fillColor;
+    });
+    var filledColor = vue.computed(() => {
+      if (!props.fillColor) return "currentColor";
+      return Array.isArray(props.fillColor) ? props.fillColor[0] : props.fillColor;
+    });
+    var {
+      className,
+      style
+    } = utils_useSizeProps['default'](propsSize);
+    var finalCls = vue.computed(() => ["t-icon", "t-icon-uncomfortable-filled", className.value]);
+    var finalStyle = vue.computed(() => _objectSpread(_objectSpread({
+      fill: "none"
+    }, style.value), attrs.style));
+    var finalProps = vue.computed(() => ({
+      class: finalCls.value,
+      style: finalStyle.value,
+      onClick: e => {
+        var _props$onClick;
+        return (_props$onClick = props.onClick) === null || _props$onClick === void 0 ? void 0 : _props$onClick.call(props, {
+          e
+        });
+      },
+      strokeColor1: strokeColor1.value,
+      strokeColor2: strokeColor2.value,
+      fillColor1: fillColor1.value,
+      fillColor2: fillColor2.value,
+      strokeWidth: props.strokeWidth || 2,
+      filledColor: filledColor.value
+    }));
+    return () => utils_renderFn['default'](element, finalProps.value);
+  }
+});
+
+exports.default = uncomfortableFilled;
+//# sourceMappingURL=uncomfortable-filled.js.map

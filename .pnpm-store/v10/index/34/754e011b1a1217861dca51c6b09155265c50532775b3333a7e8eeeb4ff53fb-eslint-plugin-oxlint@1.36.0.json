@@ -1,0 +1,421 @@
+{
+  "name": "eslint-plugin-oxlint",
+  "version": "1.36.0",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883844116,
+      "integrity": "sha512-aS+XcL1QwB9WqPsZrgftKtNTIC21Ij88Vi7l2VEFn4fBFCKDoEaRxYs2WLrt/CWZD38HZx+Te1BCRhbTCZ95xg==",
+      "mode": 420,
+      "size": 1153
+    },
+    "dist/build-from-oxlint-config/categories.cjs": {
+      "checkedAt": 1780883844116,
+      "integrity": "sha512-FBUaj8iHVtXwVOy2AO5GyoAdmOCm77OkWiPpilI/FkIAM/Z/OaAl88Of26znWfkjf5Ql0uckMQaZqIYdr6xVYg==",
+      "mode": 420,
+      "size": 1677
+    },
+    "dist/config-helper.cjs": {
+      "checkedAt": 1780883844116,
+      "integrity": "sha512-ejNAZimmu1B3P06FHdVE3AM23nHk++aTe6rB2UZ4Up1RVh2bjv2E7XNwY0jqwCXLAZ3XUJxZVEZ08Kp9x+HrCw==",
+      "mode": 420,
+      "size": 1843
+    },
+    "dist/generated/configs-by-category.cjs": {
+      "checkedAt": 1780883844117,
+      "integrity": "sha512-/FhGKPrJiRXt3faATPDLGN0tmqwflR9klCd/mcsFgvEFg1dg5i0suTOYPb6+Bl86z4AhzpxU50unFQ5PhYPBCg==",
+      "mode": 420,
+      "size": 1041
+    },
+    "dist/generated/configs-by-scope.cjs": {
+      "checkedAt": 1780883844117,
+      "integrity": "sha512-5wROQm+osyt3UNr1CHo00+aqw2yYXZ8L1H4IHjEvLhccrP2lUu+U78SLLLhMyfBYlFKPJRbVZ31RRNvgMpZDVg==",
+      "mode": 420,
+      "size": 1897
+    },
+    "dist/configs.cjs": {
+      "checkedAt": 1780883844117,
+      "integrity": "sha512-bi4TQ+hUJ3kxemxUu3eMOKDOgOROYM4sMtUgRyVhlq54Cs5sb73N0F6oHx4F3lQS7ec3+h1LSKYCHGNKDiJwWQ==",
+      "mode": 420,
+      "size": 1335
+    },
+    "dist/constants.cjs": {
+      "checkedAt": 1780883844118,
+      "integrity": "sha512-RVKsUDhDNJo6u1iV99U3SsckIycKtps87/5E/OpaU7fF9S8YKxJLa6OvMI89aC0yO7nVAm2B+eYbOwkYbzN1bg==",
+      "mode": 420,
+      "size": 812
+    },
+    "dist/build-from-oxlint-config/extends.cjs": {
+      "checkedAt": 1780883844118,
+      "integrity": "sha512-ZhTHriXkbZ+KHnFpdgSJJHOTjoDgh+euAMzmvtEJoXt3p4qa9KIjtnkem5Qbovf3NkABtK6dT2Y0C75HswWWMQ==",
+      "mode": 420,
+      "size": 2254
+    },
+    "dist/build-from-oxlint-config/ignore-patterns.cjs": {
+      "checkedAt": 1780883844118,
+      "integrity": "sha512-l7ZJze7Q95n6pgA0ILMe/IFb/GM4Hhi2ieV6md0h77cOZAJxQHUMJGyEAUGGLFwIpHF9VPlxkt0Jg3TUw1HHMA==",
+      "mode": 420,
+      "size": 485
+    },
+    "dist/build-from-oxlint-config/index.cjs": {
+      "checkedAt": 1780883844118,
+      "integrity": "sha512-Wg2Q7WrW4ARB1eEvyH8dmPF0twyzAXXAFIg0Ps/MjoT3Sc+FBhhiPouRLKGKIaRKVa0KGPmXWurMKf5Fr6+Kcg==",
+      "mode": 420,
+      "size": 2438
+    },
+    "dist/index.cjs": {
+      "checkedAt": 1780883844119,
+      "integrity": "sha512-xDrojNYjGSfG4yrThA856E8F7WTPgF/EY+XNUQLaaYTZgpnqeZMjWegvtCssSrTQ66Y0yuZj47CRaJchWbefmQ==",
+      "mode": 420,
+      "size": 294
+    },
+    "dist/build-from-oxlint-config/overrides.cjs": {
+      "checkedAt": 1780883844119,
+      "integrity": "sha512-SmEdqfKO/rlibCudqwah8D0jDWTGspRHEVLkfosy1zSBAn72TUcMJXcQh7nTws5QJ1iwe8Eu3y9HKC0RqVXTGQ==",
+      "mode": 420,
+      "size": 1293
+    },
+    "dist/build-from-oxlint-config/plugins.cjs": {
+      "checkedAt": 1780883844119,
+      "integrity": "sha512-LPhybmmJshGrEPuCt89l0C61FNBMWfUCDhoh9pW0rP4ZgDtfz+ZzA1EVvO19GTLVvVo4gIvzIGHelJauLEKbqQ==",
+      "mode": 420,
+      "size": 369
+    },
+    "dist/generated/rules-by-category.cjs": {
+      "checkedAt": 1780883844120,
+      "integrity": "sha512-s1wy+72+PxzF+pfHEvhSY8G6QNLmwBVqt915H6wsXtz4MouhoCFBizSs6Jx0Xjh60z6KSYzOmz93Sab/QmWO5w==",
+      "mode": 420,
+      "size": 27551
+    },
+    "dist/generated/rules-by-scope.cjs": {
+      "checkedAt": 1780883844120,
+      "integrity": "sha512-XAqnDfIF5gppDgrCRI6e90PFJ77GMtH6PZe1ZiJnkFDDA+L8qERLAcrFE7twZAZdEV0Fn09SleOfS+ueiOnDIg==",
+      "mode": 420,
+      "size": 27371
+    },
+    "dist/build-from-oxlint-config/rules.cjs": {
+      "checkedAt": 1780883844121,
+      "integrity": "sha512-QAje0oGEJqO9jvOIKvcd21osaAyxE8gySmITshlTJqUjUqfz57SY9zxYL2U7T8JhcSSrtia5wZkADbVADp5dcA==",
+      "mode": 420,
+      "size": 2656
+    },
+    "dist/build-from-oxlint-config/utilities.cjs": {
+      "checkedAt": 1780883844121,
+      "integrity": "sha512-Sp1SZlWyA/13MvF/RAtiSJGdexexfKmk23jvCtkGdO6hSCqOcrbWkLyoRITiFRjBFGrjNH2V5z32T7N2vES/bA==",
+      "mode": 420,
+      "size": 948
+    },
+    "package.json": {
+      "checkedAt": 1780883844121,
+      "integrity": "sha512-wS5wTtrbWY2Qr0GMeBcsF5fP4kYfcqJSLxIO4EsfC74ZDoFfTVDCb/6NaemXxJB5dR8bJxzdd5FaQK0zyLEL5A==",
+      "mode": 420,
+      "size": 2490
+    },
+    "README.md": {
+      "checkedAt": 1780883844122,
+      "integrity": "sha512-r0vol5p1YCJU56UpvSekCX+89YwpMKKUR+hZ+YEFt6vAcnV5ydmMozDwggP/Zy5rDtnwWDP1EajTt5koIdIjmA==",
+      "mode": 420,
+      "size": 3692
+    },
+    "dist/build-from-oxlint-config/categories.mjs": {
+      "checkedAt": 1780883844122,
+      "integrity": "sha512-NzGD8QzQbevEgG7Sjh0yHp+7piehPgrX/uEc5b1h76yLoEhvooh/vmwOJ5tzor9iTh+KyDqXQ1dms6nF+36QeA==",
+      "mode": 420,
+      "size": 1486
+    },
+    "dist/config-helper.mjs": {
+      "checkedAt": 1780883844122,
+      "integrity": "sha512-1alUifxon/vqE+yayPAu7uiVF+jTaLWn8bTZGMF0KbumlRGAKelbF+GOyGGlYGVwgW2h/zuFHX01jBfOB0g1GA==",
+      "mode": 420,
+      "size": 1622
+    },
+    "dist/generated/configs-by-category.mjs": {
+      "checkedAt": 1780883844123,
+      "integrity": "sha512-zvf0wVRDMssijmbfEel4KJxr+x33oQvXaLg9nLdZ8kzDy1Sclu1onWtyKWDOf9c6W2HdIAH61yf7dStKjus+Tg==",
+      "mode": 420,
+      "size": 1009
+    },
+    "dist/generated/configs-by-scope.mjs": {
+      "checkedAt": 1780883844123,
+      "integrity": "sha512-JlDZ3ireTnQRCcy+oQcLJxf3Tt2M1uBmOjNH+EBjNiV0wwnMGs9XFrGmdrM6qL+XoxfUIgHkD/qfjzKyqzEHsw==",
+      "mode": 420,
+      "size": 1880
+    },
+    "dist/configs.mjs": {
+      "checkedAt": 1780883844123,
+      "integrity": "sha512-vLzHGxgBuDGvzNeKS+r2ODE5JvYqC6ahhHw/vRyoPB6dIAk/kGOcSOTzn4dWKNuthlMD7OfqiH9XaBySmL2qrw==",
+      "mode": 420,
+      "size": 1314
+    },
+    "dist/constants.mjs": {
+      "checkedAt": 1780883844123,
+      "integrity": "sha512-OO50HTxAmQrBmKdf01QAuDZ0yaO+lmAgrYR+qSVN46Ml8nUCyqcC2G1qwG4JJNC8Krcm59bRlX9FjTcvX5yu/w==",
+      "mode": 420,
+      "size": 630
+    },
+    "dist/build-from-oxlint-config/extends.mjs": {
+      "checkedAt": 1780883844124,
+      "integrity": "sha512-3DcUnlFW7dVb5nNfm4PVgavkusOgtoAJuMRh93WO5g6OZocp13ImGenw6ncIJ6zS8G1PBoWaJIg22InSLvH/6g==",
+      "mode": 420,
+      "size": 2042
+    },
+    "dist/build-from-oxlint-config/ignore-patterns.mjs": {
+      "checkedAt": 1780883844124,
+      "integrity": "sha512-EIpaVhoAE07tqPoXh1N3CERLlIW8XgQO+do9Ywd8zuZdXxsgzBg7SOv7lK/VVlKBzWV6YKuTNOB6HShMwR8bMA==",
+      "mode": 420,
+      "size": 338
+    },
+    "dist/build-from-oxlint-config/index.mjs": {
+      "checkedAt": 1780883844124,
+      "integrity": "sha512-no3ht+K7huxP9dpJoYmsN+iUMjzMV9E3lUCQ3oFcNgEBbFvul9JEvPW1qmcxmKqIIBhL9Y+8yZv7fNcUOQDlyQ==",
+      "mode": 420,
+      "size": 2378
+    },
+    "dist/index.mjs": {
+      "checkedAt": 1780883844125,
+      "integrity": "sha512-5AtOffVTEtzpglBh4q+sydJUuAp7NfInUkLEvUtyyNDDj81k+QbvD1zuVfgjZZNicQmvDRIQ8ZrMBb59mH/51Q==",
+      "mode": 420,
+      "size": 256
+    },
+    "dist/build-from-oxlint-config/overrides.mjs": {
+      "checkedAt": 1780883844125,
+      "integrity": "sha512-YUt4hZ6iMNiEajniuXHsANyRgtxyHfBtEe8hiKyF5imdLQmXEOjnOZptuev5eg5yweP1iCQMf8J4PXKndGtFrg==",
+      "mode": 420,
+      "size": 1167
+    },
+    "dist/build-from-oxlint-config/plugins.mjs": {
+      "checkedAt": 1780883844125,
+      "integrity": "sha512-BVpL8QQ0pqhInr908LPXnx2JPx3XC8M0ymSkD/ZY+g6jNkmWG54AUrZipwTF2zZdfo9KtuhbPcxQpUwydNcSTQ==",
+      "mode": 420,
+      "size": 240
+    },
+    "dist/generated/rules-by-category.mjs": {
+      "checkedAt": 1780883844125,
+      "integrity": "sha512-hpT5zkl0PejCSbtzd5VqLYGFwW+nV+2DVo0yEWI0Q8bVLaqZIpbQpurTTkJqIsvRQmhHffhLL7I+Kul8SBeVfQ==",
+      "mode": 420,
+      "size": 27161
+    },
+    "dist/generated/rules-by-scope.mjs": {
+      "checkedAt": 1780883844126,
+      "integrity": "sha512-deqVmrxU68HKoR4/yh0YKdCP9iszzrhyWDnsMpZGUFbMIpC1PiOnSqrX9PBmYYVzEKNci+VHjoP08Ye0BPrP0Q==",
+      "mode": 420,
+      "size": 26957
+    },
+    "dist/build-from-oxlint-config/rules.mjs": {
+      "checkedAt": 1780883844126,
+      "integrity": "sha512-dn8IsobNn5ti/n6i71DM/Iz7ta7lUvm1wYK8tHAdTHW/8MJ4cRxGTA2X23sFN09mzyX7wjiFMYqDcYRKT4nIFw==",
+      "mode": 420,
+      "size": 2558
+    },
+    "dist/build-from-oxlint-config/utilities.mjs": {
+      "checkedAt": 1780883844127,
+      "integrity": "sha512-nRiuTDDusD77KpOS9iFnSxSATaSd3xTMWhlW5XwBkZtutbREw71b8/Y4uEThtuo5xafAX2BdJi2RpnDgK6NJrw==",
+      "mode": 420,
+      "size": 820
+    },
+    "dist/build-from-oxlint-config/categories.d.ts": {
+      "checkedAt": 1780883844127,
+      "integrity": "sha512-4FpVZpnvQudvqVNz/S+SPTq8yPNfRLkC1JslAx23bYxQ7CYCX3RUbRIfwOEQBcwJNo+3vHlXuohHjfg+uCHxKg==",
+      "mode": 420,
+      "size": 697
+    },
+    "src/build-from-oxlint-config/categories.ts": {
+      "checkedAt": 1780883844127,
+      "integrity": "sha512-4AxjLwwxs0sHJ7m+ldFV7x7XcVTjX/KuRA8zE+GeSqFZegHMlvCRZ15WX9vn73v9JLtwjFAiWSIG89KEQbsfnw==",
+      "mode": 420,
+      "size": 2749
+    },
+    "dist/config-helper.d.ts": {
+      "checkedAt": 1780883844127,
+      "integrity": "sha512-YtacupFkvlUIsqU+ZpmeWPYaesJ220v1iRIEoaWBMO+Atsez6G940rXCHuZbfekX2FC5h6ttKmShI+NLBQqlyg==",
+      "mode": 420,
+      "size": 767
+    },
+    "src/config-helper.ts": {
+      "checkedAt": 1780883844128,
+      "integrity": "sha512-dBSjngH1cGZRrYRvkyLnQEns+aAWIHq45dvm3yehVLUC1Csb/hddpc+dft6nD8RmkdqopU8lf0IzYcB8clQFkg==",
+      "mode": 420,
+      "size": 2211
+    },
+    "dist/generated/configs-by-category.d.ts": {
+      "checkedAt": 1780883844128,
+      "integrity": "sha512-buUztPxSgf14K6sILp2XzBViIdYs4BeYfMjGiNBK6X9d4nZW5Nh34NU0rfaib849eknVazMg+gZLpUpW+uHGuQ==",
+      "mode": 420,
+      "size": 903
+    },
+    "src/generated/configs-by-category.ts": {
+      "checkedAt": 1780883844128,
+      "integrity": "sha512-Wjafzj8bls7jvYsiWCX/NVyGqST3eigYaWiV+RkuWSe0KY+F9QrW0rvJhAOv5rtsJccdQ9vmpOzfCQRtxG2Urg==",
+      "mode": 420,
+      "size": 1097
+    },
+    "dist/generated/configs-by-scope.d.ts": {
+      "checkedAt": 1780883844129,
+      "integrity": "sha512-Lq53UXbpIWQHnptAsHWwM2Efgyu4c8B/18+U4TSMMMWbjmG0C4SjjFkOjUeKayUKCMBDmtqytTUAzF8w2GlZnQ==",
+      "mode": 420,
+      "size": 1805
+    },
+    "src/generated/configs-by-scope.ts": {
+      "checkedAt": 1780883844129,
+      "integrity": "sha512-xmjhcdn19TBzKy3oeSULYVzesRw/iMoGJMS9ih9YJnW5TjL8YO6DqTPTASWrIxDgOJ21yziwhf3G5VmXeDQUcQ==",
+      "mode": 420,
+      "size": 2009
+    },
+    "dist/configs.d.ts": {
+      "checkedAt": 1780883844129,
+      "integrity": "sha512-o4L1PAJJCl1sJTDYZHgbkBR7D6zKoU/tZbY/38KcnDqhnt4a3k1i+JjOpu4mCtb3zO6E1B4HvHnEIjJfRq74AQ==",
+      "mode": 420,
+      "size": 4390
+    },
+    "src/configs.ts": {
+      "checkedAt": 1780883844130,
+      "integrity": "sha512-qd1DXAYuaoKP6nMFGaabz0kmetIMA9Vz2w/Ojyk4IWWUdSQqKxJ08uwlOxmndoOlghiBUh9tt4v8SiG+bo1CrA==",
+      "mode": 420,
+      "size": 1701
+    },
+    "dist/constants.d.ts": {
+      "checkedAt": 1780883844130,
+      "integrity": "sha512-5SomGPD17f4E6XZbr6xu3gOBv7Ey4dkPNCf+HvMiboka7lRla9GzZUadDhyeAhXGMTZvTukvA3Ra8sqk7SoYnQ==",
+      "mode": 420,
+      "size": 375
+    },
+    "src/constants.ts": {
+      "checkedAt": 1780883844135,
+      "integrity": "sha512-6guNqeXrpHmZ2E/vOsJeM3VMQDVlVHwq/C7Z2OBvFQUnlk96VZMFb5FqZXtaQDeWxQ6BJJMi4mL6hPquT+BwKA==",
+      "mode": 420,
+      "size": 3493
+    },
+    "dist/build-from-oxlint-config/extends.d.ts": {
+      "checkedAt": 1780883844135,
+      "integrity": "sha512-9oSYupUeQbY3fSZVqL6bXIgWa4g+WdU/F5yQ5qiU14vGQGo5b3hMgnRbMng+GjD+SyDdpfmqWW4joXUH6W1+pA==",
+      "mode": 420,
+      "size": 600
+    },
+    "src/build-from-oxlint-config/extends.ts": {
+      "checkedAt": 1780883844136,
+      "integrity": "sha512-FBKO7Q0eB0UnP/GHMWzm01sqg2QUMBiL1VMpfWG8MQwav7ovDTD/1TDMGUZPSSmXQkW+4UNj9ue4M+lwKkrqBw==",
+      "mode": 420,
+      "size": 2719
+    },
+    "dist/build-from-oxlint-config/ignore-patterns.d.ts": {
+      "checkedAt": 1780883844136,
+      "integrity": "sha512-vSjPdgnOnfVxEFUTWxTVanB9prOiu/+gkX2KogeYZXw8XvVYpFlcZYJGmoxgbTjjvKgeZCOAJcv/QD83dvW28w==",
+      "mode": 420,
+      "size": 525
+    },
+    "src/build-from-oxlint-config/ignore-patterns.ts": {
+      "checkedAt": 1780883844137,
+      "integrity": "sha512-VO9K46YOmZKV+vJslO6BR7dM5pDL6ZnQ/ER/044pWhGLNlZxmF+7A7gyivfMr4hzfWi9JBSaxXUGrxTfP45SjA==",
+      "mode": 420,
+      "size": 688
+    },
+    "dist/build-from-oxlint-config/index.d.ts": {
+      "checkedAt": 1780883844137,
+      "integrity": "sha512-IjJCEahpOWBhx6OO8dGsqe7uEWSz4rK3ESv5k9irb0uilBeveks2yGbaxozUzjR03nN+X1ukhYbODDEDOrJmRw==",
+      "mode": 420,
+      "size": 774
+    },
+    "dist/index.d.ts": {
+      "checkedAt": 1780883844137,
+      "integrity": "sha512-zc+xfWOxSHKlx8R8/BiEuCqSjtq5KciyV5sLJHlUJWPP1mop6+N8JrXUC1F5iqV20VUK/A4pJFfq2R/ro2OB5Q==",
+      "mode": 420,
+      "size": 5308
+    },
+    "src/build-from-oxlint-config/index.ts": {
+      "checkedAt": 1780883844138,
+      "integrity": "sha512-fIBBtj0Sqx1lHvNyUSl3xB8KzqE6YRRHwCC0LyC98rYjEqIqkViePneZnRZB/JkVGrTjusLSdlI8fejLc7QhCg==",
+      "mode": 420,
+      "size": 3362
+    },
+    "src/index.ts": {
+      "checkedAt": 1780883844138,
+      "integrity": "sha512-NkS2kuSs1r2BnkUsGm+bZ8joHo1+iZa1mWRunqBsMdl+iqvyN5qkY8nBSzLvLKr2Zjl26Yy1oUXPS0VuWiDJUA==",
+      "mode": 420,
+      "size": 231
+    },
+    "dist/build-from-oxlint-config/overrides.d.ts": {
+      "checkedAt": 1780883844139,
+      "integrity": "sha512-YMnj/HOwgeiuBYd6qMtfwMx3K2Zy3GvoOLFOmNxmW+F94tFazcA6u2QqAUpoDEL0CtmPgQTWXhrB1IRP2fwNBQ==",
+      "mode": 420,
+      "size": 459
+    },
+    "src/build-from-oxlint-config/overrides.ts": {
+      "checkedAt": 1780883844139,
+      "integrity": "sha512-CSo2lhqs8XkM1n07VjZKfZedHXk4qfA9hmOB/D8iHiughH33mMwWsOMwE/ZN9tgraLCa/Jl9vXQvgYkFAGXAww==",
+      "mode": 420,
+      "size": 1552
+    },
+    "dist/build-from-oxlint-config/plugins.d.ts": {
+      "checkedAt": 1780883844139,
+      "integrity": "sha512-NdHiInHTf9oOGrtv+2zk7VQJhdIgGtZVoo46BtMMH0wRnns7NN3qlp8hsG/EYzf6+qSHgHIaIQmjfCYJEKTbXw==",
+      "mode": 420,
+      "size": 389
+    },
+    "src/build-from-oxlint-config/plugins.ts": {
+      "checkedAt": 1780883844139,
+      "integrity": "sha512-Tx8rXZ9KL0hPYkJ30RNXKlmyaZpDjKCvTdXu6kFBYIe44CSEc6dwKC19TaWm9wOxYRPk0kBw3YcbzNuz5//zFw==",
+      "mode": 420,
+      "size": 585
+    },
+    "dist/generated/rules-by-category.d.ts": {
+      "checkedAt": 1780883844140,
+      "integrity": "sha512-Dets/4AEZhofwFgIqD7SOZWmbCy9GYl2KvC0Jj3tvIx7W0uxGYg6XQ0mWTdgJownlM+OWqLo/xJBGdPjBfUdow==",
+      "mode": 420,
+      "size": 916
+    },
+    "src/generated/rules-by-category.ts": {
+      "checkedAt": 1780883844140,
+      "integrity": "sha512-R65gkhdRJ2qBW+GreU8FK5iEN50SWsNnREM7uE60L7Sxu+FGA5A94219CVgBRAv90JVDDwlQ0d4tLwM7UH+4bw==",
+      "mode": 420,
+      "size": 27535
+    },
+    "dist/generated/rules-by-scope.d.ts": {
+      "checkedAt": 1780883844140,
+      "integrity": "sha512-1sdjoP9IxqF0gi/uZvKBumqZYa/n32jHVvy6Vqzzn3sodeqQdqY3sTpQEGL9ZuM7hPihsJ16ewrQ7dVtgG51KA==",
+      "mode": 420,
+      "size": 1056
+    },
+    "src/generated/rules-by-scope.ts": {
+      "checkedAt": 1780883844141,
+      "integrity": "sha512-JAcdphl+B3EF2k8DuE3MeMmuF7Hi4xB2DVlp/k2MEX62U71xp+tZANe78qBVL5As2KZX4P+rufhclJ8EBZHiVA==",
+      "mode": 420,
+      "size": 27431
+    },
+    "dist/build-from-oxlint-config/rules.d.ts": {
+      "checkedAt": 1780883844141,
+      "integrity": "sha512-XVNvJoodNBlRjEnGelTbrQzp1nkpON6tfuAPuR7fsuL/kLOTjYHJt247EV9kxfhq583bkzqBPoRuMWbwWw0QGA==",
+      "mode": 420,
+      "size": 588
+    },
+    "src/build-from-oxlint-config/rules.ts": {
+      "checkedAt": 1780883844142,
+      "integrity": "sha512-Fpk/GfOc01un/9Qkmeca0+DR3hsUFCPHVHOKmy3g0AXD31d30qLI975DxkDSay4UTOBX8Tb0nCQUiYGFyzoq8g==",
+      "mode": 420,
+      "size": 3990
+    },
+    "dist/build-from-oxlint-config/types.d.ts": {
+      "checkedAt": 1780883844142,
+      "integrity": "sha512-8oyb8hxyRkDNeTu62mEQ6T+YfEbN93hZ/yzDvNSUX4FA096+lrZT0zjZy1kHWsU76I1uAgOdi5gD2BvyDE/20g==",
+      "mode": 420,
+      "size": 894
+    },
+    "src/build-from-oxlint-config/types.ts": {
+      "checkedAt": 1780883844142,
+      "integrity": "sha512-ijixsIiAYEtw+3Ue+Cee+A9vTbm5e5be9QkXGpW96DLqJDq/87mZ/jd40wv4ksi34jb3b4vo8BdidwFXoJt0Mg==",
+      "mode": 420,
+      "size": 978
+    },
+    "dist/build-from-oxlint-config/utilities.d.ts": {
+      "checkedAt": 1780883844143,
+      "integrity": "sha512-3MkC7rQQowk8FOfTUDE2Wh8F6U5tlTCe24XSWggEt/UICcCISGZRp1mLuLzGGKOcKSrEQSmKxjn8vSNTx/g1Tg==",
+      "mode": 420,
+      "size": 457
+    },
+    "src/build-from-oxlint-config/utilities.ts": {
+      "checkedAt": 1780883844145,
+      "integrity": "sha512-BUQRmKPQe9JsfAE7oIrcuvnPhFXi8aPBqnudD2SkYGHSWEr2tH8g8P3/gughKkucUxYq/JtV5n8V6X25FYAMYw==",
+      "mode": 420,
+      "size": 1158
+    }
+  }
+}

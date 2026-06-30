@@ -1,0 +1,31 @@
+{
+  "name": "@types/conventional-commits-parser",
+  "version": "5.0.2",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883824973,
+      "integrity": "sha512-HQaIQk9pwOcyKutyDk4o2a87WnotwYuLGYFW43emGm4FvIJFKPyg+OYaw5sTegKAKf+C5SKa1ACjzCLivbaHrQ==",
+      "mode": 420,
+      "size": 1141
+    },
+    "README.md": {
+      "checkedAt": 1780883859478,
+      "integrity": "sha512-PdWsadwFIKXH2f6SycQqX+ZqNt+BvE6/XROnGy5A+m0G8vGIbnt1F0GtqxMdzeG3Z0nGpKVMwS20TPSlJK31aA==",
+      "mode": 420,
+      "size": 656
+    },
+    "index.d.ts": {
+      "checkedAt": 1780883859478,
+      "integrity": "sha512-XBnM7iOYeaet8ZdF0i3WJwhm1ZQHi6nOqqKhJhqrvmhajVRcV/998xhW70pFujdV2uLVH0POb5krYKkwjiR0eg==",
+      "mode": 420,
+      "size": 8461
+    },
+    "package.json": {
+      "checkedAt": 1780883859479,
+      "integrity": "sha512-lPFQJP7WWLzZ0dDkLuN+pHLsTk2iGiJiVsF7AyvpDivtpaapbE3KWyhOVM/2K6R8FuNkvu7E7xwKVtEnZBXaYQ==",
+      "mode": 420,
+      "size": 922
+    }
+  }
+}

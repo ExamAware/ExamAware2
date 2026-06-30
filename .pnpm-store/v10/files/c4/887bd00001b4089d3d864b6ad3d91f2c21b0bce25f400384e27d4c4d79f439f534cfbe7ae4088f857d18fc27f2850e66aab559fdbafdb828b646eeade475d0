@@ -1,0 +1,1 @@
+{"version":3,"file":"index.js","sourceRoot":"","sources":["../../../src/shared/options/index.ts"],"names":[],"mappings":"","sourcesContent":["export type * from \"./appearance.js\";\nexport type * from \"./feature/index.js\";\nexport type * from \"./layout/index.js\";\nexport type * from \"./info.js\";\nexport type * from \"./locales.js\";\n"]}

@@ -1,0 +1,26 @@
+.vp-skip-link {
+  inset-inline-start: 0.25rem;
+  top: 0.25rem;
+  z-index: 999;
+
+  padding: 0.65rem 1.5rem;
+  border-radius: 0.5rem;
+
+  background: var(--vp-c-bg);
+  color: var(--vp-c-accent);
+  box-shadow: var(--vp-c-shadow);
+
+  font-weight: bold;
+  font-size: 0.9em;
+  text-decoration: none;
+
+  @media print {
+    display: none;
+  }
+
+  &:focus {
+    clip-path: none;
+    width: auto;
+    height: auto;
+  }
+}

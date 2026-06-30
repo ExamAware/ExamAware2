@@ -1,0 +1,4 @@
+export declare function useSimpleTooltipDelayLock(): {
+    onEnter: (cb: () => void) => void;
+    onLeave: () => void;
+};

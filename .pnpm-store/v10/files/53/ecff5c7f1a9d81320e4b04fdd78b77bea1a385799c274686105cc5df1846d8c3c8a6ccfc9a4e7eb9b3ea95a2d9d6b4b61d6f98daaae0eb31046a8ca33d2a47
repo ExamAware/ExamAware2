@@ -1,0 +1,115 @@
+@use "sass:color";
+@use "sass:list";
+
+.vp-category-list {
+  position: relative;
+  z-index: 2;
+
+  padding-inline-start: 0;
+
+  list-style: none;
+
+  font-size: 14px;
+}
+
+.vp-category-item {
+  display: inline-block;
+  margin: 0.25rem 0.5rem 0.5rem;
+}
+
+.vp-category {
+  display: inline-block;
+  vertical-align: middle;
+
+  overflow: hidden;
+
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+
+  background: var(--vp-c-grey-soft);
+  color: var(--vp-c-text);
+  box-shadow: 0 1px 4px 0 var(--vp-c-shadow);
+
+  overflow-wrap: anywhere;
+
+  cursor: pointer;
+
+  transition:
+    background var(--vp-t-color),
+    color var(--vp-t-color);
+
+  @media (max-width: hope-config.$mobile) {
+    font-size: 0.9rem;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  &.active {
+    background: var(--vp-c-accent-bg);
+    color: var(--vp-c-white);
+
+    .vp-category-count {
+      background: var(--vp-c-white);
+      color: var(--vp-c-accent-bg);
+    }
+  }
+
+  .vp-category-count {
+    display: inline-block;
+
+    min-width: 0.75rem;
+    height: 1rem;
+    margin-inline-start: 0.25rem;
+    padding: 0 0.125rem;
+    border-radius: 0.6rem;
+
+    background: var(--vp-c-accent-bg);
+    color: var(--vp-c-white);
+
+    font-size: 0.75rem;
+    line-height: 1rem;
+    text-align: center;
+  }
+
+  @each $color in hope-config.$colors {
+    $index: list.index(hope-config.$colors, $color) - 1;
+
+    &.color#{$index} {
+      background: color.scale($color, $lightness: 90%);
+      color: color.scale($color, $lightness: -10%);
+
+      [data-theme="dark"] & {
+        background: color.scale($color, $lightness: -75%);
+        color: color.scale($color, $lightness: 20%);
+      }
+
+      &:hover {
+        background: color.scale($color, $lightness: 75%);
+
+        [data-theme="dark"] & {
+          background: color.scale($color, $lightness: -60%);
+        }
+      }
+
+      &.active {
+        background: $color;
+        color: var(--vp-c-white);
+
+        [data-theme="dark"] & {
+          background: color.scale($color, $lightness: -20%);
+        }
+
+        .vp-category-count {
+          background: var(--vp-c-white);
+          color: $color;
+        }
+      }
+
+      .vp-category-count {
+        background: $color;
+      }
+    }
+  }
+}

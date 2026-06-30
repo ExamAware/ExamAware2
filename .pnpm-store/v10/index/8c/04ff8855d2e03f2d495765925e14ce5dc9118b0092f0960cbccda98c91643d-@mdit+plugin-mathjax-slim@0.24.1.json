@@ -1,0 +1,73 @@
+{
+  "name": "@mdit/plugin-mathjax-slim",
+  "version": "0.24.1",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883866633,
+      "integrity": "sha512-HZuUWw1uVtdxTKGbo45QNkaps/PE6zhEQbpxMeorI7UkHD3w4tnqELeKhro6TDlLPx7xdE8eDGs/AOpLViH7Fg==",
+      "mode": 420,
+      "size": 1118
+    },
+    "lib/importer-C5KF-eLj.js": {
+      "checkedAt": 1780883866659,
+      "integrity": "sha512-lUzz3+4s03RE9WSCFZhCSc5MTXOci+0YkthB9CSRbIusiLTeUTjpkN2JW5Lx5ii4B1ulEm5/p9GQI/gD5sQCog==",
+      "mode": 420,
+      "size": 2625
+    },
+    "lib/index.js": {
+      "checkedAt": 1780883866660,
+      "integrity": "sha512-TwmGIZE0KFCl7unWQicf+tFaZSQcQZKSIpLEGZ87Z1eS8WhmNY32AVtx81l/VlC3K5oc/2shs+JrSk2pfUIyGQ==",
+      "mode": 420,
+      "size": 5324
+    },
+    "lib/sync.js": {
+      "checkedAt": 1780883866660,
+      "integrity": "sha512-783IqEnRuuvQOnfEy9FEVKhnUT+NA770wKdZ6i0P2Z8bBUH/z4pgM+pDg/+o24ez5FiUW7cML5fLSHfJEqJH+Q==",
+      "mode": 420,
+      "size": 2115
+    },
+    "package.json": {
+      "checkedAt": 1780883866660,
+      "integrity": "sha512-3AslV0NeElMIIFMGKWGIfnJrD/hGlYCN3XAZd9DrEcZgMN+TeRntVQpsLSc73A60m9OsUGO4zB73nBHGyd4PQA==",
+      "mode": 420,
+      "size": 1539
+    },
+    "lib/importer-C5KF-eLj.js.map": {
+      "checkedAt": 1780883866661,
+      "integrity": "sha512-Dsz7kbbqQvVmPqan3jGe/CTdOOwq52YHNinyXXZeyPGyVp2lPfVPuc3bUKoR8zvt6stLl1EEdpUBy47ecbLK6Q==",
+      "mode": 420,
+      "size": 101
+    },
+    "lib/index.js.map": {
+      "checkedAt": 1780883866661,
+      "integrity": "sha512-Ju1sZKXRu/QZ9xJH1Xjx4YHk9uMDmejTshGt9qdBwLiuEYIErslmNE49yWRAPKn0qegvHtcSNUUzt2l0Rqqs8g==",
+      "mode": 420,
+      "size": 14642
+    },
+    "lib/sync.js.map": {
+      "checkedAt": 1780883866661,
+      "integrity": "sha512-JPf5i/FRes2cyY8dKQLVIBnJl6SQkeYfdOmR0se+3Vu+D5t8ZHciuY7OJKj1MsMSMTGesLXMKMy8KrdGSt5m7w==",
+      "mode": 420,
+      "size": 9083
+    },
+    "README.md": {
+      "checkedAt": 1780883866662,
+      "integrity": "sha512-Pf0vYRGfa8yKvfBsJUl40+PQU8jMxPz2FeJ0ETLl/9ZUqV+4MaAvINxNQrAPF2DjmDI1idQaMEeLiPqGnRkCAg==",
+      "mode": 420,
+      "size": 855
+    },
+    "lib/index.d.ts": {
+      "checkedAt": 1780883866662,
+      "integrity": "sha512-6w9bvbptsRBe+/XpbLTBnbwN3nZkeT0rBV5lu2AN+9936Y6I7haJOC+obtLFGG9sIzaX/uzO21Uvf2SNAyEcDQ==",
+      "mode": 420,
+      "size": 7756
+    },
+    "lib/sync.d.ts": {
+      "checkedAt": 1780883866662,
+      "integrity": "sha512-tGligjXChPqWa8TSvQVHP34vSEQW5vpmm+R2mqx+tEwM60Sn776jTnBERm2K9pCY1G5b7lvwcSvMLIjNQ9fmBg==",
+      "mode": 420,
+      "size": 7575
+    }
+  }
+}

@@ -9,6 +9,7 @@ import { createPlayerWindow } from './windows/playerWindow'
 import { windowManager } from './windows/windowManager'
 import { registerIpcHandlers } from './ipcHandlers'
 import { patchConsoleWithLogger, appLogger, initLoggingConfig } from './logging/winstonLogger'
+import { flushWrite } from './configStore'
 import { registerTimeSyncHandlers } from './ipcHandlers/timeServiceHandler'
 import {
   initializeTimeSync,
@@ -319,14 +320,16 @@ app.whenReady().then(async () => {
   }
 
   const isAutoStart = (() => {
-    try {
-      if (process.platform === 'darwin' || process.platform === 'win32') {
+    // 统一参数开关（Windows / macOS / Linux 都优先用命令行参数判断）
+    if (process.argv.includes('--autostart')) return true
+    // 后备检测：macOS 可通过 wasOpenedAtLogin 判断
+    if (process.platform === 'darwin') {
+      try {
         const s = app.getLoginItemSettings?.()
         if (s && (s as any).wasOpenedAtLogin) return true
-      }
-    } catch {}
-    // 统一参数开关（Linux .desktop 与通用备用）
-    return process.argv.includes('--autostart')
+      } catch {}
+    }
+    return false
   })()
 
   // 如果有文件要打开，直接打开编辑器
@@ -422,6 +425,10 @@ app.whenReady().then(async () => {
     } catch {}
     try {
       disposeExamAutoStart()
+    } catch {}
+    // 退出前确保配置已落盘（含 lastExamConfig）
+    try {
+      void flushWrite()
     } catch {}
     try {
       void httpApiService.dispose()

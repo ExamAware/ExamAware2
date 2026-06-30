@@ -1,0 +1,3 @@
+@auto-complete-option-highlight-color: @brand-color;
+@auto-complete-color-empty: @text-color-disabled;
+@auto-complete-empty-height-default: @comp-size-m;

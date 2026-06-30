@@ -1,0 +1,37 @@
+import { getFullLocaleConfig } from '@vuepress/helper';
+import { getDirname, logger, path } from 'vuepress/utils';
+import { backToTopLocaleInfo } from './locales.js';
+import { PLUGIN_NAME } from './logger.js';
+const __dirname = import.meta.dirname || getDirname(import.meta.url);
+/**
+ * Back to top plugin
+ *
+ * 返回顶部插件
+ *
+ * @example
+ * ```ts
+ * import { backToTopPlugin } from '@vuepress/plugin-back-to-top'
+ *
+ * export default {
+ *   plugins: [backToTopPlugin()]
+ * }
+ * ```
+ */
+export const backToTopPlugin = (options = {}) => (app) => {
+    if (app.env.isDebug)
+        logger.info('Options', options);
+    return {
+        name: PLUGIN_NAME,
+        define: () => ({
+            __BACK_TO_TOP_LOCALES__: getFullLocaleConfig({
+                app,
+                name: 'back-to-top',
+                default: backToTopLocaleInfo,
+                config: options.locales,
+            }),
+            __BACK_TO_TOP_PROGRESS__: options.progress ?? true,
+            __BACK_TO_TOP_THRESHOLD__: options.threshold ?? 100,
+        }),
+        clientConfigFile: path.resolve(__dirname, '../client/config.js'),
+    };
+};

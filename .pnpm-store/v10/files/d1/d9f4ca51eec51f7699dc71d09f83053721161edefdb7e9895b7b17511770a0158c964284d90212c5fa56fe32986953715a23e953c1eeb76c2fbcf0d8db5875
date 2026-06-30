@@ -1,0 +1,157 @@
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.t-time-picker,
+.t-time-range-picker {
+  width: 240px;
+  background: transparent;
+  display: inline-block;
+  position: relative;
+  font: var(--td-font-body-medium);
+  color: var(--td-text-color-primary);
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.t-time-picker.t-is-disabled,
+.t-time-range-picker.t-is-disabled {
+  cursor: not-allowed;
+}
+.t-time-picker > *:focus,
+.t-time-range-picker > *:focus,
+.t-time-picker > *:active,
+.t-time-range-picker > *:active {
+  outline: 0;
+}
+.t-time-picker__group,
+.t-time-range-picker__group {
+  position: relative;
+}
+.t-time-picker__group.active,
+.t-time-range-picker__group.active {
+  border: 1px solid var(--td-brand-color);
+  box-shadow: 0 0 2px 2px var(--td-brand-color-focus);
+}
+.t-time-picker__group.active + .t-time-picker__icon-wrap > .t-time-picker__icon-clear,
+.t-time-range-picker__group.active + .t-time-picker__icon-wrap > .t-time-picker__icon-clear {
+  display: block;
+}
+.t-time-picker__group-text,
+.t-time-range-picker__group-text {
+  color: var(--td-text-color-primary);
+}
+.t-time-picker__group input,
+.t-time-range-picker__group input {
+  cursor: pointer;
+}
+.t-time-range-picker {
+  width: auto;
+}
+.t-time-picker__panel {
+  width: 280px;
+  background: transparent;
+  border-radius: var(--td-radius-default);
+  display: inline-block;
+  position: relative;
+  font: var(--td-font-body-medium);
+  --timePickerPanelOffsetTop: 15;
+  --timePickerPanelOffsetBottom: 21;
+}
+.t-time-picker__panel-body {
+  width: 100%;
+  height: calc(calc(var(--td-comp-size-xs) + var(--td-size-3)) * 7 + var(--td-size-3));
+  position: relative;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.t-time-picker__panel-body-active-mask {
+  position: absolute;
+  top: 50%;
+  height: var(--td-comp-size-xs);
+  width: 100%;
+  display: flex;
+}
+.t-time-picker__panel-body-active-mask > div {
+  flex: 1;
+  transform: translateY(calc(0px - (calc(var(--td-comp-size-xs) + var(--td-size-3)) / 2)));
+  height: var(--td-comp-size-xs);
+  background-color: var(--td-brand-color-light);
+  margin: var(--td-size-3) var(--td-comp-margin-xs);
+  border-radius: var(--td-radius-default);
+}
+.t-time-picker__panel-body-scroll {
+  flex: 1;
+  height: 100%;
+  overflow-y: scroll;
+  text-align: center;
+  position: relative;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.t-time-picker__panel-body-scroll::-webkit-scrollbar {
+  width: 0;
+}
+.t-time-picker__panel-body-scroll::after,
+.t-time-picker__panel-body-scroll::before {
+  display: block;
+  height: 50%;
+  content: '';
+}
+.t-time-picker__panel-body-scroll::before {
+  height: calc(50% - var(--timePickerPanelOffsetTop, 0) * 1px);
+}
+.t-time-picker__panel-body-scroll::after {
+  height: calc(50% - var(--timePickerPanelOffsetBottom, 0) * 1px);
+}
+.t-time-picker__panel-body-scroll:last-child {
+  border-right: 0;
+}
+.t-time-picker__panel-body-scroll-item {
+  height: var(--td-comp-size-xs);
+  font: var(--td-font-body-medium);
+  line-height: var(--td-comp-size-xs);
+  color: var(--td-text-color-secondary);
+  margin: var(--td-size-3) var(--td-comp-margin-xs);
+  border-radius: var(--td-radius-default);
+  text-align: center;
+  cursor: pointer;
+  transition: 0.2s linear;
+}
+.t-time-picker__panel-body-scroll-item:not(.t-time-picker__panel-body-scroll-item.t-is-current):not(.t-time-picker__panel-body-scroll-item.t-is-disabled):hover {
+  color: var(--td-text-color-primary);
+}
+.t-time-picker__panel-body-scroll-item:not(.t-time-picker__panel-body-scroll-item.t-is-current):not(.t-time-picker__panel-body-scroll-item.t-is-disabled):active {
+  background-color: var(--td-bg-color-container-hover);
+}
+.t-time-picker__panel-body-scroll-item.t-is-disabled {
+  color: var(--td-text-color-disabled);
+  cursor: not-allowed;
+}
+.t-time-picker__panel-body-scroll-item.t-is-hidden {
+  display: none;
+  cursor: not-allowed;
+}
+.t-time-picker__panel-body-scroll-item.t-is-current {
+  color: var(--td-brand-color);
+}
+.t-time-picker__panel-section-body {
+  padding: var(--td-pop-padding-xl) calc(var(--td-pop-padding-xl) - var(--td-comp-margin-xs));
+}
+.t-time-picker__panel-section-footer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row-reverse;
+  align-items: center;
+  background-color: transparent;
+  position: relative;
+  border-top: 1px solid var(--td-border-level-1-color);
+  box-sizing: border-box;
+  padding: var(--td-pop-padding-xl);
+}

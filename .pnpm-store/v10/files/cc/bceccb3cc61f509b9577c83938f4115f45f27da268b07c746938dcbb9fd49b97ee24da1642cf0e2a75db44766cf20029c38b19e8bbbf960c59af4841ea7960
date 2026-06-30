@@ -1,0 +1,265 @@
+@use "@sass-palette/hope-config";
+.vp-article-wrapper {
+  position: relative;
+
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0 auto 1.25rem;
+
+  text-align: start;
+  overflow-wrap: break-word;
+
+  @media (max-width: hope-config.$pad) {
+    margin: 0 auto 1rem;
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &:hover {
+    .vp-article-title::after {
+      visibility: visible;
+      transform: scaleX(1);
+    }
+  }
+}
+
+.vp-article-item {
+  display: block;
+
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.4rem;
+
+  background: var(--vp-c-bg-elv);
+  color: inherit;
+  box-shadow: 0 1px 3px 1px var(--vp-c-shadow);
+
+  transition:
+    background var(--vp-t-color),
+    box-shadow var(--vp-t-transform);
+
+  @media (max-width: hope-config.$pad) {
+    padding: 0.75rem 1rem;
+  }
+
+  @media (max-width: hope-config.$mobile) {
+    border-radius: 0;
+  }
+
+  &:hover {
+    box-shadow: 0 2px 6px 2px var(--vp-c-shadow);
+  }
+
+  .sticky-icon {
+    position: absolute;
+    inset-inline-end: 0;
+    top: 0;
+
+    width: 1.5rem;
+    height: 1.5rem;
+
+    color: var(--vp-c-accent);
+  }
+
+  .page-info {
+    > span {
+      display: flex;
+      flex-shrink: 0;
+      align-items: center;
+
+      margin-inline-end: 0.5em;
+
+      line-height: 1.8;
+
+      &::after {
+        --balloon-font-size: 12px;
+        padding: 0.3em 0.6em !important;
+      }
+    }
+  }
+}
+
+.vp-article-hr {
+  margin-block: 0.375em;
+}
+
+.vp-article-title {
+  position: relative;
+
+  display: inline-block;
+
+  color: var(--vp-c-text);
+
+  font-size: 1.25rem;
+  font-family: var(--vp-font-heading);
+  line-height: 1.6;
+
+  cursor: pointer;
+
+  &::after {
+    content: "";
+
+    position: absolute;
+    inset: auto 0 0;
+
+    height: 2px;
+
+    background: var(--vp-c-accent);
+
+    visibility: hidden;
+
+    transition: transform var(--vp-t-transform);
+
+    transform: scaleX(0);
+  }
+
+  a {
+    color: inherit;
+    font-weight: 600;
+  }
+
+  .lock-icon,
+  .slides-icon {
+    position: relative;
+    bottom: -0.125em;
+
+    display: inline-block;
+    vertical-align: baseline;
+
+    width: 1em;
+    height: 1em;
+    margin-inline-end: 0.25em;
+
+    color: var(--vp-c-accent);
+  }
+
+  > span {
+    overflow-wrap: anywhere;
+  }
+}
+
+.vp-article-cover {
+  width: calc(100% + 2.5rem);
+  margin: -0.75rem -1.25rem 0.75rem;
+  border-top-left-radius: 0.4rem;
+  border-top-right-radius: 0.4rem;
+
+  @media (max-width: hope-config.$pad) {
+    width: calc(100% + 2rem);
+    margin: -0.75rem -1rem 0.75rem;
+  }
+
+  @media (max-width: hope-config.$mobile) {
+    border-radius: 0;
+  }
+}
+
+.vp-article-excerpt {
+  --code-padding-y: 0.75rem;
+  --code-padding-x: 0.75rem;
+  --code-line-number-width: 2em;
+
+  overflow: hidden;
+  line-height: 1.6;
+  cursor: default;
+
+  @media (max-width: hope-config.$pad) {
+    font-size: 15px;
+  }
+
+  @media (max-width: hope-config.$mobile) {
+    font-size: 14px;
+  }
+
+  // hide first h1 has it should be page title
+  h1:first-child {
+    display: none;
+  }
+
+  h2 {
+    font-size: 1.2em;
+  }
+
+  h3 {
+    font-size: 1.15em;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+  }
+
+  p,
+  ul,
+  ol {
+    line-height: 1.5;
+  }
+
+  p {
+    margin-block: 0.5em;
+  }
+
+  // shrink code block
+  div[class*="language-"] {
+    &::before {
+      top: 0;
+    }
+
+    pre,
+    &.line-numbers-mode .line-numbers {
+      line-height: 1.5;
+    }
+  }
+
+  // hide code demo
+  .code-demo-wrapper {
+    display: none;
+  }
+
+  // footnote fix
+  .footnote-anchor {
+    display: none;
+  }
+
+  section.footnotes {
+    display: none;
+  }
+
+  img {
+    max-width: 100%;
+  }
+
+  figure {
+    display: flex;
+    flex-flow: column;
+
+    width: auto;
+    margin: 1rem auto;
+
+    text-align: center;
+
+    transition: transform var(--vp-t-transform);
+
+    img {
+      overflow: hidden;
+      margin: 0 auto;
+      border-radius: 8px;
+    }
+
+    figcaption {
+      display: inline-block;
+      margin: 6px auto;
+      font-size: 0.8rem;
+
+      &:only-child {
+        display: none;
+      }
+    }
+  }
+}

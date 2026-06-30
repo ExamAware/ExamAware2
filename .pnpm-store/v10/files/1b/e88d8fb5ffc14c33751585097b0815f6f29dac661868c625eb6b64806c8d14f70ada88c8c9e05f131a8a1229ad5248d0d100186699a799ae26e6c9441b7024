@@ -1,0 +1,10 @@
+import { type ZXingFullModule, type ZXingModuleOverrides } from "../core.js";
+import type { ReaderOptions, WriterOptions } from "../bindings/index.js";
+export declare function getZXingModule(zxingModuleOverrides?: ZXingModuleOverrides): Promise<ZXingFullModule>;
+export declare function setZXingModuleOverrides(zxingModuleOverrides: ZXingModuleOverrides): void;
+export declare function readBarcodesFromImageFile(imageFile: Blob | File, readerOptions?: ReaderOptions): Promise<import("../bindings/readResult.js").ReadResult[]>;
+export declare function readBarcodesFromImageData(imageData: ImageData, readerOptions?: ReaderOptions): Promise<import("../bindings/readResult.js").ReadResult[]>;
+export declare function writeBarcodeToImageFile(text: string, writerOptions?: WriterOptions): Promise<import("../bindings/writeResult.js").WriteResult>;
+export * from "../bindings/exposedReaderBindings.js";
+export * from "../bindings/exposedWriterBindings.js";
+export { purgeZXingModule, type ZXingFullModule, type ZXingModuleOverrides, } from "../core.js";

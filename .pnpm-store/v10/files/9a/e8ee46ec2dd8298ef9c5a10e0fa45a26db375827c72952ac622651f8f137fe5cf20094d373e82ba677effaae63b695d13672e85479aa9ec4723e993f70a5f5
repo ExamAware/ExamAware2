@@ -1,0 +1,24 @@
+import { TdCascaderProps, CascaderValue, CascaderChangeSource } from './type';
+import { TdSelectInputProps } from '../select-input/type';
+import TreeStore from 'tdesign-vue-next/es/common/js/tree/tree-store';
+import TreeNode from 'tdesign-vue-next/es/common/js/tree/tree-node';
+import { TreeNodeModel, TreeNodeValue } from 'tdesign-vue-next/es/common/js/tree/types';
+export * from './type';
+export interface CascaderContextType extends Pick<TdCascaderProps, 'size' | 'disabled' | 'checkStrictly' | 'lazy' | 'multiple' | 'filterable' | 'filter' | 'clearable' | 'checkProps' | 'showAllLevels' | 'max' | 'value' | 'minCollapsedNum' | 'valueType' | 'valueMode' | 'reserveKeyword'> {
+    treeStore: TreeStore;
+    setValue: (val: CascaderValue, source: CascaderChangeSource, node?: TreeNodeModel) => void;
+    visible: boolean;
+    setVisible: TdSelectInputProps['onPopupVisibleChange'];
+    treeNodes: TreeNode[];
+    setTreeNodes: (val: CascaderValue) => void;
+    inputVal: TdSelectInputProps['inputValue'];
+    setInputVal: (val: TdSelectInputProps['inputValue']) => void;
+    setExpand: (val: TreeNodeValue[]) => void;
+    isParentFilterable: boolean;
+}
+export { TreeNode } from 'tdesign-vue-next/es/common/js/tree/tree-node';
+export type { TreeNodeValue } from 'tdesign-vue-next/es/common/js/tree/types';
+export type { TreeOptionData } from 'tdesign-vue-next/es/common/js/common';
+export type { TreeNodeModel } from '../tree';
+export type { TdSelectInputProps } from '../select-input/type';
+export declare const EVENT_NAME_WITH_KEBAB: string[];

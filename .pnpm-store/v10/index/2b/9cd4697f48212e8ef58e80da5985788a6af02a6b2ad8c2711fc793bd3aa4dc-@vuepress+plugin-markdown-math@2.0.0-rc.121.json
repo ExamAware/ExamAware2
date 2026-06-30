@@ -1,0 +1,67 @@
+{
+  "name": "@vuepress/plugin-markdown-math",
+  "version": "2.0.0-rc.121",
+  "requiresBuild": false,
+  "files": {
+    "LICENSE": {
+      "checkedAt": 1780883861285,
+      "integrity": "sha512-yu3nmzRem/6ZswYlICcbNbUetGNJj7XCiB8wzw/dIJeEcIyppzAhmT7rEi+Lnitnwo5Er6nJOnf43G14mhj2yw==",
+      "mode": 420,
+      "size": 1094
+    },
+    "lib/client/styles/katex.css": {
+      "checkedAt": 1780883866521,
+      "integrity": "sha512-Ig8tji7N5VUMv0E7cr/p/ALugLrcaN2TWc89joF+QouFTC5nsLblqMQJl0snLBtsmUzavixA+uz9ckqlThK+sQ==",
+      "mode": 420,
+      "size": 291
+    },
+    "lib/node/index.js": {
+      "checkedAt": 1780883866521,
+      "integrity": "sha512-9ScJEXH9CI7duoxXU3dusLSatcQ75es0pJQsRGXfe8LPFQl3M613pGJCkZDBturqAidYQwLK2V2WRGYAZinwtg==",
+      "mode": 420,
+      "size": 2235
+    },
+    "lib/client/composables/useKatexCopy.js": {
+      "checkedAt": 1780883866521,
+      "integrity": "sha512-hmJtkGTJGj+MH5QAI5hM+kcv1QLWp+uiALA3l8g5TnLm4uqAeW5/FAzljPv5NWafnisW78rIHCs90OlfQVaoIQ==",
+      "mode": 420,
+      "size": 197
+    },
+    "package.json": {
+      "checkedAt": 1780883866522,
+      "integrity": "sha512-BeCPSHYJ0PqHBKD5w+f5PGYJLPRp2ZL1vR/I4mllEf5fFuC1mSqY/CgLVnxujJeUQY8Ev7v90GkO6+Di0BkZrg==",
+      "mode": 420,
+      "size": 1508
+    },
+    "lib/node/index.js.map": {
+      "checkedAt": 1780883866522,
+      "integrity": "sha512-sRSoiFWJuCQS5Fzcf9gNLVhVz41rTGl4cu4nIHCAIowJ7tlJNAG+op1o1hothpjPcRSgoqd4xgD/sHE9+3p2qw==",
+      "mode": 420,
+      "size": 9462
+    },
+    "lib/client/styles/katex.css.map": {
+      "checkedAt": 1780883866522,
+      "integrity": "sha512-nZ5IhQZVnqM/nXNnIel70cSa53exEVbv3aBxGWZo4TeKpttaCP98De26VdjjHnHpCmOMX9TPkJmjhdzoN6RFnA==",
+      "mode": 420,
+      "size": 636
+    },
+    "lib/client/composables/useKatexCopy.js.map": {
+      "checkedAt": 1780883866523,
+      "integrity": "sha512-Uid2TWZszudMI0xnAgQK62TlH6XK0j1fHh4r/jP93qdyHh8EwMJbnmkEGOA/N87JNWGZZfOGHl/ivGfPKQBNiQ==",
+      "mode": 420,
+      "size": 510
+    },
+    "lib/node/index.d.ts": {
+      "checkedAt": 1780883866523,
+      "integrity": "sha512-XILBhyAvU4aMjfVs5LeHj9/5N3+HTMYrSPv87T44CqjE0iG8/8b+QIXaIxISusZvo4VPwPDVcZoCYfrBpk5lcg==",
+      "mode": 420,
+      "size": 1603
+    },
+    "lib/client/composables/useKatexCopy.d.ts": {
+      "checkedAt": 1780883866523,
+      "integrity": "sha512-FOkrAckvqaIk7QlEaf6FVLQjo/N7xYR7KpE/0DAti20vVTXv/kGvkxFE/Wzrj/AazWokhEKgWc2eI3Qnhd3EXg==",
+      "mode": 420,
+      "size": 66
+    }
+  }
+}

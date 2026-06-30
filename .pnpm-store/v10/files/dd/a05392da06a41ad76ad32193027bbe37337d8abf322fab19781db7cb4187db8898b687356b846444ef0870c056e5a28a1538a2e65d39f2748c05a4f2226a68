@@ -1,0 +1,73 @@
+{
+  "name": "create-codepen",
+  "version": "2.0.0",
+  "description": "Create CodePen with API",
+  "type": "module",
+  "keywords": [
+    "codepen"
+  ],
+  "homepage": "https://github.com/Mister-Hope/create-codepen",
+  "bugs": {
+    "url": "https://github.com/Mister-Hope/create-codepen/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mister-Hope/create-codepen.git",
+    "directory": "packages/theme"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Mr.Hope",
+    "email": "mister-hope@outlook.com",
+    "url": "https://mister-hope.com"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "nano-staged": {
+    "**/*": "prettier --write --ignore-unknown",
+    "*.{js,ts}": "eslint --fix"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-git"
+    }
+  },
+  "devDependencies": {
+    "@commitlint/cli": "19.3.0",
+    "@commitlint/config-conventional": "19.2.2",
+    "commit-and-tag-version": "12.4.1",
+    "commitizen": "4.3.0",
+    "cz-git": "1.9.1",
+    "esbuild": "0.21.3",
+    "eslint": "8.57.0",
+    "eslint-config-mister-hope": "0.1.0",
+    "husky": "9.0.11",
+    "nano-staged": "0.8.0",
+    "prettier": "3.2.5",
+    "rimraf": "5.0.7",
+    "rollup": "4.17.2",
+    "rollup-plugin-dts": "6.1.1",
+    "rollup-plugin-esbuild": "6.1.1",
+    "typescript": "5.4.5",
+    "vite": "5.2.11"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "rollup -c rollup.config.ts --configPlugin esbuild",
+    "changelog": " commit-and-tag-version --skip.bump --skip.commit --skip.tag",
+    "clean": "rimraf dist",
+    "commit": "pnpm git-cz",
+    "dev": "vite dev",
+    "lint": "eslint . --fix && prettier --check --write .",
+    "lint:check": "eslint . && prettier --check ."
+  }
+}

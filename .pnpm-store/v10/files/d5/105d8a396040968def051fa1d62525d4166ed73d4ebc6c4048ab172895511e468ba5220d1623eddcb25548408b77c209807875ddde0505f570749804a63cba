@@ -1,0 +1,198 @@
+{
+  "name": "vuepress-theme-hope",
+  "version": "2.0.0-rc.101",
+  "description": "A light vuepress theme with tons of features",
+  "keywords": [
+    "vuepress",
+    "vuepress2",
+    "theme",
+    "vuepress-theme",
+    "blog",
+    "vuepress-blog",
+    "vuepress-theme-blog"
+  ],
+  "homepage": "https://theme-hope.vuejs.press/",
+  "bugs": {
+    "url": "https://github.com/vuepress-theme-hope/vuepress-theme-hope/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vuepress-theme-hope/vuepress-theme-hope.git",
+    "directory": "packages/theme"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Mr.Hope",
+    "email": "mister-hope@outlook.com",
+    "url": "https://mister-hope.com"
+  },
+  "sideEffects": [
+    "**/*.scss"
+  ],
+  "type": "module",
+  "exports": {
+    ".": "./lib/node/index.js",
+    "./blog": {
+      "types": "./lib/bundle/blog.d.ts",
+      "custom": "./lib/client/blog.js",
+      "default": "./lib/bundle/blog.js"
+    },
+    "./client": {
+      "types": "./lib/bundle/index.d.ts",
+      "custom": "./lib/client/custom.js",
+      "default": "./lib/bundle/index.js"
+    },
+    "./components/*": {
+      "types": "./lib/bundle/components/*.d.ts",
+      "custom": "./lib/client/components/*.js",
+      "default": "./lib/bundle/exports/noop.js"
+    },
+    "./composables/*": {
+      "types": "./lib/client/composables/*.d.ts",
+      "custom": "./lib/client/composables/*.js",
+      "default": "./lib/bundle/exports/noop.js"
+    },
+    "./layouts/*": {
+      "types": "./lib/client/layouts/*",
+      "custom": "./lib/client/layouts/*",
+      "default": "./lib/bundle/exports/noop.js"
+    },
+    "./styles/*": "./lib/client/styles/*",
+    "./utils/*": {
+      "types": "./lib/client/utils/*",
+      "custom": "./lib/client/utils/*",
+      "default": "./lib/bundle/exports/noop.js"
+    },
+    "./presets/*": "./lib/presets/*",
+    "./shared": "./lib/shared/index.js",
+    "./templates/*": "./templates/*",
+    "./package.json": "./package.json"
+  },
+  "main": "./lib/node/index.js",
+  "types": "./lib/node/index.d.ts",
+  "files": [
+    "lib",
+    "templates"
+  ],
+  "dependencies": {
+    "@vuepress/helper": "2.0.0-rc.121",
+    "@vuepress/plugin-active-header-links": "2.0.0-rc.118",
+    "@vuepress/plugin-back-to-top": "2.0.0-rc.121",
+    "@vuepress/plugin-blog": "2.0.0-rc.121",
+    "@vuepress/plugin-catalog": "2.0.0-rc.121",
+    "@vuepress/plugin-comment": "2.0.0-rc.121",
+    "@vuepress/plugin-copy-code": "2.0.0-rc.121",
+    "@vuepress/plugin-copyright": "2.0.0-rc.121",
+    "@vuepress/plugin-git": "2.0.0-rc.121",
+    "@vuepress/plugin-icon": "2.0.0-rc.121",
+    "@vuepress/plugin-links-check": "2.0.0-rc.121",
+    "@vuepress/plugin-markdown-chart": "2.0.0-rc.121",
+    "@vuepress/plugin-markdown-ext": "2.0.0-rc.121",
+    "@vuepress/plugin-markdown-hint": "2.0.0-rc.121",
+    "@vuepress/plugin-markdown-image": "2.0.0-rc.121",
+    "@vuepress/plugin-markdown-include": "2.0.0-rc.121",
+    "@vuepress/plugin-markdown-math": "2.0.0-rc.121",
+    "@vuepress/plugin-markdown-preview": "2.0.0-rc.121",
+    "@vuepress/plugin-markdown-stylize": "2.0.0-rc.121",
+    "@vuepress/plugin-markdown-tab": "2.0.0-rc.121",
+    "@vuepress/plugin-notice": "2.0.0-rc.121",
+    "@vuepress/plugin-nprogress": "2.0.0-rc.121",
+    "@vuepress/plugin-photo-swipe": "2.0.0-rc.121",
+    "@vuepress/plugin-reading-time": "2.0.0-rc.121",
+    "@vuepress/plugin-redirect": "2.0.0-rc.121",
+    "@vuepress/plugin-rtl": "2.0.0-rc.121",
+    "@vuepress/plugin-sass-palette": "2.0.0-rc.121",
+    "@vuepress/plugin-seo": "2.0.0-rc.121",
+    "@vuepress/plugin-shiki": "2.0.0-rc.121",
+    "@vuepress/plugin-sitemap": "2.0.0-rc.121",
+    "@vuepress/plugin-theme-data": "2.0.0-rc.120",
+    "@vueuse/core": "^14.1.0",
+    "balloon-css": "^1.2.0",
+    "bcrypt-ts": "^8.0.0",
+    "chokidar": "^5.0.0",
+    "vue": "^3.5.26",
+    "vuepress-shared": "2.0.0-rc.99",
+    "vuepress-plugin-md-enhance": "2.0.0-rc.101",
+    "vuepress-plugin-components": "2.0.0-rc.99"
+  },
+  "devDependencies": {
+    "@vuepress/bundler-vite": "2.0.0-rc.26",
+    "@vuepress/bundler-webpack": "2.0.0-rc.26"
+  },
+  "peerDependencies": {
+    "@vuepress/plugin-docsearch": "2.0.0-rc.121",
+    "@vuepress/plugin-feed": "2.0.0-rc.121",
+    "@vuepress/plugin-meilisearch": "2.0.0-rc.121",
+    "@vuepress/plugin-prismjs": "2.0.0-rc.121",
+    "@vuepress/plugin-pwa": "2.0.0-rc.121",
+    "@vuepress/plugin-revealjs": "2.0.0-rc.121",
+    "@vuepress/plugin-search": "2.0.0-rc.121",
+    "@vuepress/plugin-slimsearch": "2.0.0-rc.121",
+    "@vuepress/plugin-watermark": "2.0.0-rc.121",
+    "@vuepress/shiki-twoslash": "2.0.0-rc.121",
+    "sass": "^1.97.1",
+    "sass-embedded": "^1.97.1",
+    "sass-loader": "^16.0.6",
+    "vuepress": "2.0.0-rc.26"
+  },
+  "peerDependenciesMeta": {
+    "@vuepress/plugin-docsearch": {
+      "optional": true
+    },
+    "@vuepress/plugin-feed": {
+      "optional": true
+    },
+    "@vuepress/plugin-meilisearch": {
+      "optional": true
+    },
+    "@vuepress/plugin-prismjs": {
+      "optional": true
+    },
+    "@vuepress/plugin-pwa": {
+      "optional": true
+    },
+    "@vuepress/plugin-revealjs": {
+      "optional": true
+    },
+    "@vuepress/plugin-search": {
+      "optional": true
+    },
+    "@vuepress/plugin-slimsearch": {
+      "optional": true
+    },
+    "@vuepress/plugin-watermark": {
+      "optional": true
+    },
+    "@vuepress/shiki-twoslash": {
+      "optional": true
+    },
+    "sass": {
+      "optional": true
+    },
+    "sass-embedded": {
+      "optional": true
+    },
+    "sass-loader": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">= 20.19.0",
+    "npm": ">=8",
+    "pnpm": ">=7",
+    "yarn": ">=2"
+  },
+  "scripts": {
+    "build": "pnpm build:rollup && pnpm gulp && pnpm build:ts && pnpm copy",
+    "build:rollup": "rollup -c rollup.config.ts --configPlugin esbuild",
+    "build:ts": "tsc -b tsconfig.release.json",
+    "clean": "rimraf --glob ./lib ./*.tsbuildinfo",
+    "copy": "pnpm copy:client && pnpm copy:bundle && pnpm copy:presets",
+    "copy:bundle": "cpx \"src/client/**/*.css\" lib/bundle",
+    "copy:client": "cpx \"src/client/**/*.{css,scss}\" lib/client",
+    "copy:presets": "cpx \"src/presets/**/*.{css,scss}\" lib/presets",
+    "dev": "concurrently \"pnpm dev:copy\" \"pnpm dev:ts\"",
+    "dev:copy": "concurrently \"pnpm copy:client -w\" \"pnpm copy:presets -w\"",
+    "dev:ts": "tsc -b tsconfig.build.json --watch"
+  }
+}

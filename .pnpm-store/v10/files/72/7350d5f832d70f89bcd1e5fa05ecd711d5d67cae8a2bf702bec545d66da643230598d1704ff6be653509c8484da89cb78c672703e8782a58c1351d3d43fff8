@@ -1,0 +1,31 @@
+@use "vuepress-shared/styles/arrow";
+
+.vp-sidebar-link {
+  display: inline-block;
+
+  box-sizing: border-box;
+  width: calc(100% - 1rem);
+  margin-inline: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+
+  color: var(--vp-c-text);
+
+  font-weight: 400;
+  font-size: 1em;
+  line-height: 1.5;
+
+  &:hover {
+    background: var(--vp-c-control);
+  }
+
+  &.active {
+    background: var(--vp-c-accent-soft);
+    color: var(--vp-c-accent);
+    font-weight: 500;
+
+    .vp-icon {
+      color: var(--vp-c-accent);
+    }
+  }
+}

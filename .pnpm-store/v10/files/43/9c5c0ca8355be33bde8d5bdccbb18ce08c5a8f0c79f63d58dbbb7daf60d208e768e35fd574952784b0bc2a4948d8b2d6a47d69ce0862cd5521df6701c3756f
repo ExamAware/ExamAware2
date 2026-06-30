@@ -1,0 +1,1 @@
+{"version":3,"sourceRoot":"","sources":["../../../src/client/styles/base.scss"],"names":[],"mappings":"AACE,aADF,YAEI","file":"base.css","sourcesContent":[".vp-comment {\n  @media print {\n    display: none !important;\n  }\n}\n"]}
