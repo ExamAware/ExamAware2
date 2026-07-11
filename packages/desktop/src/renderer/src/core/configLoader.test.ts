@@ -28,6 +28,7 @@ class FakeIpcRenderer {
   }
 
   invoke(channel: string) {
+    if (channel === 'read-file') return Promise.resolve(validConfig)
     expect(channel).toBe('get-config')
     const request = deferred<string | null>()
     this.invokes.push(request)
@@ -59,6 +60,7 @@ describe('ConfigLoader.loadFromIPC', () => {
   afterEach(() => {
     vi.useRealTimers()
     vi.restoreAllMocks()
+    vi.unstubAllGlobals()
   })
 
   it('resolves a parsed config and releases its listener and timer', async () => {
@@ -107,11 +109,16 @@ describe('ConfigLoader.loadFromIPC', () => {
     const first = loader.loadFromIPC()
     const firstRejection = expect(first).rejects.toBeInstanceOf(ConfigLoadCancelledError)
 
-    loader.loadFromIPC()
+    const second = loader.loadFromIPC()
 
     await firstRejection
     expect(ipc.listenerCount('load-config')).toBe(1)
     expect(vi.getTimerCount()).toBe(1)
+
+    ipc.emit('load-config', validConfig)
+    await expect(second).resolves.toMatchObject({ examName: 'Finals' })
+    expect(ipc.listenerCount('load-config')).toBe(0)
+    expect(vi.getTimerCount()).toBe(0)
   })
 
   it('ignores a late invoke from the first request', async () => {
@@ -150,11 +157,102 @@ describe('ConfigLoader.loadFromIPC', () => {
 
     ipc.invokes[0].resolve(validConfig)
     await Promise.resolve()
-    ipc.invokes[0].reject(new Error('too late'))
-    await Promise.resolve()
 
     expect(loader.getState()).toMatchObject({ loaded: true, config: { examName: 'Second' } })
     expect(ipc.listenerCount('load-config')).toBe(0)
     expect(vi.getTimerCount()).toBe(0)
+  })
+
+  it('ignores a rejected invoke from a cancelled request', async () => {
+    const ipc = new FakeIpcRenderer()
+    const loader = createConfigLoader(ipc)
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    const first = loader.loadFromIPC()
+    const firstRejection = expect(first).rejects.toBeInstanceOf(ConfigLoadCancelledError)
+    const second = loader.loadFromIPC()
+
+    ipc.invokes[0].reject(new Error('too late'))
+    await Promise.resolve()
+
+    await firstRejection
+    expect(warn).not.toHaveBeenCalled()
+    expect(loader.getState()).toMatchObject({ loading: true, loaded: false, config: null })
+
+    ipc.emit('load-config', validConfig)
+    await expect(second).resolves.toMatchObject({ examName: 'Finals' })
+    expect(ipc.listenerCount('load-config')).toBe(0)
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
+  it('clear cancels an active request and stays cleared after late IPC activity', async () => {
+    const ipc = new FakeIpcRenderer()
+    const loader = createConfigLoader(ipc)
+    const result = loader.loadFromIPC()
+    const rejection = expect(result).rejects.toBeInstanceOf(ConfigLoadCancelledError)
+
+    loader.clear()
+
+    await rejection
+    expect(loader.getState()).toEqual({
+      loading: false,
+      loaded: false,
+      error: null,
+      source: null,
+      config: null
+    })
+    expect(ipc.listenerCount('load-config')).toBe(0)
+    expect(vi.getTimerCount()).toBe(0)
+
+    ipc.invokes[0].reject(new Error('too late'))
+    ipc.emit('load-config', validConfig)
+    await Promise.resolve()
+
+    expect(loader.getState()).toEqual({
+      loading: false,
+      loaded: false,
+      error: null,
+      source: null,
+      config: null
+    })
+  })
+
+  it.each([
+    ['direct', (loader: ReturnType<typeof createConfigLoader>) => loader.loadDirect(validConfig)],
+    [
+      'editor',
+      (loader: ReturnType<typeof createConfigLoader>) => loader.loadFromEditor(validConfig)
+    ],
+    ['file', (loader: ReturnType<typeof createConfigLoader>) => loader.loadFromFile('/exam.json')],
+    [
+      'url',
+      (loader: ReturnType<typeof createConfigLoader>) => loader.loadFromUrl('https://example.test')
+    ]
+  ] as const)('a %s load cancels active IPC and remains current', async (sourceType, startLoad) => {
+    const ipc = new FakeIpcRenderer()
+    const loader = createConfigLoader(ipc)
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve(validConfig) })
+    )
+    const ipcResult = loader.loadFromIPC()
+    const ipcRejection = expect(ipcResult).rejects.toBeInstanceOf(ConfigLoadCancelledError)
+
+    const replacement = startLoad(loader)
+
+    await ipcRejection
+    await expect(replacement).resolves.toMatchObject({ examName: 'Finals' })
+    expect(ipc.listenerCount('load-config')).toBe(0)
+    expect(vi.getTimerCount()).toBe(0)
+
+    ipc.invokes[0].resolve(JSON.stringify({ examName: 'Stale IPC', message: '', examInfos: [] }))
+    ipc.emit('load-config', JSON.stringify({ examName: 'Stale event', message: '', examInfos: [] }))
+    await Promise.resolve()
+
+    expect(loader.getState()).toMatchObject({
+      loading: false,
+      loaded: true,
+      source: { type: sourceType },
+      config: { examName: 'Finals' }
+    })
   })
 })

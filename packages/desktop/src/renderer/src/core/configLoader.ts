@@ -46,6 +46,10 @@ export class ConfigLoader {
 
   constructor(private ipcRenderer?: any) {}
 
+  private cancelActiveIPCRequest() {
+    this.activeIPCRequest?.cancel()
+  }
+
   // 添加状态监听器
   onStateChange(listener: (state: ConfigLoadState) => void) {
     this.listeners.push(listener)
@@ -111,6 +115,7 @@ export class ConfigLoader {
 
   // 从文件加载配置
   async loadFromFile(filePath: string): Promise<ExamConfig> {
+    this.cancelActiveIPCRequest()
     const source: ConfigSource = { type: 'file', path: filePath }
     this.setLoading(true)
 
@@ -136,6 +141,7 @@ export class ConfigLoader {
 
   // 从 URL 加载配置
   async loadFromUrl(url: string): Promise<ExamConfig> {
+    this.cancelActiveIPCRequest()
     const source: ConfigSource = { type: 'url', url }
     this.setLoading(true)
 
@@ -158,6 +164,7 @@ export class ConfigLoader {
 
   // 从编辑器加载配置（直接传入数据）
   async loadFromEditor(data: string): Promise<ExamConfig> {
+    this.cancelActiveIPCRequest()
     const source: ConfigSource = { type: 'editor', data }
     this.setLoading(true)
 
@@ -175,7 +182,7 @@ export class ConfigLoader {
   // 从 IPC 加载配置（等待主进程发送）
   loadFromIPC(timeout: number = 30000): Promise<ExamConfig> {
     const source: ConfigSource = { type: 'ipc' }
-    this.activeIPCRequest?.cancel()
+    this.cancelActiveIPCRequest()
     this.setLoading(true)
 
     return new Promise((resolve, reject) => {
@@ -259,6 +266,7 @@ export class ConfigLoader {
 
   // 直接设置配置数据
   async loadDirect(data: string): Promise<ExamConfig> {
+    this.cancelActiveIPCRequest()
     const source: ConfigSource = { type: 'direct', data }
     this.setLoading(true)
 
@@ -298,6 +306,7 @@ export class ConfigLoader {
 
   // 清除当前配置
   clear() {
+    this.cancelActiveIPCRequest()
     this.state = {
       loading: false,
       loaded: false,
