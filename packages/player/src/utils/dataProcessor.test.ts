@@ -29,6 +29,15 @@ describe('ExamDataProcessor.validateConfigWithDetails', () => {
   });
 
   it.each([
+    ['non-string start', { start: 123 as unknown as string }],
+    ['non-string end', { end: 123 as unknown as string }]
+  ])('reports %s as an error instead of throwing', (_description, overrides) => {
+    const result = validate(overrides);
+    expect(result.errors).toContain('第1场考试：时间格式无效');
+    expect(result.isValid).toBe(false);
+  });
+
+  it.each([
     ['equal', { end: validExam.start }],
     ['reversed', { start: '2026-07-11T11:00:00' }]
   ])('reports an %s time range as an error', (_description, overrides) => {

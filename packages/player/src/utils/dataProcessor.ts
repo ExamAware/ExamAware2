@@ -293,13 +293,22 @@ export class ExamDataProcessor {
         errors.push(`第${index + 1}场考试名称不能为空`);
       }
 
-      const startMs = parseDateTime(exam.start).getTime();
-      const endMs = parseDateTime(exam.end).getTime();
-
-      if (!Number.isFinite(startMs) || !Number.isFinite(endMs)) {
+      if (
+        typeof exam.start !== 'string' ||
+        !exam.start.trim() ||
+        typeof exam.end !== 'string' ||
+        !exam.end.trim()
+      ) {
         errors.push(`第${index + 1}场考试：时间格式无效`);
-      } else if (startMs >= endMs) {
-        errors.push(`第${index + 1}场考试：开始时间必须早于结束时间`);
+      } else {
+        const startMs = parseDateTime(exam.start).getTime();
+        const endMs = parseDateTime(exam.end).getTime();
+
+        if (!Number.isFinite(startMs) || !Number.isFinite(endMs)) {
+          errors.push(`第${index + 1}场考试：时间格式无效`);
+        } else if (startMs >= endMs) {
+          errors.push(`第${index + 1}场考试：开始时间必须早于结束时间`);
+        }
       }
 
       if (!Number.isFinite(exam.alertTime) || exam.alertTime < 0) {
