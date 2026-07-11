@@ -30,7 +30,7 @@ Repair the confirmed correctness, lifecycle, persistence, RPC, time-configuratio
 
 ### 1. Exam configuration validation
 
-`packages/core/src/parser.ts` remains the single basic validation boundary. Validation will parse every start and end timestamp, require both timestamps to be finite, require start to precede end, and require `alertTime` to be finite and non-negative. Zero remains a valid way to disable the alert. Empty exam lists and optional top-level display strings keep their current core-validator behavior. Overlap detection will use the shared parser rather than a different date-parsing path and will reject invalid dates before comparing ranges. Adjacent exams where one ends exactly when the next begins do not overlap.
+`packages/core/src/parser.ts` remains the single basic validation boundary. Validation will parse every start and end timestamp, require both timestamps to be finite, require start to precede end, and require `alertTime` to be finite and non-negative. Zero remains a valid way to disable the alert. Empty exam lists and optional top-level display strings keep their current core-validator behavior. Overlap detection will use the shared parser rather than a different date-parsing path; because its public contract is boolean, it returns `false` for invalid ranges while `validateExamConfig()` is responsible for rejecting them. Adjacent exams where one ends exactly when the next begins do not overlap.
 
 The player’s detailed validation helper will align with the core validator only for timestamp ordering, timestamp validity, and non-negative finite `alertTime`. Existing differences concerning empty lists, optional top-level display strings, and the advisory upper bound of 300 minutes remain unchanged in this pass.
 
