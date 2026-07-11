@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildPluginGraph } from './graph'
+import { buildPluginGraph } from '../../../src/main/plugin/graph'
 
 describe('buildPluginGraph', () => {
   it('orders providers before consumers and keeps independent insertion order', () => {

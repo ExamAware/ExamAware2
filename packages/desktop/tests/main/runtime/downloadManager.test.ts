@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { DownloadManager } from './downloadManager'
+import { DownloadManager } from '../../../src/main/runtime/downloadManager'
 
 const response = () =>
   new Response(new Uint8Array([1, 2, 3]), {

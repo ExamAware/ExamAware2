@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { formatExamAlertMessage } from './playerAlerts'
+import { formatExamAlertMessage } from '../../../src/renderer/src/utils/playerAlerts'
 
 describe('formatExamAlertMessage', () => {
   it('formats an integer alert time as minutes until the exam ends', () => {
@@ -16,7 +16,7 @@ describe('formatExamAlertMessage', () => {
 describe('desktop exam alert integration', () => {
   it('uses the shared alert formatter without converting units or selecting start text', () => {
     const playerView = readFileSync(
-      fileURLToPath(new URL('../views/PlayerView.vue', import.meta.url)),
+      fileURLToPath(new URL('../../../src/renderer/src/views/PlayerView.vue', import.meta.url)),
       'utf8'
     )
 

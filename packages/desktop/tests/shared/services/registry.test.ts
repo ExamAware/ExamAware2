@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { ServiceRegistry } from './registry'
+import { ServiceRegistry } from '../../../src/shared/services/registry'
 
 describe('ServiceRegistry watchers', () => {
   it('cleans every provider subscription before re-invoking a watcher', () => {

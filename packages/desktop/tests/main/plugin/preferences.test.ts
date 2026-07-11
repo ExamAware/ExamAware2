@@ -25,7 +25,7 @@ describe('FilePluginPreferenceStore', () => {
   })
 
   it('does not share default config objects between store instances', async () => {
-    const { FilePluginPreferenceStore } = await import('./preferences')
+    const { FilePluginPreferenceStore } = await import('../../../src/main/plugin/preferences')
     const first = new FilePluginPreferenceStore('/tmp/first/preferences.json')
     const second = new FilePluginPreferenceStore('/tmp/second/preferences.json')
 
@@ -40,7 +40,7 @@ describe('FilePluginPreferenceStore', () => {
     writeFile
       .mockImplementationOnce(() => new Promise<void>((resolve) => (releaseFirstWrite = resolve)))
       .mockResolvedValueOnce(undefined)
-    const { FilePluginPreferenceStore } = await import('./preferences')
+    const { FilePluginPreferenceStore } = await import('../../../src/main/plugin/preferences')
     const store = new FilePluginPreferenceStore('/tmp/preferences.json')
 
     const firstWrite = store.setConfig('plugin-a', { value: 1 })
@@ -59,7 +59,7 @@ describe('FilePluginPreferenceStore', () => {
     writeFile
       .mockImplementationOnce(() => new Promise<void>((resolve) => (releaseFirstWrite = resolve)))
       .mockResolvedValueOnce(undefined)
-    const { FilePluginPreferenceStore } = await import('./preferences')
+    const { FilePluginPreferenceStore } = await import('../../../src/main/plugin/preferences')
     const store = new FilePluginPreferenceStore('/tmp/preferences.json')
 
     const enabledWrite = store.setEnabled('plugin-a', true)

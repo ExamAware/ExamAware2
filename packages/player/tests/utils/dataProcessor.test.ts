@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { ExamConfig, ExamInfo } from '@dsz-examaware/core';
-import { ExamDataProcessor } from './dataProcessor';
+import { ExamDataProcessor } from '../../src/utils/dataProcessor';
 
 const validExam: ExamInfo = {
   name: 'Math',

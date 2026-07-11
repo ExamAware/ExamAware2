@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { ElectronTimeProvider } from './ElectronTimeProvider'
+import { ElectronTimeProvider } from '../../../src/renderer/src/adapters/ElectronTimeProvider'
 
 const syncInfo = {
   offset: 10,

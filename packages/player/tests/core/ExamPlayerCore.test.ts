@@ -2,10 +2,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ExamConfig } from '@dsz-examaware/core';
 import type { ComputedRef } from 'vue';
 import { getSortedExamConfig, parseDateTime } from '@dsz-examaware/core';
-import type { ExamInfo } from '../types';
-import { ExamDataProcessor } from '../utils/dataProcessor';
-import { ExamPlayerCore } from './ExamPlayerCore';
-import type { IExamConfigService, TimeProvider } from './interfaces';
+import type { ExamInfo } from '../../src/types';
+import { ExamDataProcessor } from '../../src/utils/dataProcessor';
+import { ExamPlayerCore } from '../../src/core/ExamPlayerCore';
+import type { IExamConfigService, TimeProvider } from '../../src/core/interfaces';
 
 const early = {
   name: 'early',

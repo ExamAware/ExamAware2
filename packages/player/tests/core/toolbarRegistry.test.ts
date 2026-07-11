@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createPlayerToolbarRegistry } from './toolbarRegistry';
+import { createPlayerToolbarRegistry } from '../../src/core/toolbarRegistry';
 
 describe('createPlayerToolbarRegistry', () => {
   it('removes the registration when its disposer runs', () => {

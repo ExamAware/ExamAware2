@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { ExamInfo } from '../types';
-import { ExamTaskQueue } from './taskQueue';
+import type { ExamInfo } from '../../src/types';
+import { ExamTaskQueue } from '../../src/utils/taskQueue';
 
 const exam = (name = 'Math'): ExamInfo => ({
   name,

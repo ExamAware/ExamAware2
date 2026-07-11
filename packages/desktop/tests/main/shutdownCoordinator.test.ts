@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 describe('shutdown integration', () => {
   it('guards before-quit and flushes configuration before quitting', () => {
-    const source = fs.readFileSync(path.join(__dirname, 'index.ts'), 'utf-8')
+    const source = fs.readFileSync(path.join(__dirname, '../../src/main/index.ts'), 'utf-8')
 
     expect(source).toContain("import { flushConfig } from './configStore'")
     expect(source).toContain("app.on('before-quit', handleBeforeQuit)")
@@ -16,7 +16,7 @@ describe('shutdown integration', () => {
 
 describe('createShutdownCoordinator', () => {
   it('prevents duplicate quit events while one flush is pending, then permits reentry', async () => {
-    const { createShutdownCoordinator } = await import('./shutdownCoordinator')
+    const { createShutdownCoordinator } = await import('../../src/main/shutdownCoordinator')
     let resolveFlush!: () => void
     const flush = vi.fn(() => new Promise<void>((resolve) => (resolveFlush = resolve)))
     const app = { quit: vi.fn() }
@@ -50,7 +50,7 @@ describe('createShutdownCoordinator', () => {
   })
 
   it('logs a flush failure and still quits exactly once', async () => {
-    const { createShutdownCoordinator } = await import('./shutdownCoordinator')
+    const { createShutdownCoordinator } = await import('../../src/main/shutdownCoordinator')
     const diskError = new Error('disk error')
     const logger = { error: vi.fn() }
     const app = { quit: vi.fn() }
@@ -71,7 +71,7 @@ describe('createShutdownCoordinator', () => {
   })
 
   it('logs a synchronous cleanup failure and still flushes and quits', async () => {
-    const { createShutdownCoordinator } = await import('./shutdownCoordinator')
+    const { createShutdownCoordinator } = await import('../../src/main/shutdownCoordinator')
     const cleanupError = new Error('cleanup error')
     const logger = { error: vi.fn() }
     const flush = vi.fn().mockResolvedValue(undefined)

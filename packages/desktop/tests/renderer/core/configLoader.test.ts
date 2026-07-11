@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { ConfigLoadCancelledError, createConfigLoader } from './configLoader'
+import {
+  ConfigLoadCancelledError,
+  createConfigLoader
+} from '../../../src/renderer/src/core/configLoader'
 
 function deferred<T>() {
   let resolve!: (value: T | PromiseLike<T>) => void

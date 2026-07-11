@@ -6,7 +6,7 @@ export default defineConfig({
     clearMocks: true,
     restoreMocks: true,
     passWithNoTests: true,
-    include: ['packages/**/*.test.ts'],
+    include: ['packages/*/tests/**/*.test.ts'],
     exclude: [
       '**/node_modules/**',
       '**/dist/**',

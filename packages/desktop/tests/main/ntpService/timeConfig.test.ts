@@ -3,7 +3,7 @@ import {
   DEFAULT_TIME_SYNC_CONFIG,
   mergeTimeSyncConfig,
   normalizeTimeSyncConfig
-} from './timeConfig'
+} from '../../../src/main/ntpService/timeConfig'
 
 describe('normalizeTimeSyncConfig', () => {
   it.each([1 / 60, 0.5, 1.5, 240, 2_147_483_646 / 60_000])(
@@ -160,11 +160,14 @@ vi.mock('fs', () => ({
     writeFileSync: mocks.writeFileSync
   }
 }))
-vi.mock('../configStore', () => ({ getConfig: mocks.getConfig, setConfig: mocks.setConfig }))
-vi.mock('../logging/winstonLogger', () => ({
+vi.mock('../../../src/main/configStore', () => ({
+  getConfig: mocks.getConfig,
+  setConfig: mocks.setConfig
+}))
+vi.mock('../../../src/main/logging/winstonLogger', () => ({
   appLogger: { info: vi.fn(), error: vi.fn() }
 }))
-vi.mock('./ntpClient', () => ({
+vi.mock('../../../src/main/ntpService/ntpClient', () => ({
   syncTimeWithNTP: mocks.syncTimeWithNTP,
   getTimeSyncInfo: mocks.getTimeSyncInfo,
   setManualOffset: mocks.setManualOffset,
@@ -187,7 +190,7 @@ describe('time service integration', () => {
 
   it('normalizes unified and legacy loaded values before applying offsets', async () => {
     mocks.getConfig.mockReturnValueOnce({ manualOffsetSeconds: Number.POSITIVE_INFINITY })
-    let service = await import('./timeService')
+    let service = await import('../../../src/main/ntpService/timeService')
     expect(service.loadTimeSyncConfig().manualOffsetSeconds).toBe(0)
     expect(mocks.setManualOffset).not.toHaveBeenCalled()
 
@@ -195,14 +198,14 @@ describe('time service integration', () => {
     mocks.getConfig.mockReturnValue({})
     mocks.existsSync.mockReturnValue(true)
     mocks.readFileSync.mockReturnValue(JSON.stringify({ manualOffsetSeconds: -15 }))
-    service = await import('./timeService')
+    service = await import('../../../src/main/ntpService/timeService')
     expect(service.loadTimeSyncConfig().manualOffsetSeconds).toBe(-15)
     expect(mocks.setManualOffset).toHaveBeenCalledWith(-15)
   })
 
   it('uses safe normalized interval delays for apply and save', async () => {
     const intervalSpy = vi.spyOn(globalThis, 'setInterval')
-    const service = await import('./timeService')
+    const service = await import('../../../src/main/ntpService/timeService')
 
     service.applyTimeConfig({ syncIntervalMinutes: 1 })
     service.applyTimeConfig({ syncIntervalMinutes: 0.5 })
@@ -217,7 +220,7 @@ describe('time service integration', () => {
   })
 
   it('applies and persists normalized offsets', async () => {
-    const service = await import('./timeService')
+    const service = await import('../../../src/main/ntpService/timeService')
     expect(service.applyTimeConfig({ manualOffsetSeconds: Number.NaN }).manualOffsetSeconds).toBe(0)
     expect(mocks.setManualOffset).toHaveBeenLastCalledWith(0)
 

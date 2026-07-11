@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { ExamConfig, ExamInfo } from './types';
-import { hasExamTimeOverlap, validateExamConfig } from './parser';
+import type { ExamConfig, ExamInfo } from '../src/types';
+import { hasExamTimeOverlap, validateExamConfig } from '../src/parser';
 
 const validExam: ExamInfo = {
   name: 'Math',
@@ -17,6 +17,8 @@ describe('validateExamConfig', () => {
   it.each([
     ['invalid start', { start: 'not-a-date' }],
     ['invalid end', { end: 'not-a-date' }],
+    ['calendar date rollover', { start: '2026-02-30T09:00:00' }],
+    ['non-leap February 29', { start: '2025-02-29T09:00:00' }],
     ['reversed range', { start: '2026-07-11T11:00:00' }],
     ['equal range', { end: validExam.start }],
     ['negative alert time', { alertTime: -1 }],

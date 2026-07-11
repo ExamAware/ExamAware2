@@ -23,7 +23,7 @@ describe('settingsStore synchronization', () => {
         }
       }
     })
-    const { useSettingsStore } = await import('./settingsStore')
+    const { useSettingsStore } = await import('../../../src/renderer/src/stores/settingsStore')
     const store = useSettingsStore()
 
     onChanged({ revision: 2, theme: 'dark' })
@@ -46,7 +46,7 @@ describe('settingsStore synchronization', () => {
         }
       }
     })
-    const { useSettingsStore } = await import('./settingsStore')
+    const { useSettingsStore } = await import('../../../src/renderer/src/stores/settingsStore')
     const store = useSettingsStore()
     await vi.waitFor(() => expect(store.get('revision')).toBe(1))
   })
@@ -66,7 +66,7 @@ describe('settingsStore synchronization', () => {
         }
       }
     })
-    const { useSettingsStore } = await import('./settingsStore')
+    const { useSettingsStore } = await import('../../../src/renderer/src/stores/settingsStore')
     const store = useSettingsStore()
 
     edit(store)

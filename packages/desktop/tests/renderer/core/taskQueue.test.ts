@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { TaskQueue } from './taskQueue'
+import { TaskQueue } from '../../../src/renderer/src/core/taskQueue'
 
 describe('renderer TaskQueue', () => {
   beforeEach(() => {

@@ -16,7 +16,7 @@ vi.mock('fs', () => ({
   }
 }))
 
-vi.mock('./logging/winstonLogger', () => ({
+vi.mock('../../src/main/logging/winstonLogger', () => ({
   appLogger: { error: vi.fn() }
 }))
 
@@ -37,7 +37,7 @@ describe('config persistence', () => {
     writeFile
       .mockImplementationOnce(() => new Promise<void>((resolve) => (releaseFirstWrite = resolve)))
       .mockResolvedValueOnce(undefined)
-    const { flushConfig, setConfig } = await import('./configStore')
+    const { flushConfig, setConfig } = await import('../../src/main/configStore')
 
     setConfig('value', 'value1')
     await vi.advanceTimersByTimeAsync(100)
@@ -56,7 +56,7 @@ describe('config persistence', () => {
   it('rejects a failed flush without retrying until a later explicit flush', async () => {
     const diskError = new Error('disk error')
     writeFile.mockRejectedValueOnce(diskError).mockResolvedValueOnce(undefined)
-    const { flushConfig, setConfig } = await import('./configStore')
+    const { flushConfig, setConfig } = await import('../../src/main/configStore')
 
     setConfig('value', 'latest')
     const failedFlush = flushConfig()
@@ -79,7 +79,7 @@ describe('config persistence', () => {
         () => new Promise<void>((_resolve, reject) => (rejectFirstWrite = reject))
       )
       .mockResolvedValueOnce(undefined)
-    const { flushConfig, setConfig } = await import('./configStore')
+    const { flushConfig, setConfig } = await import('../../src/main/configStore')
 
     setConfig('value', 'value1')
     await vi.advanceTimersByTimeAsync(100)

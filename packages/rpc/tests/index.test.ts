@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { JsonRpcClient, type JsonRpcClientTransport } from './index';
+import { JsonRpcClient, type JsonRpcClientTransport } from '../src/index';
 
 describe('JsonRpcClient', () => {
   afterEach(() => {
