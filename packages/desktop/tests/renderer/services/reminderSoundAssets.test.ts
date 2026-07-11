@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import { readFileSync, statSync } from 'node:fs'
 import { resolve } from 'node:path'
 
@@ -16,10 +17,24 @@ const canonicalFilenames = {
   alert: 'exam-alert.mp3',
   end: 'exam-end.mp3'
 } as const
+const sourceMasters = {
+  start: {
+    filename: 'Begin2.wav',
+    sha256: '5d7e0ffc3a48d12b95af231763b18aea01ecb9740349fc2170ebe5035af359fd'
+  },
+  alert: {
+    filename: 'Pre-end2.wav',
+    sha256: '9a48fb46b23190185e5811ce653f5230a5b0d290e02348bc56b090b47de04ee6'
+  },
+  end: {
+    filename: 'End2.wav',
+    sha256: '21afe8725f37dd114d849bee02903254f4040b9537f6c2fb03335e724b84248f'
+  }
+} as const
 
 interface ProbeResult {
   format: { duration?: string; format_name?: string }
-  streams: Array<{ codec_name?: string; codec_type?: string; duration?: string }>
+  streams: Array<{ channels?: number; codec_name?: string; codec_type?: string; duration?: string }>
 }
 
 function probe(file: string): ProbeResult {
@@ -29,7 +44,7 @@ function probe(file: string): ProbeResult {
       '-v',
       'error',
       '-show_entries',
-      'format=format_name,duration:stream=codec_name,codec_type,duration',
+      'format=format_name,duration:stream=channels,codec_name,codec_type,duration',
       '-of',
       'json',
       file
@@ -97,11 +112,22 @@ describe('reminder sound assets', () => {
     const audioStreams = metadata.streams.filter((stream) => stream.codec_type === 'audio')
     expect(audioStreams).toHaveLength(1)
     expect(audioStreams[0].codec_name).toBe('mp3')
+    expect(audioStreams[0].channels).toBe(2)
 
     const duration = Number(metadata.format.duration ?? audioStreams[0].duration)
-    expect(duration).toBeGreaterThanOrEqual(0.3)
-    expect(duration).toBeLessThanOrEqual(4)
+    expect(duration).toBeGreaterThanOrEqual(2.9)
+    expect(duration).toBeLessThanOrEqual(3.1)
   })
+
+  it.each(Object.entries(sourceMasters))(
+    'preserves the %s WAV master byte-for-byte',
+    (_, master) => {
+      const file = resolve(sourceAudioDirectory, 'alerts/pond', master.filename)
+      const contents = readFileSync(file)
+      expect(contents.byteLength).toBeGreaterThan(0)
+      expect(createHash('sha256').update(contents).digest('hex')).toBe(master.sha256)
+    }
+  )
 
   it('keeps all cues at a consistent restrained loudness without clipping', () => {
     const measurements = filenames.map((filename) =>
@@ -109,19 +135,21 @@ describe('reminder sound assets', () => {
     )
     const integrated = measurements.map((measurement) => measurement.integrated)
 
-    expect(Math.max(...integrated) - Math.min(...integrated)).toBeLessThanOrEqual(2)
+    expect(Math.max(...integrated) - Math.min(...integrated)).toBeLessThanOrEqual(1)
     for (const measurement of measurements) {
-      expect(measurement.integrated).toBeGreaterThanOrEqual(-31)
-      expect(measurement.integrated).toBeLessThanOrEqual(-27)
+      expect(measurement.integrated).toBeGreaterThanOrEqual(-24)
+      expect(measurement.integrated).toBeLessThanOrEqual(-22)
       expect(measurement.truePeak).toBeLessThanOrEqual(-6)
     }
   })
 
-  it('documents local generation, provenance, and repository licensing', () => {
+  it('documents source mapping, provenance, and repository licensing', () => {
     const readme = readFileSync(resolve(sourceAudioDirectory, 'README.md'), 'utf8')
-    expect(readme).toMatch(/generated locally/i)
     expect(readme).toMatch(/ffmpeg/i)
-    expect(readme).toMatch(/no third-party audio/i)
+    expect(readme).toMatch(/user-provided WAV masters/i)
+    expect(readme).toMatch(/Begin2\.wav[^\n]+exam-start\.mp3/i)
+    expect(readme).toMatch(/Pre-end2\.wav[^\n]+exam-alert\.mp3/i)
+    expect(readme).toMatch(/End2\.wav[^\n]+exam-end\.mp3/i)
     expect(readme).toMatch(/same license as (?:this|the) repository/i)
   })
 })
