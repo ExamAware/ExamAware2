@@ -30,6 +30,16 @@ export default defineConfigWithVueTs(
   vueTsConfigs.recommended,
   prettierConfig,
   {
+    name: 'examaware/legacy-baseline',
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-empty-object-type': 'off',
+      'no-empty': 'off',
+      'vue/block-lang': 'off'
+    }
+  },
+  {
     name: 'examaware/plugin-sdk-rpc-compatibility',
     files: ['packages/plugin-sdk/src/rpc.ts'],
     rules: {
