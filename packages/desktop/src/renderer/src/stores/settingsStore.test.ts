@@ -50,4 +50,30 @@ describe('settingsStore synchronization', () => {
     const store = useSettingsStore()
     await vi.waitFor(() => expect(store.get('revision')).toBe(1))
   })
+
+  it.each([
+    ['set', (store: any) => store.set('theme', 'dark')],
+    ['patch', (store: any) => store.patch({ theme: 'dark' })]
+  ])('does not overwrite a local %s made while initialization is pending', async (_name, edit) => {
+    let resolveInitial!: (value: Record<string, unknown>) => void
+    vi.stubGlobal('window', {
+      api: {
+        config: {
+          all: vi.fn(() => new Promise((resolve) => (resolveInitial = resolve))),
+          onChanged: vi.fn(() => vi.fn()),
+          set: vi.fn().mockResolvedValue(undefined),
+          patch: vi.fn().mockResolvedValue(undefined)
+        }
+      }
+    })
+    const { useSettingsStore } = await import('./settingsStore')
+    const store = useSettingsStore()
+
+    edit(store)
+    resolveInitial({ theme: 'light' })
+    await Promise.resolve()
+    await Promise.resolve()
+
+    expect(store.get('theme')).toBe('dark')
+  })
 })

@@ -15,7 +15,8 @@ describe('ExamTaskQueue', () => {
 
   it('keeps tasks with identical type, name, and execution time independent', () => {
     vi.useFakeTimers();
-    const queue = new ExamTaskQueue(() => 1_000);
+    let now = 1_000;
+    const queue = new ExamTaskQueue(() => now);
     const first = vi.fn();
     const second = vi.fn();
 
@@ -25,6 +26,7 @@ describe('ExamTaskQueue', () => {
     expect(queue.getTaskCount()).toBe(2);
 
     queue.start();
+    now = 2_000;
     vi.advanceTimersByTime(1_000);
     expect(first).toHaveBeenCalledOnce();
     expect(second).toHaveBeenCalledOnce();
@@ -48,17 +50,47 @@ describe('ExamTaskQueue', () => {
   it('marks a throwing task failed without affecting another task at the same time', () => {
     vi.useFakeTimers();
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-    const queue = new ExamTaskQueue(() => 0);
+    let now = 0;
+    const queue = new ExamTaskQueue(() => now);
     const next = vi.fn();
     queue.addTask(10, 'exam-start', exam('A'), () => {
       throw new Error('boom');
     });
     queue.addTask(10, 'exam-start', exam('B'), next);
     queue.start();
+    now = 10;
     vi.advanceTimersByTime(10);
 
     expect(queue.getTaskDetails().map((task) => task.status)).toEqual(['failed', 'completed']);
     expect(next).toHaveBeenCalledOnce();
     errorSpy.mockRestore();
+  });
+
+  it.each([Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY])(
+    'rejects a non-finite execution time: %s',
+    (executeTime) => {
+      const queue = new ExamTaskQueue(() => 0);
+      expect(() => queue.addTask(executeTime, 'exam-start', exam(), vi.fn())).toThrow(RangeError);
+      expect(queue.getTaskCount()).toBe(0);
+    }
+  );
+
+  it('chunks delays beyond the maximum platform timer delay', () => {
+    vi.useFakeTimers();
+    const maxDelay = 2_147_483_647;
+    let now = 0;
+    const queue = new ExamTaskQueue(() => now);
+    const callback = vi.fn();
+    queue.addTask(maxDelay + 5_000, 'exam-start', exam(), callback);
+    queue.start();
+
+    now = maxDelay;
+    vi.advanceTimersByTime(maxDelay);
+    expect(callback).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(4_999);
+    expect(callback).not.toHaveBeenCalled();
+    now += 5_000;
+    vi.advanceTimersByTime(1);
+    expect(callback).toHaveBeenCalledOnce();
   });
 });

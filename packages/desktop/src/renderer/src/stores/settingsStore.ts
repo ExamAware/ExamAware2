@@ -79,12 +79,14 @@ export const useSettingsStore = defineStore('settings', () => {
       cur = cur[s]
     }
     cur[segs[segs.length - 1]] = value
+    syncRevision += 1
     // 同步到主进程持久化
     window.api.config.set(key, value).catch((e) => console.error('保存配置失败', e))
   }
 
   const patch = (obj: SettingsRecord) => {
     safeAssign(data.value, obj)
+    syncRevision += 1
     window.api.config.patch(obj).catch((e) => console.error('保存配置失败', e))
   }
 
