@@ -1,6 +1,14 @@
+import { resolve } from 'node:path';
+import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
+  plugins: [vue()],
+  resolve: {
+    alias: [
+      { find: '@renderer', replacement: resolve(__dirname, 'packages/desktop/src/renderer/src') }
+    ]
+  },
   test: {
     environment: 'node',
     clearMocks: true,
