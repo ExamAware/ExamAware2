@@ -14,7 +14,8 @@ export class ExamPlayerCore {
     error: null
   });
   readonly examConfig = ref<ExamConfig | null>(null);
-  readonly sortedExamInfos = ref<ExamInfo[]>([]);
+  private readonly canonicalExamInfos = ref<ExamInfo[]>([]);
+  readonly sortedExamInfos = computed(() => readonly(this.canonicalExamInfos.value));
   readonly currentTime = ref<number>(0);
 
   private readonly timeProvider: TimeProvider;
@@ -50,7 +51,7 @@ export class ExamPlayerCore {
       : new ExamTaskQueue(this.timeProvider.getCurrentTime);
     this.reminder = opts?.reminder;
     this.examConfig.value = config;
-    this.sortedExamInfos.value = config ? this.configSvc.getSortedConfig(config).examInfos : [];
+    this.canonicalExamInfos.value = config ? this.configSvc.getSortedConfig(config).examInfos : [];
 
     // 定期推进 currentTime
     watch(this.currentTime, () => {
@@ -86,7 +87,7 @@ export class ExamPlayerCore {
   // 计算属性（与原逻辑保持一致）
   readonly currentExam = computed(() => {
     const idx = this.state.value.currentExamIndex;
-    const list = this.sortedExamInfos.value;
+    const list = this.canonicalExamInfos.value;
     if (idx < 0 || idx >= list.length) return null;
     return list[idx];
   });
@@ -105,7 +106,7 @@ export class ExamPlayerCore {
     ExamDataProcessor.formatCurrentTime(this.currentTime.value)
   );
   readonly formattedExamInfos = computed(() =>
-    ExamDataProcessor.formatSortedExamInfos(this.sortedExamInfos.value, this.currentTime.value)
+    ExamDataProcessor.formatSortedExamInfos(this.canonicalExamInfos.value, this.currentTime.value)
   );
 
   start() {
@@ -114,7 +115,11 @@ export class ExamPlayerCore {
       this.currentTime.value = this.timeProvider.getCurrentTime();
     }, 1000);
     this.queue.start();
-    if (this.timeProvider.onTimeChange && !this.timeChangeSubscribed) {
+    if (
+      this.timeProvider.onTimeChange &&
+      this.timeProvider.offTimeChange &&
+      !this.timeChangeSubscribed
+    ) {
       this.timeProvider.onTimeChange(this.handleTimeChange);
       this.timeChangeSubscribed = true;
     }
@@ -163,7 +168,7 @@ export class ExamPlayerCore {
       return false;
     }
     this.examConfig.value = newConfig;
-    this.sortedExamInfos.value = this.configSvc.getSortedConfig(newConfig).examInfos;
+    this.canonicalExamInfos.value = this.configSvc.getSortedConfig(newConfig).examInfos;
     this.state.value.error = null;
     this.state.value.loaded = true;
     this.updateCurrentExam();
@@ -194,7 +199,7 @@ export class ExamPlayerCore {
 
   updateCurrentExam() {
     if (!this.examConfig.value?.examInfos) return;
-    const sorted = this.sortedExamInfos.value;
+    const sorted = this.canonicalExamInfos.value;
     if (!sorted.length) return;
 
     let targetIndex = sorted.length - 1;
@@ -230,12 +235,12 @@ export class ExamPlayerCore {
   }
 
   switchToExam(index: number): boolean {
-    if (index < 0 || index >= this.sortedExamInfos.value.length) return false;
+    if (index < 0 || index >= this.canonicalExamInfos.value.length) return false;
     const oldIndex = this.state.value.currentExamIndex;
     this.state.value.currentExamIndex = index;
     if (this.events.onExamSwitch && oldIndex !== index) {
-      const oldExam = this.sortedExamInfos.value[oldIndex];
-      const newExam = this.sortedExamInfos.value[index];
+      const oldExam = this.canonicalExamInfos.value[oldIndex];
+      const newExam = this.canonicalExamInfos.value[index];
       this.events.onExamSwitch(oldExam, newExam);
     }
     return true;

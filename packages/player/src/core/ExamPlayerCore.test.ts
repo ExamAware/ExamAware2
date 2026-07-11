@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ExamConfig } from '@dsz-examaware/core';
+import type { ComputedRef } from 'vue';
 import { getSortedExamConfig, parseDateTime } from '@dsz-examaware/core';
+import type { ExamInfo } from '../types';
 import { ExamDataProcessor } from '../utils/dataProcessor';
 import { ExamPlayerCore } from './ExamPlayerCore';
 import type { IExamConfigService, TimeProvider } from './interfaces';
@@ -65,6 +67,26 @@ describe('ExamPlayerCore exam ordering', () => {
     core.stop();
   });
 
+  it('exposes the canonical sequence as a computed read-only ref', () => {
+    const { core } = createCore(parseDateTime('2026-07-11T09:30:00').getTime());
+    const sortedExamInfos: ComputedRef<readonly ExamInfo[]> = core.sortedExamInfos;
+
+    expect(sortedExamInfos.value).toEqual([]);
+  });
+
+  it('does not let consumers reorder the canonical sequence', () => {
+    vi.useFakeTimers();
+    const { core } = createCore(parseDateTime('2026-07-11T09:30:00').getTime());
+    core.updateConfig(unsortedConfig);
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    (core.sortedExamInfos.value as ExamInfo[]).reverse();
+
+    expect(core.sortedExamInfos.value.map((exam) => exam.name)).toEqual(['early', 'late']);
+    expect(core.currentExam.value?.name).toBe('early');
+    core.stop();
+  });
+
   it('emits one sorted exam transition when time advances', () => {
     vi.useFakeTimers();
     const { core, onExamSwitch } = createCore(parseDateTime('2026-07-11T09:30:00').getTime());
@@ -108,11 +130,12 @@ describe('ExamPlayerCore exam ordering', () => {
 describe('ExamPlayerCore time listener lifecycle', () => {
   it('subscribes once and removes the exact callback across restarts', () => {
     vi.useFakeTimers();
+    let now = 0;
     const listeners = new Set<() => void>();
     const onTimeChange = vi.fn((callback: () => void) => listeners.add(callback));
     const offTimeChange = vi.fn((callback: () => void) => listeners.delete(callback));
     const provider: TimeProvider = {
-      getCurrentTime: () => 0,
+      getCurrentTime: () => now,
       onTimeChange,
       offTimeChange
     };
@@ -127,8 +150,29 @@ describe('ExamPlayerCore time listener lifecycle', () => {
     core.stop();
     expect(listeners.size).toBe(0);
     expect(offTimeChange).toHaveBeenCalledWith(registeredCallback);
+    core.stop();
+    expect(offTimeChange).toHaveBeenCalledTimes(1);
+    now = 100;
+    listeners.forEach((listener) => listener());
+    expect(core.currentTime.value).toBe(0);
     core.start();
     expect(listeners.size).toBe(1);
+    core.stop();
+  });
+
+  it('does not subscribe when the provider cannot detach listeners', () => {
+    vi.useFakeTimers();
+    const onTimeChange = vi.fn();
+    const core = new ExamPlayerCore(
+      null,
+      { roomNumber: '101' },
+      { getCurrentTime: () => 0, onTimeChange },
+      {},
+      configService
+    );
+
+    core.start();
+    expect(onTimeChange).not.toHaveBeenCalled();
     core.stop();
   });
 });
