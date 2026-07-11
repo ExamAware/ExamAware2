@@ -35,10 +35,11 @@ export function createPlayerToolbarRegistry(
     if (!item || !item.id) {
       throw new Error('PlayerToolbarItem 需要提供唯一的 id');
     }
-    store.set(item.id, { ...item, icon: normalizeIcon(item.icon) });
+    const registeredItem = { ...item, icon: normalizeIcon(item.icon) };
+    store.set(item.id, registeredItem);
     sync();
     return () => {
-      if (store.get(item.id) === item) {
+      if (store.get(item.id) === registeredItem) {
         store.delete(item.id);
         sync();
       }

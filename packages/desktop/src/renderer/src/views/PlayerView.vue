@@ -52,6 +52,7 @@ import {
   normalizeDensity
 } from '@renderer/composables/usePlaybackSettings'
 import { useDesktopApi, type UIDensity } from '@renderer/runtime/desktopApi'
+import { formatExamAlertMessage } from '@renderer/utils/playerAlerts'
 // 键盘相关逻辑已经内置在 ExamPlayer 中
 
 const ipcRenderer = window.api.ipc
@@ -195,10 +196,9 @@ const handleExamEnd = (exam: any) => {
 // 考试提醒事件
 const handleExamAlert = (exam: any, alertTime: number) => {
   console.log('考试提醒:', exam, alertTime)
-  const minutes = Math.floor(alertTime / 60000)
   NotifyPlugin.warning({
     title: '考试提醒',
-    content: `${exam.name} 将在 ${minutes} 分钟后${alertTime > 0 ? '开始' : '结束'}`,
+    content: formatExamAlertMessage(exam, alertTime),
     placement: 'bottom-right',
     closeBtn: true,
     duration: 5000

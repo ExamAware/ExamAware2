@@ -30,9 +30,19 @@ export class ExamDataProcessor {
 
     // 使用排序后的配置确保考试按时间顺序显示
     const sortedConfig = getSortedExamConfig(config);
+    return this.formatSortedExamInfos(sortedConfig.examInfos, currentTime);
+  }
+
+  /**
+   * 格式化已经按开始时间排序的考试数据。
+   */
+  static formatSortedExamInfos(
+    sortedExamInfos: readonly ExamInfo[],
+    currentTime: number
+  ): FormattedExamInfo[] {
     let lastDisplayedDate = '';
 
-    return sortedConfig.examInfos.map((exam: ExamInfo, index: number) => {
+    return sortedExamInfos.map((exam: ExamInfo, index: number) => {
       const startDate = parseDateTime(exam.start);
       const endDate = parseDateTime(exam.end);
       const now = currentTime;
@@ -293,18 +303,27 @@ export class ExamDataProcessor {
         errors.push(`第${index + 1}场考试名称不能为空`);
       }
 
-      try {
-        const start = parseDateTime(exam.start);
-        const end = parseDateTime(exam.end);
+      if (
+        typeof exam.start !== 'string' ||
+        !exam.start.trim() ||
+        typeof exam.end !== 'string' ||
+        !exam.end.trim()
+      ) {
+        errors.push(`第${index + 1}场考试：时间格式无效`);
+      } else {
+        const startMs = parseDateTime(exam.start).getTime();
+        const endMs = parseDateTime(exam.end).getTime();
 
-        if (start >= end) {
+        if (!Number.isFinite(startMs) || !Number.isFinite(endMs)) {
+          errors.push(`第${index + 1}场考试：时间格式无效`);
+        } else if (startMs >= endMs) {
           errors.push(`第${index + 1}场考试：开始时间必须早于结束时间`);
         }
-      } catch {
-        errors.push(`第${index + 1}场考试：时间格式无效`);
       }
 
-      if (exam.alertTime && (exam.alertTime < 0 || exam.alertTime > 300)) {
+      if (!Number.isFinite(exam.alertTime) || exam.alertTime < 0) {
+        errors.push(`第${index + 1}场考试：提醒时间必须为非负有限数值`);
+      } else if (exam.alertTime > 300) {
         warnings.push(`第${index + 1}场考试：提醒时间建议在0-300分钟之间`);
       }
     });
