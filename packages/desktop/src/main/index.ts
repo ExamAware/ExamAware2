@@ -85,7 +85,10 @@ httpApiService.loadConfig()
 castService.loadConfig()
 
 let pluginHost: PluginHost | null = null
-let disposeDeepLinks: (() => void) | undefined
+let disposeDeepLinks = () => {}
+let disposeMainCtx = () => {}
+let disposeIpc = () => {}
+let disposeTimeIpc = () => {}
 
 // Ensure a friendly app name in development and across platforms (especially macOS About menu)
 try {
@@ -150,6 +153,37 @@ if (!gotLock) {
   process.exit(0)
 }
 
+const handleBeforeQuit = createShutdownCoordinator({
+  app,
+  flush: flushConfig,
+  logger: appLogger,
+  cleanup: () => {
+    ;(app as any).isQuitting = true
+    try {
+      disposeTimeIpc()
+    } catch {}
+    try {
+      disposeIpc()
+    } catch {}
+    try {
+      void httpApiService.dispose()
+    } catch {}
+    try {
+      void castService.dispose()
+    } catch {}
+    try {
+      disposeDeepLinks()
+    } catch {}
+    try {
+      disposeMainCtx()
+    } catch {}
+    try {
+      pluginHost?.shutdown?.()
+    } catch {}
+  }
+})
+app.on('before-quit', handleBeforeQuit)
+
 app.on('second-instance', (_event, argv) => {
   const deepLinkArg = argv.find((arg) => arg.startsWith('examaware://'))
   if (deepLinkArg) {
@@ -168,7 +202,9 @@ app.on('second-instance', (_event, argv) => {
 })
 
 app.whenReady().then(async () => {
-  const { ctx: _mainCtx, dispose: disposeMainCtx } = createMainContext()
+  const mainContext = createMainContext()
+  const _mainCtx = mainContext.ctx
+  disposeMainCtx = mainContext.dispose
   windowManager.setContext(_mainCtx)
   electronApp.setAppUserModelId('org.examaware')
   ensurePluginProtocol()
@@ -178,7 +214,7 @@ app.whenReady().then(async () => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  const disposeIpc = registerIpcHandlers(_mainCtx)
+  disposeIpc = registerIpcHandlers(_mainCtx)
   // macOS 常用快捷键：Command+逗号 打开设置（聚焦“关于”页可由二级逻辑决定，这里默认普通设置首页）
   try {
     globalShortcut.register('CommandOrControl+,', () => {
@@ -191,7 +227,7 @@ app.whenReady().then(async () => {
   } catch (e) {
     appLogger.error('register shortcut failed', e as Error)
   }
-  const disposeTimeIpc = registerTimeSyncHandlers()
+  disposeTimeIpc = registerTimeSyncHandlers()
   // 启动内置 HTTP API（端口冲突自动处理）
   try {
     await httpApiService.start()
@@ -399,40 +435,6 @@ app.whenReady().then(async () => {
       appLogger.error('set application menu failed', e as Error)
     }
   }
-
-  // optional: clean up on quit
-  const handleBeforeQuit = createShutdownCoordinator({
-    app,
-    flush: flushConfig,
-    logger: appLogger,
-    cleanup: () => {
-      ;(app as any).isQuitting = true
-      try {
-        disposeTimeIpc()
-      } catch {}
-      try {
-        disposeIpc()
-      } catch {}
-      try {
-        void httpApiService.dispose()
-      } catch {}
-      try {
-        void castService.dispose()
-      } catch {}
-      try {
-        disposeDeepLinks?.()
-      } catch {}
-      try {
-        disposeMainCtx()
-      } catch {}
-      try {
-        pluginHost?.shutdown?.()
-      } catch {}
-    }
-  })
-  app.on('before-quit', (event) => {
-    handleBeforeQuit(event)
-  })
 })
 
 let pluginProtocolRegistered = false

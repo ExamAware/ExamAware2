@@ -24,7 +24,11 @@ export function createShutdownCoordinator({
     event.preventDefault()
     if (pending) return
     pending = true
-    cleanup?.()
+    try {
+      cleanup?.()
+    } catch (error) {
+      logger.error('[shutdown] cleanup failed', error)
+    }
 
     void flush()
       .catch((error) => logger.error('[shutdown] config flush failed', error))

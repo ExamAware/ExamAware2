@@ -7,8 +7,10 @@ describe('shutdown integration', () => {
     const source = fs.readFileSync(path.join(__dirname, 'index.ts'), 'utf-8')
 
     expect(source).toContain("import { flushConfig } from './configStore'")
-    expect(source).toContain('event.preventDefault()')
-    expect(source).toContain('flushConfig')
+    expect(source).toContain("app.on('before-quit', handleBeforeQuit)")
+    expect(source.indexOf("app.on('before-quit', handleBeforeQuit)")).toBeLessThan(
+      source.indexOf('app.whenReady().then')
+    )
   })
 })
 
@@ -65,6 +67,30 @@ describe('createShutdownCoordinator', () => {
 
     expect(event.preventDefault).toHaveBeenCalledTimes(1)
     expect(logger.error).toHaveBeenCalledWith('[shutdown] config flush failed', diskError)
+    expect(app.quit).toHaveBeenCalledTimes(1)
+  })
+
+  it('logs a synchronous cleanup failure and still flushes and quits', async () => {
+    const { createShutdownCoordinator } = await import('./shutdownCoordinator')
+    const cleanupError = new Error('cleanup error')
+    const logger = { error: vi.fn() }
+    const flush = vi.fn().mockResolvedValue(undefined)
+    const app = { quit: vi.fn() }
+    const coordinator = createShutdownCoordinator({
+      app,
+      flush,
+      cleanup: () => {
+        throw cleanupError
+      },
+      logger
+    })
+
+    coordinator({ preventDefault: vi.fn() })
+    await Promise.resolve()
+    await Promise.resolve()
+
+    expect(logger.error).toHaveBeenCalledWith('[shutdown] cleanup failed', cleanupError)
+    expect(flush).toHaveBeenCalledTimes(1)
     expect(app.quit).toHaveBeenCalledTimes(1)
   })
 })

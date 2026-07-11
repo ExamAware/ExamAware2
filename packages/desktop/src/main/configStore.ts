@@ -124,9 +124,7 @@ function scheduleWrite() {
   if (writeTimer) clearTimeout(writeTimer)
   writeTimer = setTimeout(() => {
     writeTimer = null
-    void startWrite().catch((error) => {
-      appLogger.error('[config] scheduled write failed:', error as Error)
-    })
+    void startWrite().catch(() => {})
   }, 100)
 }
 
