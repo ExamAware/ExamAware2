@@ -20,6 +20,7 @@ const safeAssign = (target: SettingsRecord, source: SettingsRecord) => {
 
 export const useSettingsStore = defineStore('settings', () => {
   const data = ref<SettingsRecord>({})
+  let syncRevision = 0
 
   const lookup = (key: string): { exists: boolean; value: any } => {
     const segs = key.split('.')
@@ -35,9 +36,12 @@ export const useSettingsStore = defineStore('settings', () => {
 
   // 从主进程加载配置
   async function init() {
+    const requestedAtRevision = syncRevision
     try {
       const all = await window.api.config.all()
-      data.value = all || {}
+      if (syncRevision === requestedAtRevision) {
+        data.value = all || {}
+      }
     } catch (e) {
       console.error('加载配置失败', e)
     }
@@ -46,6 +50,7 @@ export const useSettingsStore = defineStore('settings', () => {
 
   // 监听主进程的变更广播，保持同步
   window.api.config.onChanged((cfg) => {
+    syncRevision += 1
     data.value = cfg || {}
   })
 
