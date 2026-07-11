@@ -97,6 +97,10 @@ function startWrite(): Promise<void> {
         await fsp.writeFile(file, snapshot, 'utf-8')
       } catch (error) {
         dirty = true
+        if (writeTimer) {
+          clearTimeout(writeTimer)
+          writeTimer = null
+        }
         appLogger.error('[config] write failed:', error as Error)
         throw error
       }

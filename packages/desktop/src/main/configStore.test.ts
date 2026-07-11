@@ -70,4 +70,29 @@ describe('config persistence', () => {
     expect(writeFile).toHaveBeenCalledTimes(2)
     expect(writeFile.mock.calls[1][1]).toContain('latest')
   })
+
+  it('cancels a debounce scheduled during an active write when that write fails', async () => {
+    const diskError = new Error('disk error')
+    let rejectFirstWrite!: (error: Error) => void
+    writeFile
+      .mockImplementationOnce(
+        () => new Promise<void>((_resolve, reject) => (rejectFirstWrite = reject))
+      )
+      .mockResolvedValueOnce(undefined)
+    const { flushConfig, setConfig } = await import('./configStore')
+
+    setConfig('value', 'value1')
+    await vi.advanceTimersByTimeAsync(100)
+    setConfig('value', 'value2')
+    rejectFirstWrite(diskError)
+    await Promise.resolve()
+    await Promise.resolve()
+
+    await vi.advanceTimersByTimeAsync(1_000)
+    expect(writeFile).toHaveBeenCalledTimes(1)
+
+    await flushConfig()
+    expect(writeFile).toHaveBeenCalledTimes(2)
+    expect(writeFile.mock.calls[1][1]).toContain('value2')
+  })
 })
