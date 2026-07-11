@@ -39,21 +39,36 @@ describe('ReminderEventGate', () => {
     );
   });
 
-  it('prefers ID over name and normalizes supported timestamp values', () => {
-    expect(
-      createReminderOccurrenceKey('start', {
-        id: 42,
-        name: 'ignored',
-        start: new Date('2026-07-12T09:00:00.000Z'),
-        end: 1_752_311_600_000
-      })
-    ).toBe(
-      createReminderOccurrenceKey('start', {
-        id: '42',
-        name: 'different',
-        start: '2026-07-12T09:00:00.000Z',
-        end: '1752311600000'
-      })
+  it('preserves exact string identities instead of coercing numeric-looking IDs', () => {
+    const gate = new ReminderEventGate();
+    const occurrence = { start: exam.start, end: exam.end };
+
+    expect(gate.accept('start', { ...occurrence, id: '001' })).toBe(true);
+    expect(gate.accept('start', { ...occurrence, id: '1' })).toBe(true);
+  });
+
+  it('type-tags identities so numeric and string IDs cannot collide', () => {
+    const occurrence = { start: exam.start, end: exam.end };
+
+    expect(createReminderOccurrenceKey('start', { ...occurrence, id: 1 })).not.toBe(
+      createReminderOccurrenceKey('start', { ...occurrence, id: '1' })
+    );
+  });
+
+  it('normalizes supported timestamp values independently from identity', () => {
+    const first = {
+      id: '42',
+      start: new Date('2026-07-12T09:00:00.000Z'),
+      end: 1_752_311_600_000
+    };
+    const second = {
+      id: '42',
+      start: '2026-07-12T09:00:00.000Z',
+      end: '1752311600000'
+    };
+
+    expect(createReminderOccurrenceKey('start', first)).toBe(
+      createReminderOccurrenceKey('start', second)
     );
   });
 

@@ -2,7 +2,15 @@ export type ReminderEventKind = 'start' | 'alert' | 'end';
 
 type ReminderExam = Record<string, unknown>;
 
-const normalizePart = (value: unknown): string | null => {
+type NormalizedIdentity = ['string', string] | ['number', string];
+
+const normalizeIdentity = (value: unknown): NormalizedIdentity | null => {
+  if (typeof value === 'string') return value.length > 0 ? ['string', value] : null;
+  if (typeof value === 'number' && Number.isFinite(value)) return ['number', String(value)];
+  return null;
+};
+
+const normalizeTimestamp = (value: unknown): string | null => {
   if (value instanceof Date) {
     return Number.isNaN(value.getTime()) ? null : value.toISOString();
   }
@@ -19,12 +27,12 @@ export const createReminderOccurrenceKey = (
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
   const exam = value as ReminderExam;
-  const start = normalizePart(exam.start);
-  const end = normalizePart(exam.end);
+  const start = normalizeTimestamp(exam.start);
+  const end = normalizeTimestamp(exam.end);
   if (start === null || end === null) return null;
 
-  const id = normalizePart(exam.id);
-  const name = normalizePart(exam.name);
+  const id = normalizeIdentity(exam.id);
+  const name = normalizeIdentity(exam.name);
   const identity = id !== null ? ['id', id] : name !== null ? ['name', name] : ['time'];
   return JSON.stringify([kind, identity, start, end]);
 };
