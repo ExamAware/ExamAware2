@@ -21,7 +21,7 @@
     "build:all": "pnpm build && pnpm run prepare:packdeps && pnpm run prepare:workspace-deps && pnpm exec electron-builder --win --mac --linux --publish=never",
     "dist": "pnpm build && pnpm run prepare:packdeps && pnpm run prepare:workspace-deps && pnpm exec electron-builder --publish=never",
     "type-check": "vue-tsc --noEmit",
-    "lint": "eslint src --ext .ts,.vue --fix",
+    "lint": "eslint src --ext .ts,.vue",
     "clean": "rm -rf dist"
   },
   "dependencies": {
