@@ -21,6 +21,7 @@ export class ExamTaskQueue {
   private timeouts: Map<string, NodeJS.Timeout> = new Map();
   private timeProvider: () => number;
   private isRunning = false;
+  private nextTaskId = 1;
 
   constructor(timeProvider: () => number = () => Date.now()) {
     this.timeProvider = timeProvider;
@@ -30,7 +31,7 @@ export class ExamTaskQueue {
    * 添加任务
    */
   addTask(executeTime: number, type: TaskType, examInfo: ExamInfo, callback: () => void): string {
-    const id = `${type}-${examInfo.name}-${executeTime}`;
+    const id = `${type}-${examInfo.name}-${executeTime}-${this.nextTaskId++}`;
     const task: Task = {
       id,
       executeTime,

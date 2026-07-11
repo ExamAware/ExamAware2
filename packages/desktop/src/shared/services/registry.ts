@@ -35,7 +35,7 @@ interface ServiceRecord {
 
 interface ServiceWatcher {
   cb: (value: unknown, owner: string, meta: ServiceWatcherMeta) => void | (() => void)
-  cleanup?: (() => void) | void
+  cleanups: Array<() => void>
 }
 
 export class ServiceRegistry {
@@ -137,7 +137,7 @@ export class ServiceRegistry {
       set = new Set()
       this.watchers.set(name, set)
     }
-    const watcher: ServiceWatcher = { cb }
+    const watcher: ServiceWatcher = { cb, cleanups: [] }
     set.add(watcher)
     this.invokeWatcher(name, watcher)
     return () => {
@@ -221,7 +221,7 @@ export class ServiceRegistry {
         }
         const res = watcher.cb(provider.value, provider.owner, meta)
         if (typeof res === 'function') {
-          watcher.cleanup = res
+          watcher.cleanups.push(res)
         }
       } catch (error) {
         this.logger?.warn?.('[ServiceRegistry] watcher callback failed', error)
@@ -230,13 +230,13 @@ export class ServiceRegistry {
   }
 
   private runWatcherCleanup(watcher: ServiceWatcher) {
-    if (typeof watcher.cleanup === 'function') {
+    const cleanups = watcher.cleanups.splice(0)
+    for (const cleanup of cleanups) {
       try {
-        watcher.cleanup()
+        cleanup()
       } catch (error) {
         this.logger?.warn?.('[ServiceRegistry] watcher cleanup failed', error)
       }
-      watcher.cleanup = undefined
     }
   }
 }
