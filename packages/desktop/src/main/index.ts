@@ -30,6 +30,8 @@ import type { DeepLinkPayload } from '../shared/types/deepLink'
 import { applyDeepLinkControllers } from './deepLink/decorators'
 import { CoreDeepLinkController } from './deepLink/coreDeepLinkController'
 import { composeVersionLabel } from '../shared/appInfo'
+import { flushConfig } from './configStore'
+import { createShutdownCoordinator } from './shutdownCoordinator'
 import bannerText from './banner.txt?raw'
 
 protocol.registerSchemesAsPrivileged([
@@ -399,29 +401,37 @@ app.whenReady().then(async () => {
   }
 
   // optional: clean up on quit
-  app.on('before-quit', () => {
-    ;(app as any).isQuitting = true
-    try {
-      disposeTimeIpc()
-    } catch {}
-    try {
-      disposeIpc()
-    } catch {}
-    try {
-      void httpApiService.dispose()
-    } catch {}
-    try {
-      void castService.dispose()
-    } catch {}
-    try {
-      disposeDeepLinks?.()
-    } catch {}
-    try {
-      disposeMainCtx()
-    } catch {}
-    try {
-      pluginHost?.shutdown?.()
-    } catch {}
+  const handleBeforeQuit = createShutdownCoordinator({
+    app,
+    flush: flushConfig,
+    logger: appLogger,
+    cleanup: () => {
+      ;(app as any).isQuitting = true
+      try {
+        disposeTimeIpc()
+      } catch {}
+      try {
+        disposeIpc()
+      } catch {}
+      try {
+        void httpApiService.dispose()
+      } catch {}
+      try {
+        void castService.dispose()
+      } catch {}
+      try {
+        disposeDeepLinks?.()
+      } catch {}
+      try {
+        disposeMainCtx()
+      } catch {}
+      try {
+        pluginHost?.shutdown?.()
+      } catch {}
+    }
+  })
+  app.on('before-quit', (event) => {
+    handleBeforeQuit(event)
   })
 })
 
