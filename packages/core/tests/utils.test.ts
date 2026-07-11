@@ -17,13 +17,14 @@ describe('date utilities', () => {
     expect(formatLocalDateTime(parsed)).toBe('2026-01-02 03:04:05');
   });
 
-  it.each(['', 'not-a-date', '2026-02-30 03:04:05', '2025-02-29T03:04:05'])(
+  it.each(['', 'not-a-date', '2026-02-30', '2026-02-30 03:04:05', '2025-02-29T03:04:05'])(
     'returns an invalid date for malformed calendar input %j',
     (value) => expect(parseDateTime(value).getTime()).toBeNaN()
   );
 
   it('accepts leap day in a leap year', () => {
     expect(Number.isFinite(parseDateTime('2024-02-29T03:04:05').getTime())).toBe(true);
+    expect(Number.isFinite(parseDateTime('2024-02-29').getTime())).toBe(true);
   });
 
   it('returns a placeholder when either range endpoint is invalid', () => {
