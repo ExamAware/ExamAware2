@@ -37,6 +37,10 @@ function validLastIncrementDate(value: unknown): string | undefined {
 }
 
 export function normalizeTimeSyncConfig(candidate: Partial<TimeSyncConfig>): TimeSyncConfig {
+  const intervalMs =
+    typeof candidate.syncIntervalMinutes === 'number'
+      ? candidate.syncIntervalMinutes * 60_000
+      : Number.NaN
   return {
     ntpServer:
       typeof candidate.ntpServer === 'string' && candidate.ntpServer.trim().length > 0
@@ -48,10 +52,7 @@ export function normalizeTimeSyncConfig(candidate: Partial<TimeSyncConfig>): Tim
         ? candidate.autoSync
         : DEFAULT_TIME_SYNC_CONFIG.autoSync,
     syncIntervalMinutes:
-      typeof candidate.syncIntervalMinutes === 'number' &&
-      Number.isInteger(candidate.syncIntervalMinutes) &&
-      candidate.syncIntervalMinutes >= 1 &&
-      candidate.syncIntervalMinutes <= 35791
+      Number.isFinite(intervalMs) && intervalMs >= 1_000 && intervalMs <= 2_147_483_647
         ? candidate.syncIntervalMinutes
         : DEFAULT_TIME_SYNC_CONFIG.syncIntervalMinutes,
     autoIncrementEnabled:

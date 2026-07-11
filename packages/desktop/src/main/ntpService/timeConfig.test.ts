@@ -6,22 +6,26 @@ import {
 } from './timeConfig'
 
 describe('normalizeTimeSyncConfig', () => {
-  it.each([1, 240, 35791])('preserves an in-range whole sync interval: %s', (value) => {
-    expect(normalizeTimeSyncConfig({ syncIntervalMinutes: value }).syncIntervalMinutes).toBe(value)
-  })
+  it.each([1 / 60, 0.5, 1.5, 240, 2_147_483_646 / 60_000])(
+    'preserves an interval with a safe computed delay: %s',
+    (value) => {
+      expect(normalizeTimeSyncConfig({ syncIntervalMinutes: value }).syncIntervalMinutes).toBe(
+        value
+      )
+    }
+  )
 
   it.each([
     0,
     -1,
     Number.MIN_VALUE,
-    0.5,
-    1.5,
-    35792,
+    0.01,
+    2_147_483_648 / 60_000,
     Number.NaN,
     Number.POSITIVE_INFINITY,
     Number.NEGATIVE_INFINITY,
     '15'
-  ])('defaults an invalid sync interval: %s', (value) => {
+  ])('defaults an interval with an unsafe computed delay: %s', (value) => {
     expect(
       normalizeTimeSyncConfig({ syncIntervalMinutes: value as number }).syncIntervalMinutes
     ).toBe(60)
@@ -201,12 +205,12 @@ describe('time service integration', () => {
     const service = await import('./timeService')
 
     service.applyTimeConfig({ syncIntervalMinutes: 1 })
-    service.applyTimeConfig({ syncIntervalMinutes: 35791 })
+    service.applyTimeConfig({ syncIntervalMinutes: 0.5 })
     service.applyTimeConfig({ syncIntervalMinutes: Number.MIN_VALUE })
-    service.saveTimeSyncConfig({ syncIntervalMinutes: 0.5 })
+    service.saveTimeSyncConfig({ syncIntervalMinutes: 2_147_483_648 / 60_000 })
 
     expect(intervalSpy).toHaveBeenNthCalledWith(1, expect.any(Function), 60_000)
-    expect(intervalSpy).toHaveBeenNthCalledWith(2, expect.any(Function), 2_147_460_000)
+    expect(intervalSpy).toHaveBeenNthCalledWith(2, expect.any(Function), 30_000)
     expect(intervalSpy).toHaveBeenNthCalledWith(3, expect.any(Function), 3_600_000)
     expect(intervalSpy).toHaveBeenNthCalledWith(4, expect.any(Function), 3_600_000)
     expect(intervalSpy.mock.calls.some(([, delay]) => delay === 1)).toBe(false)
