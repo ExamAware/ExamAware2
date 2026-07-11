@@ -30,27 +30,27 @@ Repair the confirmed correctness, lifecycle, persistence, RPC, time-configuratio
 
 ### 1. Exam configuration validation
 
-`packages/core/src/parser.ts` remains the single basic validation boundary. Validation will parse every start and end timestamp, require both timestamps to be finite, require start to precede end, and require `alertTime` to be finite and non-negative. Overlap detection will use the shared parser rather than a different date-parsing path.
+`packages/core/src/parser.ts` remains the single basic validation boundary. Validation will parse every start and end timestamp, require both timestamps to be finite, require start to precede end, and require `alertTime` to be finite and non-negative. Zero remains a valid way to disable the alert. Empty exam lists and optional top-level display strings keep their current core-validator behavior. Overlap detection will use the shared parser rather than a different date-parsing path and will reject invalid dates before comparing ranges. Adjacent exams where one ends exactly when the next begins do not overlap.
 
-The player’s detailed validation helper will follow the same rules so user-facing diagnostics and the core boolean validator cannot disagree.
+The player’s detailed validation helper will align with the core validator only for timestamp ordering, timestamp validity, and non-negative finite `alertTime`. Existing differences concerning empty lists, optional top-level display strings, and the advisory upper bound of 300 minutes remain unchanged in this pass.
 
 ### 2. Player state consistency
 
-`ExamPlayerCore` will expose and consume one sorted exam sequence for index-based operations. `currentExam`, `updateCurrentExam`, `switchToExam`, status computations, and switch events will all resolve indices against that sequence. The original configuration object may remain available for serialization, but it must not be indexed with a sorted index.
+`ExamPlayerCore` will create one canonical sorted exam sequence per configuration update and use it for index-based operations. `currentExam`, `updateCurrentExam`, `switchToExam`, status computations, and switch events will all resolve indices against that sequence. The original configuration object may remain available for serialization, but it must not be indexed with a sorted index.
 
 The time-provider change callback will be stored as a class member. `start()` will register it once, and `stop()` will unregister that same function. Repeated `start()` calls remain idempotent.
 
-`PlayerView.vue` will interpret the event’s `alertTime` argument as minutes and display that the exam will end after the specified number of minutes. Reminder-sound event handling and settings remain untouched.
+`packages/desktop/src/renderer/src/views/PlayerView.vue` will interpret the event’s `alertTime` argument as minutes and display that the exam will end after the specified number of minutes. Reminder-sound event handling and settings remain untouched.
 
 ### 3. Configuration loading lifecycle
 
-`ConfigLoader.loadFromIPC()` will use one cleanup function that clears the timeout and unregisters the `load-config` listener. Every terminal path calls cleanup. Starting a new IPC load will cancel the previous pending load so stale listeners cannot later update state.
+`ConfigLoader.loadFromIPC()` will use one cleanup function that clears the timeout and unregisters the `load-config` listener. Every terminal path calls cleanup. Starting a new IPC load first rejects the previous promise with a dedicated `ConfigLoadCancelledError`, performs its cleanup, and only then installs the replacement listener. Each load receives an identity token; late `get-config` resolutions and stale event callbacks must check the token before changing state or settling a promise.
 
 ### 4. Configuration persistence
 
-The configuration store will distinguish scheduled, active, and dirty writes. A mutation during an active write marks the store dirty; completion schedules or performs another write using the latest cache. `flushConfig()` will cancel the debounce timer and continue until no dirty changes remain.
+The configuration store will distinguish scheduled, active, and dirty writes. A mutation during an active write marks the store dirty; after a successful write, completion performs another write using the latest cache when necessary. `flushConfig()` cancels the debounce timer and continues only while writes succeed and newer dirty changes remain. A failed write rejects the current flush immediately and preserves dirty state for a future caller; it never retries indefinitely within the same call.
 
-Application shutdown will await or otherwise gate final termination on this explicit flush without changing window or renderer security settings. Write failures remain logged and do not falsely report persistence success.
+Application shutdown will use a guarded `before-quit` protocol without changing window or renderer security settings. On the first quit request, the handler prevents default termination, marks flushing in progress, and awaits `flushConfig()`. It then sets an allow-quit guard and calls `app.quit()` exactly once; re-entered `before-quit` observes the guard and proceeds normally. A flush rejection is logged and shutdown still proceeds so a filesystem failure cannot trap the application. Tests cover successful flush, rejected flush, and guarded re-entry.
 
 ### 5. RPC cleanup
 
@@ -58,11 +58,11 @@ Application shutdown will await or otherwise gate final termination on this expl
 
 ### 6. NTP scheduling validation
 
-Time configuration normalization will require a finite positive synchronization interval and finite numeric offsets. Invalid values fall back to safe defaults before `setInterval()` or offset calculations. This is configuration correctness work only; network protocol and Electron security behavior are unchanged.
+Time configuration normalization will cover `syncIntervalMinutes`, `manualOffsetSeconds`, and `autoIncrementSeconds` at `loadTimeSyncConfig`, `applyTimeConfig`, and `saveTimeSyncConfig` entry points. Values must already be finite JavaScript numbers; numeric strings, `NaN`, and infinities are rejected. `syncIntervalMinutes` must be greater than zero and falls back to `60`; both offset fields fall back to `0`. Normalization happens before `setInterval()` or offset calculations. This is configuration correctness work only; network protocol and Electron security behavior are unchanged.
 
 ### 7. ESLint 9 migration
 
-Replace the obsolete `.eslintrc.cjs`/`.eslintignore` setup with a flat `eslint.config` using the installed Vue, TypeScript, Electron Toolkit, and Prettier-compatible configurations. Package lint scripts will be non-mutating. Generated output and dependency directories remain ignored.
+Replace the obsolete `.eslintrc.cjs`/`.eslintignore` setup with a flat `eslint.config` using the installed Vue, TypeScript, Electron Toolkit, and Prettier-compatible configurations. Package lint scripts will be non-mutating. The flat config ignores `node_modules`, `dist`, `out`, generated declaration files, generated plugin/template output, and bundled third-party Doom assets. The existing explicit `format` command remains the opt-in write operation.
 
 ## Error Handling
 
@@ -74,14 +74,15 @@ Replace the obsolete `.eslintrc.cjs`/`.eslintignore` setup with a flat `eslint.c
 
 ## Testing Strategy
 
-Add a small Vitest-based test setup because the repository currently has no automated tests.
+Add Vitest at the workspace root because the repository currently has no automated tests. Root scripts provide `test` for a single run and `test:watch` for development. Logic tests use the Node environment; Vue/renderer modules use lightweight mocks rather than a browser environment unless DOM behavior is directly under test. Every fake-timer suite restores real timers in cleanup.
 
 - Core tests cover invalid timestamps, reversed ranges, negative or non-finite alert values, and overlap behavior.
 - Player-core tests cover unsorted configurations, manual switching, emitted switch targets, and time-listener registration/unregistration.
-- Config-loader tests use a fake IPC emitter to verify listener cleanup on success, parse failure, timeout, and replacement.
-- Config-store tests mock Electron and filesystem boundaries to reproduce mutation-during-write and explicit-flush behavior.
+- Config-loader tests use a fake IPC emitter to verify listener cleanup on success, parse failure, timeout, and replacement. Replacement tests assert the cancellation error, both promises’ outcomes, and immunity to late invocation results.
+- Config-store tests mock Electron and filesystem boundaries to reproduce mutation-during-write, successful explicit flush, failed flush without looping, and dirty-state preservation.
 - RPC tests use a throwing transport and verify immediate rejection and cleanup through observable behavior.
-- Time-service tests cover zero, negative, `NaN`, and valid synchronization intervals through extracted normalization logic.
+- Time-service tests cover valid numbers plus zero, negative, `NaN`, infinities, and numeric strings for intervals and both offset fields through extracted normalization logic.
+- Shutdown tests cover successful flush, rejected flush, and one guarded re-entry without exercising or changing Electron window security settings.
 - Tooling verification runs workspace type checks, lint, relevant tests, and the production build.
 
 Every production fix follows a red-green cycle: add the smallest regression test, confirm it fails for the expected reason, implement one fix, then rerun the focused and broader suites.
