@@ -105,7 +105,7 @@ export class ExamPlayerCore {
     ExamDataProcessor.formatCurrentTime(this.currentTime.value)
   );
   readonly formattedExamInfos = computed(() =>
-    ExamDataProcessor.formatExamInfos(this.examConfig.value, this.currentTime.value)
+    ExamDataProcessor.formatSortedExamInfos(this.sortedExamInfos.value, this.currentTime.value)
   );
 
   start() {

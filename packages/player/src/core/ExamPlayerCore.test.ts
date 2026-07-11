@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ExamConfig } from '@dsz-examaware/core';
 import { getSortedExamConfig, parseDateTime } from '@dsz-examaware/core';
+import { ExamDataProcessor } from '../utils/dataProcessor';
 import { ExamPlayerCore } from './ExamPlayerCore';
 import type { IExamConfigService, TimeProvider } from './interfaces';
 
@@ -44,6 +45,7 @@ function createCore(now: number, onExamSwitch = vi.fn()) {
 
 afterEach(() => {
   vi.useRealTimers();
+  vi.restoreAllMocks();
 });
 
 describe('ExamPlayerCore exam ordering', () => {
@@ -77,6 +79,28 @@ describe('ExamPlayerCore exam ordering', () => {
     expect(core.examStatus.value.status).toBe('inProgress');
     expect(onExamSwitch).toHaveBeenCalledTimes(1);
     expect(onExamSwitch).toHaveBeenCalledWith(early, late);
+    core.stop();
+  });
+
+  it('formats the canonical sequence without sorting again as time changes', () => {
+    vi.useFakeTimers();
+    const getSortedConfig = vi.fn(getSortedExamConfig);
+    const legacyFormatter = vi.spyOn(ExamDataProcessor, 'formatExamInfos');
+    const core = new ExamPlayerCore(
+      null,
+      { roomNumber: '101' },
+      { getCurrentTime: () => parseDateTime('2026-07-11T09:30:00').getTime() },
+      {},
+      { ...configService, getSortedConfig }
+    );
+
+    core.updateConfig(unsortedConfig);
+    expect(core.formattedExamInfos.value.map((exam) => exam.name)).toEqual(['early', 'late']);
+    core.currentTime.value = parseDateTime('2026-07-11T11:30:00').getTime();
+    expect(core.formattedExamInfos.value.map((exam) => exam.name)).toEqual(['early', 'late']);
+
+    expect(getSortedConfig).toHaveBeenCalledTimes(1);
+    expect(legacyFormatter).not.toHaveBeenCalled();
     core.stop();
   });
 });

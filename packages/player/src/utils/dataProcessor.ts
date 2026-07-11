@@ -30,9 +30,19 @@ export class ExamDataProcessor {
 
     // 使用排序后的配置确保考试按时间顺序显示
     const sortedConfig = getSortedExamConfig(config);
+    return this.formatSortedExamInfos(sortedConfig.examInfos, currentTime);
+  }
+
+  /**
+   * 格式化已经按开始时间排序的考试数据。
+   */
+  static formatSortedExamInfos(
+    sortedExamInfos: readonly ExamInfo[],
+    currentTime: number
+  ): FormattedExamInfo[] {
     let lastDisplayedDate = '';
 
-    return sortedConfig.examInfos.map((exam: ExamInfo, index: number) => {
+    return sortedExamInfos.map((exam: ExamInfo, index: number) => {
       const startDate = parseDateTime(exam.start);
       const endDate = parseDateTime(exam.end);
       const now = currentTime;
