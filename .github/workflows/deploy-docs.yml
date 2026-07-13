@@ -29,6 +29,9 @@ jobs:
           node-version: 22
           cache: pnpm
 
+      - name: 强制 GitHub 使用 HTTPS
+        run: 'git config --global url."https://github.com/".insteadOf git@github.com:'
+
       - name: 安装依赖
         run: |
           corepack enable

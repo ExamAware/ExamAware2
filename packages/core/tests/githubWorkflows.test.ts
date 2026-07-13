@@ -1,0 +1,29 @@
+import { readdirSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { describe, expect, it } from 'vitest';
+
+const workflowsDirectory = resolve(process.cwd(), '.github/workflows');
+const frozenInstallCommand = 'pnpm install --frozen-lockfile';
+const githubHttpsRewrite =
+  'git config --global url."https://github.com/".insteadOf git@github.com:';
+
+describe('GitHub workflows', () => {
+  it('configures GitHub HTTPS access before every frozen pnpm install', () => {
+    const workflowsWithFrozenInstall = readdirSync(workflowsDirectory)
+      .filter((fileName) => /\.ya?ml$/.test(fileName))
+      .map((fileName) => ({
+        fileName,
+        contents: readFileSync(resolve(workflowsDirectory, fileName), 'utf8')
+      }))
+      .filter(({ contents }) => contents.includes(frozenInstallCommand));
+
+    expect(workflowsWithFrozenInstall.length).toBeGreaterThan(0);
+
+    for (const { fileName, contents } of workflowsWithFrozenInstall) {
+      expect(contents.indexOf(githubHttpsRewrite), fileName).toBeGreaterThanOrEqual(0);
+      expect(contents.indexOf(githubHttpsRewrite), fileName).toBeLessThan(
+        contents.indexOf(frozenInstallCommand)
+      );
+    }
+  });
+});

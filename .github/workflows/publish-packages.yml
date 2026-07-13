@@ -41,6 +41,9 @@ jobs:
           cache: 'pnpm'
           registry-url: https://registry.npmjs.org/
 
+      - name: Force git to use HTTPS for GitHub
+        run: 'git config --global url."https://github.com/".insteadOf git@github.com:'
+
       - name: Make pnpm non-interactive
         run: pnpm config set yes true
 
