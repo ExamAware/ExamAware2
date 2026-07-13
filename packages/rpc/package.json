@@ -1,6 +1,6 @@
 {
   "name": "@dsz-examaware/rpc",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "ExamAware JSON-RPC connection helpers",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -20,7 +20,7 @@
     "src"
   ],
   "scripts": {
-    "build": "tsup && tsc --emitDeclarationOnly",
+    "build": "tsup && tsc -b --force --emitDeclarationOnly",
     "dev": "tsup --watch",
     "type-check": "tsc --noEmit",
     "clean": "rimraf dist"

@@ -2,7 +2,7 @@
   <div class="settings-page plugin-source-settings">
     <h2>插件源</h2>
     <t-space direction="vertical" size="large" style="width: 100%">
-      <t-card title="插件索引源" hover-shadow>
+      <t-card title="插件索引源">
         <t-space direction="vertical" size="small" style="width: 100%">
           <t-text theme="secondary">商店与安装优先使用选中的索引源，支持添加备用。</t-text>
           <t-list split size="medium">
@@ -67,7 +67,7 @@
         </t-space>
       </t-card>
 
-      <t-card title="npm Registry" hover-shadow>
+      <t-card title="npm Registry">
         <t-space direction="vertical" size="small" style="width: 100%">
           <t-text theme="secondary">安装插件时使用的 registry，可测速选择更快线路。</t-text>
           <t-list split size="medium">

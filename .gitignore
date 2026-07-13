@@ -14,3 +14,4 @@ packages/desktop/docs/*
 ignore/
 
 packages/rpc/tsconfig.tsbuildinfo
+docs/superpowers

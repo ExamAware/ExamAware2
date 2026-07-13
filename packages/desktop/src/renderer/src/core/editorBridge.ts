@@ -27,6 +27,7 @@ export function onEditorRuntimeReady(cb: (env: EditorRuntimeEnvironment) => void
   const current = runtimeRef.value
   if (current) {
     queueMicrotask(() => {
+      if (!listeners.has(cb) || runtimeRef.value !== current) return
       try {
         cb(current)
       } catch (error) {

@@ -47,6 +47,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Run tests
+        run: pnpm test
+
       - name: Sync plugin SDK version
         run: node scripts/sync-plugin-sdk-version.mjs
 
@@ -125,5 +128,5 @@ jobs:
         if: steps.publish-check.outputs.publish == 'true'
         run: |
           for pkg in ${{ steps.publish-check.outputs.packages }}; do
-            pnpm --filter "$pkg" exec npm publish --access public --provenance
+            pnpm --filter "$pkg" publish --access public --provenance --no-git-checks
           done

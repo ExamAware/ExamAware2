@@ -36,11 +36,13 @@ export function removeSharedConfig(id: string) {
 }
 
 export function listSharedConfigs(): SharedConfigEntry[] {
-  return Object.values(sharedConfigs).sort((a, b) => b.updatedAt - a.updatedAt)
+  return Object.values(sharedConfigs)
+    .map((entry) => ({ ...entry }))
+    .sort((a, b) => b.updatedAt - a.updatedAt)
 }
 
 export function getSharedConfigPayload(id?: string): string | null {
-  if (id && sharedConfigs[id]) return sharedConfigs[id].payload
+  if (id !== undefined) return sharedConfigs[id]?.payload ?? null
   const first = listSharedConfigs()[0]
   return first?.payload ?? null
 }

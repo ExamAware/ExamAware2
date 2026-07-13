@@ -4,6 +4,8 @@ import type { ExamInfo, TaskInfo, PlayerEventHandlers } from '../types';
 
 export type TaskType = 'exam-start' | 'exam-end' | 'exam-alert';
 
+const MAX_TIMER_DELAY = 2_147_483_647;
+
 export interface Task {
   id: string;
   executeTime: number;
@@ -21,6 +23,7 @@ export class ExamTaskQueue {
   private timeouts: Map<string, NodeJS.Timeout> = new Map();
   private timeProvider: () => number;
   private isRunning = false;
+  private nextTaskId = 1;
 
   constructor(timeProvider: () => number = () => Date.now()) {
     this.timeProvider = timeProvider;
@@ -30,7 +33,10 @@ export class ExamTaskQueue {
    * 添加任务
    */
   addTask(executeTime: number, type: TaskType, examInfo: ExamInfo, callback: () => void): string {
-    const id = `${type}-${examInfo.name}-${executeTime}`;
+    if (!Number.isFinite(executeTime)) {
+      throw new RangeError('Task execution time must be finite');
+    }
+    const id = `${type}-${examInfo.name}-${executeTime}-${this.nextTaskId++}`;
     const task: Task = {
       id,
       executeTime,
@@ -61,9 +67,18 @@ export class ExamTaskQueue {
       this.executeTask(task);
     } else {
       // 设置定时器
-      const timeout = setTimeout(() => {
-        this.executeTask(task);
-      }, delay);
+      const timeout = setTimeout(
+        () => {
+          this.timeouts.delete(task.id);
+          if (!this.isRunning || task.status !== 'pending') return;
+          if (task.executeTime > this.timeProvider()) {
+            this.scheduleTask(task);
+            return;
+          }
+          this.executeTask(task);
+        },
+        Math.min(delay, MAX_TIMER_DELAY)
+      );
 
       this.timeouts.set(task.id, timeout);
     }

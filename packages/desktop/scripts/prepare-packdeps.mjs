@@ -21,8 +21,21 @@ function findPnpmExecutable(args) {
     process.env.PNPM_HOME ||
     (process.platform === 'win32' ? 'C:/Users/runneradmin/setup-pnpm/node_modules/.bin' : undefined)
 
-  const searchDirs = [pnpmHome, ...String(process.env.PATH || '').split(delimiter).filter(Boolean)].filter(Boolean)
-  const candidateFiles = ['pnpm.cjs', 'pnpm.mjs', 'pnpm.js', 'pnpm.exe', 'pnpm.cmd', 'pnpm.ps1', 'pnpm']
+  const searchDirs = [
+    pnpmHome,
+    ...String(process.env.PATH || '')
+      .split(delimiter)
+      .filter(Boolean)
+  ].filter(Boolean)
+  const candidateFiles = [
+    'pnpm.cjs',
+    'pnpm.mjs',
+    'pnpm.js',
+    'pnpm.exe',
+    'pnpm.cmd',
+    'pnpm.ps1',
+    'pnpm'
+  ]
 
   // Priority: explicit execPath candidates
   const directCandidates = []
@@ -57,7 +70,12 @@ async function run(cmd, args, options = {}) {
     if (resolved) {
       const ext = extname(resolved).toLowerCase()
       if (ext === '.js' || ext === '.cjs' || ext === '.mjs') {
-        attempts.push({ spawnCmd: process.execPath, spawnArgs: [resolved, ...args], shell: false, pnpmHome })
+        attempts.push({
+          spawnCmd: process.execPath,
+          spawnArgs: [resolved, ...args],
+          shell: false,
+          pnpmHome
+        })
       } else if (ext === '.ps1') {
         attempts.push({
           spawnCmd: 'powershell.exe',
@@ -127,7 +145,9 @@ async function run(cmd, args, options = {}) {
         child.on('error', reject)
         child.on('exit', (code) => {
           if (code === 0) return resolvePromise()
-          reject(new Error(`${attempt.spawnCmd} ${attempt.spawnArgs.join(' ')} exited with code ${code}`))
+          reject(
+            new Error(`${attempt.spawnCmd} ${attempt.spawnArgs.join(' ')} exited with code ${code}`)
+          )
         })
       })
       return

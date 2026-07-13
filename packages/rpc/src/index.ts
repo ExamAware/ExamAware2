@@ -45,7 +45,7 @@ export class JsonRpcClient {
     JsonRpcId,
     {
       resolve: (value: unknown) => void;
-      reject: (error: Error) => void;
+      reject: (error: unknown) => void;
       timeoutId?: ReturnType<typeof setTimeout>;
     }
   >();
@@ -77,7 +77,14 @@ export class JsonRpcClient {
         timeoutId
       });
 
-      this.transport.send(message);
+      try {
+        this.transport.send(message);
+      } catch (error) {
+        clearTimeout(timeoutId);
+        this.pending.delete(id);
+        reject(error);
+        return;
+      }
     });
   }
 

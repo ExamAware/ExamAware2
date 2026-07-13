@@ -209,14 +209,7 @@ function findWorkspaceRoot(startDir) {
 }
 
 function postProcessTemplate(destination, options) {
-  const {
-    packageName,
-    displayName,
-    description,
-    namespace,
-    settingsPageId,
-    sdkVersion
-  } = options;
+  const { packageName, displayName, description, namespace, settingsPageId, sdkVersion } = options;
 
   const pkgPath = join(destination, 'package.json');
   if (existsSync(pkgPath)) {
@@ -229,9 +222,7 @@ function postProcessTemplate(destination, options) {
     pkg.examaware.settings = pkg.examaware.settings || {};
     pkg.examaware.settings.namespace = namespace;
     if (pkg.examaware.services?.provide?.length) {
-      pkg.examaware.services.provide = [
-        `${namespace}.hello.message`
-      ];
+      pkg.examaware.services.provide = [`${namespace}.hello.message`];
     }
     pkg.dependencies = pkg.dependencies || {};
     pkg.dependencies['@dsz-examaware/plugin-sdk'] = sdkVersion;
@@ -268,11 +259,6 @@ function createPackageName(dir) {
   const base = dir.split(/[\\/]/).filter(Boolean).pop() ?? 'examaware-plugin';
   return (
     base
-          if (pkg.examaware.services?.provide?.length) {
-            pkg.examaware.services.provide = [
-              `${namespace}.hello.message`
-            ];
-          }
       .toLowerCase()
       .replace(/[^a-z0-9-]/g, '-')
       .replace(/^-+|(?<=-)-+/g, '') || 'examaware-plugin'

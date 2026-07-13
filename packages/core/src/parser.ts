@@ -1,4 +1,18 @@
 import type { ExamConfig } from './types';
+import { parseDateTime } from './utils';
+
+function getValidTimeRange(
+  info: ExamConfig['examInfos'][number]
+): { startMs: number; endMs: number } | null {
+  const startMs = parseDateTime(info.start).getTime();
+  const endMs = parseDateTime(info.end).getTime();
+
+  if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || startMs >= endMs) {
+    return null;
+  }
+
+  return { startMs, endMs };
+}
 
 /**
  * 解析考试配置的 JSON 字符串，并返回 `ExamConfig` 对象。
@@ -51,8 +65,8 @@ export function validateExamConfig(config: ExamConfig): boolean {
     if (typeof name !== 'string' || !name.trim()) return false;
     if (typeof start !== 'string' || !start.trim()) return false;
     if (typeof end !== 'string' || !end.trim()) return false;
-    if (typeof alertTime !== 'number' || !Number.isFinite(alertTime)) return false;
-    return true;
+    if (typeof alertTime !== 'number' || !Number.isFinite(alertTime) || alertTime < 0) return false;
+    return getValidTimeRange(info) !== null;
   });
 }
 
@@ -63,11 +77,16 @@ export function validateExamConfig(config: ExamConfig): boolean {
  * @returns 如果考试时间有重叠则返回 true，否则返回 false
  */
 export function hasExamTimeOverlap(config: ExamConfig): boolean {
-  const sortedExams = config.examInfos
-    .slice()
-    .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
-  for (let i = 0; i < sortedExams.length - 1; i++) {
-    if (new Date(sortedExams[i].end).getTime() > new Date(sortedExams[i + 1].start).getTime()) {
+  const ranges = config.examInfos.map(getValidTimeRange);
+  if (ranges.some((range) => range === null)) {
+    return false;
+  }
+
+  const sortedRanges = ranges
+    .filter((range): range is { startMs: number; endMs: number } => range !== null)
+    .sort((a, b) => a.startMs - b.startMs);
+  for (let i = 0; i < sortedRanges.length - 1; i++) {
+    if (sortedRanges[i].endMs > sortedRanges[i + 1].startMs) {
       return true;
     }
   }

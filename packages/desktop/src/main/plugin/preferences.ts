@@ -18,6 +18,8 @@ const DEFAULT_PAYLOAD: PluginPreferencePayload = {
   config: {}
 }
 
+const createDefaultPayload = (): PluginPreferencePayload => ({ enabled: {}, config: {} })
+
 /**
  * 基于文件的插件偏好设置存储实现
  * File-based plugin preference store implementation
@@ -25,9 +27,11 @@ const DEFAULT_PAYLOAD: PluginPreferencePayload = {
  * Responsible for managing plugin enabled status and config data, using JSON file for persistence
  */
 export class FilePluginPreferenceStore implements PluginPreferenceStore {
-  private data: PluginPreferencePayload = { ...DEFAULT_PAYLOAD }
+  private data: PluginPreferencePayload = createDefaultPayload()
   private loaded = false
   private writing: Promise<void> | null = null
+  private revision = 0
+  private persistedRevision = 0
 
   /**
    * 构造函数
@@ -54,7 +58,7 @@ export class FilePluginPreferenceStore implements PluginPreferenceStore {
         config: { ...DEFAULT_PAYLOAD.config, ...config }
       }
     } catch {
-      this.data = { ...DEFAULT_PAYLOAD }
+      this.data = createDefaultPayload()
     }
     this.loaded = true
   }
@@ -67,22 +71,24 @@ export class FilePluginPreferenceStore implements PluginPreferenceStore {
    */
   private async persist() {
     this.ensureLoadedSync()
-    if (this.writing) {
+    while (this.persistedRevision < this.revision) {
+      if (!this.writing) {
+        const revision = this.revision
+        const snapshot = JSON.stringify(this.data, null, 2)
+        this.writing = this.writeSnapshot(snapshot, revision).finally(() => {
+          this.writing = null
+        })
+      }
       await this.writing
-      return
     }
-    const save = async () => {
-      await fsp.mkdir(path.dirname(this.filePath), { recursive: true })
-      const tmp = `${this.filePath}.tmp`
-      await fsp.writeFile(tmp, JSON.stringify(this.data, null, 2), 'utf-8')
-      await fsp.rename(tmp, this.filePath)
-    }
-    this.writing = save()
-    try {
-      await this.writing
-    } finally {
-      this.writing = null
-    }
+  }
+
+  private async writeSnapshot(snapshot: string, revision: number) {
+    await fsp.mkdir(path.dirname(this.filePath), { recursive: true })
+    const tmp = `${this.filePath}.tmp`
+    await fsp.writeFile(tmp, snapshot, 'utf-8')
+    await fsp.rename(tmp, this.filePath)
+    this.persistedRevision = Math.max(this.persistedRevision, revision)
   }
 
   /**
@@ -106,6 +112,7 @@ export class FilePluginPreferenceStore implements PluginPreferenceStore {
     this.ensureLoadedSync()
     if (this.data.enabled[name] === enabled) return
     this.data.enabled[name] = enabled
+    this.revision += 1
     await this.persist()
   }
 
@@ -129,6 +136,7 @@ export class FilePluginPreferenceStore implements PluginPreferenceStore {
   async setConfig<T = Record<string, any>>(name: string, config: T) {
     this.ensureLoadedSync()
     this.data.config[name] = config as Record<string, any>
+    this.revision += 1
     await this.persist()
   }
 
@@ -139,6 +147,7 @@ export class FilePluginPreferenceStore implements PluginPreferenceStore {
     this.ensureLoadedSync()
     delete this.data.enabled[name]
     delete this.data.config[name]
+    this.revision += 1
     await this.persist()
   }
 }

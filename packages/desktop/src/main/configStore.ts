@@ -20,6 +20,7 @@ const FILE_NAME = 'config.json'
 let cache: AnyRecord | null = null
 let writeTimer: NodeJS.Timeout | null = null
 let writePromise: Promise<void> | null = null
+let dirty = false
 const listeners = new Set<(cfg: AnyRecord) => void>()
 
 function getConfigPath() {
@@ -43,9 +44,9 @@ function ensureLoaded() {
   }
 }
 
-function deepSet(obj: AnyRecord, key: string, value: any) {
+function deepSet(obj: AnyRecord, key: string, value: any): boolean {
   const segs = key.split('.')
-  if (isUnsafePath(segs)) return
+  if (isUnsafePath(segs)) return false
   let cur: any = obj
   for (let i = 0; i < segs.length - 1; i++) {
     const s = segs[i]
@@ -53,6 +54,7 @@ function deepSet(obj: AnyRecord, key: string, value: any) {
     cur = cur[s]
   }
   cur[segs[segs.length - 1]] = value
+  return true
 }
 
 function deepGet(obj: AnyRecord, key: string) {
@@ -65,36 +67,64 @@ function deepGet(obj: AnyRecord, key: string) {
   return cur
 }
 
-function deepMerge(target: AnyRecord, src: AnyRecord) {
+function deepMerge(target: AnyRecord, src: AnyRecord): boolean {
+  let changed = false
   for (const k of Object.keys(src)) {
     if (isUnsafeKey(k)) continue
     const v = (src as any)[k]
     if (v && typeof v === 'object' && !Array.isArray(v)) {
       if (!target[k] || typeof target[k] !== 'object') target[k] = {}
-      deepMerge(target[k], v)
+      changed = deepMerge(target[k], v) || changed
     } else {
       target[k] = v
+      changed = true
     }
   }
+  return changed
 }
 
-async function flushWrite() {
-  try {
-    const file = getConfigPath()
-    await fsp.mkdir(path.dirname(file), { recursive: true })
-    await fsp.writeFile(file, JSON.stringify(cache ?? {}, null, 2), 'utf-8')
-  } catch (e) {
-    appLogger.error('[config] write failed:', e as Error)
-  } finally {
+function startWrite(): Promise<void> {
+  if (writePromise) return writePromise
+  if (!dirty) return Promise.resolve()
+
+  writePromise = (async () => {
+    while (dirty) {
+      const snapshot = JSON.stringify(cache ?? {}, null, 2)
+      dirty = false
+      try {
+        const file = getConfigPath()
+        await fsp.mkdir(path.dirname(file), { recursive: true })
+        await fsp.writeFile(file, snapshot, 'utf-8')
+      } catch (error) {
+        dirty = true
+        if (writeTimer) {
+          clearTimeout(writeTimer)
+          writeTimer = null
+        }
+        appLogger.error('[config] write failed:', error as Error)
+        throw error
+      }
+    }
+  })().finally(() => {
     writePromise = null
+  })
+
+  return writePromise
+}
+
+export function flushConfig(): Promise<void> {
+  if (writeTimer) {
+    clearTimeout(writeTimer)
+    writeTimer = null
   }
+  return startWrite()
 }
 
 function scheduleWrite() {
   if (writeTimer) clearTimeout(writeTimer)
   writeTimer = setTimeout(() => {
-    if (writePromise) return
-    writePromise = flushWrite()
+    writeTimer = null
+    void startWrite().catch(() => {})
   }, 100)
 }
 
@@ -126,14 +156,16 @@ export function getConfig(key?: string, def?: any): any {
 
 export function setConfig(key: string, value: any) {
   ensureLoaded()
-  deepSet(cache as AnyRecord, key, value)
+  if (!deepSet(cache as AnyRecord, key, value)) return
+  dirty = true
   scheduleWrite()
   broadcastChanged()
 }
 
 export function patchConfig(partial: AnyRecord) {
   ensureLoaded()
-  deepMerge(cache as AnyRecord, partial)
+  if (!deepMerge(cache as AnyRecord, partial)) return
+  dirty = true
   scheduleWrite()
   broadcastChanged()
 }

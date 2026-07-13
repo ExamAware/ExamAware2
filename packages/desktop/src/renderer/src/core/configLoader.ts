@@ -18,6 +18,18 @@ export interface ConfigLoadState {
   config: ExamConfig | null
 }
 
+export class ConfigLoadCancelledError extends Error {
+  constructor() {
+    super('IPC 配置加载已取消')
+    this.name = 'ConfigLoadCancelledError'
+  }
+}
+
+interface ActiveIPCRequest {
+  settled: boolean
+  cancel: () => void
+}
+
 // 配置加载器类
 export class ConfigLoader {
   private state: ConfigLoadState = {
@@ -30,7 +42,13 @@ export class ConfigLoader {
 
   private listeners: ((state: ConfigLoadState) => void)[] = []
 
+  private activeIPCRequest: ActiveIPCRequest | null = null
+
   constructor(private ipcRenderer?: any) {}
+
+  private cancelActiveIPCRequest() {
+    this.activeIPCRequest?.cancel()
+  }
 
   // 添加状态监听器
   onStateChange(listener: (state: ConfigLoadState) => void) {
@@ -97,6 +115,7 @@ export class ConfigLoader {
 
   // 从文件加载配置
   async loadFromFile(filePath: string): Promise<ExamConfig> {
+    this.cancelActiveIPCRequest()
     const source: ConfigSource = { type: 'file', path: filePath }
     this.setLoading(true)
 
@@ -122,6 +141,7 @@ export class ConfigLoader {
 
   // 从 URL 加载配置
   async loadFromUrl(url: string): Promise<ExamConfig> {
+    this.cancelActiveIPCRequest()
     const source: ConfigSource = { type: 'url', url }
     this.setLoading(true)
 
@@ -144,6 +164,7 @@ export class ConfigLoader {
 
   // 从编辑器加载配置（直接传入数据）
   async loadFromEditor(data: string): Promise<ExamConfig> {
+    this.cancelActiveIPCRequest()
     const source: ConfigSource = { type: 'editor', data }
     this.setLoading(true)
 
@@ -159,8 +180,9 @@ export class ConfigLoader {
   }
 
   // 从 IPC 加载配置（等待主进程发送）
-  async loadFromIPC(timeout: number = 30000): Promise<ExamConfig> {
+  loadFromIPC(timeout: number = 30000): Promise<ExamConfig> {
     const source: ConfigSource = { type: 'ipc' }
+    this.cancelActiveIPCRequest()
     this.setLoading(true)
 
     return new Promise((resolve, reject) => {
@@ -171,47 +193,71 @@ export class ConfigLoader {
         return
       }
 
-      let timeoutId: NodeJS.Timeout
-      let resolved = false
+      let timeoutId: ReturnType<typeof setTimeout> | undefined
 
-      // 设置超时
-      timeoutId = setTimeout(() => {
-        if (!resolved) {
-          resolved = true
-          this.setError('IPC 配置加载超时')
-          reject(new Error('IPC 配置加载超时'))
+      const request: ActiveIPCRequest = {
+        settled: false,
+        cancel: () => {
+          if (request.settled) return
+          request.settled = true
+          cleanup()
+          reject(new ConfigLoadCancelledError())
         }
-      }, timeout)
+      }
 
-      // 监听配置数据
+      const cleanup = () => {
+        if (timeoutId !== undefined) {
+          clearTimeout(timeoutId)
+          timeoutId = undefined
+        }
+        this.ipcRenderer.removeListener('load-config', handleConfig)
+        if (this.activeIPCRequest === request) {
+          this.activeIPCRequest = null
+        }
+      }
+
+      const fail = (error: Error, stateError: string) => {
+        if (request.settled || this.activeIPCRequest !== request) return
+        request.settled = true
+        cleanup()
+        this.setError(stateError)
+        reject(error)
+      }
+
       const handleConfig = (_event: any, data: string) => {
-        if (resolved) return
-        resolved = true
-        clearTimeout(timeoutId)
+        if (request.settled || this.activeIPCRequest !== request) return
 
         try {
           const config = this.parseAndValidateConfig(data)
+          request.settled = true
+          cleanup()
           this.setSuccess(config, source)
           resolve(config)
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : '未知错误'
-          this.setError(`IPC 数据解析失败: ${errorMessage}`)
-          reject(error)
+          const rejection = error instanceof Error ? error : new Error(errorMessage)
+          fail(rejection, `IPC 数据解析失败: ${errorMessage}`)
         }
       }
 
+      this.activeIPCRequest = request
       this.ipcRenderer.on('load-config', handleConfig)
+
+      timeoutId = setTimeout(() => {
+        fail(new Error('IPC 配置加载超时'), 'IPC 配置加载超时')
+      }, timeout)
 
       // 尝试主动获取配置
       this.ipcRenderer
         .invoke('get-config')
         .then((data: string | null) => {
-          if (resolved) return
+          if (request.settled || this.activeIPCRequest !== request) return
           if (data) {
             handleConfig(null, data)
           }
         })
         .catch((error: Error) => {
+          if (request.settled || this.activeIPCRequest !== request) return
           console.warn('主动获取配置失败:', error)
           // 继续等待 load-config 事件
         })
@@ -220,6 +266,7 @@ export class ConfigLoader {
 
   // 直接设置配置数据
   async loadDirect(data: string): Promise<ExamConfig> {
+    this.cancelActiveIPCRequest()
     const source: ConfigSource = { type: 'direct', data }
     this.setLoading(true)
 
@@ -259,6 +306,7 @@ export class ConfigLoader {
 
   // 清除当前配置
   clear() {
+    this.cancelActiveIPCRequest()
     this.state = {
       loading: false,
       loaded: false,

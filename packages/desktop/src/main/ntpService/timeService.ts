@@ -10,31 +10,14 @@ import fs from 'fs'
 import path from 'path'
 import { getConfig, setConfig } from '../configStore'
 import { appLogger } from '../logging/winstonLogger'
+import {
+  DEFAULT_TIME_SYNC_CONFIG,
+  mergeTimeSyncConfig,
+  normalizeTimeSyncConfig,
+  type TimeSyncConfig
+} from './timeConfig'
 
-// 时间同步配置接口
-interface TimeSyncConfig {
-  ntpServer: string
-  manualOffsetSeconds: number
-  autoSync: boolean
-  syncIntervalMinutes: number
-  // 新增：自动时间偏移
-  autoIncrementEnabled: boolean
-  autoIncrementSeconds: number
-  lastIncrementDate?: string // YYYY-MM-DD，记录上次应用增量的日期
-}
-
-// 默认配置
-const DEFAULT_CONFIG: TimeSyncConfig = {
-  ntpServer: 'ntp.aliyun.com',
-  manualOffsetSeconds: 0,
-  autoSync: true,
-  syncIntervalMinutes: 60,
-  autoIncrementEnabled: false,
-  autoIncrementSeconds: 0,
-  lastIncrementDate: undefined
-}
-
-let timeSyncConfig: TimeSyncConfig = { ...DEFAULT_CONFIG }
+let timeSyncConfig: TimeSyncConfig = { ...DEFAULT_TIME_SYNC_CONFIG }
 let syncIntervalId: NodeJS.Timeout | null = null
 let autoIncTimer: NodeJS.Timeout | null = null
 let initialized = false
@@ -51,7 +34,7 @@ export function loadTimeSyncConfig(): TimeSyncConfig {
     // 优先从统一配置读取
     const cfg = (getConfig('time') || {}) as Partial<TimeSyncConfig>
     if (cfg && Object.keys(cfg).length > 0) {
-      timeSyncConfig = { ...DEFAULT_CONFIG, ...cfg }
+      timeSyncConfig = normalizeTimeSyncConfig({ ...DEFAULT_TIME_SYNC_CONFIG, ...cfg })
       if (timeSyncConfig.manualOffsetSeconds !== 0)
         setManualOffset(timeSyncConfig.manualOffsetSeconds)
       // 应用一次自动增量（如果需要）
@@ -63,7 +46,7 @@ export function loadTimeSyncConfig(): TimeSyncConfig {
     if (fs.existsSync(configPath)) {
       const configData = fs.readFileSync(configPath, 'utf-8')
       const config = JSON.parse(configData) as TimeSyncConfig
-      timeSyncConfig = { ...DEFAULT_CONFIG, ...config }
+      timeSyncConfig = normalizeTimeSyncConfig({ ...DEFAULT_TIME_SYNC_CONFIG, ...config })
 
       // 应用手动偏移
       if (timeSyncConfig.manualOffsetSeconds !== 0) {
@@ -85,7 +68,7 @@ export function loadTimeSyncConfig(): TimeSyncConfig {
 // 应用来自统一配置或外部变更的部分配置（不落盘到 timeSync.json）
 export function applyTimeConfig(partial: Partial<TimeSyncConfig>): TimeSyncConfig {
   try {
-    timeSyncConfig = { ...timeSyncConfig, ...partial }
+    timeSyncConfig = mergeTimeSyncConfig(timeSyncConfig, partial)
     if (partial.manualOffsetSeconds !== undefined) {
       setManualOffset(timeSyncConfig.manualOffsetSeconds)
     }
@@ -116,7 +99,7 @@ export function applyTimeConfig(partial: Partial<TimeSyncConfig>): TimeSyncConfi
 export function saveTimeSyncConfig(config: Partial<TimeSyncConfig>): TimeSyncConfig {
   try {
     // 更新配置
-    timeSyncConfig = { ...timeSyncConfig, ...config }
+    timeSyncConfig = mergeTimeSyncConfig(timeSyncConfig, config)
 
     // 应用新的手动偏移
     if (config.manualOffsetSeconds !== undefined) {

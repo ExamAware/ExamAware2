@@ -124,6 +124,11 @@ import ExamRoomCard from './cards/ExamRoomCard.vue';
 import CurrentListCard from './cards/CurrentListCard.vue';
 import ActionButtonBar from './ActionButtonBar.vue';
 import { providePlayerToolbar } from '../composables/usePlayerToolbar';
+import {
+  ReminderEventGate,
+  createReminderOccurrenceKey,
+  type ReminderEventKind
+} from '../core/reminderEventGate';
 // 本地引入 TDesign 组件，确保不依赖宿主全局注册
 import { Dialog as TDialog, Input as TInput, Button as TButton } from 'tdesign-vue-next';
 import { useReminderService, ReminderUtils } from '../utils/reminderService';
@@ -211,6 +216,10 @@ interface Emits {
   (e: 'examStart', exam: any): void;
   (e: 'examEnd', exam: any): void;
   (e: 'examAlert', exam: any, alertTime: number): void;
+  (
+    e: 'colorfulAlert',
+    payload: { kind: 'start' | 'alert' | 'end'; title: string; exam: any }
+  ): void;
   (e: 'examSwitch', fromExam: any, toExam: any): void;
   (e: 'error', error: string): void;
 }
@@ -235,31 +244,25 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>();
 const reminder = useReminderService();
 
-const reminderShown = new Set<string>();
+const reminderEventGate = new ReminderEventGate();
+const lastStatusRef = ref<string | null>(null);
+const lastExamKeyRef = ref<string | null>(null);
 
-const getExamKey = (exam: any): string => {
-  const raw = exam?.id ?? exam?.name;
-  if (raw === undefined || raw === null) return '';
-  return String(raw);
-};
-
-const showColorfulOnce = (
-  key: string,
-  options: { title: string; themeBaseColor: string; forceWhiteText?: boolean }
-) => {
-  if (!key || reminderShown.has(key)) return;
-  reminderShown.add(key);
-  reminder.showColorfulAlert(options);
-};
-
-const showExamReminder = (
-  kind: 'start' | 'end' | 'alert',
+const presentExamReminder = (
+  kind: ReminderEventKind,
   exam: any,
   options: { title: string; themeBaseColor: string; forceWhiteText?: boolean }
 ) => {
-  const examKey = getExamKey(exam);
-  if (!examKey) return;
-  showColorfulOnce(`${kind}:${examKey}`, options);
+  if (!reminderEventGate.accept(kind, exam)) return false;
+  reminder.showColorfulAlert(options);
+  emit('colorfulAlert', { kind, title: options.title, exam });
+  return true;
+};
+
+const resetReminderEvents = () => {
+  reminderEventGate.reset();
+  lastStatusRef.value = null;
+  lastExamKeyRef.value = null;
 };
 
 // 显式注册局部组件（<t-dialog> / <t-input>）
@@ -275,19 +278,19 @@ const mergedEventHandlers: PlayerEventHandlers = {
     props.eventHandlers?.onExamStart?.(exam);
     emit('examStart', exam);
     // 考试开始（绿色）
-    showExamReminder('start', exam, { title: '考试开始', themeBaseColor: '#2ecc71' });
+    presentExamReminder('start', exam, { title: '考试开始', themeBaseColor: '#2ecc71' });
   },
   onExamEnd: (exam: any) => {
     props.eventHandlers?.onExamEnd?.(exam);
     emit('examEnd', exam);
     // 考试结束（红色）
-    showExamReminder('end', exam, { title: '考试结束', themeBaseColor: '#ff3b30' });
+    presentExamReminder('end', exam, { title: '考试结束', themeBaseColor: '#ff3b30' });
   },
   onExamAlert: (exam: any, alertTime: number) => {
     props.eventHandlers?.onExamAlert?.(exam, alertTime);
     emit('examAlert', exam, alertTime);
     // 考试即将结束（黄色）
-    showExamReminder('alert', exam, {
+    presentExamReminder('alert', exam, {
       title: '考试即将结束',
       themeBaseColor: '#f1c40f',
       forceWhiteText: true
@@ -350,8 +353,9 @@ const examPlayer = useExamPlayer(
 // 监听 props 变化并更新播放器
 watch(
   () => props.examConfig,
-  (newConfig) => {
+  (newConfig, oldConfig) => {
     console.log('ExamPlayer: 配置变化', newConfig);
+    if (newConfig !== oldConfig) resetReminderEvents();
     examPlayer.updateConfig(newConfig);
   },
   { immediate: false, deep: true }
@@ -555,7 +559,6 @@ defineExpose({
 
 // 与考试事件联动：当 onExamAlert 触发时，自动弹出“即将结束”提醒
 // 使用配置中的 alertTime（分钟）阈值，避免依赖剩余时间字符串。
-let hasShownEndingForExamId: string | null = null;
 watch(
   () => examStatus.value?.timeRemaining,
   (remainingMs) => {
@@ -565,16 +568,9 @@ watch(
     const alertMinutes = Number(currentExam.value.alertTime);
     if (!Number.isFinite(alertMinutes) || alertMinutes <= 0) return; // 未配置则不触发
 
-    const examId = currentExam.value?.id || currentExam.value?.name;
     const minutesLeft = remainingMs / (1000 * 60);
-    if (
-      examStatus.value?.status === 'inProgress' &&
-      minutesLeft <= alertMinutes &&
-      examId &&
-      hasShownEndingForExamId !== examId
-    ) {
-      hasShownEndingForExamId = examId;
-      showExamReminder('alert', currentExam.value, {
+    if (examStatus.value?.status === 'inProgress' && minutesLeft <= alertMinutes) {
+      presentExamReminder('alert', currentExam.value, {
         title: '考试即将结束',
         themeBaseColor: '#f1c40f',
         forceWhiteText: true
@@ -583,13 +579,10 @@ watch(
   }
 );
 
-const lastStatusRef = ref<string | null>(null);
-const lastExamKeyRef = ref<string | null>(null);
-
 watch(
   () => [currentExam.value, examStatus.value?.status] as const,
   ([exam, status]) => {
-    const examKey = getExamKey(exam);
+    const examKey = createReminderOccurrenceKey('start', exam);
     if (!examKey || !status) {
       lastExamKeyRef.value = examKey || null;
       lastStatusRef.value = status ?? null;
@@ -603,9 +596,9 @@ watch(
     }
 
     if (status === 'inProgress' && lastStatusRef.value !== 'inProgress') {
-      showExamReminder('start', exam, { title: '考试开始', themeBaseColor: '#2ecc71' });
+      presentExamReminder('start', exam, { title: '考试开始', themeBaseColor: '#2ecc71' });
     } else if (status === 'completed' && lastStatusRef.value !== 'completed') {
-      showExamReminder('end', exam, { title: '考试结束', themeBaseColor: '#ff3b30' });
+      presentExamReminder('end', exam, { title: '考试结束', themeBaseColor: '#ff3b30' });
     }
 
     lastStatusRef.value = status;

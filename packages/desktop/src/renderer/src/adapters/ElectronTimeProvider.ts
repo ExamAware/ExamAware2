@@ -32,6 +32,7 @@ export class ElectronTimeProvider implements TimeProvider {
   private syncStatus: TimeSyncInfo['syncStatus'] = 'pending'
   private changeCallbacks: (() => void)[] = []
   private intervalId: NodeJS.Timeout | null = null
+  private destroyed = false
 
   constructor(electronAPI: ElectronTimeSyncAPI) {
     this.electronAPI = electronAPI
@@ -60,7 +61,7 @@ export class ElectronTimeProvider implements TimeProvider {
       await this.updateSyncInfo()
 
       // 启动定期时间更新
-      this.startTimeUpdates()
+      if (!this.destroyed) this.startTimeUpdates()
 
       // 监听时间同步状态变化（如果有的话）
       // 这里可以监听 Electron 主进程的时间同步事件
@@ -92,7 +93,7 @@ export class ElectronTimeProvider implements TimeProvider {
   }
 
   private startTimeUpdates(): void {
-    if (this.intervalId) return
+    if (this.destroyed || this.intervalId) return
 
     // 每秒更新一次时间，每30秒检查一次同步状态
     let updateCount = 0
@@ -173,6 +174,7 @@ export class ElectronTimeProvider implements TimeProvider {
    * 销毁提供器
    */
   destroy(): void {
+    this.destroyed = true
     this.stopTimeUpdates()
     this.changeCallbacks = []
   }

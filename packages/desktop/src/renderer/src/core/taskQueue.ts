@@ -1,5 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 
+const MAX_TIMER_DELAY = 2_147_483_647
+
 interface Task {
   id: string
   executeTime: number
@@ -24,6 +26,9 @@ export class TaskQueue {
   }
 
   addTask(executeTime: number, taskFunction: () => void) {
+    if (!Number.isFinite(executeTime)) {
+      throw new RangeError('Task execution time must be finite')
+    }
     const task: Task = {
       id: uuidv4(),
       executeTime,
@@ -50,7 +55,7 @@ export class TaskQueue {
 
     const now = this.getTimeFunction()
     const nextTask = this.taskQueue[0]
-    const delay = Math.max(nextTask.executeTime - now, 0)
+    const delay = Math.min(Math.max(nextTask.executeTime - now, 0), MAX_TIMER_DELAY)
 
     // 设置定时器，在队首任务的执行时间触发
     this.currentTimeoutId = window.setTimeout(() => {
@@ -59,13 +64,21 @@ export class TaskQueue {
   }
 
   private executeNextTask() {
-    const task = this.taskQueue.shift()
-    if (task) {
-      task.taskFunction()
+    const now = this.getTimeFunction()
+    const task = this.taskQueue[0]
+
+    if (!task || task.executeTime > now) {
+      this.scheduleNextTask()
+      return
     }
 
-    // 执行完当前任务后，调度下一个任务
-    this.scheduleNextTask()
+    this.taskQueue.shift()
+    try {
+      task.taskFunction()
+    } finally {
+      // A failed callback must not strand the remaining queue.
+      this.scheduleNextTask()
+    }
   }
 
   stop() {

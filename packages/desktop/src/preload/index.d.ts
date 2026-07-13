@@ -11,6 +11,10 @@ import type {
 } from '../main/plugin/types'
 import type { HttpApiConfig } from '../main/http/httpApiService'
 import type { CastConfig } from '../main/cast/castService'
+import type {
+  ReminderSoundPackImportResult,
+  ReminderSoundPackSummary
+} from '../shared/reminderSoundPack'
 
 declare global {
   interface Window {
@@ -46,6 +50,10 @@ declare global {
       }
       player: {
         openFromEditor: (data: string) => Promise<string | void>
+      }
+      reminderSounds: {
+        list: () => Promise<ReminderSoundPackSummary[]>
+        import: () => Promise<ReminderSoundPackImportResult>
       }
       plugins: {
         list: () => Promise<PluginListItem[]>

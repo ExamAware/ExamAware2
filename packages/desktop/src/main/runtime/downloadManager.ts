@@ -38,15 +38,17 @@ interface QueueJob<T> {
 
 function mergeSignals(signals: (AbortSignal | undefined)[]) {
   const active = signals.filter(Boolean) as AbortSignal[]
-  if (!active.length) return undefined
-  if (active.length === 1) return active[0]
+  if (!active.length) return { signal: undefined, cleanup: () => {} }
+  if (active.length === 1) return { signal: active[0], cleanup: () => {} }
   const controller = new AbortController()
+  const cleanup = () => active.forEach((sig) => sig.removeEventListener('abort', onAbort))
   const onAbort = () => {
     controller.abort()
-    active.forEach((sig) => sig.removeEventListener('abort', onAbort))
+    cleanup()
   }
   active.forEach((sig) => sig.addEventListener('abort', onAbort))
-  return controller.signal
+  if (active.some((sig) => sig.aborted)) onAbort()
+  return { signal: controller.signal, cleanup }
 }
 
 export class DownloadManager {
@@ -60,7 +62,10 @@ export class DownloadManager {
   constructor(
     options: { concurrency?: number; defaultTimeoutMs?: number; logger?: LoggerLike } = {}
   ) {
-    this.concurrency = Math.max(1, options.concurrency ?? 4)
+    const requestedConcurrency = options.concurrency ?? 4
+    this.concurrency = Number.isFinite(requestedConcurrency)
+      ? Math.max(1, Math.floor(requestedConcurrency))
+      : 4
     this.defaultTimeoutMs = options.defaultTimeoutMs ?? 15000
     this.logger = options.logger
   }
@@ -119,7 +124,10 @@ export class DownloadManager {
     const timeoutMs = request.timeoutMs ?? this.defaultTimeoutMs
     const timeoutController = new AbortController()
     const timer = setTimeout(() => timeoutController.abort(), timeoutMs)
-    const signal = mergeSignals([request.signal, timeoutController.signal])
+    const { signal, cleanup: cleanupSignal } = mergeSignals([
+      request.signal,
+      timeoutController.signal
+    ])
 
     try {
       const res = await fetch(url, { headers: request.headers, signal })
@@ -190,6 +198,7 @@ export class DownloadManager {
       throw error
     } finally {
       clearTimeout(timer)
+      cleanupSignal()
     }
   }
 }
