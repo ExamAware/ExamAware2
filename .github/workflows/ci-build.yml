@@ -40,6 +40,9 @@ jobs:
           node-version: '22'
           cache: 'pnpm'
 
+      - name: Force git to use HTTPS for GitHub
+        run: 'git config --global url."https://github.com/".insteadOf git@github.com:'
+
       - name: Make pnpm non-interactive
         run: pnpm config set yes true
 
