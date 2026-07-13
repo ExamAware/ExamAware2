@@ -20,7 +20,7 @@
     "src"
   ],
   "scripts": {
-    "build": "tsup && tsc --emitDeclarationOnly",
+    "build": "tsup && tsc -b --force --emitDeclarationOnly",
     "dev": "tsup --watch",
     "type-check": "tsc --noEmit",
     "clean": "rimraf dist"

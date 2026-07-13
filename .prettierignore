@@ -4,3 +4,7 @@ pnpm-lock.yaml
 LICENSE.md
 tsconfig.json
 tsconfig.*.json
+packages/desktop/src/renderer/components.d.ts
+packages/desktop/src/renderer/auto-imports.d.ts
+packages/plugin-sdk/dist-types
+packages/web/auto-imports.d.ts

@@ -20,7 +20,7 @@
     "src"
   ],
   "scripts": {
-    "build": "tsup && tsc --emitDeclarationOnly",
+    "build": "tsup && tsc -b --force --emitDeclarationOnly",
     "prepublishOnly": "pnpm run build",
     "dev": "tsup --watch",
     "type-check": "tsc --noEmit",
