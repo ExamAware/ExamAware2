@@ -35,7 +35,7 @@ export const POND_REMINDER_SOUND_PACK: ReminderSoundPackSummary = {
   id: 'pond',
   name: 'Pond 池塘',
   version: '1.0.0',
-  author: 'ExamAware',
+  author: 'ZongziTEK',
   builtIn: true,
   sounds: {
     start: { name: 'Begin 开始', src: './audio/exam-start.mp3' },
