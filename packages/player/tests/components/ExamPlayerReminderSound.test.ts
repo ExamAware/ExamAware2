@@ -30,16 +30,21 @@ const configWith = (exam = firstExam) => ({
 });
 
 let handlers: PlayerEventHandlers;
+let playerExamConfig: ReturnType<typeof ref<any>>;
 let currentExam: ReturnType<typeof ref<any>>;
 let examStatus: ReturnType<typeof ref<any>>;
+let mountedWrappers: Array<{ exists: () => boolean; unmount: () => void }>;
 const updateConfig = vi.fn();
 
 beforeEach(() => {
   vi.useFakeTimers();
+  playerExamConfig = ref(configWith());
   currentExam = ref(firstExam);
   examStatus = ref({ status: 'pending', timeRemaining: 60 * 60 * 1000 });
+  mountedWrappers = [];
   updateConfig.mockReset();
   updateConfig.mockImplementation((newConfig: any) => {
+    playerExamConfig.value = newConfig;
     currentExam.value = newConfig?.examInfos?.[0] ?? null;
     examStatus.value = { status: 'pending', timeRemaining: 60 * 60 * 1000 };
     return true;
@@ -49,7 +54,7 @@ beforeEach(() => {
     handlers = events;
     return {
       state: ref({ loaded: true }),
-      examConfig: ref(configWith()),
+      examConfig: playerExamConfig,
       currentExam,
       sortedExamInfos: computed(() => [currentExam.value]),
       formattedExamInfos: computed(() => []),
@@ -66,12 +71,16 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  for (const wrapper of mountedWrappers) {
+    if (wrapper.exists()) wrapper.unmount();
+  }
+  vi.clearAllTimers();
   vi.useRealTimers();
   vi.restoreAllMocks();
 });
 
-const mountPlayer = (examConfig = configWith()) =>
-  mount(ExamPlayer, {
+const mountPlayer = (examConfig = configWith()) => {
+  const wrapper = mount(ExamPlayer, {
     props: { examConfig, showActionBar: false },
     global: {
       stubs: {
@@ -85,6 +94,9 @@ const mountPlayer = (examConfig = configWith()) =>
       }
     }
   });
+  mountedWrappers.push(wrapper);
+  return wrapper;
+};
 
 const colorfulEvents = (wrapper: ReturnType<typeof mountPlayer>, kind?: string) => {
   const events = wrapper.emitted('colorfulAlert') ?? [];
@@ -148,6 +160,98 @@ describe('ExamPlayer reminder sound events', () => {
     wrapper.unmount();
   });
 
+  it.each([
+    {
+      name: 'start handler then status watcher',
+      kind: 'start',
+      title: '考试开始',
+      prepare: () => {},
+      first: async () => handlers.onExamStart?.(firstExam),
+      second: async () => {
+        examStatus.value = { status: 'inProgress', timeRemaining: 20 * 60 * 1000 };
+        await nextTick();
+      }
+    },
+    {
+      name: 'start status watcher then handler',
+      kind: 'start',
+      title: '考试开始',
+      prepare: () => {},
+      first: async () => {
+        examStatus.value = { status: 'inProgress', timeRemaining: 20 * 60 * 1000 };
+        await nextTick();
+      },
+      second: async () => handlers.onExamStart?.(firstExam)
+    },
+    {
+      name: 'alert handler then threshold watcher',
+      kind: 'alert',
+      title: '考试即将结束',
+      prepare: () => {
+        examStatus.value = { status: 'inProgress', timeRemaining: 20 * 60 * 1000 };
+      },
+      first: async () => handlers.onExamAlert?.(firstExam, 10),
+      second: async () => {
+        examStatus.value = { status: 'inProgress', timeRemaining: 9 * 60 * 1000 };
+        await nextTick();
+      }
+    },
+    {
+      name: 'alert threshold watcher then handler',
+      kind: 'alert',
+      title: '考试即将结束',
+      prepare: () => {
+        examStatus.value = { status: 'inProgress', timeRemaining: 20 * 60 * 1000 };
+      },
+      first: async () => {
+        examStatus.value = { status: 'inProgress', timeRemaining: 9 * 60 * 1000 };
+        await nextTick();
+      },
+      second: async () => handlers.onExamAlert?.(firstExam, 10)
+    },
+    {
+      name: 'end handler then status watcher',
+      kind: 'end',
+      title: '考试结束',
+      prepare: () => {
+        examStatus.value = { status: 'inProgress', timeRemaining: 20 * 60 * 1000 };
+      },
+      first: async () => handlers.onExamEnd?.(firstExam),
+      second: async () => {
+        examStatus.value = { status: 'completed', timeRemaining: 0 };
+        await nextTick();
+      }
+    },
+    {
+      name: 'end status watcher then handler',
+      kind: 'end',
+      title: '考试结束',
+      prepare: () => {
+        examStatus.value = { status: 'inProgress', timeRemaining: 20 * 60 * 1000 };
+      },
+      first: async () => {
+        examStatus.value = { status: 'completed', timeRemaining: 0 };
+        await nextTick();
+      },
+      second: async () => handlers.onExamEnd?.(firstExam)
+    }
+  ])(
+    'converges $name on one observable reminder',
+    async ({ kind, title, prepare, first, second }) => {
+      prepare();
+      const wrapper = mountPlayer();
+
+      await first();
+      await nextTick();
+      await second();
+      await nextTick();
+
+      expect(colorfulEvents(wrapper, kind)).toEqual([[{ kind, title, exam: firstExam }]]);
+      expect(wrapper.get('.colorful-title').text()).toBe(title);
+      wrapper.unmount();
+    }
+  );
+
   it('deduplicates handlers after watcher routes win first', async () => {
     const startWrapper = mountPlayer();
     examStatus.value = { status: 'inProgress', timeRemaining: 20 * 60 * 1000 };
@@ -209,26 +313,38 @@ describe('ExamPlayer reminder sound events', () => {
     const wrapper = mountPlayer(initialConfig);
 
     handlers.onExamStart?.(firstExam);
-    examStatus.value = { status: 'inProgress', timeRemaining: 9 * 60 * 1000 };
+    handlers.onExamAlert?.(firstExam, 10);
+    handlers.onExamEnd?.(firstExam);
     await nextTick();
-    expect(wrapper.emitted('colorfulAlert')).toHaveLength(2);
+    expect(colorfulEvents(wrapper)).toHaveLength(3);
 
     (wrapper.props('examConfig') as any).message = 'deep update';
     await nextTick();
     handlers.onExamStart?.(firstExam);
-    expect(wrapper.emitted('colorfulAlert')).toHaveLength(2);
+    expect(colorfulEvents(wrapper)).toHaveLength(3);
 
-    await wrapper.setProps({ examConfig: configWith(secondExam) });
+    const replacementExam = { ...firstExam };
+    const replacementConfig = configWith(replacementExam);
+    await wrapper.setProps({ examConfig: replacementConfig });
     await nextTick();
-    expect(colorfulEvents(wrapper)).toHaveLength(2);
+    expect(colorfulEvents(wrapper)).toHaveLength(3);
+    expect(playerExamConfig.value).toEqual(replacementConfig);
+    expect(currentExam.value).toEqual(replacementExam);
+    expect(examStatus.value).toEqual({ status: 'pending', timeRemaining: 60 * 60 * 1000 });
 
-    handlers.onExamStart?.(secondExam);
+    handlers.onExamStart?.(replacementExam);
+    handlers.onExamAlert?.(replacementExam, 10);
+    handlers.onExamEnd?.(replacementExam);
     await nextTick();
 
     expect(updateConfig).toHaveBeenCalled();
-    expect(wrapper.emitted('colorfulAlert')).toHaveLength(3);
-    expect(wrapper.emitted('colorfulAlert')?.[2]).toEqual([
-      { kind: 'start', title: '考试开始', exam: secondExam }
+    expect(colorfulEvents(wrapper)).toEqual([
+      [{ kind: 'start', title: '考试开始', exam: firstExam }],
+      [{ kind: 'alert', title: '考试即将结束', exam: firstExam }],
+      [{ kind: 'end', title: '考试结束', exam: firstExam }],
+      [{ kind: 'start', title: '考试开始', exam: replacementExam }],
+      [{ kind: 'alert', title: '考试即将结束', exam: replacementExam }],
+      [{ kind: 'end', title: '考试结束', exam: replacementExam }]
     ]);
     wrapper.unmount();
   });

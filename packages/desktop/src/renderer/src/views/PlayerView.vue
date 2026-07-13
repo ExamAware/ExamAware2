@@ -26,6 +26,7 @@
       @exam-start="handleExamStart"
       @exam-end="handleExamEnd"
       @exam-alert="handleExamAlert"
+      @colorful-alert="handleColorfulAlert"
       @exam-switch="handleExamSwitch"
       @error="handleError"
     >
@@ -53,6 +54,16 @@ import {
 } from '@renderer/composables/usePlaybackSettings'
 import { useDesktopApi, type UIDensity } from '@renderer/runtime/desktopApi'
 import { formatExamAlertMessage } from '@renderer/utils/playerAlerts'
+import {
+  createReminderSoundController,
+  normalizeReminderSoundSettings,
+  type ReminderSoundKind
+} from '@renderer/services/reminderSound'
+import {
+  POND_REMINDER_SOUND_PACK,
+  selectReminderSoundPack,
+  type ReminderSoundPackSummary
+} from '../../../shared/reminderSoundPack'
 // 键盘相关逻辑已经内置在 ExamPlayer 中
 
 const ipcRenderer = window.api.ipc
@@ -77,6 +88,55 @@ const hdrHighlightSetting = computed(() =>
   Boolean(settingsStore.get<boolean>('player.hdrHighlight', false))
 )
 const largeClockEnabled = largeClockEnabledSetting
+
+const reminderSoundSettings = computed(() =>
+  normalizeReminderSoundSettings({
+    master: settingsStore.get<unknown>('player.reminderSound.enabled', true),
+    start: settingsStore.get<unknown>('player.reminderSound.start', true),
+    alert: settingsStore.get<unknown>('player.reminderSound.alert', true),
+    end: settingsStore.get<unknown>('player.reminderSound.end', true),
+    volume: settingsStore.get<unknown>('player.reminderSound.volume', 0.7)
+  })
+)
+
+const reminderSoundPackId = computed(() => {
+  const value = settingsStore.get<unknown>('player.reminderSound.packId', 'pond')
+  return typeof value === 'string' && value.trim() ? value.trim() : 'pond'
+})
+const reminderSoundPacks = ref<ReminderSoundPackSummary[]>([POND_REMINDER_SOUND_PACK])
+const activeReminderSoundPack = computed(() =>
+  selectReminderSoundPack(reminderSoundPacks.value, reminderSoundPackId.value)
+)
+let soundPackLoadRequest = 0
+const loadReminderSoundPacks = async () => {
+  const request = ++soundPackLoadRequest
+  try {
+    const packs = await window.api.reminderSounds.list()
+    if (request === soundPackLoadRequest) {
+      reminderSoundPacks.value = packs.length ? packs : [POND_REMINDER_SOUND_PACK]
+    }
+  } catch (error) {
+    console.warn('读取提醒铃声方案失败，将使用 Pond', error)
+  }
+}
+
+const reminderSoundController = createReminderSoundController({
+  baseUrl: document.baseURI,
+  sourceProvider: (kind) => activeReminderSoundPack.value.sounds[kind].src,
+  reporter: ({ kind, phase, error }) => {
+    console.warn(`提醒铃声处理失败（类型：${kind}，阶段：${phase}）:`, error)
+  }
+})
+
+watch(
+  reminderSoundPackId,
+  (packId) => {
+    if (!reminderSoundPacks.value.some((pack) => pack.id === packId)) {
+      void loadReminderSoundPacks()
+    }
+  },
+  { immediate: true }
+)
 
 // 考场号相关状态
 const roomNumber = ref(defaultRoomSetting.value)
@@ -205,6 +265,12 @@ const handleExamAlert = (exam: any, alertTime: number) => {
   })
 }
 
+const handleColorfulAlert = (payload: { kind: ReminderSoundKind }) => {
+  void reminderSoundController
+    .play(payload.kind, reminderSoundSettings.value)
+    .catch(() => undefined)
+}
+
 // 考试切换事件
 const handleExamSwitch = (fromExam: any, toExam: any) => {
   console.log('考试切换:', fromExam, '->', toExam)
@@ -322,6 +388,7 @@ onUnmounted(() => {
   console.log('PlayerViewNew 卸载')
 
   // 清理资源
+  reminderSoundController.dispose()
   timeProvider.destroy()
   document.documentElement.removeAttribute('data-player-force-dark')
   if (didForceTheme && getThemeMode() === 'dark') {

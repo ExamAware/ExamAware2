@@ -39,6 +39,13 @@ describe('ReminderEventGate', () => {
     );
   });
 
+  it('treats arbitrary nonempty timestamp strings as opaque structural identity', () => {
+    const opaque = { id: 'exam', start: 'not-a-date', end: 'still-not-a-date' };
+
+    expect(createReminderOccurrenceKey('alert', opaque)).not.toBeNull();
+    expect(new ReminderEventGate().accept('alert', opaque)).toBe(true);
+  });
+
   it('preserves exact string identities instead of coercing numeric-looking IDs', () => {
     const gate = new ReminderEventGate();
     const occurrence = { start: exam.start, end: exam.end };
@@ -82,7 +89,7 @@ describe('ReminderEventGate', () => {
   });
 
   it.each([null, undefined, 7, 'exam', {}, { id: 'x' }, { start: 'x' }, { end: 'y' }])(
-    'rejects a truly unidentifiable or malformed occurrence: %j',
+    'rejects a structurally unidentifiable occurrence: %j',
     (value) => {
       expect(createReminderOccurrenceKey('start', value)).toBeNull();
       expect(new ReminderEventGate().accept('start', value)).toBe(false);

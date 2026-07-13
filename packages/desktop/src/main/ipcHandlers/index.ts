@@ -4,6 +4,7 @@ import {
   BrowserWindow,
   app,
   nativeTheme,
+  protocol,
   type MessageBoxOptions,
   type WebContents,
   type OpenDialogOptions
@@ -38,6 +39,11 @@ import { getSharedConfig, setSharedConfig } from '../state/sharedConfigStore'
 import axios from 'axios'
 import https from 'https'
 import { parseExamConfig, validateExamConfig } from '@dsz-examaware/core'
+import { ReminderSoundPackStore } from '../reminderSoundPackStore'
+import {
+  createReminderSoundProtocolHandler,
+  registerReminderSoundPackIpc
+} from '../reminderSoundPackIpc'
 
 // minimal disposer group for main process
 function createDisposerGroup() {
@@ -78,11 +84,33 @@ function handle(channel: string, listener: Parameters<typeof ipcMain.handle>[1])
 
 export function registerIpcHandlers(ctx?: MainContext): () => void {
   const group = createDisposerGroup()
+  const reminderSoundPackStore = new ReminderSoundPackStore(
+    path.join(app.getPath('userData'), 'reminder-sound-packs')
+  )
   const disposeIpcDecorators = applyIpcControllers(
     [new LoggingIpcController(), new HttpApiController(), new CastController()],
     ctx
   )
   group.add(disposeIpcDecorators)
+  registerReminderSoundPackIpc({
+    handle: (channel, listener) => {
+      if (ctx) ctx.ipc.handle(channel, listener as Parameters<typeof ipcMain.handle>[1])
+      else group.add(handle(channel, listener as Parameters<typeof ipcMain.handle>[1]))
+    },
+    showOpenDialog: (options) => dialog.showOpenDialog(options),
+    store: reminderSoundPackStore
+  })
+  const reminderSoundProtocolHandler = createReminderSoundProtocolHandler(reminderSoundPackStore)
+  if (ctx) {
+    ctx.protocol.register('examaware-sound', reminderSoundProtocolHandler)
+  } else {
+    protocol.registerFileProtocol('examaware-sound', reminderSoundProtocolHandler)
+    group.add(() => {
+      try {
+        protocol.unregisterProtocol('examaware-sound')
+      } catch {}
+    })
+  }
   const createTempPlayerConfig = async (data: string) => {
     const tempDir = path.join(app.getPath('temp'), 'examaware-player')
     await fs.promises.mkdir(tempDir, { recursive: true })

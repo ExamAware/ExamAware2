@@ -87,6 +87,14 @@ describe('reminder sound sources', () => {
       'https://example.test/app/audio/exam-alert.mp3'
     )
   })
+
+  it('resolves a selected package source without rewriting its custom protocol', () => {
+    expect(
+      resolveReminderSoundSource('end', 'file:///app/index.html', {
+        end: 'examaware-sound://pack/lake-bells/end'
+      })
+    ).toBe('examaware-sound://pack/lake-bells/end')
+  })
 })
 
 describe('reminder sound settings', () => {
@@ -115,6 +123,491 @@ describe('reminder sound settings', () => {
 })
 
 describe('reminder sound controller', () => {
+  it('replaces cached audio when the selected package source changes', async () => {
+    let selected = 'examaware-sound://pack/first/start'
+    const created: FakeAudio[] = []
+    const controller = createReminderSoundController({
+      sourceProvider: () => selected,
+      audioFactory: (src) => {
+        const audio = new FakeAudio(src)
+        created.push(audio)
+        return audio
+      }
+    })
+
+    await expect(controller.play('start')).resolves.toEqual({ ok: true, kind: 'start' })
+    selected = 'examaware-sound://pack/second/start'
+    await expect(controller.play('start')).resolves.toEqual({ ok: true, kind: 'start' })
+
+    expect(created.map((audio) => audio.src)).toEqual([
+      'examaware-sound://pack/first/start',
+      'examaware-sound://pack/second/start'
+    ])
+    expect(created[0].pause).toHaveBeenCalled()
+    expect(created[0].listenerCount).toBe(0)
+  })
+
+  it('contains source provider failures as load errors', async () => {
+    const error = new Error('source unavailable')
+    const reporter = vi.fn()
+    const controller = createReminderSoundController({
+      sourceProvider: () => {
+        throw error
+      },
+      reporter
+    })
+
+    await expect(controller.play('alert')).resolves.toEqual({
+      ok: false,
+      kind: 'alert',
+      reason: 'playback-error'
+    })
+    expect(reporter).toHaveBeenCalledWith({ kind: 'alert', phase: 'load', error })
+  })
+
+  it('converts audio creation and listener setup failures into load errors', async () => {
+    const factoryError = new Error('factory failed')
+    const factoryReporter = vi.fn()
+    const factoryController = createReminderSoundController({
+      baseUrl: 'file:///app/index.html',
+      audioFactory() {
+        throw factoryError
+      },
+      reporter: factoryReporter
+    })
+
+    await expect(factoryController.play('start')).resolves.toEqual({
+      ok: false,
+      kind: 'start',
+      reason: 'playback-error'
+    })
+    expect(factoryReporter).toHaveBeenCalledOnce()
+    expect(factoryReporter).toHaveBeenCalledWith({
+      kind: 'start',
+      phase: 'load',
+      error: factoryError
+    })
+
+    const listenerError = new Error('listener failed')
+    const listenerReporter = vi.fn()
+    const listenerController = createReminderSoundController({
+      baseUrl: 'file:///app/index.html',
+      audioFactory(src) {
+        const audio = new FakeAudio(src)
+        audio.addEventListener = () => {
+          throw listenerError
+        }
+        return audio
+      },
+      reporter: listenerReporter
+    })
+
+    await expect(listenerController.preview('alert')).resolves.toEqual({
+      ok: false,
+      kind: 'alert',
+      reason: 'playback-error'
+    })
+    expect(listenerReporter).toHaveBeenCalledOnce()
+    expect(listenerReporter).toHaveBeenCalledWith({
+      kind: 'alert',
+      phase: 'load',
+      error: listenerError
+    })
+
+    const urlReporter = vi.fn()
+    const urlController = createReminderSoundController({
+      baseUrl: 'not a valid absolute URL',
+      audioFactory: () => new FakeAudio('unused'),
+      reporter: urlReporter
+    })
+    await expect(urlController.play('end')).resolves.toMatchObject({
+      ok: false,
+      kind: 'end',
+      reason: 'playback-error'
+    })
+    expect(urlReporter).toHaveBeenCalledOnce()
+    expect(urlReporter.mock.calls[0][0]).toMatchObject({ kind: 'end', phase: 'load' })
+  })
+
+  it('converts reset and volume setter failures into playback errors', async () => {
+    const resetError = new Error('rewind failed')
+    const reporter = vi.fn()
+    const controller = createReminderSoundController({
+      baseUrl: 'file:///app/index.html',
+      reporter,
+      audioFactory(src) {
+        const audio = new FakeAudio(src)
+        Object.defineProperty(audio, 'currentTime', {
+          get: () => 0,
+          set: () => {
+            throw resetError
+          }
+        })
+        return audio
+      }
+    })
+
+    await expect(controller.play('end')).resolves.toEqual({
+      ok: false,
+      kind: 'end',
+      reason: 'playback-error'
+    })
+    expect(reporter).toHaveBeenCalledOnce()
+    expect(reporter).toHaveBeenCalledWith({ kind: 'end', phase: 'play', error: resetError })
+  })
+
+  it.each(['play', 'preview'] as const)(
+    'converts a volume setter throw during %s into a play-phase error',
+    async (method) => {
+      const volumeError = new Error('volume failed')
+      const reporter = vi.fn()
+      const controller = createReminderSoundController({
+        baseUrl: 'file:///app/index.html',
+        reporter,
+        audioFactory(src) {
+          const audio = new FakeAudio(src)
+          Object.defineProperty(audio, 'volume', {
+            get: () => 1,
+            set: () => {
+              throw volumeError
+            }
+          })
+          return audio
+        }
+      })
+
+      await expect(controller[method]('alert')).resolves.toEqual({
+        ok: false,
+        kind: 'alert',
+        reason: 'playback-error'
+      })
+      expect(reporter).toHaveBeenCalledOnce()
+      expect(reporter).toHaveBeenCalledWith({
+        kind: 'alert',
+        phase: 'play',
+        error: volumeError
+      })
+    }
+  )
+
+  it('attempts rewind and remaining media cleanup when pause throws during begin', async () => {
+    const reporter = vi.fn()
+    const audios = new Map<ReminderSoundKind, FakeAudio>()
+    const rewindAttempts = new Map<ReminderSoundKind, number>()
+    const controller = createReminderSoundController({
+      baseUrl: 'file:///app/index.html',
+      reporter,
+      audioFactory(src, kind) {
+        const audio = new FakeAudio(src)
+        let currentTime = 5
+        Object.defineProperty(audio, 'currentTime', {
+          get: () => currentTime,
+          set: (value: number) => {
+            rewindAttempts.set(kind, (rewindAttempts.get(kind) ?? 0) + 1)
+            currentTime = value
+          }
+        })
+        audios.set(kind, audio)
+        return audio
+      }
+    })
+
+    await controller.play('start')
+    await controller.play('alert')
+    audios.get('start')!.pause.mockImplementation(() => {
+      throw new Error('start pause failed')
+    })
+    const startRewindsBefore = rewindAttempts.get('start') ?? 0
+    const alertRewindsBefore = rewindAttempts.get('alert') ?? 0
+
+    await expect(controller.play('end')).resolves.toMatchObject({
+      ok: false,
+      kind: 'end',
+      reason: 'playback-error'
+    })
+    expect(rewindAttempts.get('start')).toBeGreaterThan(startRewindsBefore)
+    expect(rewindAttempts.get('alert')).toBeGreaterThan(alertRewindsBefore)
+    expect(reporter).toHaveBeenCalledWith(expect.objectContaining({ kind: 'end', phase: 'play' }))
+  })
+
+  it('contains a pause throw while preparing an unresolved same-kind element', async () => {
+    const pending = deferred<void>()
+    const reporter = vi.fn()
+    let rewindAttempts = 0
+    let audio!: FakeAudio
+    const controller = createReminderSoundController({
+      baseUrl: 'file:///app/index.html',
+      reporter,
+      audioFactory(src) {
+        audio = new FakeAudio(src)
+        audio.play.mockReturnValueOnce(pending.promise)
+        let currentTime = 6
+        Object.defineProperty(audio, 'currentTime', {
+          get: () => currentTime,
+          set: (value: number) => {
+            rewindAttempts += 1
+            currentTime = value
+          }
+        })
+        return audio
+      }
+    })
+
+    const first = controller.play('start')
+    audio.pause.mockImplementation(() => {
+      throw new Error('pause failed')
+    })
+    const rewindsBefore = rewindAttempts
+    await expect(controller.preview('start')).resolves.toMatchObject({
+      ok: false,
+      kind: 'start',
+      reason: 'playback-error'
+    })
+    expect(rewindAttempts).toBeGreaterThan(rewindsBefore)
+    expect(reporter).toHaveBeenCalledWith(expect.objectContaining({ kind: 'start', phase: 'play' }))
+
+    pending.resolve()
+    await expect(first).resolves.toMatchObject({ reason: 'superseded' })
+  })
+
+  it.each(['sync throw', 'promise rejection', 'media error'] as const)(
+    'contains a reporter failure after %s',
+    async (failureMode) => {
+      const pending = deferred<void>()
+      let audio!: FakeAudio
+      const controller = createReminderSoundController({
+        baseUrl: 'file:///app/index.html',
+        reporter() {
+          throw new Error('reporter failed')
+        },
+        audioFactory(src) {
+          audio = new FakeAudio(src)
+          if (failureMode === 'sync throw') {
+            audio.play.mockImplementationOnce(() => {
+              throw new Error('play failed')
+            })
+          } else if (failureMode === 'promise rejection') {
+            audio.play.mockRejectedValueOnce(new Error('play failed'))
+          } else {
+            audio.play.mockReturnValueOnce(pending.promise)
+          }
+          return audio
+        }
+      })
+
+      const result = controller.play('start')
+      if (failureMode === 'media error') {
+        expect(() => audio.emitError(new Error('media failed'))).not.toThrow()
+      }
+      await expect(result).resolves.toEqual({
+        ok: false,
+        kind: 'start',
+        reason: 'playback-error'
+      })
+      await Promise.resolve()
+    }
+  )
+
+  it.each(['sync throw', 'promise rejection', 'media error', 'load error'] as const)(
+    'contains an asynchronously rejecting reporter after %s',
+    async (failureMode) => {
+      const pending = deferred<void>()
+      let audio: FakeAudio | undefined
+      const controller = createReminderSoundController({
+        baseUrl: 'file:///app/index.html',
+        reporter: async () => {
+          throw new Error('async reporter failed')
+        },
+        audioFactory(src) {
+          if (failureMode === 'load error') throw new Error('load failed')
+          audio = new FakeAudio(src)
+          if (failureMode === 'sync throw') {
+            audio.play.mockImplementationOnce(() => {
+              throw new Error('play failed')
+            })
+          } else if (failureMode === 'promise rejection') {
+            audio.play.mockRejectedValueOnce(new Error('play failed'))
+          } else {
+            audio.play.mockReturnValueOnce(pending.promise)
+          }
+          return audio
+        }
+      })
+
+      const result = controller.play('start')
+      if (failureMode === 'media error') audio!.emitError(new Error('media failed'))
+      await expect(result).resolves.toMatchObject({ reason: 'playback-error' })
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    }
+  )
+
+  it('contains a reporter with a hostile then getter', async () => {
+    const controller = createReminderSoundController({
+      baseUrl: 'file:///app/index.html',
+      audioFactory() {
+        throw new Error('load failed')
+      },
+      reporter: (() =>
+        Object.defineProperty({}, 'then', {
+          get() {
+            throw new Error('then getter failed')
+          }
+        })) as () => never
+    })
+
+    await expect(controller.play('start')).resolves.toMatchObject({ reason: 'playback-error' })
+  })
+
+  it('retries cleanup on dispose after listener setup and immediate removal both throw', async () => {
+    let audio!: FakeAudio
+    let removeAttempts = 0
+    const controller = createReminderSoundController({
+      baseUrl: 'file:///app/index.html',
+      audioFactory(src) {
+        audio = new FakeAudio(src)
+        audio.addEventListener = (type, listener) => {
+          FakeAudio.prototype.addEventListener.call(audio, type, listener)
+          throw new Error('listener setup failed after registration')
+        }
+        audio.removeEventListener = (type, listener) => {
+          removeAttempts += 1
+          if (removeAttempts === 1) throw new Error('immediate removal failed')
+          FakeAudio.prototype.removeEventListener.call(audio, type, listener)
+        }
+        return audio
+      }
+    })
+
+    await expect(controller.play('start')).resolves.toMatchObject({ reason: 'playback-error' })
+    expect(audio.listenerCount).toBe(1)
+    controller.dispose()
+    expect(removeAttempts).toBeGreaterThan(1)
+    expect(audio.listenerCount).toBe(0)
+  })
+
+  it('retries failed rotation listener removal during dispose', async () => {
+    const pending = deferred<void>()
+    const created: FakeAudio[] = []
+    let oldRemoveAttempts = 0
+    const controller = createReminderSoundController({
+      baseUrl: 'file:///app/index.html',
+      audioFactory(src) {
+        const audio = new FakeAudio(src)
+        if (created.length === 0) {
+          audio.play.mockReturnValueOnce(pending.promise)
+          audio.removeEventListener = (type, listener) => {
+            oldRemoveAttempts += 1
+            if (oldRemoveAttempts === 1) throw new Error('rotation removal failed')
+            FakeAudio.prototype.removeEventListener.call(audio, type, listener)
+          }
+        }
+        created.push(audio)
+        return audio
+      }
+    })
+
+    const first = controller.play('start')
+    await controller.play('start')
+    expect(created[0].listenerCount).toBe(1)
+    pending.resolve()
+    await expect(first).resolves.toMatchObject({ reason: 'superseded' })
+    controller.dispose()
+    expect(oldRemoveAttempts).toBeGreaterThan(1)
+    expect(created[0].listenerCount).toBe(0)
+  })
+
+  it('makes stop and dispose best-effort when media cleanup throws', async () => {
+    let audio!: FakeAudio
+    const controller = createReminderSoundController({
+      baseUrl: 'file:///app/index.html',
+      audioFactory(src) {
+        audio = new FakeAudio(src)
+        return audio
+      }
+    })
+    await controller.play('start')
+    audio.pause.mockImplementation(() => {
+      throw new Error('pause failed')
+    })
+    audio.removeEventListener = () => {
+      throw new Error('remove failed')
+    }
+
+    expect(() => controller.stop()).not.toThrow()
+    expect(() => controller.dispose()).not.toThrow()
+    expect(() => controller.dispose()).not.toThrow()
+    await expect(controller.play('start')).resolves.toMatchObject({ reason: 'disposed' })
+  })
+
+  it('continues stop and dispose cleanup when currentTime setters throw', async () => {
+    const audios = new Map<ReminderSoundKind, FakeAudio>()
+    const rewindAttempts = new Map<ReminderSoundKind, number>()
+    let throwOnStartRewind = false
+    const controller = createReminderSoundController({
+      baseUrl: 'file:///app/index.html',
+      audioFactory(src, kind) {
+        const audio = new FakeAudio(src)
+        let currentTime = 9
+        Object.defineProperty(audio, 'currentTime', {
+          get: () => currentTime,
+          set: (value: number) => {
+            rewindAttempts.set(kind, (rewindAttempts.get(kind) ?? 0) + 1)
+            if (kind === 'start' && throwOnStartRewind) throw new Error('rewind failed')
+            currentTime = value
+          }
+        })
+        audios.set(kind, audio)
+        return audio
+      }
+    })
+
+    await controller.play('start')
+    await controller.play('end')
+    throwOnStartRewind = true
+    const endRewindsBefore = rewindAttempts.get('end') ?? 0
+    expect(() => controller.stop()).not.toThrow()
+    expect(rewindAttempts.get('end')).toBeGreaterThan(endRewindsBefore)
+
+    expect(() => controller.dispose()).not.toThrow()
+    expect(audios.get('start')!.listenerCount).toBe(0)
+    expect(audios.get('end')!.listenerCount).toBe(0)
+    expect(audios.get('end')!.currentTime).toBe(0)
+  })
+
+  it('keeps an unresolved cached element managed when rotation reset fails', async () => {
+    const pending = deferred<void>()
+    let throwOnRewind = false
+    let currentTime = 0
+    let audio!: FakeAudio
+    const controller = createReminderSoundController({
+      baseUrl: 'file:///app/index.html',
+      audioFactory(src) {
+        audio = new FakeAudio(src)
+        audio.play.mockReturnValueOnce(pending.promise)
+        Object.defineProperty(audio, 'currentTime', {
+          get: () => currentTime,
+          set: (value: number) => {
+            if (throwOnRewind) throw new Error('rewind failed')
+            currentTime = value
+          }
+        })
+        return audio
+      }
+    })
+
+    const first = controller.play('start')
+    throwOnRewind = true
+    await expect(controller.play('start')).resolves.toMatchObject({ reason: 'playback-error' })
+    throwOnRewind = false
+    pending.resolve()
+    await expect(first).resolves.toMatchObject({ reason: 'superseded' })
+    await expect(controller.play('start')).resolves.toEqual({ ok: true, kind: 'start' })
+
+    currentTime = 7
+    controller.dispose()
+    expect(currentTime).toBe(0)
+  })
+
   it('lazily caches one element per kind, applies volume, rewinds, and stops other kinds', async () => {
     const { controller, factory, audios } = setup()
 
@@ -134,7 +627,7 @@ describe('reminder sound controller', () => {
     expect(start.currentTime).toBe(0)
   })
 
-  it('returns disabled without creating audio, while preview bypasses switches', async () => {
+  it('requires the master switch while preview bypasses only the kind switch', async () => {
     const { controller, factory } = setup()
     await expect(controller.play('alert', { master: false })).resolves.toEqual({
       ok: false,
@@ -142,6 +635,12 @@ describe('reminder sound controller', () => {
       reason: 'disabled'
     })
     await expect(controller.preview('alert', { master: false, alert: false })).resolves.toEqual({
+      ok: false,
+      kind: 'alert',
+      reason: 'disabled'
+    })
+    expect(factory).not.toHaveBeenCalled()
+    await expect(controller.preview('alert', { master: true, alert: false })).resolves.toEqual({
       ok: true,
       kind: 'alert'
     })

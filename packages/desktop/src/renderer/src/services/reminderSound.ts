@@ -1,4 +1,6 @@
-export type ReminderSoundKind = 'start' | 'alert' | 'end'
+import type { ReminderSoundKind } from '../../../shared/reminderSoundPack'
+
+export type { ReminderSoundKind } from '../../../shared/reminderSoundPack'
 
 export const REMINDER_SOUND_SOURCES: Readonly<Record<ReminderSoundKind, string>> = {
   start: './audio/exam-start.mp3',
@@ -52,14 +54,17 @@ export interface ReminderSoundController {
 export interface CreateReminderSoundControllerOptions {
   audioFactory?: (src: string, kind: ReminderSoundKind) => AudioLike
   baseUrl?: string | URL
-  reporter?: (failure: ReminderSoundFailure) => void
+  sourceProvider?: (kind: ReminderSoundKind) => string
+  reporter?: (failure: ReminderSoundFailure) => unknown
 }
 
 interface CachedAudio {
   audio: AudioLike
+  source: string
   onError: (error?: unknown) => void
   pendingPlays: number
   retired: boolean
+  listenerAttached: boolean
 }
 
 interface ActivePlay {
@@ -72,9 +77,10 @@ interface ActivePlay {
 
 export function resolveReminderSoundSource(
   kind: ReminderSoundKind,
-  baseUrl: string | URL = globalThis.location.href
+  baseUrl: string | URL = globalThis.location?.href ?? 'file:///',
+  sources: Partial<Record<ReminderSoundKind, string>> = REMINDER_SOUND_SOURCES
 ): string {
-  return new URL(REMINDER_SOUND_SOURCES[kind], baseUrl).href
+  return new URL(sources[kind] ?? REMINDER_SOUND_SOURCES[kind], baseUrl).href
 }
 
 export function normalizeReminderSoundSettings(
@@ -111,13 +117,61 @@ export function createReminderSoundController(
   const reporter = options.reporter ?? (() => undefined)
   const cache = new Map<ReminderSoundKind, CachedAudio>()
   const allAudios = new Set<AudioLike>()
+  const managedAudios = new Set<CachedAudio>()
   let active: ActivePlay | undefined
   let generation = 0
   let disposed = false
 
-  const reset = (audio: AudioLike) => {
-    audio.pause()
-    audio.currentTime = 0
+  const prepareReset = (audio: AudioLike) => {
+    let failed = false
+    let firstError: unknown
+    try {
+      audio.pause()
+    } catch (error) {
+      failed = true
+      firstError = error
+    }
+    try {
+      audio.currentTime = 0
+    } catch (error) {
+      if (!failed) firstError = error
+      failed = true
+    }
+    if (failed) throw firstError
+  }
+
+  const resetBestEffort = (audio: AudioLike) => {
+    try {
+      audio.pause()
+    } catch {
+      // Media cleanup must never escape into the exam flow.
+    }
+    try {
+      audio.currentTime = 0
+    } catch {
+      // A partially torn-down media element is safe to abandon.
+    }
+  }
+
+  const removeErrorListenerBestEffort = (cached: CachedAudio) => {
+    if (!cached.listenerAttached) return true
+    try {
+      cached.audio.removeEventListener('error', cached.onError)
+      cached.listenerAttached = false
+      return true
+    } catch {
+      // Listener removal is cleanup only and cannot affect controller results.
+      return false
+    }
+  }
+
+  const reportBestEffort = (failure: ReminderSoundFailure) => {
+    try {
+      const result = reporter(failure)
+      void Promise.resolve(result).catch(() => undefined)
+    } catch {
+      // Diagnostics are observational and must not alter playback behavior.
+    }
   }
 
   const settle = (entry: ActivePlay, result: ReminderSoundResult) => {
@@ -134,30 +188,53 @@ export function createReminderSoundController(
   }
 
   const releaseRetired = (cached: CachedAudio) => {
-    if (cached.retired && cached.pendingPlays === 0) allAudios.delete(cached.audio)
+    if (cached.retired && cached.pendingPlays === 0) {
+      allAudios.delete(cached.audio)
+      if (!cached.listenerAttached) managedAudios.delete(cached)
+    }
   }
 
   const getAudio = (kind: ReminderSoundKind) => {
+    const source = resolveReminderSoundSource(
+      kind,
+      options.baseUrl,
+      options.sourceProvider ? { [kind]: options.sourceProvider(kind) } : undefined
+    )
     const existing = cache.get(kind)
-    if (existing && existing.pendingPlays === 0) return existing
-    if (existing) {
+    if (existing && existing.pendingPlays === 0 && existing.source === source) return existing
+    if (existing && existing.pendingPlays === 0) {
+      prepareReset(existing.audio)
       existing.retired = true
-      reset(existing.audio)
-      existing.audio.removeEventListener('error', existing.onError)
+      removeErrorListenerBestEffort(existing)
       cache.delete(kind)
+      releaseRetired(existing)
     }
 
-    const audio = audioFactory(resolveReminderSoundSource(kind, options.baseUrl), kind)
+    const audio = audioFactory(source, kind)
     const onError = (error?: unknown) => {
       const entry = active
       if (!entry || entry.audio !== audio || entry.generation !== generation || entry.settled)
         return
       if (settle(entry, { ok: false, kind: entry.kind, reason: 'playback-error' })) {
-        reporter({ kind: entry.kind, phase: 'load', error })
+        reportBestEffort({ kind: entry.kind, phase: 'load', error })
       }
     }
-    audio.addEventListener('error', onError)
-    const cached: CachedAudio = { audio, onError, pendingPlays: 0, retired: false }
+    const cached: CachedAudio = {
+      audio,
+      source,
+      onError,
+      pendingPlays: 0,
+      retired: false,
+      listenerAttached: true
+    }
+    managedAudios.add(cached)
+    try {
+      audio.addEventListener('error', onError)
+    } catch (error) {
+      if (removeErrorListenerBestEffort(cached)) managedAudios.delete(cached)
+      resetBestEffort(audio)
+      throw error
+    }
     cache.set(kind, cached)
     allAudios.add(audio)
     return cached
@@ -172,18 +249,50 @@ export function createReminderSoundController(
 
     generation += 1
     invalidateActive('superseded')
-    if (!bypassSwitches && !shouldPlayReminderSound(kind, settings)) {
+    const normalized = normalizeReminderSoundSettings(settings)
+    if (!normalized.master || (!bypassSwitches && !normalized[kind])) {
       return Promise.resolve({ ok: false, kind, reason: 'disabled' })
     }
 
-    const normalized = normalizeReminderSoundSettings(settings)
-    const cached = getAudio(kind)
-    const { audio } = cached
-    for (const [otherKind, cached] of cache) {
-      if (otherKind !== kind) reset(cached.audio)
+    const existing = cache.get(kind)
+    if (existing && existing.pendingPlays > 0) {
+      try {
+        prepareReset(existing.audio)
+      } catch (error) {
+        reportBestEffort({ kind, phase: 'play', error })
+        return Promise.resolve({ ok: false, kind, reason: 'playback-error' })
+      }
+      existing.retired = true
+      removeErrorListenerBestEffort(existing)
+      cache.delete(kind)
     }
-    audio.volume = normalized.volume
-    audio.currentTime = 0
+    let cached: CachedAudio
+    try {
+      cached = getAudio(kind)
+    } catch (error) {
+      reportBestEffort({ kind, phase: 'load', error })
+      return Promise.resolve({ ok: false, kind, reason: 'playback-error' })
+    }
+    const { audio } = cached
+    try {
+      let resetFailed = false
+      let firstResetError: unknown
+      for (const [otherKind, otherCached] of cache) {
+        if (otherKind === kind) continue
+        try {
+          prepareReset(otherCached.audio)
+        } catch (error) {
+          if (!resetFailed) firstResetError = error
+          resetFailed = true
+        }
+      }
+      if (resetFailed) throw firstResetError
+      audio.volume = normalized.volume
+      audio.currentTime = 0
+    } catch (error) {
+      reportBestEffort({ kind, phase: 'play', error })
+      return Promise.resolve({ ok: false, kind, reason: 'playback-error' })
+    }
 
     const currentGeneration = generation
     return new Promise<ReminderSoundResult>((resolve) => {
@@ -203,7 +312,7 @@ export function createReminderSoundController(
       } catch (error) {
         cached.pendingPlays -= 1
         if (settle(entry, { ok: false, kind, reason: 'playback-error' })) {
-          reporter({ kind, phase: 'play', error })
+          reportBestEffort({ kind, phase: 'play', error })
         }
         return
       }
@@ -212,7 +321,7 @@ export function createReminderSoundController(
         () => {
           cached.pendingPlays -= 1
           if (entry.generation !== generation || disposed || entry.settled) {
-            reset(audio)
+            resetBestEffort(audio)
             releaseRetired(cached)
             return
           }
@@ -222,12 +331,12 @@ export function createReminderSoundController(
         (error) => {
           cached.pendingPlays -= 1
           if (entry.generation !== generation || disposed || entry.settled) {
-            reset(audio)
+            resetBestEffort(audio)
             releaseRetired(cached)
             return
           }
           if (settle(entry, { ok: false, kind, reason: 'playback-error' })) {
-            reporter({ kind, phase: 'play', error })
+            reportBestEffort({ kind, phase: 'play', error })
           }
           releaseRetired(cached)
         }
@@ -246,21 +355,20 @@ export function createReminderSoundController(
       if (disposed) return
       generation += 1
       invalidateActive('superseded')
-      for (const audio of allAudios) reset(audio)
+      for (const audio of allAudios) resetBestEffort(audio)
     },
     dispose() {
       if (disposed) return
       disposed = true
       generation += 1
       invalidateActive('disposed')
-      for (const { audio, onError } of cache.values()) {
-        audio.removeEventListener('error', onError)
-      }
-      for (const audio of allAudios) {
-        reset(audio)
+      for (const cached of managedAudios) {
+        removeErrorListenerBestEffort(cached)
+        resetBestEffort(cached.audio)
       }
       cache.clear()
       allAudios.clear()
+      managedAudios.clear()
     }
   }
 }

@@ -62,6 +62,10 @@ const api = {
   player: {
     openFromEditor: (data: string) => ipcRenderer.invoke('player:open-from-editor', data)
   },
+  reminderSounds: {
+    list: () => ipcRenderer.invoke('reminder-sounds:list'),
+    import: () => ipcRenderer.invoke('reminder-sounds:import')
+  },
   plugins: {
     list: () => ipcRenderer.invoke('plugin:list'),
     toggle: (name: string, enabled: boolean) => ipcRenderer.invoke('plugin:toggle', name, enabled),
