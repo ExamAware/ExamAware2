@@ -84,5 +84,3 @@ export default defineExamAwarePlugin((builder) => {
 const back = rpcService<{ $ping(): Promise<string> }>(ctx, BACK_SERVICE);
 await back.$ping();
 ```
-
-更多示例与 API 参考见 `docs/plugin-system-plan.md` 中的 Phase 4.5 章节。
