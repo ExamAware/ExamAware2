@@ -291,6 +291,87 @@ describe('PlayerSettings reminder sound settings', () => {
     expect(state.stop).toHaveBeenCalledOnce()
   })
 
+  it('does not let a stale initial list overwrite a completed import', async () => {
+    const initialList = deferred<any[]>()
+    const imported = {
+      id: 'new-pack',
+      name: 'New Pack',
+      builtIn: false,
+      version: '1.0.0',
+      author: 'Test',
+      sounds: {
+        start: { name: 'New Start', src: 'examaware-sound://pack/new-pack/start' },
+        alert: { name: 'New Alert', src: 'examaware-sound://pack/new-pack/alert' },
+        end: { name: 'New End', src: 'examaware-sound://pack/new-pack/end' }
+      }
+    }
+    const pond = (await state.listPacks())[0]
+    state.listPacks.mockReset().mockReturnValueOnce(initialList.promise)
+    state.importPack.mockResolvedValue({
+      canceled: false,
+      pack: imported,
+      packs: [pond, imported]
+    })
+    const wrapper = mountPage()
+
+    await wrapper.get('button[aria-label="导入铃声包"]').trigger('click')
+    await flushPromises()
+    expect(state.raw['player.reminderSound.packId']).toBe('new-pack')
+
+    initialList.resolve([pond])
+    await flushPromises()
+
+    expect(state.raw['player.reminderSound.packId']).toBe('new-pack')
+    expect(
+      wrapper
+        .get<HTMLSelectElement>('select[aria-label="铃声方案"]')
+        .findAll('option')
+        .map((item) => item.text())
+    ).toEqual(['Pond 池塘', 'New Pack'])
+  })
+
+  it('keeps a pending initial list valid when an overlapping import fails', async () => {
+    const initialList = deferred<any[]>()
+    const importError = new Error('invalid package')
+    const packs = await state.listPacks()
+    state.listPacks.mockReset().mockReturnValueOnce(initialList.promise)
+    state.importPack.mockRejectedValue(importError)
+    const wrapper = mountPage()
+
+    await wrapper.get('button[aria-label="导入铃声包"]').trigger('click')
+    await flushPromises()
+    expect(wrapper.get('[role="alert"]').text()).toContain(importError.message)
+
+    initialList.resolve(packs)
+    await flushPromises()
+
+    expect(
+      wrapper
+        .get<HTMLSelectElement>('select[aria-label="铃声方案"]')
+        .findAll('option')
+        .map((item) => item.text())
+    ).toEqual(['Pond 池塘', 'Lake Bells 湖畔'])
+  })
+
+  it('stops cached preview audio when replacing the currently selected package', async () => {
+    state.raw['player.reminderSound.packId'] = 'lake-bells'
+    const packs = await state.listPacks()
+    state.importPack.mockResolvedValue({
+      canceled: false,
+      pack: packs[1],
+      packs
+    })
+    const wrapper = mountPage()
+    await flushPromises()
+    state.stop.mockClear()
+
+    await wrapper.get('button[aria-label="导入铃声包"]').trigger('click')
+    await flushPromises()
+
+    expect(state.raw['player.reminderSound.packId']).toBe('lake-bells')
+    expect(state.stop).toHaveBeenCalledOnce()
+  })
+
   it('keeps the current package when the import picker is canceled', async () => {
     state.raw['player.reminderSound.packId'] = 'lake-bells'
     state.importPack.mockResolvedValue({
