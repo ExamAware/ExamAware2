@@ -2,6 +2,11 @@
   "name": "@dsz-examaware/plugin-sdk",
   "version": "1.4.0",
   "description": "ExamAware plugin SDK",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ExamAware/ExamAware2",
+    "directory": "packages/plugin-sdk"
+  },
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",

@@ -2,6 +2,11 @@
   "name": "@dsz-examaware/rpc",
   "version": "0.3.0",
   "description": "ExamAware JSON-RPC connection helpers",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ExamAware/ExamAware2",
+    "directory": "packages/rpc"
+  },
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
