@@ -50,6 +50,18 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build rpc package
+        run: pnpm rpc:build
+
+      - name: Build core package
+        run: pnpm core:build
+
+      - name: Build player package
+        run: pnpm player:build
+
+      - name: Build plugin SDK
+        run: pnpm --filter @dsz-examaware/plugin-sdk build
+
       - name: Run tests
         run: pnpm test
 
@@ -110,22 +122,6 @@ jobs:
           fi
           echo "publish=true" >> "$GITHUB_OUTPUT"
           echo "packages=${TO_PUBLISH[*]}" >> "$GITHUB_OUTPUT"
-
-      - name: Build rpc package
-        if: steps.sdk-sync.outputs.needs_pr != 'true'
-        run: pnpm rpc:build
-
-      - name: Build core package
-        if: steps.sdk-sync.outputs.needs_pr != 'true'
-        run: pnpm core:build
-
-      - name: Build player package
-        if: steps.sdk-sync.outputs.needs_pr != 'true'
-        run: pnpm player:build
-
-      - name: Build plugin SDK
-        if: steps.sdk-sync.outputs.needs_pr != 'true'
-        run: pnpm --filter @dsz-examaware/plugin-sdk build
 
       - name: Publish packages
         if: steps.publish-check.outputs.publish == 'true'
