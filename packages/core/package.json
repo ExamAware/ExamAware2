@@ -2,6 +2,11 @@
   "name": "@dsz-examaware/core",
   "version": "1.1.0",
   "description": "ExamAware Core",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ExamAware/ExamAware2",
+    "directory": "packages/core"
+  },
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",

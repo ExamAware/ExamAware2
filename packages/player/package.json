@@ -2,6 +2,11 @@
   "name": "@dsz-examaware/player",
   "version": "1.6.0",
   "description": "ExamAware Player - 考试信息播放器组件",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ExamAware/ExamAware2",
+    "directory": "packages/player"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

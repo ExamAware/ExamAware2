@@ -6,6 +6,8 @@ const workflowsDirectory = resolve(process.cwd(), '.github/workflows');
 const frozenInstallCommand = 'pnpm install --frozen-lockfile';
 const githubHttpsRewrite =
   'git config --global url."https://github.com/".insteadOf git@github.com:';
+const publishedPackageDirectories = ['rpc', 'core', 'player', 'plugin-sdk', 'plugin-template'];
+const repositoryUrl = 'https://github.com/ExamAware/ExamAware2';
 
 describe('GitHub workflows', () => {
   it('configures GitHub HTTPS access before every frozen pnpm install', () => {
@@ -52,6 +54,17 @@ describe('GitHub workflows', () => {
     for (const buildCommand of buildCommands) {
       expect(publishWorkflow.indexOf(buildCommand), buildCommand).toBeGreaterThanOrEqual(0);
       expect(publishWorkflow.indexOf(buildCommand), buildCommand).toBeLessThan(testCommandIndex);
+    }
+  });
+
+  it('declares provenance repository metadata for published packages', () => {
+    for (const directory of publishedPackageDirectories) {
+      const packageJson = JSON.parse(
+        readFileSync(resolve(process.cwd(), 'packages', directory, 'package.json'), 'utf8')
+      );
+
+      expect(packageJson.repository?.url, directory).toBe(repositoryUrl);
+      expect(packageJson.repository?.directory, directory).toBe(`packages/${directory}`);
     }
   });
 });
