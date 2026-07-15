@@ -41,6 +41,9 @@ jobs:
           cache: 'pnpm'
           registry-url: https://registry.npmjs.org/
 
+      - name: Setup trusted publishing client
+        run: npm install --global npm@11.13.0
+
       - name: Force git to use HTTPS for GitHub
         run: 'git config --global url."https://github.com/".insteadOf git@github.com:'
 
@@ -132,5 +135,5 @@ jobs:
         if: steps.publish-check.outputs.publish == 'true'
         run: |
           for pkg in ${{ steps.publish-check.outputs.packages }}; do
-            pnpm --filter "$pkg" publish --access public --provenance --no-git-checks
+            pnpm --filter "$pkg" exec npm publish --access public --provenance
           done

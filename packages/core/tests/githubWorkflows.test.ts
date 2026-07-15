@@ -34,6 +34,9 @@ describe('GitHub workflows', () => {
     );
     const testCommandIndex = publishWorkflow.indexOf('run: pnpm test');
     const mediaDependenciesIndex = publishWorkflow.indexOf('sudo apt-get install -y ffmpeg');
+    const trustedPublishingClientIndex = publishWorkflow.indexOf(
+      'npm install --global npm@11.13.0'
+    );
     const buildCommands = [
       'run: pnpm rpc:build',
       'run: pnpm core:build',
@@ -44,6 +47,8 @@ describe('GitHub workflows', () => {
     expect(testCommandIndex).toBeGreaterThanOrEqual(0);
     expect(mediaDependenciesIndex).toBeGreaterThanOrEqual(0);
     expect(mediaDependenciesIndex).toBeLessThan(testCommandIndex);
+    expect(trustedPublishingClientIndex).toBeGreaterThanOrEqual(0);
+    expect(publishWorkflow).toContain('exec npm publish --access public --provenance');
     for (const buildCommand of buildCommands) {
       expect(publishWorkflow.indexOf(buildCommand), buildCommand).toBeGreaterThanOrEqual(0);
       expect(publishWorkflow.indexOf(buildCommand), buildCommand).toBeLessThan(testCommandIndex);
