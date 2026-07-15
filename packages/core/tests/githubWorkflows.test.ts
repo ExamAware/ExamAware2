@@ -26,4 +26,24 @@ describe('GitHub workflows', () => {
       );
     }
   });
+
+  it('builds workspace packages before running publish tests', () => {
+    const publishWorkflow = readFileSync(
+      resolve(workflowsDirectory, 'publish-packages.yml'),
+      'utf8'
+    );
+    const testCommandIndex = publishWorkflow.indexOf('run: pnpm test');
+    const buildCommands = [
+      'run: pnpm rpc:build',
+      'run: pnpm core:build',
+      'run: pnpm player:build',
+      'run: pnpm --filter @dsz-examaware/plugin-sdk build'
+    ];
+
+    expect(testCommandIndex).toBeGreaterThanOrEqual(0);
+    for (const buildCommand of buildCommands) {
+      expect(publishWorkflow.indexOf(buildCommand), buildCommand).toBeGreaterThanOrEqual(0);
+      expect(publishWorkflow.indexOf(buildCommand), buildCommand).toBeLessThan(testCommandIndex);
+    }
+  });
 });
