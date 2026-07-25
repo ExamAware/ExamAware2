@@ -265,6 +265,12 @@ export function useExamEditor() {
     historyStore.pushDebounced('updateConfig', 400, '编辑配置', examConfig)
   }
 
+  const ensureConfigCanBeUsed = (action: '保存' | '导出' | '放映'): boolean => {
+    if (configManager.validate()) return true
+    MessageService.error(`无法${action}：请先修复配置中的错误`)
+    return false
+  }
+
   const newProject = () => {
     if (isFileModified.value && !isNewFile.value) {
       // 这里应该询问用户是否保存当前文件
@@ -288,6 +294,8 @@ export function useExamEditor() {
       return await saveProjectAs()
     }
 
+    if (!ensureConfigCanBeUsed('保存')) return false
+
     try {
       const content = configManager.exportToJson()
       const success = await window.api?.saveFile(currentFilePath.value, content)
@@ -309,6 +317,8 @@ export function useExamEditor() {
   }
 
   const saveProjectAs = async () => {
+    if (!ensureConfigCanBeUsed('保存')) return false
+
     try {
       const content = configManager.exportToJson()
 
@@ -339,6 +349,8 @@ export function useExamEditor() {
   }
 
   const exportProject = () => {
+    if (!ensureConfigCanBeUsed('导出')) return
+
     try {
       const content = configManager.exportToJson()
       const examName = examConfig.examInfos[0]?.name || 'exam'
@@ -582,6 +594,8 @@ export function useExamEditor() {
       MessageService.warning('当前项目没有考试，无法开始放映')
       return
     }
+
+    if (!ensureConfigCanBeUsed('放映')) return
 
     try {
       const content = configManager.exportToJson()

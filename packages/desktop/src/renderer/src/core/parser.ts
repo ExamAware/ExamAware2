@@ -1,6 +1,7 @@
 // 重新导出 @dsz-examaware/core 中的解析和验证函数
 export {
   parseExamConfig,
+  validateExamConfigStructure,
   validateExamConfig,
   hasExamTimeOverlap,
   getSortedExamInfos,
