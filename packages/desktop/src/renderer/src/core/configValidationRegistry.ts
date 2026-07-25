@@ -1,5 +1,5 @@
 import type { ExamConfig, ExamInfo } from '@renderer/core/configTypes'
-import { validateExamConfig } from '@renderer/core/parser'
+import { validateExamConfigStructure } from '@renderer/core/parser'
 
 export type ValidationLevel = 'error' | 'warning'
 
@@ -77,8 +77,8 @@ function builtinValidationProvider({ config }: ValidationContext): ValidationIss
 
   issues.push(...validateTimeConflicts(config.examInfos))
 
-  // 保留旧的整体校验（例如 JSON schema 或 parser 校验）
-  if (!validateExamConfig(config)) {
+  // 业务错误已在上方逐项展示；这里只报告真正的结构错误。
+  if (!validateExamConfigStructure(config)) {
     issues.push({ type: 'error', message: '配置结构校验未通过', code: 'parser-failed' })
   }
 

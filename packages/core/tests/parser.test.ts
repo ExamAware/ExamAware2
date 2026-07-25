@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { ExamConfig, ExamInfo } from '../src/types';
-import { hasExamTimeOverlap, validateExamConfig } from '../src/parser';
+import { hasExamTimeOverlap, validateExamConfig, validateExamConfigStructure } from '../src/parser';
 
 const validExam: ExamInfo = {
   name: 'Math',
@@ -35,6 +35,21 @@ describe('validateExamConfig', () => {
 
   it('keeps the existing policy that an empty exam list is valid', () => {
     expect(validateExamConfig(configWith())).toBe(true);
+  });
+});
+
+describe('validateExamConfigStructure', () => {
+  it('allows an equal time range to be opened for repair in the editor', () => {
+    const repairableConfig = configWith({ ...validExam, end: validExam.start });
+
+    expect(validateExamConfigStructure(repairableConfig)).toBe(true);
+    expect(validateExamConfig(repairableConfig)).toBe(false);
+  });
+
+  it('still rejects malformed field types', () => {
+    const malformedConfig = configWith({ ...validExam, alertTime: '10' as unknown as number });
+
+    expect(validateExamConfigStructure(malformedConfig)).toBe(false);
   });
 });
 

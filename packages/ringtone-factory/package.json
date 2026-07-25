@@ -1,0 +1,55 @@
+{
+  "name": "@dsz-examaware/ringtone-factory",
+  "version": "1.0.1",
+  "description": "ExamAware 官方铃声包制作插件",
+  "private": false,
+  "type": "module",
+  "main": "./dist/main/index.cjs",
+  "module": "./dist/renderer/index.mjs",
+  "types": "./dist/main/index.d.ts",
+  "scripts": {
+    "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+    "dev": "run-p dev:renderer dev:main",
+    "dev:renderer": "vite build --watch --mode development --config vite.config.ts",
+    "dev:main": "vite build --watch --mode development --config vite.main.config.ts",
+    "build": "pnpm run clean && pnpm run build:renderer && pnpm run build:main && pnpm run build:types",
+    "build:renderer": "vite build --config vite.config.ts",
+    "build:main": "vite build --config vite.main.config.ts",
+    "build:types": "vue-tsc --declaration --emitDeclarationOnly --outDir dist",
+    "pack-ea2x": "pnpm run build && pack-examaware-plugin",
+    "lint": "vue-tsc --noEmit",
+    "test": "vitest run"
+  },
+  "examaware": {
+    "displayName": "铃声工厂",
+    "description": "制作 ExamAware .ea2r 铃声包",
+    "targets": {
+      "main": "./dist/main/index.cjs",
+      "renderer": "./dist/renderer/index.mjs"
+    },
+    "services": {
+      "provide": [],
+      "inject": []
+    },
+    "settings": {
+      "namespace": "@dsz-examaware/ringtone-factory"
+    }
+  },
+  "dependencies": {
+    "@dsz-examaware/plugin-sdk": "workspace:*",
+    "fflate": "^0.8.2",
+    "tdesign-icons-vue-next": "^0.4.1",
+    "tdesign-vue-next": "^1.17.7",
+    "vue": "^3.5.26"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "@vitejs/plugin-vue": "^6.0.3",
+    "npm-run-all2": "^8.0.4",
+    "run-p": "0.0.0",
+    "typescript": "~5.9.3",
+    "vite": "^7.3.0",
+    "vitest": "^4.1.10",
+    "vue-tsc": "^3.2.1"
+  }
+}

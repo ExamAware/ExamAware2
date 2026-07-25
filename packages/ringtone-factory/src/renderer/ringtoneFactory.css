@@ -1,0 +1,140 @@
+.ringtone-factory-root {
+  width: 100%;
+  height: 100%;
+  padding: 16px;
+  overflow: auto;
+  box-sizing: border-box;
+}
+
+.factory-page {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  /* color: var(--td-text-color-primary); */
+}
+
+.factory-page .page-header,
+.factory-page .page-footer,
+.factory-page .section-heading,
+.factory-page .sound-row,
+.factory-page .sound-kind,
+.factory-page .sound-actions {
+  display: flex;
+  align-items: center;
+}
+
+.factory-page .page-header,
+.factory-page .page-footer,
+.factory-page .section-heading {
+  justify-content: space-between;
+}
+
+.factory-page .page-header h1,
+.factory-page .section-heading h2,
+.factory-page .page-header p {
+  margin: 0;
+}
+
+.factory-page .page-header h1 {
+  font-size: 22px;
+  line-height: 30px;
+}
+
+.factory-page .page-header p,
+.factory-page .section-heading span,
+.factory-page .page-footer span,
+.factory-page .sound-kind span {
+  color: var(--td-text-color-secondary);
+  font-size: 13px;
+}
+
+.factory-page .factory-form {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.factory-page .metadata-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 20px;
+}
+
+.factory-page .sounds {
+  margin-top: 4px;
+}
+
+.factory-page .section-heading {
+  min-height: 40px;
+  border-bottom: 1px solid var(--td-border-level-1-color);
+}
+
+.factory-page .section-heading h2 {
+  font-size: 16px;
+}
+
+.factory-page .sound-row {
+  min-height: 76px;
+  gap: 16px;
+  border-bottom: 1px solid var(--td-border-level-1-color);
+}
+
+.factory-page .sound-kind {
+  min-width: 230px;
+  gap: 10px;
+}
+
+.factory-page .sound-kind > div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.factory-page .sound-kind span {
+  max-width: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.factory-page .sound-name {
+  min-width: 160px;
+  flex: 1;
+}
+
+.factory-page .sound-actions {
+  flex: 0 0 auto;
+  gap: 4px;
+}
+
+.factory-page .page-footer {
+  min-height: 48px;
+  padding-top: 12px;
+  border-top: 1px solid var(--td-border-level-1-color);
+}
+
+@media (max-width: 720px) {
+  .factory-page .metadata-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .factory-page .sound-row {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 0;
+  }
+
+  .factory-page .sound-kind,
+  .factory-page .sound-kind span {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .factory-page .sound-actions {
+    justify-content: flex-end;
+  }
+}
