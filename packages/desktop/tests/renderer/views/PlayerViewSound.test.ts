@@ -27,6 +27,8 @@ const mocks = vi.hoisted(() => {
     play,
     dispose,
     createController,
+    loadFromIPC: vi.fn(() => Promise.resolve()),
+    performSync: vi.fn(() => Promise.resolve()),
     controllerOptions: undefined as any,
     listPacks: vi.fn()
   }
@@ -75,7 +77,7 @@ vi.mock('@renderer/composables/useConfigLoader', () => ({
     loaded: ref(true),
     config: ref(null),
     source: ref(null),
-    loadFromIPC: vi.fn(() => Promise.resolve()),
+    loadFromIPC: mocks.loadFromIPC,
     reload: vi.fn()
   })
 }))
@@ -83,7 +85,7 @@ vi.mock('@renderer/composables/useConfigLoader', () => ({
 const destroyTimeProvider = vi.fn()
 vi.mock('@renderer/adapters/ElectronTimeProvider', () => ({
   ElectronTimeProvider: class {
-    performSync = vi.fn(() => Promise.resolve())
+    performSync = mocks.performSync
     destroy = destroyTimeProvider
     getTimeSyncStatusText = vi.fn(() => '')
     getSyncStatus = vi.fn(() => ({}))
@@ -150,6 +152,8 @@ describe('PlayerView reminder sound integration', () => {
       }
     ])
     mocks.play.mockResolvedValue({ ok: true, kind: 'start' })
+    mocks.loadFromIPC.mockReset().mockResolvedValue(undefined)
+    mocks.performSync.mockReset().mockResolvedValue(undefined)
     Object.defineProperty(window, 'api', {
       configurable: true,
       value: { ipc: {}, config: {}, reminderSounds: { list: mocks.listPacks } }
@@ -180,6 +184,18 @@ describe('PlayerView reminder sound integration', () => {
     options.reporter({ kind: 'alert', phase: 'load', error })
     expect(warn).toHaveBeenCalledTimes(1)
     expect(warn).toHaveBeenCalledWith(expect.stringMatching(/alert.*load/), error)
+
+    wrapper.unmount()
+  })
+
+  it('starts listening for config data before time synchronization', () => {
+    const wrapper = mount(PlayerView)
+
+    expect(mocks.loadFromIPC).toHaveBeenCalledWith(30000)
+    expect(mocks.performSync).toHaveBeenCalledTimes(1)
+    expect(mocks.loadFromIPC.mock.invocationCallOrder[0]).toBeLessThan(
+      mocks.performSync.mock.invocationCallOrder[0]
+    )
 
     wrapper.unmount()
   })
