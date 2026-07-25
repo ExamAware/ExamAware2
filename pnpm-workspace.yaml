@@ -5,6 +5,7 @@ packages:
   - packages/web
   - packages/plugin-sdk
   - packages/plugin-template
+  - packages/ringtone-factory
   - packages/rpc
   - packages/desktop/plugins/*
 
