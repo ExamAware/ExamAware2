@@ -26,7 +26,7 @@ export interface MainContext {
     set: (menu: Electron.Menu) => void
   }
   protocol: {
-    register: (scheme: string, handler: Parameters<typeof protocol.registerFileProtocol>[1]) => void
+    register: (scheme: string, handler: Parameters<typeof protocol.handle>[1]) => void
   }
   timer: {
     setInterval: (fn: () => void, ms: number) => void
@@ -100,14 +100,13 @@ export function createMainContext(): { ctx: MainContext; dispose: () => void } {
     },
     protocol: {
       register: (scheme, handler) => {
-        // ensure scheme is registered for file protocol before app ready usages
         try {
-          protocol.unregisterProtocol(scheme)
+          protocol.unhandle(scheme)
         } catch {}
-        protocol.registerFileProtocol(scheme, handler)
+        protocol.handle(scheme, handler)
         group.add(() => {
           try {
-            protocol.unregisterProtocol(scheme)
+            protocol.unhandle(scheme)
           } catch {}
         })
       }

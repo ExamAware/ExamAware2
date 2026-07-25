@@ -1,5 +1,10 @@
 import type { ExamConfig, ExamInfo } from './configTypes'
-import { parseExamConfig, getSortedExamConfig, validateExamConfig } from './parser'
+import {
+  parseExamConfig,
+  getSortedExamConfig,
+  validateExamConfig,
+  validateExamConfigStructure
+} from './parser'
 import { formatLocalDateTime } from '@renderer/utils/dateFormat'
 import { getSyncedTime } from '@renderer/utils/timeUtils'
 
@@ -122,7 +127,7 @@ export class ExamConfigManager {
    */
   loadFromJson(jsonString: string): boolean {
     const parsedConfig = parseExamConfig(jsonString)
-    if (parsedConfig && validateExamConfig(parsedConfig)) {
+    if (parsedConfig && validateExamConfigStructure(parsedConfig)) {
       this.config = parsedConfig
       this.notifyListeners()
       this.saveToLocalStorage()

@@ -104,10 +104,10 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
   if (ctx) {
     ctx.protocol.register('examaware-sound', reminderSoundProtocolHandler)
   } else {
-    protocol.registerFileProtocol('examaware-sound', reminderSoundProtocolHandler)
+    protocol.handle('examaware-sound', reminderSoundProtocolHandler)
     group.add(() => {
       try {
-        protocol.unregisterProtocol('examaware-sound')
+        protocol.unhandle('examaware-sound')
       } catch {}
     })
   }

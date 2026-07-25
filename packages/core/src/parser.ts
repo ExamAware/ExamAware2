@@ -31,12 +31,11 @@ export function parseExamConfig(jsonString: string): ExamConfig | null {
 }
 
 /**
- * 验证考试配置是否有效
+ * 验证配置是否具备编辑器可加载的结构。
  *
- * @param config - 考试配置对象
- * @returns 如果配置有效则返回 true，否则返回 false
+ * 这里只校验字段类型，不校验时间先后等可在编辑器中修复的业务规则。
  */
-export function validateExamConfig(config: ExamConfig): boolean {
+export function validateExamConfigStructure(config: unknown): config is ExamConfig {
   if (!config || typeof config !== 'object') {
     return false;
   }
@@ -54,6 +53,32 @@ export function validateExamConfig(config: ExamConfig): boolean {
   if (!Array.isArray(examInfos)) {
     return false;
   }
+
+  return examInfos.every((info) => {
+    if (!info || typeof info !== 'object') return false;
+    const { name, start, end, alertTime } = info as ExamConfig['examInfos'][number];
+    return (
+      typeof name === 'string' &&
+      typeof start === 'string' &&
+      typeof end === 'string' &&
+      typeof alertTime === 'number' &&
+      Number.isFinite(alertTime)
+    );
+  });
+}
+
+/**
+ * 验证考试配置是否有效
+ *
+ * @param config - 考试配置对象
+ * @returns 如果配置有效则返回 true，否则返回 false
+ */
+export function validateExamConfig(config: ExamConfig): boolean {
+  if (!validateExamConfigStructure(config)) {
+    return false;
+  }
+
+  const { examInfos } = config;
 
   if (examInfos.length === 0) {
     return true;

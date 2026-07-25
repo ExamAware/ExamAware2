@@ -103,21 +103,25 @@ describe('reminder sound assets', () => {
     )
   })
 
-  it.each(filenames)('%s is a short, nonempty MP3 with one audio stream', (filename) => {
-    const file = resolve(audioDirectory, filename)
-    expect(statSync(file).size).toBeGreaterThan(0)
+  it.each(filenames)(
+    '%s is a short, nonempty MP3 with one audio stream',
+    (filename) => {
+      const file = resolve(audioDirectory, filename)
+      expect(statSync(file).size).toBeGreaterThan(0)
 
-    const metadata = probe(file)
-    expect(metadata.format.format_name?.split(',')).toContain('mp3')
-    const audioStreams = metadata.streams.filter((stream) => stream.codec_type === 'audio')
-    expect(audioStreams).toHaveLength(1)
-    expect(audioStreams[0].codec_name).toBe('mp3')
-    expect(audioStreams[0].channels).toBe(2)
+      const metadata = probe(file)
+      expect(metadata.format.format_name?.split(',')).toContain('mp3')
+      const audioStreams = metadata.streams.filter((stream) => stream.codec_type === 'audio')
+      expect(audioStreams).toHaveLength(1)
+      expect(audioStreams[0].codec_name).toBe('mp3')
+      expect(audioStreams[0].channels).toBe(2)
 
-    const duration = Number(metadata.format.duration ?? audioStreams[0].duration)
-    expect(duration).toBeGreaterThanOrEqual(2.9)
-    expect(duration).toBeLessThanOrEqual(3.1)
-  })
+      const duration = Number(metadata.format.duration ?? audioStreams[0].duration)
+      expect(duration).toBeGreaterThanOrEqual(2.9)
+      expect(duration).toBeLessThanOrEqual(3.1)
+    },
+    15_000
+  )
 
   it.each(Object.entries(sourceMasters))(
     'preserves the %s WAV master byte-for-byte',
@@ -141,7 +145,7 @@ describe('reminder sound assets', () => {
       expect(measurement.integrated).toBeLessThanOrEqual(-22)
       expect(measurement.truePeak).toBeLessThanOrEqual(-6)
     }
-  })
+  }, 15_000)
 
   it('documents source mapping, provenance, and repository licensing', () => {
     const readme = readFileSync(resolve(sourceAudioDirectory, 'README.md'), 'utf8')

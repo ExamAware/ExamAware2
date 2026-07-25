@@ -334,6 +334,7 @@ const activeReminderSoundPack = computed(() =>
 const soundPacksLoading = ref(true)
 const importingSoundPack = ref(false)
 const soundPackError = ref('')
+let soundPackLoadRequest = 0
 
 const applyReminderSoundPacks = (packs: ReminderSoundPackSummary[]) => {
   reminderSoundPacks.value = packs.length ? packs : [POND_REMINDER_SOUND_PACK]
@@ -343,15 +344,19 @@ const applyReminderSoundPacks = (packs: ReminderSoundPackSummary[]) => {
 }
 
 const loadReminderSoundPacks = async () => {
+  const request = ++soundPackLoadRequest
   soundPacksLoading.value = true
   soundPackError.value = ''
   try {
-    applyReminderSoundPacks(await window.api.reminderSounds.list())
+    const packs = await window.api.reminderSounds.list()
+    if (request === soundPackLoadRequest) applyReminderSoundPacks(packs)
   } catch (error) {
-    applyReminderSoundPacks([POND_REMINDER_SOUND_PACK])
-    soundPackError.value = error instanceof Error ? error.message : '无法读取铃声方案'
+    if (request === soundPackLoadRequest) {
+      applyReminderSoundPacks([POND_REMINDER_SOUND_PACK])
+      soundPackError.value = error instanceof Error ? error.message : '无法读取铃声方案'
+    }
   } finally {
-    soundPacksLoading.value = false
+    if (request === soundPackLoadRequest) soundPacksLoading.value = false
   }
 }
 
@@ -361,8 +366,14 @@ const importSoundPack = async () => {
   soundPackError.value = ''
   try {
     const result = await window.api.reminderSounds.import()
+    soundPackLoadRequest += 1
+    soundPacksLoading.value = false
+    const replacingSelectedPack = !result.canceled && result.pack?.id === reminderSoundPackId.value
     applyReminderSoundPacks(result.packs)
-    if (!result.canceled && result.pack) reminderSoundPackId.value = result.pack.id
+    if (!result.canceled && result.pack) {
+      if (replacingSelectedPack) previewController.stop()
+      reminderSoundPackId.value = result.pack.id
+    }
   } catch (error) {
     soundPackError.value = error instanceof Error ? error.message : '铃声包导入失败'
   } finally {

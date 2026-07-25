@@ -27,7 +27,7 @@ describe('reminder sound pack IPC', () => {
     const store = {
       list: vi.fn().mockResolvedValue([POND_REMINDER_SOUND_PACK, importedPack]),
       install: vi.fn().mockResolvedValue(importedPack),
-      resolveAsset: vi.fn()
+      readAsset: vi.fn()
     }
     const showOpenDialog = vi.fn().mockResolvedValue({
       canceled: false,
@@ -60,7 +60,7 @@ describe('reminder sound pack IPC', () => {
     const store = {
       list: vi.fn().mockResolvedValue([POND_REMINDER_SOUND_PACK]),
       install: vi.fn(),
-      resolveAsset: vi.fn()
+      readAsset: vi.fn()
     }
     registerReminderSoundPackIpc({
       handle: (channel, listener) => handlers.set(channel, listener),
@@ -77,19 +77,28 @@ describe('reminder sound pack IPC', () => {
 })
 
 describe('reminder sound pack protocol', () => {
-  it('maps only known pack sound URLs to validated store assets', () => {
+  it('returns validated sound bytes without exposing a mutable file path', async () => {
+    const bytes = Buffer.from('validated audio')
     const store = {
-      resolveAsset: vi.fn((id: string, kind: string) =>
-        id === 'lake-bells' && kind === 'alert' ? '/app-data/packs/lake-bells/alert.wav' : undefined
+      readAsset: vi.fn((id: string, kind: string) =>
+        Promise.resolve(
+          id === 'lake-bells' && kind === 'alert'
+            ? { data: bytes, mimeType: 'audio/wav' }
+            : undefined
+        )
       )
     }
     const handler = createReminderSoundProtocolHandler(store)
-    const callback = vi.fn()
 
-    handler({ url: 'examaware-sound://pack/lake-bells/alert' } as any, callback)
+    const response = await handler({ url: 'examaware-sound://pack/lake-bells/alert' } as Request)
 
-    expect(store.resolveAsset).toHaveBeenCalledWith('lake-bells', 'alert')
-    expect(callback).toHaveBeenCalledWith({ path: '/app-data/packs/lake-bells/alert.wav' })
+    expect(store.readAsset).toHaveBeenCalledWith('lake-bells', 'alert')
+    expect(response.status).toBe(200)
+    expect(response.headers.get('content-type')).toBe('audio/wav')
+    expect(response.headers.get('cache-control')).toBe('no-store')
+    await expect(response.arrayBuffer()).resolves.toEqual(
+      bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)
+    )
   })
 
   it.each([
@@ -97,12 +106,21 @@ describe('reminder sound pack protocol', () => {
     'examaware-sound://pack/lake-bells/unknown',
     'examaware-sound://pack/missing/start',
     'examaware-sound://pack/lake-bells/start/extra'
-  ])('rejects malformed or unresolved URL %s', (url) => {
-    const handler = createReminderSoundProtocolHandler({ resolveAsset: vi.fn() })
-    const callback = vi.fn()
+  ])('rejects malformed or unresolved URL %s', async (url) => {
+    const handler = createReminderSoundProtocolHandler({ readAsset: vi.fn() })
 
-    handler({ url } as any, callback)
+    const response = await handler({ url } as Request)
 
-    expect(callback).toHaveBeenCalledWith({ error: -6 })
+    expect(response.status).toBe(404)
+  })
+
+  it('contains asset read failures as a not-found response', async () => {
+    const handler = createReminderSoundProtocolHandler({
+      readAsset: vi.fn().mockRejectedValue(new Error('disk unavailable'))
+    })
+
+    await expect(
+      handler({ url: 'examaware-sound://pack/lake-bells/start' } as Request)
+    ).resolves.toMatchObject({ status: 404 })
   })
 })

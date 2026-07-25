@@ -249,7 +249,13 @@ export function createReminderSoundController(
 
     generation += 1
     invalidateActive('superseded')
-    const normalized = normalizeReminderSoundSettings(settings)
+    let normalized: ReminderSoundSettings
+    try {
+      normalized = normalizeReminderSoundSettings(settings)
+    } catch (error) {
+      reportBestEffort({ kind, phase: 'play', error })
+      return Promise.resolve({ ok: false, kind, reason: 'playback-error' })
+    }
     if (!normalized.master || (!bypassSwitches && !normalized[kind])) {
       return Promise.resolve({ ok: false, kind, reason: 'disabled' })
     }
@@ -356,6 +362,12 @@ export function createReminderSoundController(
       generation += 1
       invalidateActive('superseded')
       for (const audio of allAudios) resetBestEffort(audio)
+      for (const cached of cache.values()) {
+        cached.retired = true
+        removeErrorListenerBestEffort(cached)
+        releaseRetired(cached)
+      }
+      cache.clear()
     },
     dispose() {
       if (disposed) return

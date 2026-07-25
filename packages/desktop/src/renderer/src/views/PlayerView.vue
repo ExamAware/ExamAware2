@@ -330,18 +330,18 @@ onMounted(async () => {
 
   console.log('IPC renderer available, setting up listeners...')
 
-  // 执行时间同步
-  try {
-    await timeProvider.performSync()
-    console.log('初始时间同步完成')
-  } catch (error) {
-    console.warn('初始时间同步失败:', error)
-  }
+  // 先注册配置监听，避免时间同步或页面初始化较慢时错过主进程发送的数据。
+  const configLoadPromise = loadFromIPC(30000)
+
+  void timeProvider
+    .performSync()
+    .then(() => console.log('初始时间同步完成'))
+    .catch((error) => console.warn('初始时间同步失败:', error))
 
   // 使用新的配置加载器从 IPC 加载配置
   try {
     console.log('Attempting to load config via new loader...')
-    await loadFromIPC(30000) // 30秒超时
+    await configLoadPromise // 30秒超时
     console.log('Config loaded successfully via new loader!')
 
     // 配置加载成功后的处理

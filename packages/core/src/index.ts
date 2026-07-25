@@ -9,6 +9,7 @@ export type { ExamMaterial, ExamInfo, ExamConfig } from './types';
 // 导出解析和验证功能
 export {
   parseExamConfig,
+  validateExamConfigStructure,
   validateExamConfig,
   hasExamTimeOverlap,
   getSortedExamInfos,

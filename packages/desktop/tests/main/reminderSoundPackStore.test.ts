@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { mkdir, readFile, rm } from 'node:fs/promises'
+import { mkdir, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import AdmZip from 'adm-zip'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -114,9 +114,10 @@ describe('ReminderSoundPackStore', () => {
       expect.objectContaining({ id: 'pond', name: 'Pond 池塘', builtIn: true }),
       expect.objectContaining({ id: 'lake-bells', builtIn: false })
     ])
-    expect(store.resolveAsset('lake-bells', 'alert')).toBe(
-      join(packsRoot, 'lake-bells', 'audio/alert.wav')
-    )
+    await expect(store.readAsset('lake-bells', 'alert')).resolves.toEqual({
+      data: wav('alert'),
+      mimeType: 'audio/wav'
+    })
   })
 
   it('rejects a hash mismatch before creating an installed package', async () => {
@@ -191,5 +192,53 @@ describe('ReminderSoundPackStore', () => {
     await expect(readFile(join(packsRoot, 'lake-bells', 'audio/start.wav'))).resolves.toEqual(
       previous
     )
+  })
+
+  it('serializes concurrent installs that replace the same package id', async () => {
+    const first = await writePackage('first.ea2r')
+    const second = await writePackage('second.ea2r', {
+      manifest: { version: '2.0.0' },
+      bytes: {
+        start: wav('second-start'),
+        alert: wav('second-alert'),
+        end: wav('second-end')
+      }
+    })
+    const store = new ReminderSoundPackStore(packsRoot)
+
+    const installed = await Promise.all([store.install(first), store.install(second)])
+
+    expect(installed.map((pack) => pack.version).sort()).toEqual(['1.2.0', '2.0.0'])
+    const listed = await store.list()
+    expect(listed).toEqual([
+      expect.objectContaining({ id: 'pond' }),
+      expect.objectContaining({ id: 'lake-bells' })
+    ])
+    expect(['1.2.0', '2.0.0']).toContain(listed[1].version)
+    expect((await readdir(packsRoot)).filter((name) => name.startsWith('.'))).toEqual([])
+  })
+
+  it.skipIf(process.platform === 'win32')(
+    'rejects an installed sound replaced with a symbolic link',
+    async () => {
+      const store = new ReminderSoundPackStore(packsRoot)
+      await store.install(await writePackage('valid.ea2r'))
+      const outside = join(tempRoot, 'outside.wav')
+      const installedStart = join(packsRoot, 'lake-bells', 'audio/start.wav')
+      await writeFile(outside, wav('start'))
+      await rm(installedStart)
+      await symlink(outside, installedStart)
+
+      await expect(store.readAsset('lake-bells', 'start')).resolves.toBeUndefined()
+      await expect(store.list()).resolves.toEqual([expect.objectContaining({ id: 'pond' })])
+    }
+  )
+
+  it('does not return bytes after an installed sound is modified', async () => {
+    const store = new ReminderSoundPackStore(packsRoot)
+    await store.install(await writePackage('valid.ea2r'))
+    await writeFile(join(packsRoot, 'lake-bells', 'audio/end.wav'), wav('tampered'))
+
+    await expect(store.readAsset('lake-bells', 'end')).resolves.toBeUndefined()
   })
 })

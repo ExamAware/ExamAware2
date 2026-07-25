@@ -1,6 +1,16 @@
 import { createHash, randomUUID } from 'node:crypto'
-import { existsSync } from 'node:fs'
-import { mkdir, readFile, readdir, rename, rm, stat, writeFile } from 'node:fs/promises'
+import { constants, existsSync } from 'node:fs'
+import {
+  lstat,
+  mkdir,
+  open,
+  readdir,
+  realpath,
+  rename,
+  rm,
+  stat,
+  writeFile
+} from 'node:fs/promises'
 import { dirname, extname, join, posix, resolve, sep } from 'node:path'
 import AdmZip from 'adm-zip'
 import {
@@ -16,6 +26,12 @@ export const MAX_REMINDER_SOUND_PACK_ENTRIES = 16
 export const MAX_REMINDER_SOUND_PACK_BYTES = 32 * 1024 * 1024
 const MAX_MANIFEST_BYTES = 64 * 1024
 const SUPPORTED_AUDIO_EXTENSIONS = new Set(['.mp3', '.wav', '.ogg', '.m4a'])
+const AUDIO_MIME_TYPES = new Map([
+  ['.mp3', 'audio/mpeg'],
+  ['.wav', 'audio/wav'],
+  ['.ogg', 'audio/ogg'],
+  ['.m4a', 'audio/mp4']
+])
 const ID_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/
 const SHA256_PATTERN = /^[a-fA-F0-9]{64}$/
 
@@ -56,6 +72,9 @@ const validateEntryPath = (entryPath: unknown, field = '条目路径') => {
   }
   return normalized
 }
+
+const isPathInside = (parent: string, candidate: string) =>
+  candidate.startsWith(`${parent.endsWith(sep) ? parent.slice(0, -1) : parent}${sep}`)
 
 const isAudioFormatValid = (extension: string, bytes: Buffer) => {
   switch (extension) {
@@ -205,16 +224,41 @@ const parseArchive = async (filePath: string): Promise<ValidatedPack> => {
   return { manifest, files }
 }
 
+const readInstalledFile = async (
+  directory: string,
+  filePath: string,
+  maxBytes = MAX_REMINDER_SOUND_PACK_BYTES
+) => {
+  const fileStat = await lstat(filePath)
+  if (!fileStat.isFile()) fail('已安装声音包包含非普通文件')
+  const realDirectory = await realpath(directory)
+  const realFilePath = await realpath(filePath)
+  if (!isPathInside(realDirectory, realFilePath)) fail('已安装声音路径不安全')
+  const handle = await open(realFilePath, constants.O_RDONLY | constants.O_NOFOLLOW)
+  try {
+    const openedStat = await handle.stat()
+    if (!openedStat.isFile() || openedStat.size > maxBytes) fail('已安装声音文件过大或无效')
+    return await handle.readFile()
+  } finally {
+    await handle.close()
+  }
+}
+
 const loadInstalled = async (directory: string): Promise<ValidatedPack> => {
-  const manifestBytes = await readFile(join(directory, 'manifest.json'))
-  if (manifestBytes.length > MAX_MANIFEST_BYTES) fail('已安装描述文件过大')
+  const directoryStat = await lstat(directory)
+  if (!directoryStat.isDirectory()) fail('已安装声音包不是普通目录')
+  const manifestBytes = await readInstalledFile(
+    directory,
+    join(directory, 'manifest.json'),
+    MAX_MANIFEST_BYTES
+  )
   const manifest = validateManifest(JSON.parse(manifestBytes.toString('utf8')))
   const files = new Map<string, Buffer>([['manifest.json', manifestBytes]])
   for (const kind of REMINDER_SOUND_KINDS) {
     const relativePath = manifest.sounds[kind].path
     const absolutePath = resolve(directory, relativePath)
     if (!absolutePath.startsWith(`${resolve(directory)}${sep}`)) fail('已安装声音路径不安全')
-    files.set(relativePath, await readFile(absolutePath))
+    files.set(relativePath, await readInstalledFile(directory, absolutePath))
   }
   validateFiles(manifest, files)
   return { manifest, files }
@@ -225,6 +269,7 @@ export class ReminderSoundPackStore {
     string,
     { manifest: ReminderSoundPackManifest; directory: string }
   >()
+  private readonly installQueues = new Map<string, Promise<void>>()
 
   constructor(private readonly rootDirectory: string) {}
 
@@ -250,6 +295,23 @@ export class ReminderSoundPackStore {
 
   async install(filePath: string): Promise<ReminderSoundPackSummary> {
     const validated = await parseArchive(filePath)
+    const packId = validated.manifest.id
+    const previous = this.installQueues.get(packId) ?? Promise.resolve()
+    let release!: () => void
+    const current = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    this.installQueues.set(packId, current)
+    await previous.catch(() => undefined)
+    try {
+      return await this.installValidated(validated)
+    } finally {
+      release()
+      if (this.installQueues.get(packId) === current) this.installQueues.delete(packId)
+    }
+  }
+
+  private async installValidated(validated: ValidatedPack): Promise<ReminderSoundPackSummary> {
     await mkdir(this.rootDirectory, { recursive: true })
     const target = join(this.rootDirectory, validated.manifest.id)
     const staging = join(this.rootDirectory, `.${validated.manifest.id}-${randomUUID()}.tmp`)
@@ -295,14 +357,26 @@ export class ReminderSoundPackStore {
     return summaryFromManifest(validated.manifest)
   }
 
-  resolveAsset(packId: string, kind: ReminderSoundKind): string | undefined {
+  async readAsset(
+    packId: string,
+    kind: ReminderSoundKind
+  ): Promise<{ data: Buffer; mimeType: string } | undefined> {
     if (!REMINDER_SOUND_KINDS.includes(kind)) return undefined
     const pack = this.installed.get(packId)
     if (!pack) return undefined
-    const candidate = resolve(pack.directory, pack.manifest.sounds[kind].path)
-    if (!candidate.startsWith(`${resolve(pack.directory)}${sep}`) || !existsSync(candidate)) {
+    try {
+      if (!(await lstat(pack.directory)).isDirectory()) return undefined
+      const sound = pack.manifest.sounds[kind]
+      const candidate = resolve(pack.directory, sound.path)
+      const resolvedDirectory = resolve(pack.directory)
+      if (!isPathInside(resolvedDirectory, candidate)) return undefined
+      const data = await readInstalledFile(pack.directory, candidate)
+      const actualHash = createHash('sha256').update(data).digest('hex')
+      if (actualHash !== sound.sha256) return undefined
+      const mimeType = AUDIO_MIME_TYPES.get(extname(sound.path).toLowerCase())
+      return mimeType ? { data, mimeType } : undefined
+    } catch {
       return undefined
     }
-    return candidate
   }
 }

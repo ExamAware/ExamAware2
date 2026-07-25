@@ -22,6 +22,7 @@
         <t-form-item label="开始时间" name="start">
           <t-date-picker
             v-model="startDateForPicker"
+            value-type="Date"
             enable-time-picker
             allow-input
             clearable
@@ -34,6 +35,7 @@
         <t-form-item label="结束时间" name="end">
           <t-date-picker
             v-model="endDateForPicker"
+            value-type="Date"
             enable-time-picker
             allow-input
             clearable
@@ -82,7 +84,8 @@
 import { ref, reactive, watch, computed, onBeforeUnmount } from 'vue'
 import type { ExamInfo } from '@renderer/core/configTypes'
 import type { FormRule } from 'tdesign-vue-next'
-import { formatLocalDateTime, parseDateTime } from '@renderer/utils/dateFormat'
+import { parseDateTime } from '@renderer/utils/dateFormat'
+import { updateExamPickerTime } from '@renderer/utils/examTimeEditor'
 import ExamMaterialsPanel from './ExamMaterialsPanel.vue'
 import type { ExamMaterial } from '@renderer/core/configTypes'
 
@@ -133,16 +136,7 @@ const startDateForPicker = computed({
     return isNaN(date.getTime()) ? '' : date
   },
   set: (value) => {
-    if (value instanceof Date) {
-      formData.start = formatLocalDateTime(value)
-    } else if (typeof value === 'string' && value) {
-      const date = new Date(value)
-      if (!isNaN(date.getTime())) {
-        formData.start = formatLocalDateTime(date)
-      }
-    } else {
-      formData.start = ''
-    }
+    updateExamPickerTime(formData, 'start', value)
   }
 })
 
@@ -153,16 +147,7 @@ const endDateForPicker = computed({
     return isNaN(date.getTime()) ? '' : date
   },
   set: (value) => {
-    if (value instanceof Date) {
-      formData.end = formatLocalDateTime(value)
-    } else if (typeof value === 'string' && value) {
-      const date = new Date(value)
-      if (!isNaN(date.getTime())) {
-        formData.end = formatLocalDateTime(date)
-      }
-    } else {
-      formData.end = ''
-    }
+    updateExamPickerTime(formData, 'end', value)
   }
 })
 

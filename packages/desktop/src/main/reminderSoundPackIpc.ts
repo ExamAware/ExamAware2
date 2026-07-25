@@ -1,4 +1,4 @@
-import type { OpenDialogReturnValue, ProtocolRequest } from 'electron'
+import type { OpenDialogReturnValue } from 'electron'
 import { REMINDER_SOUND_KINDS, type ReminderSoundKind } from '../shared/reminderSoundPack'
 import type { ReminderSoundPackStore } from './reminderSoundPackStore'
 
@@ -10,7 +10,7 @@ interface ReminderSoundPackIpcOptions {
     properties: ['openFile']
     filters: Array<{ name: string; extensions: string[] }>
   }): Promise<Pick<OpenDialogReturnValue, 'canceled' | 'filePaths'>>
-  store: Pick<ReminderSoundPackStore, 'list' | 'install' | 'resolveAsset'>
+  store: Pick<ReminderSoundPackStore, 'list' | 'install'>
 }
 
 export function registerReminderSoundPackIpc(options: ReminderSoundPackIpcOptions) {
@@ -28,12 +28,10 @@ export function registerReminderSoundPackIpc(options: ReminderSoundPackIpcOption
   })
 }
 
-type ProtocolCallback = (response: { path: string } | { error: number }) => void
-
 export function createReminderSoundProtocolHandler(
-  store: Pick<ReminderSoundPackStore, 'resolveAsset'>
+  store: Pick<ReminderSoundPackStore, 'readAsset'>
 ) {
-  return (request: Pick<ProtocolRequest, 'url'>, callback: ProtocolCallback) => {
+  return async (request: Pick<Request, 'url'>): Promise<Response> => {
     try {
       const url = new URL(request.url)
       const pathParts = url.pathname.split('/').filter(Boolean)
@@ -45,13 +43,18 @@ export function createReminderSoundProtocolHandler(
         pathParts.length !== 2 ||
         !REMINDER_SOUND_KINDS.includes(kind)
       ) {
-        callback({ error: -6 })
-        return
+        return new Response(null, { status: 404 })
       }
-      const filePath = store.resolveAsset(packId, kind)
-      callback(filePath ? { path: filePath } : { error: -6 })
+      const asset = await store.readAsset(packId, kind)
+      if (!asset) return new Response(null, { status: 404 })
+      return new Response(new Uint8Array(asset.data), {
+        headers: {
+          'Cache-Control': 'no-store',
+          'Content-Type': asset.mimeType
+        }
+      })
     } catch {
-      callback({ error: -6 })
+      return new Response(null, { status: 404 })
     }
   }
 }

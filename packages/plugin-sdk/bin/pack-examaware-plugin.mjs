@@ -60,7 +60,15 @@ async function main() {
     archive.file(schemaPath, { name: path.relative(cwd, schemaPath) });
   }
 
-  archive.directory(distDir, 'dist');
+  archive.glob(
+    '**/*',
+    {
+      cwd: distDir,
+      dot: true,
+      ignore: ['**/*.ea2x']
+    },
+    { prefix: 'dist' }
+  );
 
   await archive.finalize();
   await finalize;

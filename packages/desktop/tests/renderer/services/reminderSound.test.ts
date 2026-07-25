@@ -147,6 +147,19 @@ describe('reminder sound controller', () => {
     expect(created[0].listenerCount).toBe(0)
   })
 
+  it('discards settled cached audio on stop so replaced files are reloaded', async () => {
+    const { controller, factory, audios } = setup()
+
+    await controller.preview('start')
+    const previous = audios.get('start')!
+    controller.stop()
+    await controller.preview('start')
+
+    expect(factory).toHaveBeenCalledTimes(2)
+    expect(previous.pause).toHaveBeenCalled()
+    expect(previous.listenerCount).toBe(0)
+  })
+
   it('contains source provider failures as load errors', async () => {
     const error = new Error('source unavailable')
     const reporter = vi.fn()
@@ -163,6 +176,27 @@ describe('reminder sound controller', () => {
       reason: 'playback-error'
     })
     expect(reporter).toHaveBeenCalledWith({ kind: 'alert', phase: 'load', error })
+  })
+
+  it('contains settings accessor failures without throwing into the exam flow', async () => {
+    const error = new Error('settings unavailable')
+    const reporter = vi.fn()
+    const controller = createReminderSoundController({ reporter })
+    const settings = new Proxy(
+      {},
+      {
+        get() {
+          throw error
+        }
+      }
+    )
+
+    await expect(controller.play('start', settings)).resolves.toEqual({
+      ok: false,
+      kind: 'start',
+      reason: 'playback-error'
+    })
+    expect(reporter).toHaveBeenCalledWith({ kind: 'start', phase: 'play', error })
   })
 
   it('converts audio creation and listener setup failures into load errors', async () => {
