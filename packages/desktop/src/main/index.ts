@@ -1,4 +1,4 @@
-import { app, BrowserWindow, globalShortcut, Menu, protocol } from 'electron'
+import { app, BrowserWindow, Menu, protocol } from 'electron'
 import fs from 'fs'
 import path from 'path'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
@@ -225,18 +225,6 @@ app.whenReady().then(async () => {
   })
 
   disposeIpc = registerIpcHandlers(_mainCtx)
-  // macOS 常用快捷键：Command+逗号 打开设置（聚焦“关于”页可由二级逻辑决定，这里默认普通设置首页）
-  try {
-    globalShortcut.register('CommandOrControl+,', () => {
-      try {
-        createSettingsWindow()
-      } catch (e) {
-        appLogger.error('open settings via shortcut failed', e as Error)
-      }
-    })
-  } catch (e) {
-    appLogger.error('register shortcut failed', e as Error)
-  }
   disposeTimeIpc = registerTimeSyncHandlers()
   // 启动内置 HTTP API（端口冲突自动处理）
   try {
