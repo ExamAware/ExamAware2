@@ -26,7 +26,7 @@ class FakeIpcRenderer {
     this.listeners.set(channel, listeners)
   }
 
-  removeListener(channel: string, listener: ConfigListener) {
+  off(channel: string, listener: ConfigListener) {
     this.listeners.get(channel)?.delete(listener)
   }
 

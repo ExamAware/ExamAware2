@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => {
   const listeners = new Map<string, Set<(event: any) => void>>()
@@ -26,7 +26,7 @@ const mocks = vi.hoisted(() => {
     readFile: vi.fn(),
     open: vi.fn(),
     setSharedConfig: vi.fn(),
-    logger: { debug: vi.fn(), error: vi.fn() }
+    logger: { debug: vi.fn(), info: vi.fn(), error: vi.fn() }
   }
 })
 
@@ -55,12 +55,13 @@ vi.mock('../../../src/main/state/sharedConfigStore', () => ({
 
 import { createPlayerWindow } from '../../../src/main/windows/playerWindow'
 
-const emit = (channel: string, sender: unknown) => {
-  for (const listener of mocks.listeners.get(channel) ?? []) listener({ sender })
+const emit = (channel: string, sender: unknown, ...args: unknown[]) => {
+  for (const listener of mocks.listeners.get(channel) ?? []) listener({ sender }, ...args)
 }
 
 describe('createPlayerWindow config delivery', () => {
   beforeEach(() => {
+    vi.useFakeTimers()
     mocks.listeners.clear()
     mocks.cleanup = undefined
     mocks.readCallback = undefined
@@ -73,6 +74,12 @@ describe('createPlayerWindow config delivery', () => {
       mocks.cleanup = definition.setup?.(mocks.playerWindow)
       return mocks.playerWindow
     })
+  })
+
+  afterEach(() => {
+    mocks.cleanup?.()
+    vi.clearAllTimers()
+    vi.useRealTimers()
   })
 
   it('replaces an existing player and sends data after both file and renderer are ready', () => {
@@ -93,6 +100,16 @@ describe('createPlayerWindow config delivery', () => {
     emit('renderer:ready', mocks.webContents)
     expect(mocks.webContents.send).toHaveBeenCalledTimes(1)
     expect(mocks.webContents.send).toHaveBeenCalledWith('load-config', '{"examName":"Finals"}')
+
+    emit('player:config-status', mocks.webContents, {
+      ok: true,
+      examName: 'Finals',
+      examCount: 1
+    })
+    expect(mocks.logger.info).toHaveBeenCalledWith(
+      '[player] renderer loaded configuration',
+      expect.objectContaining({ examName: 'Finals', examCount: 1 })
+    )
   })
 
   it('also sends when the renderer becomes ready before the file read completes', () => {
@@ -111,5 +128,19 @@ describe('createPlayerWindow config delivery', () => {
 
     mocks.cleanup?.()
     expect(mocks.listeners.get('renderer:ready')?.size).toBe(0)
+    expect(mocks.listeners.get('player:config-status')?.size).toBe(0)
+  })
+
+  it('logs an error when the renderer does not acknowledge delivered data', async () => {
+    createPlayerWindow('/tmp/finals.ea2')
+    mocks.readCallback?.(null, '{"examName":"Finals"}')
+    emit('renderer:ready', mocks.webContents)
+
+    await vi.advanceTimersByTimeAsync(5000)
+
+    expect(mocks.logger.error).toHaveBeenCalledWith(
+      '[player] renderer did not acknowledge configuration',
+      expect.objectContaining({ path: '/tmp/finals.ea2', length: 21, timeoutMs: 5000 })
+    )
   })
 })

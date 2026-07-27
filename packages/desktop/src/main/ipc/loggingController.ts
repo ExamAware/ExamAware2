@@ -3,6 +3,7 @@ import { addLog, clearLogs, getLogs } from '../logging/logStore'
 import {
   clearLogFiles,
   getLoggingConfig,
+  appLogger,
   openLogFolder,
   setLoggingConfig
 } from '../logging/winstonLogger'
@@ -15,17 +16,22 @@ export class LoggingIpcController {
     payload: { level: string; message: string; stack?: string; source?: string }
   ) {
     const window = BrowserWindow.fromWebContents(event.sender)
+    const level = (['log', 'info', 'warn', 'error', 'debug'] as any).includes(payload.level)
+      ? (payload.level as 'log' | 'info' | 'warn' | 'error' | 'debug')
+      : 'log'
     addLog({
       timestamp: Date.now(),
-      level: (['log', 'info', 'warn', 'error', 'debug'] as any).includes(payload.level)
-        ? (payload.level as any)
-        : 'log',
+      level,
       process: 'renderer',
       windowId: window?.id,
       message: payload.message,
       stack: payload.stack,
       source: payload.source
     })
+    if (level === 'error' || level === 'warn') {
+      const message = `[renderer:${window?.id ?? 'unknown'}] ${payload.message}`
+      appLogger[level](message, payload.stack ? { stack: payload.stack } : undefined)
+    }
   }
 
   @IpcHandle('logs:get')

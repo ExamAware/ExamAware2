@@ -5,6 +5,15 @@ import { windowManager } from './windowManager'
 import { appLogger } from '../logging/winstonLogger'
 import { setSharedConfig } from '../state/sharedConfigStore'
 
+interface PlayerConfigStatus {
+  ok: boolean
+  examName?: string
+  examCount?: number
+  message?: string
+}
+
+const CONFIG_ACK_TIMEOUT_MS = 5000
+
 export function createPlayerWindow(configPath: string): BrowserWindow {
   // Prevent the new renderer's get-config fallback from consuming the previous playback data.
   setSharedConfig(null)
@@ -73,12 +82,51 @@ export function createPlayerWindow(configPath: string): BrowserWindow {
         let configData: string | null = null
         let rendererReady = false
         let configSent = false
+        let configAckTimer: ReturnType<typeof setTimeout> | undefined
+
+        const clearConfigAckTimer = () => {
+          if (configAckTimer !== undefined) {
+            clearTimeout(configAckTimer)
+            configAckTimer = undefined
+          }
+        }
+
+        const onConfigStatus = (event: Electron.IpcMainEvent, status?: PlayerConfigStatus) => {
+          if (event.sender !== playerWindow.webContents) return
+          clearConfigAckTimer()
+          if (status?.ok) {
+            appLogger.info('[player] renderer loaded configuration', {
+              path: configPath,
+              examName: status.examName,
+              examCount: status.examCount
+            })
+            return
+          }
+          appLogger.error(
+            '[player] renderer failed to load configuration',
+            new Error(status?.message || 'Renderer returned an unknown configuration error')
+          )
+        }
+        ipcMain.on('player:config-status', onConfigStatus)
 
         const sendConfigWhenReady = () => {
           if (!rendererReady || !configData || configSent || playerWindow.isDestroyed()) return
-          configSent = true
-          playerWindow.webContents.send('load-config', configData)
-          appLogger.debug('Config file loaded and sent to renderer (len=%d)', configData.length)
+          try {
+            playerWindow.webContents.send('load-config', configData)
+            configSent = true
+            appLogger.debug('[player] configuration sent to renderer (len=%d)', configData.length)
+            clearConfigAckTimer()
+            configAckTimer = setTimeout(() => {
+              configAckTimer = undefined
+              appLogger.error('[player] renderer did not acknowledge configuration', {
+                path: configPath,
+                length: configData?.length ?? 0,
+                timeoutMs: CONFIG_ACK_TIMEOUT_MS
+              })
+            }, CONFIG_ACK_TIMEOUT_MS)
+          } catch (error) {
+            appLogger.error('[player] failed to send configuration to renderer', error as Error)
+          }
         }
 
         const onRendererReady = (event: Electron.IpcMainEvent) => {
@@ -97,6 +145,11 @@ export function createPlayerWindow(configPath: string): BrowserWindow {
 
           configData = data
           setSharedConfig(data)
+          appLogger.debug(
+            '[player] configuration file read (path=%s, len=%d)',
+            configPath,
+            data.length
+          )
           sendConfigWhenReady()
         })
 
@@ -104,6 +157,8 @@ export function createPlayerWindow(configPath: string): BrowserWindow {
         return () => {
           ipcMain.off(exitChannel, onRendererExit)
           ipcMain.off('renderer:ready', onRendererReady)
+          ipcMain.off('player:config-status', onConfigStatus)
+          clearConfigAckTimer()
         }
       }
     }),
