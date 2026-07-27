@@ -12,6 +12,16 @@ import type { PluginSourceFetchRequest } from '../main/plugin/types'
 const LOG_COOLDOWN_MS = 50
 const lastLogSent: Partial<Record<'log' | 'info' | 'warn' | 'error' | 'debug', number>> = {}
 
+const serializeLogValue = (value: unknown) => {
+  if (value instanceof Error) return value.stack || value.message
+  if (typeof value === 'string') return value
+  try {
+    return JSON.stringify(value)
+  } catch {
+    return String(value)
+  }
+}
+
 const sendLogThrottled = (level: 'log' | 'info' | 'warn' | 'error' | 'debug', message: string) => {
   const now = Date.now()
   const last = lastLogSent[level] ?? 0
@@ -196,7 +206,7 @@ if (process.contextIsolated) {
       // @ts-ignore
       console[lvl] = (...args: any[]) => {
         try {
-          const message = args.map((a) => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ')
+          const message = args.map(serializeLogValue).join(' ')
           sendLogThrottled(lvl, message)
         } catch {}
         try {
@@ -228,7 +238,7 @@ if (process.contextIsolated) {
     // @ts-ignore
     console[lvl] = (...args: any[]) => {
       try {
-        const message = args.map((a) => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ')
+        const message = args.map(serializeLogValue).join(' ')
         sendLogThrottled(lvl, message)
       } catch {}
       try {

@@ -210,7 +210,16 @@ export class ConfigLoader {
           clearTimeout(timeoutId)
           timeoutId = undefined
         }
-        this.ipcRenderer.removeListener('load-config', handleConfig)
+        const removeListener = this.ipcRenderer.off ?? this.ipcRenderer.removeListener
+        if (typeof removeListener === 'function') {
+          try {
+            removeListener.call(this.ipcRenderer, 'load-config', handleConfig)
+          } catch (error) {
+            console.error('清理 IPC 配置监听失败:', error)
+          }
+        } else {
+          console.error('IPC renderer 缺少 off/removeListener，无法清理配置监听')
+        }
         if (this.activeIPCRequest === request) {
           this.activeIPCRequest = null
         }

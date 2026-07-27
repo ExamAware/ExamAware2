@@ -68,6 +68,19 @@ import {
 
 const ipcRenderer = window.api.ipc
 
+const reportConfigStatus = (status: {
+  ok: boolean
+  examName?: string
+  examCount?: number
+  message?: string
+}) => {
+  try {
+    ipcRenderer?.send?.('player:config-status', status)
+  } catch (error) {
+    console.error('上报放映配置状态失败:', error)
+  }
+}
+
 const settingsStore = useSettingsStore()
 const desktopApi = useDesktopApi()
 const {
@@ -362,8 +375,14 @@ onMounted(async () => {
         placement: 'bottom-right',
         closeBtn: true
       })
+      reportConfigStatus({
+        ok: true,
+        examName: configData.value.examName,
+        examCount: configData.value.examInfos.length
+      })
     } else {
       console.warn('配置加载器返回了空配置')
+      reportConfigStatus({ ok: false, message: '配置加载完成但结果为空' })
       NotifyPlugin.warning({
         title: '未找到考试档案',
         content: '未找到有效的考试档案文件(.ea2)，请确保档案文件已正确拷贝到大屏设备',
@@ -374,6 +393,7 @@ onMounted(async () => {
   } catch (error) {
     console.error('Config loading failed:', error)
     const errorMessage = error instanceof Error ? error.message : '未知错误'
+    reportConfigStatus({ ok: false, message: errorMessage })
     NotifyPlugin.error({
       title: '考试档案加载失败',
       content: `考试档案文件(.ea2)加载失败：${errorMessage}。请检查文件是否损坏或格式是否正确。`,
