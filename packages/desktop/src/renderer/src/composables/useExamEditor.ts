@@ -5,6 +5,7 @@ import { FileOperationManager } from '@renderer/core/fileOperations'
 import { RecentFileManager } from '@renderer/core/recentFileManager'
 import { MessageService } from '@renderer/core/messageService'
 import { logService } from '@renderer/core/logService'
+import { requestUnsavedChangesDecision } from '@renderer/core/unsavedChangesDialog'
 
 // 关闭流程全局状态，避免多实例重复注册导致的重复弹窗
 let allowCloseGlobal = false
@@ -455,39 +456,16 @@ export function useExamEditor() {
     historyStore.flushAllDebounced()
 
     if (isFileModified.value) {
-      let choice: 'save' | 'discard' | 'cancel' = 'discard'
-      let choiceSource: 'dialog' | 'fallback' = 'dialog'
-
-      if (window.api?.dialog?.showMessageBox) {
-        try {
-          const { response } = await window.api.dialog.showMessageBox({
-            type: 'warning',
-            buttons: ['保存', '不保存', '取消'],
-            defaultId: 0,
-            cancelId: 2,
-            noLink: true,
-            title: '未保存的更改',
-            message: '当前文件已修改，是否在关闭窗口前保存？',
-            detail: '选择“不保存”将丢弃当前更改，此操作不可撤销。'
-          })
-          choice = response === 0 ? 'save' : response === 1 ? 'discard' : 'cancel'
-          closeLogger.info('messageBox choice', { response, choice })
-        } catch (error) {
-          console.error('显示保存确认对话框失败:', error)
-          closeLogger.warn('messageBox failed, fallback confirm', error as any)
-          const shouldSave = window.confirm(
-            '当前文件已修改，是否在关闭窗口前保存？\n点击“确定”保存，点击“取消”放弃更改并退出。'
-          )
-          choice = shouldSave ? 'save' : 'discard'
-          choiceSource = 'fallback'
-        }
-      } else {
-        const shouldSave = window.confirm(
-          '当前文件已修改，是否在关闭窗口前保存？\n点击“确定”保存，点击“取消”放弃更改并退出。'
-        )
-        choice = shouldSave ? 'save' : 'discard'
-        choiceSource = 'fallback'
-        closeLogger.info('legacy confirm choice', { shouldSave, choice })
+      let choice: 'save' | 'discard' | 'cancel'
+      try {
+        choice = await requestUnsavedChangesDecision(window.api?.dialog?.showMessageBox)
+        closeLogger.info('messageBox choice', { choice })
+      } catch (error) {
+        console.error('显示保存确认对话框失败:', error)
+        closeLogger.error('messageBox failed; close cancelled', error as any)
+        MessageService.warning('无法显示保存确认对话框，窗口关闭已取消')
+        setClosingFlag(false)
+        return
       }
 
       if (choice === 'save') {
@@ -501,10 +479,8 @@ export function useExamEditor() {
         allowClose = true
         closeLogger.info('close via save success')
       } else if (choice === 'cancel') {
-        if (choiceSource === 'dialog') {
-          MessageService.info('窗口关闭已取消')
-        }
-        closeLogger.info('close cancelled by user', { choiceSource })
+        MessageService.info('窗口关闭已取消')
+        closeLogger.info('close cancelled by user')
         setClosingFlag(false)
         return
       } else {
