@@ -10,7 +10,6 @@ import type {
   PluginSourceFetchResult
 } from '../main/plugin/types'
 import type { HttpApiConfig } from '../main/http/httpApiService'
-import type { CastConfig } from '../main/cast/castService'
 import type {
   ReminderSoundPackImportResult,
   ReminderSoundPackSummary
@@ -27,7 +26,6 @@ declare global {
       setupListeners: () => void
       platform: string
       onOpenFileAtStartup?: (callback: (filePath: string) => void) => void
-      setTitlebarTheme?: (theme: 'light' | 'dark') => void
       setNativeTheme?: (source: 'light' | 'dark' | 'system') => void
     }
     api: {
@@ -97,19 +95,6 @@ declare global {
         setConfig: (cfg: Partial<HttpApiConfig>) => Promise<HttpApiConfig>
         restart: () => Promise<HttpApiConfig>
       }
-      cast: {
-        getConfig: () => Promise<CastConfig>
-        setConfig: (cfg: Partial<CastConfig>) => Promise<CastConfig>
-        restart: () => Promise<CastConfig>
-        listPeers: () => Promise<any>
-        peerShares: (peerId: string) => Promise<any>
-        localShares: () => Promise<any>
-        sharedConfig: (id?: string) => Promise<string | null>
-        setShares: (shares: any[]) => Promise<void>
-        upsertShare: (share: any) => Promise<void>
-        peerConfig: (peerId: string, shareId?: string) => Promise<string | null>
-        send: (peerId: string, config: string) => Promise<any>
-      }
       logging: {
         getConfig: () => Promise<any>
         setConfig: (cfg: any) => Promise<any>
@@ -120,6 +105,15 @@ declare global {
         autostart: {
           get: () => Promise<boolean>
           set: (enable: boolean) => Promise<boolean>
+        }
+        harmony: {
+          getInfo: () => Promise<{
+            supported: boolean
+            notificationEnabled: boolean
+          }>
+          requestNotification: () => Promise<boolean>
+          requestUserDirectories: () => Promise<boolean>
+          openApplicationInfo: () => Promise<boolean>
         }
       }
       app: {

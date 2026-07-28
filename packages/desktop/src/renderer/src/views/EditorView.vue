@@ -12,25 +12,19 @@ import type { ExamInfo } from '@renderer/core/configTypes'
 import { useEditorPluginStore } from '@renderer/stores/editorPluginStore'
 import { setEditorRuntime } from '@renderer/core/editorBridge'
 
-// 平台检测 - 通过 electronAPI 获取
-const windowAPI = (window as any).electronAPI
-const isMacOS = windowAPI?.platform === 'darwin'
-const isWindows = windowAPI?.platform === 'win32'
-console.log('platform: ' + windowAPI?.platform)
-
 // 配置 CodeLayout 的默认设置
 const config = reactive<CodeLayoutConfig>({
   ...defaultCodeLayoutConfig,
   primarySideBarSwitchWithActivityBar: true,
   primarySideBarPosition: 'left',
-  titleBar: true,
-  titleBarShowCustomizeLayout: true,
+  titleBar: false,
+  titleBarShowCustomizeLayout: false,
   activityBar: true,
   primarySideBar: true,
   secondarySideBar: false,
   bottomPanel: true,
   statusBar: true,
-  menuBar: true,
+  menuBar: false,
   bottomPanelMaximize: false,
   primarySideBarWidth: 40
 })
@@ -65,10 +59,16 @@ const {
   openAboutDialog,
   closeAboutDialog,
   openGithub,
-  startPresentation,
-  // 提供原始 configManager 以便共享导出
-  configManager
+  startPresentation
 } = useExamEditor()
+
+watch(
+  windowTitle,
+  (title) => {
+    document.title = title || '考试编辑器'
+  },
+  { immediate: true }
+)
 
 // 使用布局管理器
 const {
@@ -82,40 +82,6 @@ const {
 const pluginStore = useEditorPluginStore()
 const pluginCenterView = computed(() => pluginStore.centerView)
 const closePluginCenterView = (id?: string) => pluginStore.clearCenterView(id)
-
-// 就近共享：同步当前编辑配置
-let shareSyncTimer: ReturnType<typeof setTimeout> | null = null
-let shareSyncInterval: ReturnType<typeof setInterval> | null = null
-const syncNowChannel = 'cast:sync-now'
-const handleSyncNow = () => {
-  void pushShare()
-}
-
-const pushShare = async () => {
-  try {
-    const cfg = await window.api.cast.getConfig()
-    if (!cfg?.enabled || !cfg?.shareEnabled) return
-    const payload = configManager.exportToJson()
-    const examName = examConfig.examInfos[0]?.name || '未命名考试'
-    const entry = {
-      id: 'current',
-      examName,
-      examCount: examConfig.examInfos.length,
-      updatedAt: Date.now(),
-      payload
-    }
-    await window.api.cast.setShares([entry])
-  } catch (err) {
-    console.warn('cast share sync failed', err)
-  }
-}
-
-const scheduleShareSync = () => {
-  if (shareSyncTimer) clearTimeout(shareSyncTimer)
-  shareSyncTimer = setTimeout(() => {
-    void pushShare()
-  }, 500)
-}
 
 // 多标签（TDesign Tabs）状态
 const activeTabUid = ref<string | null>(null)
@@ -301,10 +267,6 @@ const deleteCurrentExam = () => {
   }
 }
 
-const openCastWindow = () => {
-  window.api.ipc.send('open-cast-window')
-}
-
 const nextExam = () => {
   const len = examConfig.examInfos.length
   if (len === 0) return
@@ -345,7 +307,6 @@ onMounted(async () => {
     onPresentation: () => {
       void startPresentation()
     },
-    onCast: openCastWindow,
     onAddExam: addExam,
     onDeleteExam: deleteCurrentExam,
     onNextExam: nextExam,
@@ -368,13 +329,6 @@ onMounted(async () => {
     activeTabUid.value = null
   }
 
-  scheduleShareSync()
-  shareSyncInterval = setInterval(() => {
-    void pushShare()
-  }, 5000)
-
-  window.api?.ipc?.on?.(syncNowChannel, handleSyncNow)
-
   // 检查 CodeLayout 实例
   setTimeout(() => {
     console.log('CodeLayout ref:', codeLayout.value)
@@ -383,17 +337,7 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   setEditorRuntime(null)
-  if (shareSyncInterval) clearInterval(shareSyncInterval)
-  window.api?.ipc?.off?.(syncNowChannel, handleSyncNow)
 })
-
-watch(
-  () => examConfig,
-  () => {
-    scheduleShareSync()
-  },
-  { deep: true }
-)
 </script>
 
 <template>
@@ -440,26 +384,6 @@ watch(
         @switch-exam-info="handleSwitchExamInfo"
         @update:profile="updateProfile"
       />
-    </template>
-    <template #titleBarIcon>
-      <!-- macOS 下隐藏logo为交通灯按钮让路，其他平台显示logo -->
-      <img
-        v-if="!isMacOS"
-        src="@renderer/assets/logo.svg"
-        style="margin: 10px"
-        alt="logo"
-        width="20px"
-      />
-      <!-- macOS 下用空白区域撑开左侧空间 -->
-      <div v-else style="width: 80px; height: 35px; -webkit-app-region: no-drag"></div>
-    </template>
-    <template #titleBarCenter>
-      <div class="title-bar-center">
-        {{ windowTitle }}
-      </div>
-    </template>
-    <template #titleBarRight>
-      <div class="title-bar-system-spacer" :class="{ windows: isWindows }" aria-hidden="true" />
     </template>
     <template #centerArea>
       <div class="editor-center-wrap">
@@ -656,30 +580,5 @@ watch(
   flex: 1;
   min-height: 0;
   overflow: auto;
-}
-
-.title-bar-center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  width: 100%;
-  -webkit-app-region: drag;
-  user-select: none;
-  font-size: 14px;
-  /* 确保整个区域都可以拖动 */
-  min-width: 0;
-  flex: 1;
-}
-
-.title-bar-system-spacer {
-  width: 0;
-  height: 100%;
-  -webkit-app-region: drag;
-  pointer-events: none;
-}
-
-.title-bar-system-spacer.windows {
-  width: 150px;
 }
 </style>

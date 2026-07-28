@@ -15,3 +15,7 @@ ignore/
 
 packages/rpc/tsconfig.tsbuildinfo
 docs/superpowers
+
+# Local HarmonyOS/DevEco build outputs and unstripped debug libraries.
+harmony/electron-harmonyos-pc/lib.unstripped/
+.playwright-cli/

@@ -5,6 +5,7 @@ import {
   app,
   nativeTheme,
   protocol,
+  systemPreferences,
   type MessageBoxOptions,
   type WebContents,
   type OpenDialogOptions
@@ -16,7 +17,6 @@ import { appLogger } from '../logging/winstonLogger'
 import type { MainContext } from '../runtime/context'
 import { createEditorWindow } from '../windows/editorWindow'
 import { createPlayerWindow } from '../windows/playerWindow'
-import { createCastWindow } from '../windows/castWindow'
 import { fileApi } from '../fileUtils'
 import { createLogsWindow } from '../windows/logsWindow'
 import {
@@ -30,20 +30,48 @@ import { createSettingsWindow } from '../windows/settingsWindow'
 import { createPluginStoreWindow } from '../windows/pluginStoreWindow'
 import { createMainWindow } from '../windows/mainWindow'
 import { windowManager } from '../windows/windowManager'
-import { applyTitleBarOverlay, OverlayTheme } from '../windows/titleBarOverlay'
 import { applyIpcControllers } from '../ipc/decorators'
 import { LoggingIpcController } from '../ipc/loggingController'
 import { HttpApiController } from '../ipc/httpApiController'
-import { CastController } from '../ipc/castController'
 import { getSharedConfig, setSharedConfig } from '../state/sharedConfigStore'
 import axios from 'axios'
 import https from 'https'
 import { parseExamConfig, validateExamConfig } from '@dsz-examaware/core'
 import { ReminderSoundPackStore } from '../reminderSoundPackStore'
+import { isHarmonyOS } from '../platform'
 import {
   createReminderSoundProtocolHandler,
   registerReminderSoundPackIpc
 } from '../reminderSoundPackIpc'
+
+type HarmonySystemPreferences = {
+  requestDirectoryPermission?: () => Promise<boolean>
+  openApplicationInfoEntry?: () => void
+  fileAccessPersist?: (paths: string[]) => Promise<boolean[]>
+  activateFileAccessPersist?: (paths: string[]) => Promise<boolean[]>
+  requestNotificationPermission?: () => void
+  checkNotificationEnabled?: () => Promise<boolean>
+}
+
+const harmonyPreferences = systemPreferences as typeof systemPreferences & HarmonySystemPreferences
+
+async function persistHarmonyFileAccess(paths: string[]): Promise<void> {
+  if (!isHarmonyOS || paths.length === 0 || !harmonyPreferences.fileAccessPersist) return
+  try {
+    await harmonyPreferences.fileAccessPersist(paths)
+  } catch (error) {
+    appLogger.warn('[hmos] failed to persist file access', error as Error)
+  }
+}
+
+async function activateHarmonyFileAccess(paths: string[]): Promise<void> {
+  if (!isHarmonyOS || paths.length === 0 || !harmonyPreferences.activateFileAccessPersist) return
+  try {
+    await harmonyPreferences.activateFileAccessPersist(paths)
+  } catch (error) {
+    appLogger.warn('[hmos] failed to activate persisted file access', error as Error)
+  }
+}
 
 // minimal disposer group for main process
 function createDisposerGroup() {
@@ -88,7 +116,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
     path.join(app.getPath('userData'), 'reminder-sound-packs')
   )
   const disposeIpcDecorators = applyIpcControllers(
-    [new LoggingIpcController(), new HttpApiController(), new CastController()],
+    [new LoggingIpcController(), new HttpApiController()],
     ctx
   )
   group.add(disposeIpcDecorators)
@@ -97,7 +125,11 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
       if (ctx) ctx.ipc.handle(channel, listener as Parameters<typeof ipcMain.handle>[1])
       else group.add(handle(channel, listener as Parameters<typeof ipcMain.handle>[1]))
     },
-    showOpenDialog: (options) => dialog.showOpenDialog(options),
+    showOpenDialog: async (options) => {
+      const result = await dialog.showOpenDialog(options)
+      if (!result.canceled) await persistHarmonyFileAccess(result.filePaths)
+      return result
+    },
     store: reminderSoundPackStore
   })
   const reminderSoundProtocolHandler = createReminderSoundProtocolHandler(reminderSoundPackStore)
@@ -242,6 +274,48 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
   if (ctx) ctx.ipc.handle('app:get-version', () => app.getVersion())
   else group.add(handle('app:get-version', () => app.getVersion()))
 
+  const getHarmonyNativeInfo = async () => {
+    if (!isHarmonyOS) {
+      return { supported: false, notificationEnabled: false }
+    }
+    let notificationEnabled = false
+    try {
+      notificationEnabled = (await harmonyPreferences.checkNotificationEnabled?.()) ?? false
+    } catch (error) {
+      appLogger.warn('[hmos] checkNotificationEnabled failed', error as Error)
+    }
+    return { supported: true, notificationEnabled }
+  }
+
+  const requestHarmonyNotification = () => {
+    if (!isHarmonyOS || !harmonyPreferences.requestNotificationPermission) return false
+    harmonyPreferences.requestNotificationPermission()
+    return true
+  }
+
+  const requestHarmonyUserDirectories = async () => {
+    if (!isHarmonyOS || !harmonyPreferences.requestDirectoryPermission) return false
+    return harmonyPreferences.requestDirectoryPermission()
+  }
+
+  const openHarmonyApplicationInfo = () => {
+    if (!isHarmonyOS || !harmonyPreferences.openApplicationInfoEntry) return false
+    harmonyPreferences.openApplicationInfoEntry()
+    return true
+  }
+
+  if (ctx) {
+    ctx.ipc.handle('hmos:native-info', getHarmonyNativeInfo)
+    ctx.ipc.handle('hmos:request-notification', requestHarmonyNotification)
+    ctx.ipc.handle('hmos:request-user-directories', requestHarmonyUserDirectories)
+    ctx.ipc.handle('hmos:open-application-info', openHarmonyApplicationInfo)
+  } else {
+    group.add(handle('hmos:native-info', getHarmonyNativeInfo))
+    group.add(handle('hmos:request-notification', requestHarmonyNotification))
+    group.add(handle('hmos:request-user-directories', requestHarmonyUserDirectories))
+    group.add(handle('hmos:open-application-info', openHarmonyApplicationInfo))
+  }
+
   // Handle set config data (called from playerWindow)
   if (ctx)
     ctx.ipc.on('set-config', (_event, data: string) => {
@@ -265,17 +339,6 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
     group.add(
       on('open-editor-window', () => {
         createEditorWindow()
-      })
-    )
-
-  if (ctx)
-    ctx.ipc.on('open-cast-window', () => {
-      createCastWindow()
-    })
-  else
-    group.add(
-      on('open-cast-window', () => {
-        createCastWindow()
       })
     )
 
@@ -389,8 +452,8 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
   // ===== 自启动（开机启动） =====
   const getAutoStart = () => {
     try {
-      // macOS / Windows：内置 API
-      if (process.platform === 'darwin' || process.platform === 'win32') {
+      // HarmonyOS, macOS and Windows use Electron's native login-item API.
+      if (isHarmonyOS || process.platform === 'darwin' || process.platform === 'win32') {
         const s = app.getLoginItemSettings()
         return !!s.openAtLogin
       }
@@ -407,7 +470,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
   }
   const setAutoStart = (enable: boolean) => {
     try {
-      if (process.platform === 'darwin' || process.platform === 'win32') {
+      if (isHarmonyOS || process.platform === 'darwin' || process.platform === 'win32') {
         app.setLoginItemSettings({ openAtLogin: enable })
         return true
       }
@@ -670,19 +733,6 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
       })
     )
 
-  // 更新窗口标题栏主题（Windows overlay 控制按钮）
-  const onTitlebarTheme = (event: Electron.IpcMainEvent, theme: OverlayTheme) => {
-    const window = BrowserWindow.fromWebContents(event.sender)
-    if (!window) return
-    applyTitleBarOverlay(window, theme)
-  }
-
-  if (ctx) {
-    ctx.ipc.on('window-titlebar-theme', onTitlebarTheme)
-  } else {
-    group.add(on('window-titlebar-theme', onTitlebarTheme))
-  }
-
   // 由渲染进程设置 nativeTheme，支持跟随应用主题
   const onNativeThemeSet = (_event: Electron.IpcMainEvent, source: 'light' | 'dark' | 'system') => {
     if (source !== 'light' && source !== 'dark' && source !== 'system') return
@@ -741,6 +791,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
       if (result.canceled) {
         return null
       } else {
+        await persistHarmonyFileAccess(result.filePaths)
         return result.filePaths[0]
       }
     })
@@ -758,6 +809,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
         if (result.canceled) {
           return null
         } else {
+          await persistHarmonyFileAccess(result.filePaths)
           return result.filePaths[0]
         }
       })
@@ -766,6 +818,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
   if (ctx)
     ctx.ipc.handle('read-file', async (_event, filePath: string) => {
       try {
+        await activateHarmonyFileAccess([filePath])
         const content = await fileApi.readFile(filePath)
         return content
       } catch (error) {
@@ -777,6 +830,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
     group.add(
       handle('read-file', async (_event, filePath: string) => {
         try {
+          await activateHarmonyFileAccess([filePath])
           const content = await fileApi.readFile(filePath)
           return content
         } catch (error) {
@@ -789,6 +843,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
   if (ctx)
     ctx.ipc.handle('save-file', async (_e, filePath: string, content: string) => {
       try {
+        await activateHarmonyFileAccess([filePath])
         await fileApi.writeFile(filePath, content)
         return true
       } catch (error) {
@@ -800,6 +855,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
     group.add(
       handle('save-file', async (_e, filePath: string, content: string) => {
         try {
+          await activateHarmonyFileAccess([filePath])
           await fileApi.writeFile(filePath, content)
           return true
         } catch (error) {
@@ -822,6 +878,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
       if (result.canceled) {
         return null
       } else {
+        if (result.filePath) await persistHarmonyFileAccess([result.filePath])
         return result.filePath
       }
     })
@@ -839,6 +896,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
         if (result.canceled) {
           return null
         } else {
+          if (result.filePath) await persistHarmonyFileAccess([result.filePath])
           return result.filePath
         }
       })
@@ -864,6 +922,7 @@ export function registerIpcHandlers(ctx?: MainContext): () => void {
     if (result.canceled) {
       return null
     }
+    await persistHarmonyFileAccess(result.filePaths)
     return result.filePaths[0]
   }
 

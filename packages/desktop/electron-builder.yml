@@ -23,8 +23,7 @@ fileAssociations:
     mimeType: application/json
     role: Editor
     icon: build/icon
-asarUnpack:
-  - resources/**
+asar: false
 win:
   executableName: ExamAware
   target:

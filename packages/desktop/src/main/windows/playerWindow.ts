@@ -1,9 +1,10 @@
-import { ipcMain, type BrowserWindow } from 'electron'
+import { ipcMain, powerSaveBlocker, type BrowserWindow } from 'electron'
 import * as fs from 'fs'
 import { is } from '@electron-toolkit/utils'
 import { windowManager } from './windowManager'
 import { appLogger } from '../logging/winstonLogger'
 import { setSharedConfig } from '../state/sharedConfigStore'
+import { isHarmonyOS } from '../platform'
 
 interface PlayerConfigStatus {
   ok: boolean
@@ -30,6 +31,20 @@ export function createPlayerWindow(configPath: string): BrowserWindow {
         kiosk: !is.dev
       },
       setup: (playerWindow) => {
+        let displaySleepBlockerId: number | null = null
+        const keepHarmonyDisplayAwake = () => {
+          if (!isHarmonyOS || displaySleepBlockerId !== null) return
+          try {
+            displaySleepBlockerId = powerSaveBlocker.start('prevent-display-sleep')
+            appLogger.info('[player] HarmonyOS display sleep blocker started', {
+              id: displaySleepBlockerId
+            })
+          } catch (error) {
+            appLogger.warn('[player] failed to keep HarmonyOS display awake', error as Error)
+          }
+        }
+        playerWindow.on('show', keepHarmonyDisplayAwake)
+
         if (!is.dev) {
           playerWindow.setAlwaysOnTop(true, 'screen-saver')
         }
@@ -155,6 +170,23 @@ export function createPlayerWindow(configPath: string): BrowserWindow {
 
         // 返回清理函数供 WindowManager 调用
         return () => {
+          playerWindow.off('show', keepHarmonyDisplayAwake)
+          if (displaySleepBlockerId !== null) {
+            try {
+              if (powerSaveBlocker.isStarted(displaySleepBlockerId)) {
+                powerSaveBlocker.stop(displaySleepBlockerId)
+              }
+              appLogger.info('[player] HarmonyOS display sleep blocker stopped', {
+                id: displaySleepBlockerId
+              })
+            } catch (error) {
+              appLogger.warn(
+                '[player] failed to release HarmonyOS display sleep blocker',
+                error as Error
+              )
+            }
+            displaySleepBlockerId = null
+          }
           ipcMain.off(exitChannel, onRendererExit)
           ipcMain.off('renderer:ready', onRendererReady)
           ipcMain.off('player:config-status', onConfigStatus)

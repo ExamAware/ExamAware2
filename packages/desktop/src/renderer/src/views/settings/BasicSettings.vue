@@ -38,48 +38,71 @@
             <t-date-picker v-model="termStart" clearable="false" format="YYYY/M/D" />
           </div>
         </div>
+      </t-card>
+
+      <t-card v-if="isHarmonyOS" title="鸿蒙系统" theme="poster2">
+        <div class="settings-item">
+          <div class="settings-item-icon">
+            <TIcon name="notification" size="22px" />
+          </div>
+          <div class="settings-item-main">
+            <div class="settings-item-title">系统通知</div>
+            <div class="settings-item-desc">管理 ExamAware 的鸿蒙系统通知权限。</div>
+          </div>
+          <div class="settings-item-action">
+            <t-space align="center">
+              <t-tag :theme="notificationEnabled ? 'success' : 'warning'" variant="light">
+                {{ notificationEnabled ? '已授权' : '未授权' }}
+              </t-tag>
+              <t-button
+                size="small"
+                variant="outline"
+                :disabled="notificationEnabled"
+                :loading="notificationLoading"
+                @click="requestNotification"
+              >
+                请求授权
+              </t-button>
+            </t-space>
+          </div>
+        </div>
 
         <t-divider />
 
         <div class="settings-item">
           <div class="settings-item-icon">
-            <TIcon name="view-module" size="22px" />
+            <TIcon name="folder-open" size="22px" />
           </div>
           <div class="settings-item-main">
-            <div class="settings-item-title">托盘弹窗失焦自动隐藏</div>
-            <div class="settings-item-desc">
-              启用后，托盘弹窗窗口在失去焦点时自动隐藏（显示后有保护期防止秒关）。默认开启。
-            </div>
+            <div class="settings-item-title">用户文件目录</div>
+            <div class="settings-item-desc">授权访问下载、桌面和文档目录。</div>
           </div>
           <div class="settings-item-action">
-            <t-switch
-              v-model="trayAutoHide"
-              :label="[
-                { value: true, label: '开' },
-                { value: false, label: '关' }
-              ]"
-            />
+            <t-button
+              size="small"
+              variant="outline"
+              :loading="directoryLoading"
+              @click="requestUserDirectories"
+            >
+              授权目录
+            </t-button>
           </div>
         </div>
 
-        <div class="settings-item" v-if="trayAutoHide">
+        <t-divider />
+
+        <div class="settings-item">
           <div class="settings-item-icon">
-            <TIcon name="time" size="22px" />
+            <TIcon name="setting" size="22px" />
           </div>
           <div class="settings-item-main">
-            <div class="settings-item-title">失焦保护期</div>
-            <div class="settings-item-desc">
-              窗口显示后在此毫秒数内的失焦不会自动隐藏，避免快速点击或系统激活导致闪退。
-            </div>
+            <div class="settings-item-title">应用系统设置</div>
+            <div class="settings-item-desc">在鸿蒙系统设置中管理应用权限与运行选项。</div>
           </div>
-          <div class="settings-item-action" style="display: flex; align-items: center; gap: 8px">
-            <t-input-number
-              v-model="trayProtectionMs"
-              :min="0"
-              :step="50"
-              suffix="毫秒"
-              style="width: 180px"
-            />
+          <div class="settings-item-action">
+            <t-button size="small" variant="outline" @click="openApplicationInfo">
+              打开应用信息
+            </t-button>
           </div>
         </div>
       </t-card>
@@ -88,9 +111,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useSettingRef } from '@renderer/composables/useSetting'
 import { Icon as TIcon } from 'tdesign-icons-vue-next'
+import { MessagePlugin } from 'tdesign-vue-next'
 
 const autoStart = useSettingRef<boolean>('behavior.autoStart', false)
 
@@ -111,6 +135,7 @@ watch(autoStart, async (v) => {
 
 onMounted(() => {
   syncAutoStartFromSystem()
+  loadHarmonyInfo()
 })
 
 const termStart = useSettingRef<string>(
@@ -122,10 +147,56 @@ const termStart = useSettingRef<string>(
   }
 )
 
-// 托盘弹窗失焦自动隐藏
-const trayAutoHide = useSettingRef<boolean>('tray.autoHideOnBlur', true)
-// 保护期毫秒（默认 400ms）
-const trayProtectionMs = useSettingRef<number>('tray.autoHideProtectionMs', 400)
+const isHarmonyOS = window.electronAPI.platform === 'openharmony'
+const notificationEnabled = ref(false)
+const notificationLoading = ref(false)
+const directoryLoading = ref(false)
+
+async function loadHarmonyInfo() {
+  if (!isHarmonyOS) return
+  try {
+    const info = await window.api.system.harmony.getInfo()
+    notificationEnabled.value = info.notificationEnabled
+  } catch (error) {
+    console.error('读取鸿蒙系统信息失败', error)
+  }
+}
+
+async function requestNotification() {
+  notificationLoading.value = true
+  try {
+    const requested = await window.api.system.harmony.requestNotification()
+    if (!requested) throw new Error('notification permission API unavailable')
+    MessagePlugin.info('已提交系统通知授权请求')
+    window.setTimeout(() => loadHarmonyInfo(), 800)
+  } catch (error) {
+    MessagePlugin.error('请求通知权限失败')
+  } finally {
+    notificationLoading.value = false
+  }
+}
+
+async function requestUserDirectories() {
+  directoryLoading.value = true
+  try {
+    const granted = await window.api.system.harmony.requestUserDirectories()
+    if (granted) MessagePlugin.success('用户文件目录已授权')
+    else MessagePlugin.warning('未获得用户文件目录权限')
+  } catch (error) {
+    MessagePlugin.error('请求目录权限失败')
+  } finally {
+    directoryLoading.value = false
+  }
+}
+
+async function openApplicationInfo() {
+  try {
+    const opened = await window.api.system.harmony.openApplicationInfo()
+    if (!opened) throw new Error('application info API unavailable')
+  } catch (error) {
+    MessagePlugin.error('打开系统应用信息失败')
+  }
+}
 </script>
 
 <style scoped></style>

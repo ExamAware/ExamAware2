@@ -1,10 +1,5 @@
 import { app, BrowserWindow } from 'electron'
 import { windowManager } from './windowManager'
-import {
-  buildTitleBarOverlay,
-  applyTitleBarOverlay,
-  attachTitleBarOverlayLifecycle
-} from './titleBarOverlay'
 import { appLogger } from '../logging/winstonLogger'
 
 export function createMainWindow(): BrowserWindow {
@@ -15,17 +10,7 @@ export function createMainWindow(): BrowserWindow {
       ...commonOptions(),
       width: 720,
       height: 480,
-      // 使用系统自带窗口控制按钮，隐藏默认标题栏并启用 overlay（Windows/macOS）
-      ...(process.platform !== 'linux'
-        ? {
-            titleBarStyle: 'hidden' as const,
-            titleBarOverlay: buildTitleBarOverlay()
-          }
-        : {}),
-      webPreferences: {
-        ...commonOptions().webPreferences,
-        nodeIntegration: true
-      },
+      title: 'ExamAware',
       ...(process.platform === 'linux'
         ? { icon: require('path').join(__dirname, '../../resources/icon.png') }
         : {})
@@ -36,8 +21,6 @@ export function createMainWindow(): BrowserWindow {
       }
       const FORCE_CLOSE_FLAG = '__ea_force_close__'
       log('setup start; isDestroyed?', win.isDestroyed())
-      applyTitleBarOverlay(win)
-      attachTitleBarOverlayLifecycle(win)
       if (process.platform === 'darwin') {
         const ensureDockVisible = (() => {
           let lastInvoke = 0

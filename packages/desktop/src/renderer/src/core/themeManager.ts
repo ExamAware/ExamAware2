@@ -19,18 +19,6 @@ function syncNativeThemeSource(mode: ThemeMode) {
   }
 }
 
-function syncTitlebarOverlay(mode: 'light' | 'dark') {
-  try {
-    if (typeof window === 'undefined') return
-    const api = window.electronAPI
-    if (!api || api.platform !== 'win32') return
-    if (typeof api.setTitlebarTheme !== 'function') return
-    api.setTitlebarTheme(mode)
-  } catch (error) {
-    logger.warn('sync titlebar overlay failed', error as any)
-  }
-}
-
 function setDomTheme(mode: 'light' | 'dark') {
   const doc = document.documentElement
   if (mode === 'dark') {
@@ -40,7 +28,6 @@ function setDomTheme(mode: 'light' | 'dark') {
     doc.classList.remove('dark')
     doc.setAttribute('theme-mode', 'light')
   }
-  syncTitlebarOverlay(mode)
 }
 
 function teardownAutoListener() {

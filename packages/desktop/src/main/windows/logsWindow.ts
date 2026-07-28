@@ -7,12 +7,6 @@ export function createLogsWindow(): BrowserWindow {
       ...commonOptions(),
       width: 900,
       height: 640,
-      ...(process.platform !== 'linux'
-        ? {
-            titleBarStyle: 'hidden' as const,
-            titleBarOverlay: { color: 'rgba(0,0,0,0)', height: 35, symbolColor: '#fff' }
-          }
-        : {}),
       title: '日志'
     }
 

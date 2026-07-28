@@ -16,7 +16,6 @@ declare module 'vue' {
     ActionButtonBar: typeof import('./src/components/player/ActionButtonBar.vue')['default']
     BaseCard: typeof import('./src/components/player/BaseCard.vue')['default']
     CurrentExamInfo: typeof import('./src/components/player/CurrentExamInfo.vue')['default']
-    CustomTitleBar: typeof import('./src/components/CustomTitleBar.vue')['default']
     ExamForm: typeof import('./src/components/ExamForm.vue')['default']
     ExamInfoItem: typeof import('./src/components/player/ExamInfoItem.vue')['default']
     ExamList: typeof import('./src/components/ExamList.vue')['default']
@@ -26,7 +25,6 @@ declare module 'vue' {
     HomeButtonsGrid: typeof import('./src/components/HomeButtonsGrid.vue')['default']
     InfoCardWithIcon: typeof import('./src/components/player/InfoCardWithIcon.vue')['default']
     InfoItem: typeof import('./src/components/player/InfoItem.vue')['default']
-    NearbySharePanel: typeof import('./src/components/NearbySharePanel.vue')['default']
     OperationHistoryPanel: typeof import('./src/components/OperationHistoryPanel.vue')['default']
     PluginPanelHost: typeof import('./src/components/PluginPanelHost.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
@@ -86,8 +84,6 @@ declare module 'vue' {
     TTextarea: typeof import('tdesign-vue-next')['Textarea']
     TTooltip: typeof import('tdesign-vue-next')['Tooltip']
     ValidationPanel: typeof import('./src/components/ValidationPanel.vue')['default']
-    WindowControls: typeof import('./src/components/WindowControls.vue')['default']
-    WindowFrame: typeof import('./src/components/WindowFrame.vue')['default']
   }
 }
 
@@ -97,7 +93,6 @@ declare global {
   const ActionButtonBar: typeof import('./src/components/player/ActionButtonBar.vue')['default']
   const BaseCard: typeof import('./src/components/player/BaseCard.vue')['default']
   const CurrentExamInfo: typeof import('./src/components/player/CurrentExamInfo.vue')['default']
-  const CustomTitleBar: typeof import('./src/components/CustomTitleBar.vue')['default']
   const ExamForm: typeof import('./src/components/ExamForm.vue')['default']
   const ExamInfoItem: typeof import('./src/components/player/ExamInfoItem.vue')['default']
   const ExamList: typeof import('./src/components/ExamList.vue')['default']
@@ -107,7 +102,6 @@ declare global {
   const HomeButtonsGrid: typeof import('./src/components/HomeButtonsGrid.vue')['default']
   const InfoCardWithIcon: typeof import('./src/components/player/InfoCardWithIcon.vue')['default']
   const InfoItem: typeof import('./src/components/player/InfoItem.vue')['default']
-  const NearbySharePanel: typeof import('./src/components/NearbySharePanel.vue')['default']
   const OperationHistoryPanel: typeof import('./src/components/OperationHistoryPanel.vue')['default']
   const PluginPanelHost: typeof import('./src/components/PluginPanelHost.vue')['default']
   const RouterLink: typeof import('vue-router')['RouterLink']
@@ -167,6 +161,4 @@ declare global {
   const TTextarea: typeof import('tdesign-vue-next')['Textarea']
   const TTooltip: typeof import('tdesign-vue-next')['Tooltip']
   const ValidationPanel: typeof import('./src/components/ValidationPanel.vue')['default']
-  const WindowControls: typeof import('./src/components/WindowControls.vue')['default']
-  const WindowFrame: typeof import('./src/components/WindowFrame.vue')['default']
 }

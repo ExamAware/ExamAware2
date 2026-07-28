@@ -21,9 +21,8 @@ import {
   getCurrentTimeMs
 } from './ntpService/timeService'
 import { httpApiService } from './http/httpApiService'
-import { castService } from './cast/castService'
 import { createMainContext } from './runtime/context'
-import { ensureAppTray, shouldSuppressActivate, isTrayPopoverVisible } from './tray'
+import { ensureAppTray, shouldSuppressActivate } from './tray'
 import { PluginHost, createFilePreferenceStore } from './plugin'
 import { deepLinkManager, type DeepLinkService } from './runtime/deepLink'
 import type { DeepLinkPayload } from '../shared/types/deepLink'
@@ -32,7 +31,14 @@ import { CoreDeepLinkController } from './deepLink/coreDeepLinkController'
 import { composeVersionLabel } from '../shared/appInfo'
 import { flushConfig } from './configStore'
 import { createShutdownCoordinator } from './shutdownCoordinator'
+import { isHarmonyOS } from './platform'
 import bannerText from './banner.txt?raw'
+
+if (isHarmonyOS) {
+  // The current HarmonyOS EGL backend loses its context continuously on 2-in-1 devices.
+  // Software rendering keeps Chromium's compositor stable until the native backend is fixed.
+  app.disableHardwareAcceleration()
+}
 
 protocol.registerSchemesAsPrivileged([
   {
@@ -92,7 +98,6 @@ patchConsoleWithLogger()
 initLoggingConfig()
 appLogger.info('Logger initialized')
 httpApiService.loadConfig()
-castService.loadConfig()
 
 let pluginHost: PluginHost | null = null
 let disposeDeepLinks = () => {}
@@ -156,8 +161,9 @@ if (envEditorData) {
   })
 }
 
-// 单实例锁，确保协议调用复用已有实例
-const gotLock = app.requestSingleInstanceLock()
+// HarmonyOS uses the UIAbility launchType for instance management. Electron's
+// requestSingleInstanceLock/second-instance APIs are not implemented there.
+const gotLock = isHarmonyOS || app.requestSingleInstanceLock()
 if (!gotLock) {
   app.quit()
   process.exit(0)
@@ -179,9 +185,6 @@ const handleBeforeQuit = createShutdownCoordinator({
       void httpApiService.dispose()
     } catch {}
     try {
-      void castService.dispose()
-    } catch {}
-    try {
       disposeDeepLinks()
     } catch {}
     try {
@@ -194,29 +197,33 @@ const handleBeforeQuit = createShutdownCoordinator({
 })
 app.on('before-quit', handleBeforeQuit)
 
-app.on('second-instance', (_event, argv) => {
-  const deepLinkArg = argv.find((arg) => arg.startsWith('examaware://'))
-  if (deepLinkArg) {
-    deepLinkManager.enqueue(deepLinkArg)
-  }
-  try {
-    const main = windowManager.get('main') ?? createMainWindow()
-    if (main) {
-      if (main.isMinimized()) main.restore()
-      if (!main.isVisible()) main.show()
-      main.focus()
+if (!isHarmonyOS) {
+  app.on('second-instance', (_event, argv) => {
+    const deepLinkArg = argv.find((arg) => arg.startsWith('examaware://'))
+    if (deepLinkArg) {
+      deepLinkManager.enqueue(deepLinkArg)
     }
-  } catch (error) {
-    appLogger.error('[deeplink] failed to revive main window on second-instance', error as Error)
-  }
-})
+    try {
+      const main = windowManager.get('main') ?? createMainWindow()
+      if (main) {
+        if (main.isMinimized()) main.restore()
+        if (!main.isVisible()) main.show()
+        main.focus()
+      }
+    } catch (error) {
+      appLogger.error('[deeplink] failed to revive main window on second-instance', error as Error)
+    }
+  })
+}
 
 app.whenReady().then(async () => {
   const mainContext = createMainContext()
   const _mainCtx = mainContext.ctx
   disposeMainCtx = mainContext.dispose
   windowManager.setContext(_mainCtx)
-  electronApp.setAppUserModelId('org.examaware')
+  if (!isHarmonyOS) {
+    electronApp.setAppUserModelId('org.examaware')
+  }
   ensurePluginProtocol()
   ensureExamawareProtocol()
 
@@ -231,13 +238,6 @@ app.whenReady().then(async () => {
     await httpApiService.start()
   } catch (error) {
     appLogger.error('Failed to start HTTP API', error as Error)
-  }
-
-  // 启动共享与投送服务（独立于 HTTP API）
-  try {
-    await castService.start()
-  } catch (error) {
-    appLogger.error('Failed to start Cast service', error as Error)
   }
 
   // 初始化时间同步服务
@@ -344,7 +344,7 @@ app.whenReady().then(async () => {
 
   const isAutoStart = (() => {
     try {
-      if (process.platform === 'darwin' || process.platform === 'win32') {
+      if (isHarmonyOS || process.platform === 'darwin' || process.platform === 'win32') {
         const s = app.getLoginItemSettings?.()
         if (s && (s as any).wasOpenedAtLogin) return true
       }
@@ -363,26 +363,22 @@ app.whenReady().then(async () => {
     createMainWindow()
   }
 
-  app.on('activate', function () {
-    // 避免由托盘点击引发的 activate 误打开主窗口
-    const suppressed = shouldSuppressActivate()
-    const trayVisible = isTrayPopoverVisible()
-    if (suppressed || trayVisible) {
+  if (!isHarmonyOS) {
+    app.on('activate', function () {
+      // Avoid opening the main window when activation came from a tray click.
+      const suppressed = shouldSuppressActivate()
+      if (suppressed) {
+        try {
+          appLogger.debug('[app] activate suppressed. suppressed =', suppressed)
+        } catch {}
+        return
+      }
       try {
-        appLogger.debug(
-          '[app] activate suppressed. suppressed =',
-          suppressed,
-          'trayVisible =',
-          trayVisible
-        )
+        appLogger.debug('[app] activate: window count =', BrowserWindow.getAllWindows().length)
       } catch {}
-      return
-    }
-    try {
-      appLogger.debug('[app] activate: window count =', BrowserWindow.getAllWindows().length)
-    } catch {}
-    if (BrowserWindow.getAllWindows().length === 0) createMainWindow()
-  })
+      if (BrowserWindow.getAllWindows().length === 0) createMainWindow()
+    })
+  }
 
   // 设置应用菜单（macOS）：About/Preferences 等，与设置页联动
   if (process.platform === 'darwin') {
@@ -438,6 +434,8 @@ app.whenReady().then(async () => {
 let pluginProtocolRegistered = false
 
 function ensureExamawareProtocol() {
+  // HarmonyOS registers the scheme in module.json5 and delivers it via open-url.
+  if (isHarmonyOS) return
   try {
     // Windows 开发环境需要带上可执行路径；生产环境直接注册即可
     if (process.platform === 'win32' && process.defaultApp && process.argv.length >= 2) {

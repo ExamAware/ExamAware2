@@ -17,6 +17,8 @@
     "player:dev": "pnpm --filter @dsz-examaware/player dev",
     "web:build": "pnpm --filter @dsz-examaware/web build",
     "web:dev": "pnpm --filter @dsz-examaware/web dev",
+    "desktop:build:hmos": "pnpm --filter @dsz-examaware/desktop build:hmos",
+    "desktop:build:hmos:hap": "pnpm --filter @dsz-examaware/desktop build:hmos:hap",
     "desktop:build:win": "pnpm --filter @dsz-examaware/desktop build:win",
     "desktop:build:mac": "pnpm --filter @dsz-examaware/desktop build:mac",
     "desktop:build:linux": "pnpm --filter @dsz-examaware/desktop build:linux",

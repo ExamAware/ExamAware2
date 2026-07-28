@@ -1,28 +1,13 @@
 import { BrowserWindow } from 'electron'
 import { windowManager } from './windowManager'
-import {
-  buildTitleBarOverlay,
-  applyTitleBarOverlay,
-  attachTitleBarOverlayLifecycle
-} from './titleBarOverlay'
 
 export function createEditorWindow(filePath?: string): BrowserWindow {
   return windowManager.open(({ commonOptions }) => {
     const winOptions: Electron.BrowserWindowConstructorOptions = {
       ...commonOptions(),
       width: 920,
-      height: 700
-    }
-
-    if (process.platform !== 'linux') {
-      winOptions.titleBarStyle = 'hidden'
-      ;(winOptions as any).titleBarOverlay = {
-        ...buildTitleBarOverlay()
-      }
-      // macOS 交通灯位置可选
-      if (process.platform === 'darwin') {
-        ;(winOptions as any).trafficLightPosition = { x: 10, y: 10 }
-      }
+      height: 700,
+      title: '考试编辑器'
     }
 
     return {
@@ -30,8 +15,6 @@ export function createEditorWindow(filePath?: string): BrowserWindow {
       route: 'editor',
       options: winOptions,
       setup(win) {
-        applyTitleBarOverlay(win)
-        attachTitleBarOverlayLifecycle(win)
         const FORCE_CLOSE_FLAG = '__ea_force_close__'
 
         // Intercept close to ask renderer; renderer will call back with window-close IPC when confirmed

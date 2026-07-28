@@ -32,12 +32,7 @@ export async function createEauiWindowForPlugin(
   // In main renderer: spawn the dedicated Electron window, then bail out.
   if (!isPluginWindow) {
     try {
-      const extraOptions: BrowserWindowConstructorOptions = {
-        frame: false,
-        titleBarStyle: 'hidden',
-        titleBarOverlay: { height: 36 },
-        ...(options.electronWindow?.extraOptions ?? {})
-      }
+      const extraOptions = options.electronWindow?.extraOptions ?? {}
 
       const opened = await (ctx as any)?.desktopApi?.ui?.windows?.open?.({
         id: routeId,

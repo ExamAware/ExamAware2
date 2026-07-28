@@ -102,13 +102,6 @@ export const settingsModule: AppModule = {
         component: () => import('@renderer/views/settings/HttpApiSettings.vue')
       },
       {
-        id: 'cast',
-        label: '共享与投送',
-        icon: 'share',
-        order: 2,
-        component: () => import('@renderer/views/settings/CastSettings.vue')
-      },
-      {
         id: 'logging',
         label: '日志',
         icon: 'file-search',

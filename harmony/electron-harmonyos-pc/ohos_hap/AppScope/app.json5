@@ -1,0 +1,11 @@
+{
+  "app": {
+    "bundleName": "org.examaware.desktop2",
+    "vendor": "ExamAware Team",
+    "versionCode": 1004003,
+    "versionName": "1.4.3",
+    "icon": "$media:app_icon",
+    "label": "$string:app_name",
+    "configuration": "$profile:configuration"
+  }
+}

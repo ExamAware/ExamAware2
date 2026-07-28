@@ -12,16 +12,7 @@ export default async function setupRenderer(ctx: PluginRuntimeContext) {
         width: 760,
         height: 640,
         resizable: true,
-        fullscreenable: false,
-        extraOptions: {
-          frame: false,
-          titleBarStyle: 'hidden',
-          titleBarOverlay: {
-            color: '#ffffff',
-            symbolColor: '#000000',
-            height: 36
-          }
-        }
+        fullscreenable: false
       },
       buildUi: (runtimeCtx) => {
         const eaui = runtimeCtx.ui?.eaui
@@ -31,7 +22,7 @@ export default async function setupRenderer(ctx: PluginRuntimeContext) {
           return
         }
 
-        // Drive the WindowFrame title via document.title instead of an inner eaui header.
+        // Keep the native window title in sync with the plugin content.
         document.title = 'Example Plugin'
 
         const windowId = routeId
