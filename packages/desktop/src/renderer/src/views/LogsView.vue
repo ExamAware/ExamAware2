@@ -140,27 +140,27 @@ const filtered = computed(() => {
 
 const clearLogs = () => {
   rows.splice(0, rows.length)
-  window.api?.ipc?.send('logs:clear')
+  window.api.logging.clearLogs()
 }
 
 onMounted(async () => {
   document.title = '日志 - ExamAware'
   // 初始加载
-  const initial = await window.api?.ipc?.invoke('logs:get')
+  const initial = await window.api.logging.getLogs()
   if (Array.isArray(initial)) {
     rows.splice(0, rows.length, ...initial)
   }
   // 订阅推送
-  const handler = (_e: any, entry: LogEntry) => {
+  const handler = (entry: LogEntry) => {
     rows.push(entry)
     if (followTail.value) {
       nextTick(() => scrollToBottom())
     }
   }
-  window.api?.ipc?.on('logs:push', handler)
+  const removeLogListener = window.api.logging.onLogAdded(handler)
   // 清理
   onBeforeUnmount(() => {
-    window.api?.ipc?.off('logs:push', handler)
+    removeLogListener()
   })
 })
 

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import type { PluginRuntimeContext } from '@dsz-examaware/plugin-sdk';
+import type { RendererPluginContext } from '@dsz-examaware/plugin-sdk';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => {
@@ -18,10 +18,10 @@ const mocks = vi.hoisted(() => {
 vi.mock('vue', () => ({ createApp: mocks.createApp }));
 vi.mock('../src/renderer/RingtoneFactoryView.vue', () => ({ default: mocks.component }));
 vi.mock('@dsz-examaware/plugin-sdk', () => ({
-  createEauiWindowForPlugin: vi.fn(
-    async (ctx: PluginRuntimeContext, options: { buildUi: (ctx: PluginRuntimeContext) => void }) =>
-      options.buildUi(ctx)
-  )
+  defineRendererPlugin:
+    (lifecycle: { activate(ctx: RendererPluginContext): unknown }) =>
+    (ctx: RendererPluginContext) =>
+      lifecycle.activate(ctx)
 }));
 
 import setupRenderer from '../src/renderer/main';
@@ -37,13 +37,16 @@ describe('ringtone factory renderer', () => {
   it('mounts and disposes the view with the plugin Vue runtime', async () => {
     const cleanups: Array<() => void> = [];
     const ctx = {
-      app: 'renderer',
+      process: 'renderer',
+      window: { kind: 'plugin', route: '/ringtone-factory' },
       logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
-      effect(factory: () => void | (() => void)) {
-        const cleanup = factory();
-        if (typeof cleanup === 'function') cleanups.push(cleanup);
+      scope: {
+        defer(cleanup: () => void) {
+          cleanups.push(cleanup);
+          return { dispose: cleanup };
+        }
       }
-    } as unknown as PluginRuntimeContext;
+    } as unknown as RendererPluginContext;
 
     await setupRenderer(ctx);
 

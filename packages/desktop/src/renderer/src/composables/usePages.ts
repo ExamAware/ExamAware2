@@ -1,8 +1,9 @@
 import { getCurrentInstance, inject, ref, onMounted, onBeforeUnmount } from 'vue'
 import type { PagesRegistry } from '@renderer/app/modules/pages'
+import { pagesKey } from '@renderer/app/injectionKeys'
 
 export function usePages(): PagesRegistry {
-  const injected = inject<PagesRegistry>('pages' as any)
+  const injected = inject(pagesKey)
   if (injected) return injected
   const inst = getCurrentInstance()
   const gp = inst?.appContext.config.globalProperties as any

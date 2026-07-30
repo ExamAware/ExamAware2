@@ -17,9 +17,11 @@ describe('ElectronTimeProvider lifecycle', () => {
   it('does not start its interval when destroyed during initialization', async () => {
     let resolveInfo!: (value: typeof syncInfo) => void
     const api = {
-      invoke: vi.fn(() => new Promise<typeof syncInfo>((resolve) => (resolveInfo = resolve))),
-      on: vi.fn(),
-      off: vi.fn()
+      getInfo: vi.fn(() => new Promise<typeof syncInfo>((resolve) => (resolveInfo = resolve))),
+      getTime: vi.fn(),
+      synchronize: vi.fn(),
+      updateConfig: vi.fn(),
+      onChanged: vi.fn(() => vi.fn())
     }
     const provider = new ElectronTimeProvider(api)
 
@@ -33,9 +35,11 @@ describe('ElectronTimeProvider lifecycle', () => {
 
   it('stops notifications and scheduled sync checks after destroy', async () => {
     const api = {
-      invoke: vi.fn().mockResolvedValue(syncInfo),
-      on: vi.fn(),
-      off: vi.fn()
+      getInfo: vi.fn().mockResolvedValue(syncInfo),
+      getTime: vi.fn(),
+      synchronize: vi.fn(),
+      updateConfig: vi.fn(),
+      onChanged: vi.fn(() => vi.fn())
     }
     const provider = new ElectronTimeProvider(api)
     const callback = vi.fn()
@@ -48,6 +52,6 @@ describe('ElectronTimeProvider lifecycle', () => {
     provider.destroy()
     vi.advanceTimersByTime(60_000)
     expect(callback).toHaveBeenCalledOnce()
-    expect(api.invoke).toHaveBeenCalledTimes(1)
+    expect(api.getInfo).toHaveBeenCalledTimes(1)
   })
 })

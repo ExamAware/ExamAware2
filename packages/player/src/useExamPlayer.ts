@@ -61,9 +61,6 @@ export function useExamPlayer(
   // 生命周期
   onMounted(() => {
     startTimeUpdates();
-    if (examConfigRef.value) {
-      updateConfig(examConfigRef.value);
-    }
   });
 
   onUnmounted(() => {

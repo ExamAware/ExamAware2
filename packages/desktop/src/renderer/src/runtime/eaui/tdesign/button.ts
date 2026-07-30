@@ -49,7 +49,7 @@ export class TDesignButtonImpl extends EauiWidgetBase implements TDesignButton {
             block: this.state.block,
             loading: this.state.loading,
             disabled: this.state.disabled,
-            onClick: (e: unknown) => this.clicked.emit(e)
+            onClick: (event: unknown) => this.clicked.emit(event as MouseEvent)
           },
           { default: () => this.state.text }
         )

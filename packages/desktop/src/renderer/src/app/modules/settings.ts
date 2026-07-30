@@ -1,5 +1,6 @@
 import { markRaw, type App, type Component } from 'vue'
 import type { AppModule } from '../types'
+import { settingsKey } from '../injectionKeys'
 
 export interface SettingsPageMeta {
   id: string
@@ -147,7 +148,7 @@ export const settingsModule: AppModule = {
     }
     ;(app.config.globalProperties as any).$settings = registry
     ctx.provides.settings = registry
-    if (ctx.provide) ctx.provide('settings', registry)
+    if (ctx.provide) ctx.provide(settingsKey, registry)
 
     const addSettingsPage = (ctx as any).addSettingsPage as
       | ((meta: SettingsPageMeta) => Promise<{ path: string; dispose: () => void }>)

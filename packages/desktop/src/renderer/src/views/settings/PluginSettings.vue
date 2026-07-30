@@ -289,7 +289,7 @@ import type {
   PluginListItem,
   RegistryInstallProgress,
   ServiceProviderRecord
-} from '../../../../main/plugin/types'
+} from '../../../../shared/types/plugins'
 import 'katex/dist/katex.min.css'
 
 const desktopApi = useDesktopApi()
@@ -432,8 +432,8 @@ async function handleReload(plugin: PluginListItem) {
 }
 
 function handleInstallExtracted() {
-  window.api
-    ?.openFileDialog({ properties: ['openDirectory', 'openFile'] })
+  window.api?.files
+    .open({ properties: ['openDirectory', 'openFile'] })
     .then(async (dirPath) => {
       if (!dirPath) return
       try {
@@ -447,8 +447,8 @@ function handleInstallExtracted() {
 }
 
 function handleInstallPackage() {
-  window.api
-    ?.openFileDialog({
+  window.api?.files
+    .open({
       properties: ['openFile'],
       filters: [
         { name: 'ExamAware 插件包', extensions: ['ea2x'] },

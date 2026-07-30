@@ -8,15 +8,17 @@ export interface PlayerLauncher {
   openWith(options: PlayerOpenOptions): Promise<void>
 }
 
-export function createPlayerLauncher(ipc = window.api.ipc): PlayerLauncher {
+export function createPlayerLauncher(
+  bridge: Pick<DesktopBridge, 'files' | 'player'> = window.api
+): PlayerLauncher {
   return {
     async selectLocalAndOpen() {
-      const p = await ipc.invoke('select-file')
+      const p = await bridge.files.selectExam()
       if (p) await this.openWith({ source: 'file', pathOrUrl: p })
     },
     async openWith(options: PlayerOpenOptions) {
       if (options.source === 'file' && options.pathOrUrl) {
-        ipc.send('open-player-window', options.pathOrUrl)
+        bridge.player.openWindow(options.pathOrUrl)
         return
       }
       if (options.source === 'url' && options.pathOrUrl) {
@@ -24,7 +26,7 @@ export function createPlayerLauncher(ipc = window.api.ipc): PlayerLauncher {
         if (!value) {
           throw new Error('URL 不能为空')
         }
-        await ipc.invoke('player:open-from-url', value)
+        await bridge.player.openFromUrl(value)
         return
       }
       // TODO: 扩展远端打开方式
@@ -32,3 +34,4 @@ export function createPlayerLauncher(ipc = window.api.ipc): PlayerLauncher {
     }
   }
 }
+import type { DesktopBridge } from '../../../shared/ipc/bridge'

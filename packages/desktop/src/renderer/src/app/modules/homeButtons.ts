@@ -2,6 +2,7 @@ import type { App } from 'vue'
 import type { AppModule } from '../types'
 import { DisposerGroup } from '@renderer/runtime/disposable'
 import { MessagePlugin } from 'tdesign-vue-next'
+import { homeButtonsKey } from '../injectionKeys'
 
 export interface HomeButtonMeta {
   id: string
@@ -77,7 +78,7 @@ export const homeButtonsModule: AppModule = {
       theme: 'success',
       order: 1,
       action: () => {
-        window.api.ipc.send('open-editor-window')
+        window.api.windows.openEditor()
       }
     })
 
@@ -130,7 +131,7 @@ export const homeButtonsModule: AppModule = {
       order: 5,
       action: async () => {
         // 作为独立窗口（单例）弹出
-        window.api?.ipc?.send('open-settings-window')
+        window.api.windows.openSettings()
       }
     })
 
@@ -141,7 +142,7 @@ export const homeButtonsModule: AppModule = {
       theme: 'primary',
       order: 6,
       action: () => {
-        window.api?.ipc?.send('open-plugin-store-window')
+        window.api.windows.openPluginStore()
       }
     })
 
@@ -163,7 +164,7 @@ export const homeButtonsModule: AppModule = {
       theme: 'default',
       order: 8,
       action: () => {
-        window.api?.ipc?.send('open-settings-window', 'about')
+        window.api.windows.openSettings('about')
       }
     })
 
@@ -176,12 +177,12 @@ export const homeButtonsModule: AppModule = {
       order: 9,
       action: () => {
         // 打开/聚焦独立的日志窗口（单例）
-        window.api?.ipc?.send('open-logs-window')
+        window.api.windows.openLogs()
       }
     })
     ;(app.config.globalProperties as any).$homeButtons = registry
     ctx.provides.homeButtons = registry
-    if (ctx.provide) ctx.provide('homeButtons', registry)
+    if (ctx.provide) ctx.provide(homeButtonsKey, registry)
     ctx.provides.homeButtonsGroup = group
   },
   uninstall(app: App, ctx) {

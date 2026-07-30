@@ -1,4 +1,6 @@
 import { BrowserWindow } from 'electron'
+import { ipcChannels } from '../../shared/ipc/channels'
+import { sendIpcEvent } from '../../shared/ipc/sender'
 import { windowManager } from './windowManager'
 import {
   buildTitleBarOverlay,
@@ -42,13 +44,13 @@ export function createEditorWindow(filePath?: string): BrowserWindow {
           }
           e.preventDefault()
           try {
-            win.webContents.send('editor:request-close')
+            sendIpcEvent(win.webContents, ipcChannels.windows.requestEditorClose)
           } catch {}
         })
 
         win.on('ready-to-show', () => {
           if (filePath) {
-            win.webContents.send('open-file-at-startup', filePath)
+            sendIpcEvent(win.webContents, ipcChannels.windows.openFileAtStartup, filePath)
           }
         })
       }

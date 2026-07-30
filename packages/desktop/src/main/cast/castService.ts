@@ -2,49 +2,25 @@ import Koa from 'koa'
 import Router from '@koa/router'
 import bodyParser from 'koa-bodyparser'
 import os from 'os'
-import path from 'path'
-import * as fs from 'fs'
-import { randomUUID } from 'crypto'
 import { app } from 'electron'
 import { Bonjour } from 'bonjour-service'
 import type { Service, Browser } from 'bonjour-service'
-import { findAvailablePort } from '../http/utils'
-import { patchConfig, getConfig as cfgGet } from '../configStore'
+import { findAvailablePort } from '../network/networkUtils'
+import { patchConfig, getConfig as cfgGet } from '../config/configStore'
 import {
   getSharedConfigPayload,
   listSharedConfigs,
   setSharedConfigs,
   upsertSharedConfig,
   type SharedConfigEntry
-} from '../state/sharedConfigStore'
-import { createPlayerWindow } from '../windows/playerWindow'
-import { appLogger } from '../logging/winstonLogger'
+} from '../config/sharedConfigStore'
+import { playerSessionService } from '../player/playerSessionService'
+import { appLogger } from '../logging/logger'
+import type { CastConfig, CastPeer, CastShareEntry } from '../../shared/types/desktop'
+
+export type { CastConfig, CastPeer, CastShareEntry as ShareEntry } from '../../shared/types/desktop'
 
 type RouterInstance = InstanceType<typeof Router>
-
-export interface CastConfig {
-  enabled: boolean
-  name: string
-  port: number
-  shareEnabled: boolean
-}
-
-export interface CastPeer {
-  id: string
-  name: string
-  host: string
-  port: number
-  txt?: Record<string, any>
-  lastSeen: number
-}
-
-export interface ShareEntry {
-  id: string
-  examName: string
-  examCount: number
-  updatedAt: number
-  deviceName: string
-}
 
 const DEFAULT_CAST_CONFIG: CastConfig = {
   enabled: false,
@@ -110,7 +86,7 @@ export class CastService {
     return this.getConfig()
   }
 
-  private buildShareEntries(): ShareEntry[] {
+  private buildShareEntries(): CastShareEntry[] {
     if (!this.config.shareEnabled) return []
     const list = listSharedConfigs()
     return list.map((item) => ({
@@ -294,14 +270,6 @@ export class CastService {
     }
   }
 
-  private async createTempConfigFile(content: string) {
-    const dir = path.join(app.getPath('temp'), 'examaware-cast')
-    await fs.promises.mkdir(dir, { recursive: true })
-    const file = path.join(dir, `cast-${Date.now()}-${randomUUID()}.ea2`)
-    await fs.promises.writeFile(file, content, 'utf-8')
-    return file
-  }
-
   private registerRoutes(router: RouterInstance) {
     router.get('/health', (ctx) => {
       ctx.body = { success: true }
@@ -337,13 +305,15 @@ export class CastService {
         return
       }
       try {
-        const file = await this.createTempConfigFile(config)
-        createPlayerWindow(file)
-        ctx.body = { success: true }
+        const session = await playerSessionService.start({ kind: 'json', data: config })
+        ctx.body = { success: true, session }
       } catch (error) {
         appLogger.error('[cast] failed to launch player', error as Error)
-        ctx.status = 500
-        ctx.body = { success: false, message: 'failed to launch player' }
+        ctx.status = 400
+        ctx.body = {
+          success: false,
+          message: error instanceof Error ? error.message : 'failed to launch player'
+        }
       }
     })
   }

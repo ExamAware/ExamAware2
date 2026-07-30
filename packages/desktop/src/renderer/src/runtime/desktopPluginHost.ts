@@ -1,24 +1,43 @@
 import { ref, shallowRef, type Ref } from 'vue'
 import type {
-  PluginFactory,
   PluginListItem,
-  PluginModuleExport,
-  PluginRuntimeContext,
-  PluginSourceFetchRequest,
-  PluginSourceFetchResult,
   RegistryInstallOptions,
   RegistryInstallProgress,
   RegistryInstallResult,
   RegistryReadmeResult,
   ServiceProviderRecord
-} from '../../../main/plugin/types'
+} from '../../../shared/types/plugins'
+import type {
+  PluginSourceFetchRequest,
+  PluginSourceFetchResult
+} from '../../../shared/pluginSource'
+import type {
+  PluginEntry,
+  PluginRuntimeContext,
+  RendererPluginContext
+} from '@dsz-examaware/plugin-sdk'
 import type { AppContext } from '../app/types'
 import { DisposerGroup } from './disposable'
 import type { DesktopAPI } from './desktopApi'
 import { createEauiApi } from './eaui'
 import { JsonRpcClient, JsonRpcServer, createRpcProxy } from '@dsz-examaware/rpc'
+import {
+  createRendererPluginContext,
+  getCurrentPluginWindowKind
+} from './pluginApi/rendererPluginApi'
 
 type AnyRecord = Record<string, any>
+type PluginCleanup = () => void | Promise<void>
+type PluginFactory = (
+  context: PluginRuntimeContext,
+  config?: Record<string, any>
+) => void | PluginCleanup | Promise<void | PluginCleanup>
+type RendererEntry = PluginFactory | PluginEntry<RendererPluginContext>
+
+interface PluginModuleExport {
+  default?: RendererEntry | { apply?: PluginFactory }
+  apply?: RendererEntry
+}
 
 function cloneConfig<T>(value: T): T {
   if (value == null || typeof value !== 'object') return value
@@ -171,9 +190,16 @@ export function createDesktopPluginHost(ctx: AppContext): RendererPluginHost {
   }
 
   const syncRendererPlugins = async () => {
+    const windowKind = getCurrentPluginWindowKind()
     const desired = new Set(
       installed.value
-        .filter((plugin) => plugin.enabled && plugin.status === 'active' && plugin.hasRendererEntry)
+        .filter(
+          (plugin) =>
+            plugin.enabled &&
+            plugin.status === 'active' &&
+            plugin.hasRendererEntry &&
+            plugin.rendererWindows.includes(windowKind)
+        )
         .map((plugin) => plugin.name)
     )
 
@@ -207,9 +233,24 @@ export function createDesktopPluginHost(ctx: AppContext): RendererPluginHost {
       if (!entryUrl) return
       const mod = (await import(/* @vite-ignore */ entryUrl)) as PluginModuleExport
       const factory = resolveFactory(mod)
+      const entryApiVersion = (factory as { apiVersion?: number }).apiVersion
+      const entryProcess = (factory as { process?: string }).process
+      if (entryProcess === 'main') {
+        throw new Error(`插件 ${plugin.name} 的 renderer 入口导出了 main 插件定义`)
+      }
+      if (plugin.apiVersion === 2 && (entryApiVersion !== 2 || entryProcess !== 'renderer')) {
+        throw new Error(
+          `插件 ${plugin.name} 的 manifest 声明 API V2，但 renderer 入口不是 defineRendererPlugin`
+        )
+      }
+      if (plugin.apiVersion !== 2 && entryApiVersion === 2) {
+        throw new Error(
+          `插件 ${plugin.name} 使用 API V2 renderer 入口，但 manifest 未声明 apiVersion: 2`
+        )
+      }
       const group = new DisposerGroup()
       const config = (await bridge.getConfig(plugin.name)) ?? {}
-      const runtimeCtx = createRendererRuntimeContext(
+      const legacyContext = createRendererRuntimeContext(
         plugin,
         config,
         group,
@@ -217,7 +258,22 @@ export function createDesktopPluginHost(ctx: AppContext): RendererPluginHost {
         bridge,
         () => desktopApiRef
       )
-      const cleanup = await factory(runtimeCtx as PluginRuntimeContext, config)
+      const runtimeContext =
+        plugin.apiVersion === 2
+          ? await createRendererPluginContext({
+              plugin,
+              config,
+              runtime: legacyContext,
+              appContext: ctx,
+              desktopApi:
+                desktopApiRef ??
+                (() => {
+                  throw new Error('Desktop API 尚未初始化')
+                })(),
+              providers
+            })
+          : legacyContext
+      const cleanup = await factory(runtimeContext as never, config)
       const record: RendererRuntimeRecord = { name: plugin.name, entryUrl, group }
       if (typeof cleanup === 'function') {
         record.disposer = cleanup
@@ -234,10 +290,10 @@ export function createDesktopPluginHost(ctx: AppContext): RendererPluginHost {
     if (!runtime) return
     rendererRuntimes.delete(name)
     try {
-      runtime.group.disposeAll()
       if (runtime.disposer) {
         await Promise.resolve(runtime.disposer())
       }
+      runtime.group.disposeAll()
     } catch (err) {
       console.warn(`[DesktopPluginHost] dispose renderer plugin ${name} failed`, err)
     }
@@ -287,10 +343,10 @@ export function createDesktopPluginHost(ctx: AppContext): RendererPluginHost {
   }
 
   const installDir = async (dirPath: string) => {
-    if (typeof bridge.installDir !== 'function') {
+    if (typeof bridge.installDirectory !== 'function') {
       throw new Error('当前版本不支持安装解压插件')
     }
-    const result = await bridge.installDir(dirPath)
+    const result = await bridge.installDirectory(dirPath)
     await refresh()
     return result
   }
@@ -339,6 +395,7 @@ export function createDesktopPluginHost(ctx: AppContext): RendererPluginHost {
 
   const attachDesktopApi = (api: DesktopAPI) => {
     desktopApiRef = api
+    scheduleRendererSync()
   }
 
   refresh().catch((err) => {
@@ -381,15 +438,15 @@ export function createDesktopPluginHost(ctx: AppContext): RendererPluginHost {
   }
 }
 
-function resolveFactory(mod: PluginModuleExport): PluginFactory {
+function resolveFactory(mod: PluginModuleExport): RendererEntry {
   if (typeof (mod as any) === 'function') {
-    return mod as unknown as PluginFactory
+    return mod as unknown as RendererEntry
   }
   if (typeof mod?.default === 'function') {
-    return mod.default as PluginFactory
+    return mod.default as RendererEntry
   }
   if (typeof mod?.apply === 'function') {
-    return mod.apply as PluginFactory
+    return mod.apply as RendererEntry
   }
   if (typeof mod?.default === 'object' && typeof mod.default?.apply === 'function') {
     return mod.default.apply as PluginFactory
@@ -501,21 +558,16 @@ function createRendererRuntimeContext(
     }
   }
 
-  const rpcChannel = `plugin:rpc:${plugin.name}`
+  const rpcTransport = bridge.rpc(plugin.name)
   const rpcClient = new JsonRpcClient({
-    send: (message) => window.api.ipc.send(rpcChannel, message),
-    onMessage: (handler) => {
-      const listener = (_event: unknown, payload: string) => handler(payload)
-      window.api.ipc.on(rpcChannel, listener)
-      return () => window.api.ipc.off(rpcChannel, listener)
-    }
+    send: rpcTransport.send,
+    onMessage: rpcTransport.onMessage
   })
   const rpcServer = new JsonRpcServer({
     onMessage: (handler) => {
-      const listener = (_event: unknown, payload: string) =>
-        handler(payload, (response) => window.api.ipc.send(rpcChannel, response))
-      window.api.ipc.on(rpcChannel, listener)
-      return () => window.api.ipc.off(rpcChannel, listener)
+      return rpcTransport.onMessage((payload) =>
+        handler(payload, (response) => rpcTransport.send(response))
+      )
     }
   })
   group.add(() => rpcClient.dispose())

@@ -24,24 +24,13 @@
 </template>
 
 <script setup lang="ts">
-import {
-  onMounted,
-  onUnmounted,
-  ref,
-  shallowRef,
-  watch,
-  inject,
-  getCurrentInstance,
-  provide
-} from 'vue'
+import { onMounted, onUnmounted, ref, shallowRef, watch, inject, getCurrentInstance } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useSettingsApi } from '@renderer/stores/settingsStore'
-import { useSettingRef, useSettingsGroup, useSettingToggle } from '@renderer/composables/useSetting'
+import { settingsKey } from '@renderer/app/injectionKeys'
 
 // 获取注册表（通过 provide/inject 或全局）
 const registry =
-  (inject('settings') as any) ||
-  (getCurrentInstance()!.appContext.config.globalProperties as any).$settings
+  inject(settingsKey) || (getCurrentInstance()!.appContext.config.globalProperties as any).$settings
 const router = useRouter()
 const route = useRoute()
 
@@ -56,14 +45,6 @@ onUnmounted(() => {
   stopRegistryWatch?.()
 })
 const active = ref<string | null>(null)
-
-// 暴露设置 API 给子页面
-const settingsApi = useSettingsApi()
-provide('settingsApi', settingsApi)
-// 额外提供便捷绑定工具，页面可通过 inject 使用
-provide('useSettingRef', useSettingRef)
-provide('useSettingsGroup', useSettingsGroup)
-provide('useSettingToggle', useSettingToggle)
 
 const currentComponent = shallowRef<any>(null)
 

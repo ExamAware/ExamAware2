@@ -12,8 +12,7 @@ import type { ExamInfo } from '@renderer/core/configTypes'
 import { useEditorPluginStore } from '@renderer/stores/editorPluginStore'
 import { setEditorRuntime } from '@renderer/core/editorBridge'
 
-// 平台检测 - 通过 electronAPI 获取
-const windowAPI = (window as any).electronAPI
+const windowAPI = window.api.windows
 const isMacOS = windowAPI?.platform === 'darwin'
 const isWindows = windowAPI?.platform === 'win32'
 console.log('platform: ' + windowAPI?.platform)
@@ -86,10 +85,6 @@ const closePluginCenterView = (id?: string) => pluginStore.clearCenterView(id)
 // 就近共享：同步当前编辑配置
 let shareSyncTimer: ReturnType<typeof setTimeout> | null = null
 let shareSyncInterval: ReturnType<typeof setInterval> | null = null
-const syncNowChannel = 'cast:sync-now'
-const handleSyncNow = () => {
-  void pushShare()
-}
 
 const pushShare = async () => {
   try {
@@ -302,7 +297,7 @@ const deleteCurrentExam = () => {
 }
 
 const openCastWindow = () => {
-  window.api.ipc.send('open-cast-window')
+  window.api.windows.openCast()
 }
 
 const nextExam = () => {
@@ -373,8 +368,6 @@ onMounted(async () => {
     void pushShare()
   }, 5000)
 
-  window.api?.ipc?.on?.(syncNowChannel, handleSyncNow)
-
   // 检查 CodeLayout 实例
   setTimeout(() => {
     console.log('CodeLayout ref:', codeLayout.value)
@@ -384,7 +377,6 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   setEditorRuntime(null)
   if (shareSyncInterval) clearInterval(shareSyncInterval)
-  window.api?.ipc?.off?.(syncNowChannel, handleSyncNow)
 })
 
 watch(

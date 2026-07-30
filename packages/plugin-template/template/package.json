@@ -18,15 +18,26 @@
     "lint": "vue-tsc --noEmit"
   },
   "examaware": {
+    "apiVersion": 2,
     "displayName": "ExamAware Demo Plugin",
     "description": "A starter plugin showing main + renderer wiring with a settings page.",
     "targets": {
       "main": "./dist/main/index.cjs",
       "renderer": "./dist/renderer/index.mjs"
     },
+    "permissions": [
+      "services.provide",
+      "services.consume",
+      "ui.contribute"
+    ],
+    "activation": {
+      "rendererWindows": [
+        "settings"
+      ]
+    },
     "services": {
       "provide": [
-        "__PLUGIN_NAMESPACE__.hello.message"
+        "__PLUGIN_NAMESPACE__.hello-message"
       ],
       "inject": []
     },

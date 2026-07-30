@@ -1,18 +1,10 @@
 import { BrowserWindow } from 'electron'
-import { appLogger, logWithLevel, type LogLevel as WinstonLevel } from './winstonLogger'
+import { appLogger, logWithLevel, type LogLevel as WinstonLevel } from './logger'
+import type { LogEntry, LogLevel } from '../../shared/types/desktop'
+import { ipcChannels } from '../../shared/ipc/channels'
+import { sendIpcEvent } from '../../shared/ipc/sender'
 
-export type LogLevel = 'log' | 'info' | 'warn' | 'error' | 'debug'
-
-export interface LogEntry {
-  id: number
-  timestamp: number
-  level: LogLevel
-  process: 'main' | 'renderer'
-  windowId?: number
-  message: string
-  stack?: string
-  source?: string
-}
+export type { LogEntry, LogLevel } from '../../shared/types/desktop'
 
 const MAX_LOGS = 2000
 let counter = 1
@@ -36,7 +28,7 @@ export function addLog(entry: Omit<LogEntry, 'id'>) {
   // 广播到所有窗口
   BrowserWindow.getAllWindows().forEach((w) => {
     try {
-      w.webContents.send('logs:push', e)
+      sendIpcEvent(w.webContents, ipcChannels.logging.logAdded, e)
     } catch {}
   })
 }

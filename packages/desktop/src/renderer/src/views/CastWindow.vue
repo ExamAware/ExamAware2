@@ -145,15 +145,8 @@ async function openShare(peerId: string, shareId: string) {
       MessagePlugin.warning('无法获取共享配置')
       return
     }
-    const openFromEditor =
-      window.api.player?.openFromEditor ??
-      ((data: string) => window.api.ipc.invoke('player:open-from-editor', data))
-    if (openFromEditor) {
-      await openFromEditor(cfg)
-      MessagePlugin.success('已打开配置')
-    } else {
-      MessagePlugin.warning('当前环境不支持直接打开配置')
-    }
+    await window.api.player.openFromEditor(cfg)
+    MessagePlugin.success('已打开配置')
   } catch (err) {
     MessagePlugin.error('打开失败')
   }
@@ -166,15 +159,8 @@ async function playShare(peerId: string, shareId: string) {
       MessagePlugin.warning('无法获取共享配置')
       return
     }
-    const openFromEditor =
-      window.api.player?.openFromEditor ??
-      ((data: string) => window.api.ipc.invoke('player:open-from-editor', data))
-    if (openFromEditor) {
-      await openFromEditor(cfg)
-      MessagePlugin.success('已启动放映')
-    } else {
-      MessagePlugin.warning('当前环境不支持放映')
-    }
+    await window.api.player.openFromEditor(cfg)
+    MessagePlugin.success('已启动放映')
   } catch (err) {
     MessagePlugin.error('放映失败')
   }
@@ -218,14 +204,7 @@ async function followShare(peerId: string, shareId: string) {
       MessagePlugin.warning('无法获取共享配置')
       return
     }
-    const openFromEditor =
-      window.api.player?.openFromEditor ??
-      ((data: string) => window.api.ipc.invoke('player:open-from-editor', data))
-    if (!openFromEditor) {
-      MessagePlugin.warning('当前环境不支持放映')
-      return
-    }
-    await openFromEditor(cfg)
+    await window.api.player.openFromEditor(cfg)
     followHashes.set(key, hashConfig(cfg))
     const timer = setInterval(async () => {
       try {
@@ -233,7 +212,7 @@ async function followShare(peerId: string, shareId: string) {
         if (!next) return
         const h = hashConfig(next)
         if (h !== followHashes.get(key)) {
-          await openFromEditor(next)
+          await window.api.player.openFromEditor(next)
           followHashes.set(key, h)
         }
       } catch (err) {

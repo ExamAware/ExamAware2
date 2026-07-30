@@ -1,10 +1,14 @@
 import { ref, onMounted, onUnmounted } from 'vue'
+import type { TimeSyncConfig, TimeSyncInfo } from '../../../shared/types/desktop'
 
-// 使用预加载脚本暴露的API
-const ipcRenderer = window.api?.ipc
+function getTimeSyncBridge() {
+  const bridge = window.api?.timeSync
+  if (!bridge) throw new Error('桌面时间同步桥接不可用')
+  return bridge
+}
 
 // 缓存上次同步信息
-let lastSyncInfo = {
+let lastSyncInfo: Pick<TimeSyncInfo, 'offset' | 'manualOffset' | 'lastSyncTime'> = {
   offset: 0,
   manualOffset: 0,
   lastSyncTime: 0
@@ -52,11 +56,7 @@ export function getSyncedTime(): number {
 // 获取时间同步状态
 export async function getTimeSyncInfo() {
   try {
-    if (!ipcRenderer) {
-      console.warn('IPC renderer not available')
-      return null
-    }
-    const info = await ipcRenderer.invoke('time:get-sync-info')
+    const info = await getTimeSyncBridge().getInfo()
 
     // 检查时间同步信息是否发生变化
     const hasChanged =
@@ -81,11 +81,7 @@ export async function getTimeSyncInfo() {
 // 执行时间同步
 export async function syncTime() {
   try {
-    if (!ipcRenderer) {
-      console.warn('IPC renderer not available')
-      throw new Error('IPC renderer not available')
-    }
-    const result = await ipcRenderer.invoke('time:sync-now')
+    const result = await getTimeSyncBridge().synchronize()
 
     // 检查时间同步信息是否发生变化
     const hasChanged =
@@ -108,13 +104,9 @@ export async function syncTime() {
 }
 
 // 更新时间同步配置
-export async function updateTimeSyncConfig(config) {
+export async function updateTimeSyncConfig(config: Partial<TimeSyncConfig>) {
   try {
-    if (!ipcRenderer) {
-      console.warn('IPC renderer not available')
-      throw new Error('IPC renderer not available')
-    }
-    const result = await ipcRenderer.invoke('time:update-config', config)
+    const result = await getTimeSyncBridge().updateConfig(config)
 
     // 配置更新后重新获取同步信息以触发变更通知
     await getTimeSyncInfo()
@@ -133,6 +125,7 @@ export function useTimeSync() {
   const isLoading = ref(false)
   const currentTime = ref(getSyncedTime())
   let intervalId: NodeJS.Timeout | null = null
+  let removeIpcListener: (() => void) | undefined
 
   // 时间同步变更处理函数
   const handleTimeSyncChange = () => {
@@ -196,9 +189,7 @@ export function useTimeSync() {
     addTimeSyncChangeListener(handleTimeSyncChange)
 
     // 监听来自主进程的时间同步变更事件
-    if (ipcRenderer) {
-      ipcRenderer.on('time:sync-changed', handleTimeSyncChange)
-    }
+    removeIpcListener = getTimeSyncBridge().onChanged(handleTimeSyncChange)
 
     // 设置定时器更新当前时间
     intervalId = setInterval(() => {
@@ -215,9 +206,8 @@ export function useTimeSync() {
     removeTimeSyncChangeListener(handleTimeSyncChange)
 
     // 移除 IPC 监听器
-    if (ipcRenderer) {
-      ipcRenderer.off('time:sync-changed', handleTimeSyncChange)
-    }
+    removeIpcListener?.()
+    removeIpcListener = undefined
   })
 
   return {

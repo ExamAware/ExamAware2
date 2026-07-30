@@ -1,12 +1,10 @@
 import type { App } from 'vue'
 import type { AppModule } from '../types'
 
-type ElectronAPI = Window['electron']
-type WindowAPI = Window['electronAPI']
+type WindowAPI = Window['api']['windows']
 type BackendAPI = Window['api']
 
 export interface CapabilitiesService {
-  electron: ElectronAPI
   window: WindowAPI
   backend: BackendAPI
 }
@@ -15,8 +13,7 @@ export const capabilitiesModule: AppModule = {
   name: 'capabilities',
   install(app: App, ctx) {
     const service: CapabilitiesService = {
-      electron: window.electron,
-      window: window.electronAPI,
+      window: window.api.windows,
       backend: window.api
     }
     // 提供全局访问

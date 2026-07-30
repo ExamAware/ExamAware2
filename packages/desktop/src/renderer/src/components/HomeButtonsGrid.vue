@@ -148,7 +148,7 @@ onMounted(() => {
       theme: 'default',
       order: 99,
       action: async () => {
-        window.api?.ipc?.send('open-logs-window')
+        window.api.windows.openLogs()
       }
     })
   }

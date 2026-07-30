@@ -1,11 +1,13 @@
 import { app, BrowserWindow } from 'electron'
+import { ipcChannels } from '../../shared/ipc/channels'
+import { sendIpcEvent } from '../../shared/ipc/sender'
 import { windowManager } from './windowManager'
 import {
   buildTitleBarOverlay,
   applyTitleBarOverlay,
   attachTitleBarOverlayLifecycle
 } from './titleBarOverlay'
-import { appLogger } from '../logging/winstonLogger'
+import { appLogger } from '../logging/logger'
 
 export function createMainWindow(): BrowserWindow {
   return windowManager.open(({ commonOptions }) => ({
@@ -94,7 +96,7 @@ export function createMainWindow(): BrowserWindow {
           e.preventDefault()
           log('event: close intercepted -> request renderer confirmation')
           if (!win.isDestroyed()) {
-            win.webContents.send('editor:request-close')
+            sendIpcEvent(win.webContents, ipcChannels.windows.requestEditorClose)
           }
           return
         }

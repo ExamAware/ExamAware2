@@ -21,11 +21,22 @@
     "test": "vitest run"
   },
   "examaware": {
+    "apiVersion": 2,
     "displayName": "铃声工厂",
     "description": "制作 ExamAware .ea2r 铃声包",
     "targets": {
       "main": "./dist/main/index.cjs",
       "renderer": "./dist/renderer/index.mjs"
+    },
+    "permissions": [
+      "ui.contribute",
+      "windows.open"
+    ],
+    "activation": {
+      "rendererWindows": [
+        "main",
+        "plugin"
+      ]
     },
     "services": {
       "provide": [],

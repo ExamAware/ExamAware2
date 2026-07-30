@@ -16,14 +16,16 @@ import {
 import { createDesktopPluginHost } from './desktopPluginHost'
 import type {
   PluginListItem,
-  PluginSourceFetchRequest,
-  PluginSourceFetchResult,
   RegistryInstallOptions,
   RegistryInstallProgress,
   RegistryInstallResult,
   RegistryReadmeResult,
   ServiceProviderRecord
-} from '../../../main/plugin/types'
+} from '../../../shared/types/plugins'
+import type {
+  PluginSourceFetchRequest,
+  PluginSourceFetchResult
+} from '../../../shared/pluginSource'
 import type { SettingsPageMeta } from '../app/modules/settings'
 import {
   useEditorPluginStore,
@@ -274,7 +276,7 @@ function createDeepLinkApi(ctx: AppContext): DeepLinkAPI {
   return {
     onOpen(listener: (payload: DeepLinkPayload) => void): DisposableHandle {
       const dispose =
-        window.api?.deeplink?.onOpen?.((payload: DeepLinkPayload) => {
+        window.api.deepLink.onOpened((payload: DeepLinkPayload) => {
           try {
             listener(payload)
           } catch (err) {

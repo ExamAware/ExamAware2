@@ -9,11 +9,21 @@ export type { ExamMaterial, ExamInfo, ExamConfig } from './types';
 // 导出解析和验证功能
 export {
   parseExamConfig,
+  parseExamConfigDetailed,
   validateExamConfigStructure,
   validateExamConfig,
+  validateExamConfigDetailed,
   hasExamTimeOverlap,
   getSortedExamInfos,
-  getSortedExamConfig
+  getSortedExamConfig,
+  normalizeExamConfig
+} from './parser';
+
+export type {
+  ExamConfigIssue,
+  ExamConfigIssueSeverity,
+  ExamConfigValidationOptions,
+  ExamConfigValidationResult
 } from './parser';
 
 // 导出工具函数

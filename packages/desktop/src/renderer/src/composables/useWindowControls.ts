@@ -1,18 +1,19 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 
 export function useWindowControls() {
-  const platform = window.electronAPI?.platform || process.platform || 'unknown'
+  const platform = window.api.windows.platform
   const isMaximized = ref(false)
+  const disposers: Array<() => void> = []
 
-  const minimize = () => window.electronAPI?.minimize()
-  const close = () => window.electronAPI?.close()
+  const minimize = () => window.api.windows.minimize()
+  const close = () => window.api.windows.closeCurrent()
   const toggleMaximize = async () => {
-    window.electronAPI?.maximize()
+    window.api.windows.toggleMaximize()
   }
 
   const refreshMaxState = async () => {
     try {
-      isMaximized.value = await (window.electronAPI?.isMaximized?.() || Promise.resolve(false))
+      isMaximized.value = await window.api.windows.isMaximized()
     } catch {
       isMaximized.value = false
     }
@@ -22,15 +23,15 @@ export function useWindowControls() {
   const onUnmax = () => (isMaximized.value = false)
 
   onMounted(() => {
-    window.electronAPI?.setupListeners?.()
-    window.api?.ipc?.on?.('window-maximize', onMax)
-    window.api?.ipc?.on?.('window-unmaximize', onUnmax)
+    window.api.windows.setupStateListeners()
+    const removeMaximized = window.api.windows.onMaximized(onMax)
+    const removeUnmaximized = window.api.windows.onUnmaximized(onUnmax)
+    disposers.push(removeMaximized, removeUnmaximized)
     refreshMaxState()
   })
 
   onUnmounted(() => {
-    window.api?.ipc?.off?.('window-maximize', onMax)
-    window.api?.ipc?.off?.('window-unmaximize', onUnmax)
+    disposers.splice(0).forEach((dispose) => dispose())
   })
 
   return { platform, isMaximized, minimize, toggleMaximize, close, refreshMaxState }

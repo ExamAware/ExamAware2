@@ -1,4 +1,4 @@
-import { Dropdown as TDropdown } from 'tdesign-vue-next'
+import { Dropdown as TDropdown, type DropdownOption, type DropdownProps } from 'tdesign-vue-next'
 import { createApp, h, reactive } from 'vue'
 import type {
   TDesignDropdown,
@@ -8,14 +8,37 @@ import type {
 import { EauiWidgetBase } from '../widgetBase'
 import { EauiSignalImpl } from '../signal'
 
+type DropdownPlacement = NonNullable<DropdownProps['placement']>
+type DropdownTrigger = NonNullable<DropdownProps['trigger']>
+
+const DROPDOWN_PLACEMENTS = new Set<DropdownPlacement>([
+  'top',
+  'left',
+  'right',
+  'bottom',
+  'top-left',
+  'top-right',
+  'bottom-left',
+  'bottom-right',
+  'left-top',
+  'left-bottom',
+  'right-top',
+  'right-bottom'
+])
+
+const normalizePlacement = (placement: string | undefined): DropdownPlacement =>
+  placement && DROPDOWN_PLACEMENTS.has(placement as DropdownPlacement)
+    ? (placement as DropdownPlacement)
+    : 'bottom-left'
+
 export class TDesignDropdownImpl extends EauiWidgetBase implements TDesignDropdown {
   readonly clicked = new EauiSignalImpl<[unknown]>()
   private app: ReturnType<typeof createApp> | null = null
   private state = reactive({
     label: 'Dropdown',
     options: [] as TDesignDropdownItem[],
-    trigger: 'hover' as TDesignDropdownOptions['trigger'],
-    placement: 'bottom-left' as string,
+    trigger: 'hover' as DropdownTrigger,
+    placement: 'bottom-left' as DropdownPlacement,
     hideAfterItemClick: true,
     disabled: false
   })
@@ -28,7 +51,7 @@ export class TDesignDropdownImpl extends EauiWidgetBase implements TDesignDropdo
     if (options?.label) this.state.label = options.label
     if (options?.options) this.state.options = options.options
     if (options?.trigger) this.state.trigger = options.trigger
-    if (options?.placement) this.state.placement = options.placement
+    if (options?.placement) this.state.placement = normalizePlacement(options.placement)
     if (typeof options?.hideAfterItemClick === 'boolean')
       this.state.hideAfterItemClick = options.hideAfterItemClick
     if (typeof options?.disabled === 'boolean') this.state.disabled = options.disabled
@@ -41,7 +64,7 @@ export class TDesignDropdownImpl extends EauiWidgetBase implements TDesignDropdo
           {
             options: this.state.options.map((o) => ({
               content: o.label,
-              value: o.value,
+              value: o.value as DropdownOption['value'],
               disabled: o.disabled,
               divider: o.divider,
               theme: o.theme
@@ -79,7 +102,7 @@ export class TDesignDropdownImpl extends EauiWidgetBase implements TDesignDropdo
   }
 
   setPlacement(placement: string) {
-    this.state.placement = placement ?? 'bottom-left'
+    this.state.placement = normalizePlacement(placement)
   }
 
   setHideAfterItemClick(hide: boolean) {

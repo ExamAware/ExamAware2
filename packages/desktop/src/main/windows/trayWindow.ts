@@ -1,7 +1,7 @@
 import { BrowserWindow } from 'electron'
 import { windowManager } from './windowManager'
-import { getConfig } from '../configStore'
-import { appLogger } from '../logging/winstonLogger'
+import { getConfig } from '../config/configStore'
+import { appLogger } from '../logging/logger'
 
 export async function createOrGetTrayWindow(): Promise<BrowserWindow> {
   return await windowManager.open(({ commonOptions }) => {

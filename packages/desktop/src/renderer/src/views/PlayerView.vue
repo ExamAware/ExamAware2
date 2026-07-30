@@ -31,7 +31,19 @@
       @error="handleError"
     >
       <!-- 额外内容插槽保留为空，由 ExamPlayer 内部处理考场号设置 -->
-      <template #extra></template>
+      <template #extra>
+        <t-button
+          v-for="item in playerToolbarItems"
+          :key="item.id"
+          size="small"
+          variant="text"
+          :title="item.tooltip ?? item.label"
+          @click="void item.action()"
+        >
+          <component :is="item.icon" v-if="item.icon" />
+          <span v-else>{{ item.label }}</span>
+        </t-button>
+      </template>
     </ExamPlayer>
   </div>
 </template>
@@ -45,7 +57,6 @@ import '@dsz-examaware/player/dist/player.css'
 import { useConfigLoader } from '@renderer/composables/useConfigLoader'
 import { ElectronTimeProvider } from '@renderer/adapters/ElectronTimeProvider'
 import { RecentFileManager } from '@renderer/core/recentFileManager'
-import { applyThemeMode, getThemeMode, type ThemeMode } from '@renderer/core/themeManager'
 import { useSettingsStore } from '@renderer/stores/settingsStore'
 import {
   clampUiScale,
@@ -54,6 +65,7 @@ import {
 } from '@renderer/composables/usePlaybackSettings'
 import { useDesktopApi, type UIDensity } from '@renderer/runtime/desktopApi'
 import { formatExamAlertMessage } from '@renderer/utils/playerAlerts'
+import { playerToolbarContributions } from '@renderer/runtime/pluginApi/contributions'
 import {
   createReminderSoundController,
   normalizeReminderSoundSettings,
@@ -66,8 +78,6 @@ import {
 } from '../../../shared/reminderSoundPack'
 // 键盘相关逻辑已经内置在 ExamPlayer 中
 
-const ipcRenderer = window.api.ipc
-
 const reportConfigStatus = (status: {
   ok: boolean
   examName?: string
@@ -75,11 +85,13 @@ const reportConfigStatus = (status: {
   message?: string
 }) => {
   try {
-    ipcRenderer?.send?.('player:config-status', status)
+    window.api.player.reportConfigStatus(status)
   } catch (error) {
     console.error('上报放映配置状态失败:', error)
   }
 }
+
+const playerToolbarItems = playerToolbarContributions.items
 
 const settingsStore = useSettingsStore()
 const desktopApi = useDesktopApi()
@@ -162,10 +174,10 @@ const {
   source: configSource,
   loadFromIPC,
   reload: reloadConfig
-} = useConfigLoader(ipcRenderer)
+} = useConfigLoader()
 
 // 创建 Electron 时间提供器
-const timeProvider = new ElectronTimeProvider(ipcRenderer)
+const timeProvider = new ElectronTimeProvider(window.api.timeSync)
 
 // 播放器逻辑已由 ExamPlayer 组件内部处理
 
@@ -192,8 +204,9 @@ const timeSyncStatusText = computed(() => {
   return timeProvider.getTimeSyncStatusText()
 })
 
-const previousThemeMode = ref<ThemeMode>(getThemeMode())
-let didForceTheme = false
+let hadDarkClass = false
+let previousThemeModeAttribute: string | null = null
+let didForceDocumentTheme = false
 
 // === 事件处理器 ===
 
@@ -311,7 +324,7 @@ const handleError = (error: string) => {
 // 退出播放（通过 IPC 请求主进程关闭窗口）
 const handleExit = () => {
   try {
-    ipcRenderer?.send?.('player-window-exit')
+    window.api.player.exitWindow()
   } catch (e) {
     console.warn('发送退出请求失败:', e)
   }
@@ -322,26 +335,15 @@ const handleExit = () => {
 // === 初始化和清理 ===
 
 onMounted(async () => {
-  previousThemeMode.value = getThemeMode()
-  applyThemeMode('dark')
-  didForceTheme = true
-  document.documentElement.setAttribute('data-player-force-dark', 'true')
+  const root = document.documentElement
+  hadDarkClass = root.classList.contains('dark')
+  previousThemeModeAttribute = root.getAttribute('theme-mode')
+  root.classList.add('dark')
+  root.setAttribute('theme-mode', 'dark')
+  root.setAttribute('data-player-force-dark', 'true')
+  didForceDocumentTheme = true
 
   console.log('PlayerViewNew mounted, starting initialization...')
-
-  // 检查 IPC 是否可用
-  if (!ipcRenderer) {
-    console.error('IPC renderer not available')
-    NotifyPlugin.error({
-      title: '系统通信错误',
-      content: '无法与主程序通信，请重启应用程序',
-      placement: 'bottom-right',
-      closeBtn: true
-    })
-    return
-  }
-
-  console.log('IPC renderer available, setting up listeners...')
 
   // 先注册配置监听，避免时间同步或页面初始化较慢时错过主进程发送的数据。
   const configLoadPromise = loadFromIPC(30000)
@@ -410,9 +412,12 @@ onUnmounted(() => {
   // 清理资源
   reminderSoundController.dispose()
   timeProvider.destroy()
-  document.documentElement.removeAttribute('data-player-force-dark')
-  if (didForceTheme && getThemeMode() === 'dark') {
-    applyThemeMode(previousThemeMode.value)
+  const root = document.documentElement
+  root.removeAttribute('data-player-force-dark')
+  if (didForceDocumentTheme) {
+    root.classList.toggle('dark', hadDarkClass)
+    if (previousThemeModeAttribute === null) root.removeAttribute('theme-mode')
+    else root.setAttribute('theme-mode', previousThemeModeAttribute)
   }
 })
 

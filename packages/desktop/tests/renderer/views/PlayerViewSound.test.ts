@@ -30,7 +30,8 @@ const mocks = vi.hoisted(() => {
     loadFromIPC: vi.fn(() => Promise.resolve()),
     performSync: vi.fn(() => Promise.resolve()),
     controllerOptions: undefined as any,
-    listPacks: vi.fn()
+    listPacks: vi.fn(),
+    setNativeTheme: vi.fn()
   }
 })
 
@@ -96,11 +97,6 @@ vi.mock('@renderer/core/recentFileManager', () => ({
   RecentFileManager: { addRecentFile: vi.fn() }
 }))
 
-vi.mock('@renderer/core/themeManager', () => ({
-  getThemeMode: vi.fn(() => 'system'),
-  applyThemeMode: vi.fn()
-}))
-
 vi.mock('tdesign-vue-next', () => ({
   NotifyPlugin: {
     success: vi.fn(),
@@ -154,14 +150,38 @@ describe('PlayerView reminder sound integration', () => {
     mocks.play.mockResolvedValue({ ok: true, kind: 'start' })
     mocks.loadFromIPC.mockReset().mockResolvedValue(undefined)
     mocks.performSync.mockReset().mockResolvedValue(undefined)
+    mocks.setNativeTheme.mockReset()
     Object.defineProperty(window, 'api', {
       configurable: true,
-      value: { ipc: {}, config: {}, reminderSounds: { list: mocks.listPacks } }
+      value: {
+        config: {},
+        reminderSounds: { list: mocks.listPacks },
+        windows: { setNativeTheme: mocks.setNativeTheme }
+      }
     })
   })
 
   afterEach(() => {
+    document.documentElement.classList.remove('dark')
+    document.documentElement.removeAttribute('theme-mode')
     document.documentElement.removeAttribute('data-player-force-dark')
+  })
+
+  it('forces dark only in the player document and restores the previous theme', () => {
+    document.documentElement.classList.remove('dark')
+    document.documentElement.setAttribute('theme-mode', 'light')
+
+    const wrapper = mount(PlayerView)
+
+    expect(document.documentElement.classList.contains('dark')).toBe(true)
+    expect(document.documentElement.getAttribute('theme-mode')).toBe('dark')
+    expect(document.documentElement.getAttribute('data-player-force-dark')).toBe('true')
+    expect(mocks.setNativeTheme).not.toHaveBeenCalled()
+
+    wrapper.unmount()
+    expect(document.documentElement.classList.contains('dark')).toBe(false)
+    expect(document.documentElement.getAttribute('theme-mode')).toBe('light')
+    expect(document.documentElement.hasAttribute('data-player-force-dark')).toBe(false)
   })
 
   it('creates one shared controller and reports failures with event context', async () => {

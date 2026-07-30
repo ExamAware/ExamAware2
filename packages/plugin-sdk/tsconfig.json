@@ -20,9 +20,6 @@
       "@app/package.json": ["./package.json"]
     }
   },
-  "include": ["src/**/*.ts", "shared/**/*.ts", "package.json"],
-  "exclude": ["dist", "node_modules", "**/*.test.ts"],
-  "references": [
-    { "path": "../desktop" }
-  ]
+  "include": ["src/**/*.ts", "package.json"],
+  "exclude": ["dist", "node_modules", "**/*.test.ts"]
 }

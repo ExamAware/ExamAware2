@@ -1,6 +1,38 @@
 import type { ExamConfig } from './types';
 import { parseDateTime } from './utils';
 
+export type ExamConfigIssueSeverity = 'error' | 'warning';
+
+export interface ExamConfigIssue {
+  code:
+    | 'invalid-json'
+    | 'invalid-type'
+    | 'required'
+    | 'invalid-time'
+    | 'invalid-range'
+    | 'invalid-number'
+    | 'empty-exams'
+    | 'overlap'
+    | 'alert-outside-exam';
+  severity: ExamConfigIssueSeverity;
+  path: string;
+  message: string;
+}
+
+export interface ExamConfigValidationOptions {
+  allowEmptyExamInfos?: boolean;
+  overlap?: 'error' | 'warning' | 'allow';
+  sort?: boolean;
+}
+
+export interface ExamConfigValidationResult {
+  valid: boolean;
+  config?: ExamConfig;
+  issues: ExamConfigIssue[];
+  errors: ExamConfigIssue[];
+  warnings: ExamConfigIssue[];
+}
+
 function getValidTimeRange(
   info: ExamConfig['examInfos'][number]
 ): { startMs: number; endMs: number } | null {
@@ -28,6 +60,198 @@ export function parseExamConfig(jsonString: string): ExamConfig | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * Parse and fully validate an exam configuration while preserving actionable diagnostics.
+ */
+export function parseExamConfigDetailed(
+  jsonString: string,
+  options: ExamConfigValidationOptions = {}
+): ExamConfigValidationResult {
+  let input: unknown;
+  try {
+    input = JSON.parse(jsonString);
+  } catch (error) {
+    return createValidationResult([
+      {
+        code: 'invalid-json',
+        severity: 'error',
+        path: '$',
+        message: error instanceof Error ? error.message : '配置不是有效的 JSON'
+      }
+    ]);
+  }
+  return validateExamConfigDetailed(input, options);
+}
+
+/**
+ * Validate structure and playback business rules in one pass.
+ */
+export function validateExamConfigDetailed(
+  input: unknown,
+  options: ExamConfigValidationOptions = {}
+): ExamConfigValidationResult {
+  const issues: ExamConfigIssue[] = [];
+  const add = (
+    code: ExamConfigIssue['code'],
+    path: string,
+    message: string,
+    severity: ExamConfigIssueSeverity = 'error'
+  ) => issues.push({ code, path, message, severity });
+
+  if (!input || typeof input !== 'object' || Array.isArray(input)) {
+    add('invalid-type', '$', '配置必须是对象');
+    return createValidationResult(issues);
+  }
+
+  const raw = input as Record<string, unknown>;
+  if (typeof raw.examName !== 'string' || !raw.examName.trim()) {
+    add('required', '$.examName', '考试名称不能为空');
+  }
+  if (typeof raw.message !== 'string') {
+    add('invalid-type', '$.message', '考试提示信息必须是字符串');
+  }
+  if (!Array.isArray(raw.examInfos)) {
+    add('invalid-type', '$.examInfos', '考试信息必须是数组');
+    return createValidationResult(issues);
+  }
+  if (!raw.examInfos.length && !options.allowEmptyExamInfos) {
+    add('empty-exams', '$.examInfos', '至少需要一场考试');
+  }
+
+  const ranges: Array<{ index: number; startMs: number; endMs: number }> = [];
+  raw.examInfos.forEach((entry, index) => {
+    const base = `$.examInfos[${index}]`;
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
+      add('invalid-type', base, `第 ${index + 1} 场考试必须是对象`);
+      return;
+    }
+    const exam = entry as Record<string, unknown>;
+    if (typeof exam.name !== 'string' || !exam.name.trim()) {
+      add('required', `${base}.name`, `第 ${index + 1} 场考试名称不能为空`);
+    }
+    if (typeof exam.start !== 'string' || !exam.start.trim()) {
+      add('required', `${base}.start`, `第 ${index + 1} 场考试开始时间不能为空`);
+    }
+    if (typeof exam.end !== 'string' || !exam.end.trim()) {
+      add('required', `${base}.end`, `第 ${index + 1} 场考试结束时间不能为空`);
+    }
+
+    const startMs = typeof exam.start === 'string' ? parseDateTime(exam.start).getTime() : NaN;
+    const endMs = typeof exam.end === 'string' ? parseDateTime(exam.end).getTime() : NaN;
+    if (!Number.isFinite(startMs)) {
+      add('invalid-time', `${base}.start`, `第 ${index + 1} 场考试开始时间格式无效`);
+    }
+    if (!Number.isFinite(endMs)) {
+      add('invalid-time', `${base}.end`, `第 ${index + 1} 场考试结束时间格式无效`);
+    }
+    if (Number.isFinite(startMs) && Number.isFinite(endMs)) {
+      if (startMs >= endMs) {
+        add('invalid-range', base, `第 ${index + 1} 场考试开始时间必须早于结束时间`);
+      } else {
+        ranges.push({ index, startMs, endMs });
+      }
+    }
+
+    if (
+      typeof exam.alertTime !== 'number' ||
+      !Number.isFinite(exam.alertTime) ||
+      exam.alertTime < 0
+    ) {
+      add(
+        'invalid-number',
+        `${base}.alertTime`,
+        `第 ${index + 1} 场考试提醒时间必须是非负有限数值`
+      );
+    } else if (
+      Number.isFinite(startMs) &&
+      Number.isFinite(endMs) &&
+      exam.alertTime * 60_000 > endMs - startMs
+    ) {
+      add(
+        'alert-outside-exam',
+        `${base}.alertTime`,
+        `第 ${index + 1} 场考试提醒时间超过考试时长`,
+        'warning'
+      );
+    }
+
+    if (exam.materials !== undefined) {
+      if (!Array.isArray(exam.materials)) {
+        add('invalid-type', `${base}.materials`, `第 ${index + 1} 场考试材料必须是数组`);
+      } else {
+        exam.materials.forEach((material, materialIndex) => {
+          const materialPath = `${base}.materials[${materialIndex}]`;
+          if (!material || typeof material !== 'object' || Array.isArray(material)) {
+            add('invalid-type', materialPath, '考试材料必须是对象');
+            return;
+          }
+          const value = material as Record<string, unknown>;
+          if (typeof value.name !== 'string' || !value.name.trim()) {
+            add('required', `${materialPath}.name`, '考试材料名称不能为空');
+          }
+          if (typeof value.unit !== 'string' || !value.unit.trim()) {
+            add('required', `${materialPath}.unit`, '考试材料单位不能为空');
+          }
+          if (
+            typeof value.quantity !== 'number' ||
+            !Number.isFinite(value.quantity) ||
+            value.quantity < 0
+          ) {
+            add('invalid-number', `${materialPath}.quantity`, '考试材料数量必须是非负有限数值');
+          }
+        });
+      }
+    }
+  });
+
+  if ((options.overlap ?? 'error') !== 'allow') {
+    const sortedRanges = ranges.slice().sort((left, right) => left.startMs - right.startMs);
+    for (let index = 0; index < sortedRanges.length - 1; index += 1) {
+      const current = sortedRanges[index];
+      const next = sortedRanges[index + 1];
+      if (current.endMs > next.startMs) {
+        add(
+          'overlap',
+          `$.examInfos[${next.index}]`,
+          `第 ${current.index + 1} 场和第 ${next.index + 1} 场考试时间重叠`,
+          options.overlap === 'warning' ? 'warning' : 'error'
+        );
+      }
+    }
+  }
+
+  const result = createValidationResult(issues);
+  if (result.valid) {
+    const config = cloneExamConfig(raw as unknown as ExamConfig);
+    result.config = options.sort === false ? config : getSortedExamConfig(config);
+  }
+  return result;
+}
+
+export function normalizeExamConfig(config: ExamConfig): ExamConfig {
+  return getSortedExamConfig(cloneExamConfig(config));
+}
+
+function cloneExamConfig(config: ExamConfig): ExamConfig {
+  return {
+    ...config,
+    examInfos: config.examInfos.map((exam) => ({
+      ...exam,
+      materials: exam.materials?.map((material) => ({ ...material }))
+    }))
+  };
+}
+
+function createValidationResult(issues: ExamConfigIssue[]): ExamConfigValidationResult {
+  const errors = issues.filter((issue) => issue.severity === 'error');
+  return {
+    valid: errors.length === 0,
+    issues,
+    errors,
+    warnings: issues.filter((issue) => issue.severity === 'warning')
+  };
 }
 
 /**

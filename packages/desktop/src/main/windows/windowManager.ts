@@ -1,9 +1,10 @@
 import { BrowserWindow, ipcMain, nativeTheme, shell } from 'electron'
-import type { MainContext } from '../runtime/context'
+import type { MainContext } from '../runtime/mainContext'
 import * as path from 'path'
 import { is } from '@electron-toolkit/utils'
-import { appLogger } from '../logging/winstonLogger'
-import { getConfig, onConfigChanged } from '../configStore'
+import { appLogger } from '../logging/logger'
+import { getConfig, onConfigChanged } from '../config/configStore'
+import { ipcChannels } from '../../shared/ipc/channels'
 
 export interface CreateContext {
   isDev: boolean
@@ -57,10 +58,7 @@ export class WindowManager {
     }
   }
 
-  async open(
-    factory: (ctx: CreateContext) => WindowFactoryResult,
-    forceRecreate = false
-  ): Promise<BrowserWindow> {
+  open(factory: (ctx: CreateContext) => WindowFactoryResult, forceRecreate = false): BrowserWindow {
     const ctx: CreateContext = {
       isDev: is.dev,
       resolveRendererUrl: (route: string) => {
@@ -111,13 +109,20 @@ export class WindowManager {
     }
 
     const win = new BrowserWindow(options)
+    const createdAt = performance.now()
     // track window for disposal safety
     this.ctx?.windows.track(win)
 
-    const showWindow = () => {
+    const showWindow = (reason: 'renderer-ready' | 'ready-to-show' | 'fallback') => {
       try {
         if (!win.isDestroyed() && !win.isVisible()) {
           win.show()
+          appLogger.info('[windowManager] window shown', {
+            id,
+            route,
+            reason,
+            elapsedMs: Math.round(performance.now() - createdAt)
+          })
         }
       } catch (error) {
         appLogger.error('[windowManager] failed to show window', error as Error)
@@ -127,17 +132,19 @@ export class WindowManager {
     const onRendererReady = (event: Electron.IpcMainEvent, payload?: { windowId?: number }) => {
       if (event.sender !== win.webContents) return
       if (payload?.windowId && payload.windowId !== win.id) return
-      showWindow()
+      showWindow('renderer-ready')
     }
+    const onReadyToShow = () => showWindow('ready-to-show')
 
-    ipcMain.on('renderer:ready', onRendererReady)
+    ipcMain.on(ipcChannels.windows.rendererReady.channel, onRendererReady)
+    win.once('ready-to-show', onReadyToShow)
     const showFallbackTimer = setTimeout(() => {
       if (!win.isDestroyed() && !win.isVisible()) {
         appLogger.warn('[windowManager] renderer ready timeout, showing window anyway', {
           id,
           route
         })
-        showWindow()
+        showWindow('fallback')
       }
     }, 5000)
 
@@ -170,7 +177,8 @@ export class WindowManager {
         } catch {}
       }
       clearTimeout(showFallbackTimer)
-      ipcMain.off('renderer:ready', onRendererReady)
+      ipcMain.off(ipcChannels.windows.rendererReady.channel, onRendererReady)
+      win.off('ready-to-show', onReadyToShow)
       this.windows.delete(id)
     })
 

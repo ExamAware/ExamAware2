@@ -1,5 +1,6 @@
 import type { App } from 'vue'
 import type { AppModule } from '../types'
+import { pagesKey } from '../injectionKeys'
 
 export interface PageMeta {
   id: string
@@ -169,7 +170,7 @@ export const pagesModule: AppModule = {
 
     ;(app.config.globalProperties as any).$pages = registry
     ctx.provides.pages = registry
-    if (ctx.provide) ctx.provide('pages', registry)
+    if (ctx.provide) ctx.provide(pagesKey, registry)
   },
   uninstall(app: App) {
     if ((app.config.globalProperties as any).$pages) {

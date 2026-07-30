@@ -39,6 +39,62 @@ export interface JsonRpcClientOptions {
   timeoutMs?: number;
 }
 
+export interface JsonRpcRequestOptions {
+  timeoutMs?: number;
+  signal?: AbortSignal;
+}
+
+export interface JsonRpcRequestContext {
+  readonly id: JsonRpcId;
+  readonly method: string;
+  readonly signal: AbortSignal;
+}
+
+export class RpcRemoteError extends Error {
+  readonly name = 'RpcRemoteError';
+
+  constructor(
+    message: string,
+    readonly code: number,
+    readonly data?: unknown
+  ) {
+    super(message);
+  }
+}
+
+declare const rpcServiceType: unique symbol;
+
+/**
+ * A runtime-compatible string token carrying the service contract for TypeScript.
+ * Define and export one token next to each cross-process service interface.
+ */
+export type RpcServiceToken<TService extends object> = string & {
+  readonly [rpcServiceType]: TService;
+};
+
+export type RpcMethodName<TService extends object> = {
+  [Key in keyof TService]-?: TService[Key] extends (...args: any[]) => any ? Key : never;
+}[keyof TService] &
+  string;
+
+export type RpcClientProxy<TService extends object> = {
+  [Key in RpcMethodName<TService>]: TService[Key] extends (...args: infer Args) => infer Result
+    ? (...args: Args) => Promise<Awaited<Result>>
+    : never;
+} & {
+  $notify<Key extends RpcMethodName<TService>>(
+    method: Key,
+    ...args: TService[Key] extends (...args: infer Args) => any ? Args : never
+  ): void;
+};
+
+export function defineRpcService<TService extends object>(name: string): RpcServiceToken<TService> {
+  if (!name.trim()) {
+    throw new Error('RPC service name cannot be empty');
+  }
+  return name as RpcServiceToken<TService>;
+}
+
 export class JsonRpcClient {
   private nextId = 1;
   private pending = new Map<
@@ -47,6 +103,7 @@ export class JsonRpcClient {
       resolve: (value: unknown) => void;
       reject: (error: unknown) => void;
       timeoutId?: ReturnType<typeof setTimeout>;
+      disposeAbort?: () => void;
     }
   >();
   private disposeListener: (() => void) | null = null;
@@ -60,27 +117,53 @@ export class JsonRpcClient {
     this.disposeListener = transport.onMessage((message) => this.handleMessage(message));
   }
 
-  request<T = unknown>(method: string, params?: unknown): Promise<T> {
+  request<T = unknown>(
+    method: string,
+    params?: unknown,
+    options: JsonRpcRequestOptions = {}
+  ): Promise<T> {
     const id = this.nextId++;
     const payload: JsonRpcRequest = { jsonrpc: '2.0', id, method, params };
     const message = JSON.stringify(payload);
 
     return new Promise<T>((resolve, reject) => {
+      if (options.signal?.aborted) {
+        reject(createAbortError(method));
+        return;
+      }
       const timeoutId = setTimeout(() => {
+        const pending = this.pending.get(id);
+        pending?.disposeAbort?.();
         this.pending.delete(id);
+        this.cancel(id);
         reject(new Error(`RPC request timeout: ${method}`));
-      }, this.timeoutMs);
+      }, options.timeoutMs ?? this.timeoutMs);
+
+      const onAbort = () => {
+        const pending = this.pending.get(id);
+        if (!pending) return;
+        clearTimeout(timeoutId);
+        pending.disposeAbort?.();
+        this.pending.delete(id);
+        this.cancel(id);
+        reject(createAbortError(method));
+      };
+      options.signal?.addEventListener('abort', onAbort, { once: true });
 
       this.pending.set(id, {
         resolve: (value) => resolve(value as T),
         reject,
-        timeoutId
+        timeoutId,
+        disposeAbort: options.signal
+          ? () => options.signal?.removeEventListener('abort', onAbort)
+          : undefined
       });
 
       try {
         this.transport.send(message);
       } catch (error) {
         clearTimeout(timeoutId);
+        options.signal?.removeEventListener('abort', onAbort);
         this.pending.delete(id);
         reject(error);
         return;
@@ -93,6 +176,10 @@ export class JsonRpcClient {
     this.transport.send(JSON.stringify(payload));
   }
 
+  cancel(id: JsonRpcId) {
+    this.notify('$/cancelRequest', { id });
+  }
+
   dispose() {
     if (this.disposeListener) {
       this.disposeListener();
@@ -100,6 +187,7 @@ export class JsonRpcClient {
     }
     for (const pending of this.pending.values()) {
       if (pending.timeoutId) clearTimeout(pending.timeoutId);
+      pending.disposeAbort?.();
       pending.reject(new Error('RPC client disposed'));
     }
     this.pending.clear();
@@ -113,8 +201,13 @@ export class JsonRpcClient {
     if (!pending) return;
     this.pending.delete(parsed.id as JsonRpcId);
     if (pending.timeoutId) clearTimeout(pending.timeoutId);
+    pending.disposeAbort?.();
     if (parsed.error) {
-      const error = new Error(parsed.error.message || 'RPC error');
+      const error = new RpcRemoteError(
+        parsed.error.message || 'RPC error',
+        parsed.error.code,
+        parsed.error.data
+      );
       pending.reject(error);
       return;
     }
@@ -124,6 +217,11 @@ export class JsonRpcClient {
 
 export class JsonRpcServer {
   private handlers = new Map<string, (...args: any[]) => unknown>();
+  private cancellableHandlers = new Map<
+    string,
+    (context: JsonRpcRequestContext, ...args: any[]) => unknown
+  >();
+  private activeRequests = new Map<JsonRpcId, AbortController>();
   private disposeListener: (() => void) | null = null;
 
   constructor(private transport: JsonRpcServerTransport) {
@@ -139,7 +237,22 @@ export class JsonRpcServer {
     };
   }
 
-  registerService(token: string, service: Record<string, any>): () => void {
+  registerCancellable(
+    method: string,
+    handler: (context: JsonRpcRequestContext, ...args: any[]) => unknown
+  ): () => void {
+    this.cancellableHandlers.set(method, handler);
+    return () => {
+      this.cancellableHandlers.delete(method);
+    };
+  }
+
+  registerService<TService extends object>(
+    token: RpcServiceToken<TService>,
+    service: TService
+  ): () => void;
+  registerService(token: string, service: Record<string, any>): () => void;
+  registerService(token: string, service: object): () => void {
     const disposers: Array<() => void> = [];
     for (const [key, value] of Object.entries(service)) {
       if (typeof value !== 'function') continue;
@@ -157,6 +270,9 @@ export class JsonRpcServer {
       this.disposeListener = null;
     }
     this.handlers.clear();
+    this.cancellableHandlers.clear();
+    for (const controller of this.activeRequests.values()) controller.abort();
+    this.activeRequests.clear();
   }
 
   private async handleMessage(message: string, reply: (response: string) => void) {
@@ -164,10 +280,17 @@ export class JsonRpcServer {
     if (!parsed) return;
     if (!isRequest(parsed) && !isNotification(parsed)) return;
 
+    if (parsed.method === '$/cancelRequest') {
+      const id = readCancellationId(parsed.params);
+      if (id !== undefined) this.activeRequests.get(id)?.abort();
+      return;
+    }
+
     const params = normalizeParams(parsed.params);
     const handler = this.handlers.get(parsed.method);
+    const cancellableHandler = this.cancellableHandlers.get(parsed.method);
 
-    if (!handler) {
+    if (!handler && !cancellableHandler) {
       if (isRequest(parsed)) {
         reply(
           JSON.stringify({
@@ -183,8 +306,19 @@ export class JsonRpcServer {
       return;
     }
 
+    const controller = new AbortController();
+    if (isRequest(parsed)) this.activeRequests.set(parsed.id, controller);
     try {
-      const result = await handler(...params);
+      const result = cancellableHandler
+        ? await cancellableHandler(
+            {
+              id: isRequest(parsed) ? parsed.id : 'notification',
+              method: parsed.method,
+              signal: controller.signal
+            },
+            ...params
+          )
+        : await handler!(...params);
       if (isRequest(parsed)) {
         reply(
           JSON.stringify({
@@ -202,20 +336,31 @@ export class JsonRpcServer {
             jsonrpc: '2.0',
             id: parsed.id,
             error: {
-              code: -32000,
-              message: messageText
+              code: readErrorCode(error),
+              message: messageText,
+              data: serializeErrorData(error)
             }
           })
         );
       }
+    } finally {
+      if (isRequest(parsed)) this.activeRequests.delete(parsed.id);
     }
   }
 }
 
+export function createRpcProxy<TService extends object>(
+  client: JsonRpcClient,
+  token: RpcServiceToken<TService>
+): RpcClientProxy<TService>;
 export function createRpcProxy<T extends Record<string, any>>(
   client: JsonRpcClient,
   token: string
-): T {
+): T;
+export function createRpcProxy(
+  client: JsonRpcClient,
+  token: string
+): Record<string, (...args: any[]) => unknown> {
   return new Proxy(
     {},
     {
@@ -228,13 +373,46 @@ export function createRpcProxy<T extends Record<string, any>>(
         return (...args: any[]) => client.request(`${token}.${prop}`, args);
       }
     }
-  ) as T;
+  );
 }
 
 function normalizeParams(params: unknown): any[] {
   if (params === undefined) return [];
   if (Array.isArray(params)) return params;
   return [params];
+}
+
+function createAbortError(method: string) {
+  const error = new Error(`RPC request cancelled: ${method}`);
+  error.name = 'AbortError';
+  return error;
+}
+
+function readCancellationId(params: unknown): JsonRpcId | undefined {
+  if (!params || typeof params !== 'object') return undefined;
+  const id = (params as { id?: unknown }).id;
+  return typeof id === 'string' || typeof id === 'number' ? id : undefined;
+}
+
+function readErrorCode(error: unknown): number {
+  if (!error || typeof error !== 'object') return -32000;
+  const code = (error as { rpcCode?: unknown }).rpcCode;
+  return typeof code === 'number' ? code : -32000;
+}
+
+function serializeErrorData(error: unknown): unknown {
+  if (!error || typeof error !== 'object') return undefined;
+  const value = error as {
+    toJSON?: () => unknown;
+    code?: unknown;
+    domain?: unknown;
+    details?: unknown;
+  };
+  if (typeof value.toJSON === 'function') return value.toJSON();
+  if (value.code !== undefined || value.domain !== undefined || value.details !== undefined) {
+    return { code: value.code, domain: value.domain, details: value.details };
+  }
+  return undefined;
 }
 
 function safeJsonParse(message: string): any | null {

@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import type { ExamConfig, ExamInfo } from '../src/types';
-import { hasExamTimeOverlap, validateExamConfig, validateExamConfigStructure } from '../src/parser';
+import {
+  hasExamTimeOverlap,
+  normalizeExamConfig,
+  parseExamConfigDetailed,
+  validateExamConfig,
+  validateExamConfigDetailed,
+  validateExamConfigStructure
+} from '../src/parser';
 
 const validExam: ExamInfo = {
   name: 'Math',
@@ -87,5 +94,64 @@ describe('hasExamTimeOverlap', () => {
       end: '2026-07-11T10:30:00'
     };
     expect(hasExamTimeOverlap(configWith(overlapping, validExam))).toBe(true);
+  });
+});
+
+describe('detailed configuration validation', () => {
+  it('returns structured JSON diagnostics without throwing', () => {
+    const result = parseExamConfigDetailed('{ nope');
+
+    expect(result.valid).toBe(false);
+    expect(result.errors).toEqual([
+      expect.objectContaining({ code: 'invalid-json', path: '$', severity: 'error' })
+    ]);
+  });
+
+  it('can downgrade overlap to a warning and returns a sorted clone', () => {
+    const later = {
+      ...validExam,
+      name: 'Later',
+      start: '2026-07-11T09:30:00',
+      end: '2026-07-11T10:30:00'
+    };
+    const input = configWith(later, validExam);
+    const result = validateExamConfigDetailed(input, { overlap: 'warning' });
+
+    expect(result.valid).toBe(true);
+    expect(result.warnings).toEqual([expect.objectContaining({ code: 'overlap' })]);
+    expect(result.config?.examInfos.map((exam) => exam.name)).toEqual(['Math', 'Later']);
+    expect(result.config).not.toBe(input);
+    expect(result.config?.examInfos).not.toBe(input.examInfos);
+  });
+
+  it('reports field paths for malformed nested material data', () => {
+    const result = validateExamConfigDetailed(
+      configWith({
+        ...validExam,
+        materials: [{ name: '', unit: '', quantity: -1 }]
+      })
+    );
+
+    expect(result.errors.map((issue) => [issue.code, issue.path])).toEqual([
+      ['required', '$.examInfos[0].materials[0].name'],
+      ['required', '$.examInfos[0].materials[0].unit'],
+      ['invalid-number', '$.examInfos[0].materials[0].quantity']
+    ]);
+  });
+
+  it('normalizes order without mutating the caller', () => {
+    const first = {
+      ...validExam,
+      name: 'First',
+      start: '2026-07-11T08:00:00',
+      end: '2026-07-11T08:30:00'
+    };
+    const input = configWith(validExam, first);
+
+    expect(normalizeExamConfig(input).examInfos.map((exam) => exam.name)).toEqual([
+      'First',
+      'Math'
+    ]);
+    expect(input.examInfos.map((exam) => exam.name)).toEqual(['Math', 'First']);
   });
 });

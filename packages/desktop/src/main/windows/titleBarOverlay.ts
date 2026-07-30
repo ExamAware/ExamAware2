@@ -1,5 +1,5 @@
 import { BrowserWindow, nativeTheme } from 'electron'
-import { appLogger } from '../logging/winstonLogger'
+import { appLogger } from '../logging/logger'
 
 export type OverlayTheme = 'light' | 'dark'
 

@@ -1,9 +1,10 @@
-import { defineExamAwarePlugin } from '@dsz-examaware/plugin-sdk';
+import { defineMainPlugin } from '@dsz-examaware/plugin-sdk';
 
-export default defineExamAwarePlugin((builder) => {
-  builder.use(async ({ ctx }, next) => {
-    ctx.logger.info('[@dsz-examaware/ringtone-factory] initializing');
-    await next();
-    ctx.logger.info('[@dsz-examaware/ringtone-factory] ready');
-  });
+export default defineMainPlugin({
+  activate(ctx) {
+    ctx.logger.info('铃声工厂主进程已激活');
+  },
+  deactivate(ctx) {
+    ctx.logger.info('铃声工厂主进程正在停用');
+  }
 });

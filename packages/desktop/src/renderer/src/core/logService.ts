@@ -1,13 +1,5 @@
-type LogLevel = 'log' | 'info' | 'warn' | 'error' | 'debug'
+import type { LogLevel, RendererLogPayload } from '../../../shared/types/desktop'
 
-type LogPayload = {
-  level: LogLevel
-  message: string
-  stack?: string
-  source?: string
-}
-
-const channel = 'logs:renderer'
 const defaultSource = 'renderer'
 
 function serializeArgs(args: any[]): { message: string; stack?: string } {
@@ -34,7 +26,7 @@ function serializeArgs(args: any[]): { message: string; stack?: string } {
 
 function emit(level: LogLevel, source: string | undefined, ...args: any[]) {
   const { message, stack } = serializeArgs(args)
-  const payload: LogPayload = {
+  const payload: RendererLogPayload = {
     level,
     message,
     stack,
@@ -42,11 +34,8 @@ function emit(level: LogLevel, source: string | undefined, ...args: any[]) {
   }
 
   try {
-    const api = (window as any).api
-    if (api?.ipc?.send) {
-      api.ipc.send(channel, payload)
-      return
-    }
+    window.api.logging.pushRendererLog(payload)
+    return
   } catch {}
 
   // Fallback to console to avoid dropping logs

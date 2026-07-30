@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { strFromU8, unzipSync } from 'fflate';
 import { describe, expect, it } from 'vitest';
-import { ReminderSoundPackStore } from '../../desktop/src/main/reminderSoundPackStore';
+import { ReminderSoundPackStore } from '../../desktop/src/main/reminderSound/soundPackStore';
 import {
   buildRingtonePack,
   RingtonePackError,

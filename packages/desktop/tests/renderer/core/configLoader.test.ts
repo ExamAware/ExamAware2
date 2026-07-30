@@ -14,38 +14,36 @@ function deferred<T>() {
   return { promise, resolve, reject }
 }
 
-type ConfigListener = (event: unknown, data: string) => void
+type ConfigListener = (data: string) => void
 
 class FakeIpcRenderer {
-  private listeners = new Map<string, Set<ConfigListener>>()
+  private listeners = new Set<ConfigListener>()
   readonly invokes: ReturnType<typeof deferred<string | null>>[] = []
 
-  on(channel: string, listener: ConfigListener) {
-    const listeners = this.listeners.get(channel) ?? new Set()
-    listeners.add(listener)
-    this.listeners.set(channel, listeners)
+  readonly files = {
+    read: () => Promise.resolve(validConfig)
   }
 
-  off(channel: string, listener: ConfigListener) {
-    this.listeners.get(channel)?.delete(listener)
-  }
-
-  invoke(channel: string) {
-    if (channel === 'read-file') return Promise.resolve(validConfig)
-    expect(channel).toBe('get-config')
-    const request = deferred<string | null>()
-    this.invokes.push(request)
-    return request.promise
-  }
-
-  emit(channel: string, data: string) {
-    for (const listener of [...(this.listeners.get(channel) ?? [])]) {
-      listener(null, data)
+  readonly config = {
+    getPlayback: () => {
+      const request = deferred<string | null>()
+      this.invokes.push(request)
+      return request.promise
+    },
+    onPlayback: (listener: ConfigListener) => {
+      this.listeners.add(listener)
+      return () => this.listeners.delete(listener)
     }
   }
 
-  listenerCount(channel: string) {
-    return this.listeners.get(channel)?.size ?? 0
+  emit(data: string) {
+    for (const listener of [...this.listeners]) {
+      listener(data)
+    }
+  }
+
+  listenerCount() {
+    return this.listeners.size
   }
 }
 
@@ -71,10 +69,10 @@ describe('ConfigLoader.loadFromIPC', () => {
     const loader = createConfigLoader(ipc)
     const result = loader.loadFromIPC()
 
-    ipc.emit('load-config', validConfig)
+    ipc.emit(validConfig)
 
     await expect(result).resolves.toMatchObject({ examName: 'Finals' })
-    expect(ipc.listenerCount('load-config')).toBe(0)
+    expect(ipc.listenerCount()).toBe(0)
     expect(vi.getTimerCount()).toBe(0)
   })
 
@@ -83,11 +81,11 @@ describe('ConfigLoader.loadFromIPC', () => {
     const loader = createConfigLoader(ipc)
     const result = loader.loadFromIPC()
 
-    ipc.emit('load-config', '{')
+    ipc.emit('{')
 
     await expect(result).rejects.toThrow('配置解析失败：JSON 格式错误')
     expect(loader.getState().error).toBe('IPC 数据解析失败: 配置解析失败：JSON 格式错误')
-    expect(ipc.listenerCount('load-config')).toBe(0)
+    expect(ipc.listenerCount()).toBe(0)
     expect(vi.getTimerCount()).toBe(0)
   })
 
@@ -100,9 +98,9 @@ describe('ConfigLoader.loadFromIPC', () => {
     await vi.advanceTimersByTimeAsync(100)
 
     await rejection
-    ipc.emit('load-config', validConfig)
+    ipc.emit(validConfig)
     expect(loader.getState().loaded).toBe(false)
-    expect(ipc.listenerCount('load-config')).toBe(0)
+    expect(ipc.listenerCount()).toBe(0)
     expect(vi.getTimerCount()).toBe(0)
   })
 
@@ -115,12 +113,12 @@ describe('ConfigLoader.loadFromIPC', () => {
     const second = loader.loadFromIPC()
 
     await firstRejection
-    expect(ipc.listenerCount('load-config')).toBe(1)
+    expect(ipc.listenerCount()).toBe(1)
     expect(vi.getTimerCount()).toBe(1)
 
-    ipc.emit('load-config', validConfig)
+    ipc.emit(validConfig)
     await expect(second).resolves.toMatchObject({ examName: 'Finals' })
-    expect(ipc.listenerCount('load-config')).toBe(0)
+    expect(ipc.listenerCount()).toBe(0)
     expect(vi.getTimerCount()).toBe(0)
   })
 
@@ -136,10 +134,10 @@ describe('ConfigLoader.loadFromIPC', () => {
 
     await firstRejection
     expect(loader.getState()).toMatchObject({ loading: true, loaded: false, config: null })
-    expect(ipc.listenerCount('load-config')).toBe(1)
+    expect(ipc.listenerCount()).toBe(1)
     expect(vi.getTimerCount()).toBe(1)
 
-    ipc.emit('load-config', validConfig)
+    ipc.emit(validConfig)
     await expect(second).resolves.toMatchObject({ examName: 'Finals' })
   })
 
@@ -151,18 +149,18 @@ describe('ConfigLoader.loadFromIPC', () => {
     const second = loader.loadFromIPC()
     const secondConfig = JSON.stringify({ examName: 'Second', message: '', examInfos: [] })
 
-    ipc.emit('load-config', secondConfig)
+    ipc.emit(secondConfig)
 
     await firstRejection
     await expect(second).resolves.toMatchObject({ examName: 'Second' })
-    expect(ipc.listenerCount('load-config')).toBe(0)
+    expect(ipc.listenerCount()).toBe(0)
     expect(vi.getTimerCount()).toBe(0)
 
     ipc.invokes[0].resolve(validConfig)
     await Promise.resolve()
 
     expect(loader.getState()).toMatchObject({ loaded: true, config: { examName: 'Second' } })
-    expect(ipc.listenerCount('load-config')).toBe(0)
+    expect(ipc.listenerCount()).toBe(0)
     expect(vi.getTimerCount()).toBe(0)
   })
 
@@ -181,9 +179,9 @@ describe('ConfigLoader.loadFromIPC', () => {
     expect(warn).not.toHaveBeenCalled()
     expect(loader.getState()).toMatchObject({ loading: true, loaded: false, config: null })
 
-    ipc.emit('load-config', validConfig)
+    ipc.emit(validConfig)
     await expect(second).resolves.toMatchObject({ examName: 'Finals' })
-    expect(ipc.listenerCount('load-config')).toBe(0)
+    expect(ipc.listenerCount()).toBe(0)
     expect(vi.getTimerCount()).toBe(0)
   })
 
@@ -203,11 +201,11 @@ describe('ConfigLoader.loadFromIPC', () => {
       source: null,
       config: null
     })
-    expect(ipc.listenerCount('load-config')).toBe(0)
+    expect(ipc.listenerCount()).toBe(0)
     expect(vi.getTimerCount()).toBe(0)
 
     ipc.invokes[0].reject(new Error('too late'))
-    ipc.emit('load-config', validConfig)
+    ipc.emit(validConfig)
     await Promise.resolve()
 
     expect(loader.getState()).toEqual({
@@ -244,11 +242,11 @@ describe('ConfigLoader.loadFromIPC', () => {
 
     await ipcRejection
     await expect(replacement).resolves.toMatchObject({ examName: 'Finals' })
-    expect(ipc.listenerCount('load-config')).toBe(0)
+    expect(ipc.listenerCount()).toBe(0)
     expect(vi.getTimerCount()).toBe(0)
 
     ipc.invokes[0].resolve(JSON.stringify({ examName: 'Stale IPC', message: '', examInfos: [] }))
-    ipc.emit('load-config', JSON.stringify({ examName: 'Stale event', message: '', examInfos: [] }))
+    ipc.emit(JSON.stringify({ examName: 'Stale event', message: '', examInfos: [] }))
     await Promise.resolve()
 
     expect(loader.getState()).toMatchObject({

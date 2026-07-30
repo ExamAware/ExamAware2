@@ -22,7 +22,7 @@ import { homeButtonsModule } from './app/modules/homeButtons'
 import { settingsModule } from './app/modules/settings'
 
 async function bootstrap() {
-  const platform = (window as any).electronAPI?.platform || 'unknown'
+  const platform = window.api.windows.platform
   const hash = window.location.hash || ''
   const isMacMain = platform === 'darwin' && hash.includes('mainpage')
 
@@ -44,8 +44,8 @@ async function bootstrap() {
   app.app.mount('#app')
 
   try {
-    const windowId = await (window as any).api?.windows?.currentId?.()
-    ;(window as any).api?.ipc?.send?.('renderer:ready', { windowId })
+    const windowId = await window.api.windows.currentId()
+    window.api.windows.rendererReady(windowId)
   } catch (error) {
     console.warn('failed to notify renderer ready', error)
   }

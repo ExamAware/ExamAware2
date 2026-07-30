@@ -11,7 +11,6 @@ import { requestUnsavedChangesDecision } from '@renderer/core/unsavedChangesDial
 let allowCloseGlobal = false
 let closingInProgressGlobal = false
 let closeListenerRegistered = false
-let removeRequestCloseListenerGlobal: (() => void) | null = null
 import { KeyboardShortcutManager, type KeyboardShortcut } from '@renderer/core/keyboardShortcuts'
 import { historyStore } from '@renderer/core/historyStore'
 
@@ -32,8 +31,9 @@ export function useExamEditor() {
 
   // 键盘快捷键管理器
   const keyboardManager = new KeyboardShortcutManager()
+  let removeOpenFileListener: (() => void) | undefined
 
-  const platform = window.electronAPI?.platform || 'unknown'
+  const platform = window.api.windows.platform
   const isMac = platform === 'darwin'
 
   const getEditableElement = () => {
@@ -299,7 +299,7 @@ export function useExamEditor() {
 
     try {
       const content = configManager.exportToJson()
-      const success = await window.api?.saveFile(currentFilePath.value, content)
+      const success = await window.api.files.write(currentFilePath.value, content)
       if (success) {
         isFileModified.value = false
         MessageService.success('文件已保存')
@@ -323,9 +323,9 @@ export function useExamEditor() {
     try {
       const content = configManager.exportToJson()
 
-      const filePath = await window.api?.saveFileDialog()
+      const filePath = await window.api.files.saveAs()
       if (filePath) {
-        const success = await window.api?.saveFile(filePath, content)
+        const success = await window.api.files.write(filePath, content)
         if (success) {
           currentFilePath.value = filePath
           isFileModified.value = false
@@ -395,9 +395,9 @@ export function useExamEditor() {
     }
 
     try {
-      const filePath = await window.api?.openFileDialog()
+      const filePath = await window.api.files.open()
       if (filePath) {
-        const content = await window.api?.readFile(filePath)
+        const content = await window.api.files.read(filePath)
         if (content) {
           const success = configManager.loadFromJson(content)
           if (success) {
@@ -458,7 +458,7 @@ export function useExamEditor() {
     if (isFileModified.value) {
       let choice: 'save' | 'discard' | 'cancel'
       try {
-        choice = await requestUnsavedChangesDecision(window.api?.dialog?.showMessageBox)
+        choice = await requestUnsavedChangesDecision(window.api.dialogs.showMessageBox)
         closeLogger.info('messageBox choice', { choice })
       } catch (error) {
         console.error('显示保存确认对话框失败:', error)
@@ -496,26 +496,20 @@ export function useExamEditor() {
     allowCloseGlobal = allowClose
     if (allowClose) {
       closeLogger.info('sending close signal')
-      window.electronAPI?.close?.()
+      window.api.windows.closeCurrent()
     }
     setClosingFlag(false)
     closeLogger.info('close flow ended')
   }
-
-  let removeRequestCloseListener: (() => void) | null = null
 
   onMounted(() => {
     if (closeListenerRegistered) return
     const handler = () => {
       void closeEditorWindow()
     }
-    if (window.api?.ipc?.on && window.api?.ipc?.off) {
-      window.api.ipc.on('editor:request-close', handler)
-      removeRequestCloseListenerGlobal = () =>
-        window.api?.ipc?.off?.('editor:request-close', handler)
-      closeListenerRegistered = true
-      closeLogger.info('registered request-close listener')
-    }
+    window.api.windows.onEditorCloseRequested(handler)
+    closeListenerRegistered = true
+    closeLogger.info('registered request-close listener')
   })
 
   onUnmounted(() => {
@@ -577,21 +571,13 @@ export function useExamEditor() {
       const content = configManager.exportToJson()
 
       if (currentFilePath.value && !isFileModified.value) {
-        window.api?.ipc?.send?.('open-player-window', currentFilePath.value)
+        window.api.player.openWindow(currentFilePath.value)
         MessageService.success('放映窗口已启动')
         return
       }
 
-      const openFromEditor =
-        window.api?.player?.openFromEditor ??
-        ((data: string) => window.api?.ipc?.invoke?.('player:open-from-editor', data))
-
-      if (!openFromEditor) {
-        MessageService.error('当前环境不支持直接放映，请导出后在放映器中打开')
-        return
-      }
-
-      await openFromEditor(content)
+      MessageService.info('正在启动放映窗口...')
+      await window.api.player.openFromEditor(content)
       MessageService.success('放映窗口已启动')
     } catch (error) {
       MessageService.error('放映启动失败')
@@ -708,10 +694,10 @@ export function useExamEditor() {
     window.addEventListener('pagehide', handlePageHide)
 
     // 监听启动时打开文件的事件
-    window.electronAPI?.onOpenFileAtStartup?.(async (filePath: string) => {
+    removeOpenFileListener = window.api.windows.onOpenFileAtStartup(async (filePath: string) => {
       try {
         console.log('Opening file at startup:', filePath)
-        const content = await window.api?.readFile(filePath)
+        const content = await window.api.files.read(filePath)
         if (content) {
           const success = configManager.loadFromJson(content)
           if (success) {
@@ -741,6 +727,8 @@ export function useExamEditor() {
     historyStore.flushAllDebounced()
     configManager.removeListener(configListener)
     keyboardManager.stopListening()
+    removeOpenFileListener?.()
+    removeOpenFileListener = undefined
     // 清理监听
     // 注意：此处无法直接移除在 onMounted 中声明的本地函数，
     // 因此建议使用相同引用移除（若需要更严格，可将处理器提升到外层变量）。

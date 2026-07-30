@@ -70,7 +70,7 @@ export class EauiWindowImpl extends EauiWidgetBase implements EauiWindow {
     this.layout?.dispose()
     this.layout = layout
     this.body.innerHTML = ''
-    this.body.appendChild(layout.element)
+    this.body.appendChild(layout.element as Node)
   }
 
   show() {

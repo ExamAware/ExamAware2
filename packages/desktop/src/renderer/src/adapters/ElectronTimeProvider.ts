@@ -3,6 +3,9 @@
  * 将 Electron 的 NTP 时间同步功能适配到新的 player 包
  */
 
+import type { DesktopBridge } from '../../../shared/ipc/bridge'
+import type { TimeSyncConfig, TimeSyncInfo } from '../../../shared/types/desktop'
+
 // 定义时间提供器接口（与 player 包中的接口保持一致）
 interface TimeProvider {
   getCurrentTime: () => number
@@ -10,32 +13,16 @@ interface TimeProvider {
   offTimeChange?: (callback: () => void) => void
 }
 
-interface ElectronTimeSyncAPI {
-  invoke: (channel: string, ...args: any[]) => Promise<any>
-  on: (channel: string, callback: (...args: any[]) => void) => void
-  off: (channel: string, callback: (...args: any[]) => void) => void
-}
-
-interface TimeSyncInfo {
-  offset: number
-  roundTripDelay: number
-  lastSyncTime: number
-  serverAddress: string
-  manualOffset: number
-  syncStatus: 'success' | 'error' | 'pending' | 'disabled'
-  errorMessage?: string
-}
-
 export class ElectronTimeProvider implements TimeProvider {
-  private electronAPI: ElectronTimeSyncAPI
   private syncedTimeOffset = 0
   private syncStatus: TimeSyncInfo['syncStatus'] = 'pending'
   private changeCallbacks: (() => void)[] = []
   private intervalId: NodeJS.Timeout | null = null
   private destroyed = false
+  private removeSyncListener: (() => void) | undefined
 
-  constructor(electronAPI: ElectronTimeSyncAPI) {
-    this.electronAPI = electronAPI
+  constructor(private readonly timeSync: DesktopBridge['timeSync']) {
+    this.removeSyncListener = timeSync.onChanged((info) => this.applySyncInfo(info))
     this.initialize()
   }
 
@@ -72,24 +59,19 @@ export class ElectronTimeProvider implements TimeProvider {
 
   private async updateSyncInfo(): Promise<void> {
     try {
-      const syncInfo: TimeSyncInfo = await this.electronAPI.invoke('time:get-sync-info')
-
-      // 更新时间偏移量
-      const newOffset = syncInfo.offset + syncInfo.manualOffset
-      const oldOffset = this.syncedTimeOffset
-
-      this.syncedTimeOffset = newOffset
-      this.syncStatus = syncInfo.syncStatus
-
-      // 如果偏移量发生变化，触发回调
-      if (Math.abs(newOffset - oldOffset) > 100) {
-        // 超过100ms的变化才触发
-        this.notifyTimeChange()
-      }
+      this.applySyncInfo(await this.timeSync.getInfo())
     } catch (error) {
       console.error('获取时间同步信息失败:', error)
       this.syncStatus = 'error'
     }
+  }
+
+  private applySyncInfo(syncInfo: TimeSyncInfo) {
+    const newOffset = syncInfo.offset + syncInfo.manualOffset
+    const oldOffset = this.syncedTimeOffset
+    this.syncedTimeOffset = newOffset
+    this.syncStatus = syncInfo.syncStatus
+    if (Math.abs(newOffset - oldOffset) > 100) this.notifyTimeChange()
   }
 
   private startTimeUpdates(): void {
@@ -156,7 +138,7 @@ export class ElectronTimeProvider implements TimeProvider {
    * 执行时间同步
    */
   async performSync(): Promise<TimeSyncInfo> {
-    const result = await this.electronAPI.invoke('time:sync-now')
+    const result = await this.timeSync.synchronize()
     await this.updateSyncInfo()
     return result
   }
@@ -164,8 +146,8 @@ export class ElectronTimeProvider implements TimeProvider {
   /**
    * 更新时间同步配置
    */
-  async updateConfig(config: any): Promise<any> {
-    const result = await this.electronAPI.invoke('time:update-config', config)
+  async updateConfig(config: Partial<TimeSyncConfig>): Promise<TimeSyncConfig> {
+    const result = await this.timeSync.updateConfig(config)
     await this.updateSyncInfo()
     return result
   }
@@ -175,6 +157,8 @@ export class ElectronTimeProvider implements TimeProvider {
    */
   destroy(): void {
     this.destroyed = true
+    this.removeSyncListener?.()
+    this.removeSyncListener = undefined
     this.stopTimeUpdates()
     this.changeCallbacks = []
   }

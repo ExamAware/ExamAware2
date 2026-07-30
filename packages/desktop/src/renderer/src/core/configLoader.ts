@@ -1,5 +1,11 @@
 import type { ExamConfig } from './configTypes'
 import { getSortedExamConfig, validateExamConfig } from './parser'
+import type { DesktopBridge } from '../../../shared/ipc/bridge'
+
+export interface ConfigLoaderBridge {
+  files: Pick<DesktopBridge['files'], 'read'>
+  config: Pick<DesktopBridge['config'], 'getPlayback' | 'onPlayback'>
+}
 
 // 配置数据源类型
 export type ConfigSource =
@@ -44,7 +50,7 @@ export class ConfigLoader {
 
   private activeIPCRequest: ActiveIPCRequest | null = null
 
-  constructor(private ipcRenderer?: any) {}
+  constructor(private bridge?: ConfigLoaderBridge) {}
 
   private cancelActiveIPCRequest() {
     this.activeIPCRequest?.cancel()
@@ -120,11 +126,11 @@ export class ConfigLoader {
     this.setLoading(true)
 
     try {
-      if (!this.ipcRenderer) {
-        throw new Error('IPC renderer 不可用')
+      if (!this.bridge) {
+        throw new Error('桌面配置桥接不可用')
       }
 
-      const fileContent = await this.ipcRenderer.invoke('read-file', filePath)
+      const fileContent = await this.bridge.files.read(filePath)
       if (!fileContent) {
         throw new Error('文件读取失败或文件为空')
       }
@@ -186,14 +192,15 @@ export class ConfigLoader {
     this.setLoading(true)
 
     return new Promise((resolve, reject) => {
-      if (!this.ipcRenderer) {
-        const error = new Error('IPC renderer 不可用')
+      if (!this.bridge) {
+        const error = new Error('桌面配置桥接不可用')
         this.setError(error.message)
         reject(error)
         return
       }
 
       let timeoutId: ReturnType<typeof setTimeout> | undefined
+      let removePlaybackListener: (() => void) | undefined
 
       const request: ActiveIPCRequest = {
         settled: false,
@@ -210,16 +217,12 @@ export class ConfigLoader {
           clearTimeout(timeoutId)
           timeoutId = undefined
         }
-        const removeListener = this.ipcRenderer.off ?? this.ipcRenderer.removeListener
-        if (typeof removeListener === 'function') {
-          try {
-            removeListener.call(this.ipcRenderer, 'load-config', handleConfig)
-          } catch (error) {
-            console.error('清理 IPC 配置监听失败:', error)
-          }
-        } else {
-          console.error('IPC renderer 缺少 off/removeListener，无法清理配置监听')
+        try {
+          removePlaybackListener?.()
+        } catch (error) {
+          console.error('清理配置监听失败:', error)
         }
+        removePlaybackListener = undefined
         if (this.activeIPCRequest === request) {
           this.activeIPCRequest = null
         }
@@ -233,7 +236,7 @@ export class ConfigLoader {
         reject(error)
       }
 
-      const handleConfig = (_event: any, data: string) => {
+      const handleConfig = (data: string) => {
         if (request.settled || this.activeIPCRequest !== request) return
 
         try {
@@ -250,25 +253,25 @@ export class ConfigLoader {
       }
 
       this.activeIPCRequest = request
-      this.ipcRenderer.on('load-config', handleConfig)
+      removePlaybackListener = this.bridge.config.onPlayback(handleConfig)
 
       timeoutId = setTimeout(() => {
         fail(new Error('IPC 配置加载超时'), 'IPC 配置加载超时')
       }, timeout)
 
       // 尝试主动获取配置
-      this.ipcRenderer
-        .invoke('get-config')
+      this.bridge.config
+        .getPlayback()
         .then((data: string | null) => {
           if (request.settled || this.activeIPCRequest !== request) return
           if (data) {
-            handleConfig(null, data)
+            handleConfig(data)
           }
         })
         .catch((error: Error) => {
           if (request.settled || this.activeIPCRequest !== request) return
           console.warn('主动获取配置失败:', error)
-          // 继续等待 load-config 事件
+          // 继续等待主进程主动推送配置
         })
     })
   }
@@ -330,14 +333,14 @@ export class ConfigLoader {
 // 默认实例（单例模式）
 let defaultInstance: ConfigLoader | null = null
 
-export function getConfigLoader(ipcRenderer?: any): ConfigLoader {
+export function getConfigLoader(bridge?: ConfigLoaderBridge): ConfigLoader {
   if (!defaultInstance) {
-    defaultInstance = new ConfigLoader(ipcRenderer)
+    defaultInstance = new ConfigLoader(bridge)
   }
   return defaultInstance
 }
 
 // 配置加载器工厂函数
-export function createConfigLoader(ipcRenderer?: any): ConfigLoader {
-  return new ConfigLoader(ipcRenderer)
+export function createConfigLoader(bridge?: ConfigLoaderBridge): ConfigLoader {
+  return new ConfigLoader(bridge)
 }

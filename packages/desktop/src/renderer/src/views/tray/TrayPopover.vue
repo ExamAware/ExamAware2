@@ -54,16 +54,16 @@ import logoUrl from '@renderer/assets/logo.svg'
 const logo = logoUrl
 
 function openMain() {
-  window.api.ipc.send('ui:open-main')
+  window.api.windows.openMain()
 }
 function openSettings() {
-  window.api.ipc.send('open-settings-window')
+  window.api.windows.openSettings()
 }
 function openLogs() {
-  window.api.ipc.send('open-logs-window')
+  window.api.windows.openLogs()
 }
 function quit() {
-  window.api.ipc.send('ui:app-quit')
+  window.api.app.quit()
 }
 </script>
 

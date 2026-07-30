@@ -39,11 +39,6 @@ export function useTheme() {
       document.documentElement.classList.remove('dark')
       document.documentElement.setAttribute('theme-mode', 'light')
     }
-
-    // 更新TDesign主题
-    if (window.TDesign) {
-      window.TDesign.setTheme(actualTheme)
-    }
   }
 
   // 设置主题模式

@@ -124,7 +124,6 @@ async function toggleShare(enable: boolean) {
     applyConfig(cfg)
     await loadLocalShares()
     if (enable) {
-      window.api.ipc.send('cast:sync-now')
       setTimeout(() => {
         void loadLocalShares()
       }, 800)
@@ -140,7 +139,7 @@ async function toggleShare(enable: boolean) {
 }
 
 function openCastWindow() {
-  window.api.ipc.send('open-cast-window')
+  window.api.windows.openCast()
 }
 
 function formatTime(ts: number) {

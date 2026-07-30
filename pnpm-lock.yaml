@@ -295,8 +295,8 @@ importers:
   packages/desktop/plugins/examaware-plugin-doom:
     dependencies:
       '@dsz-examaware/plugin-sdk':
-        specifier: ^1.1.2
-        version: 1.1.2
+        specifier: workspace:*
+        version: link:../../../plugin-sdk
       vue:
         specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
@@ -326,7 +326,7 @@ importers:
   packages/desktop/plugins/examaware-plugin-example:
     dependencies:
       '@dsz-examaware/plugin-sdk':
-        specifier: workspace:1.2.2
+        specifier: workspace:*
         version: link:../../../plugin-sdk
       vue:
         specifier: ^3.5.26
@@ -399,6 +399,12 @@ importers:
 
   packages/plugin-sdk:
     dependencies:
+      '@dsz-examaware/core':
+        specifier: workspace:*
+        version: link:../core
+      '@dsz-examaware/rpc':
+        specifier: workspace:*
+        version: link:../rpc
       archiver:
         specifier: ^7.0.1
         version: 7.0.1
@@ -406,12 +412,18 @@ importers:
         specifier: ^7.4.3
         version: 7.5.2
     devDependencies:
+      electron:
+        specifier: 39.2.7
+        version: 39.2.7
       typescript:
         specifier: ~5.9.3
         version: 5.9.3
       vite:
         specifier: ^7.3.0
         version: 7.3.0(@types/node@25.0.3)(jiti@2.6.1)(sass-embedded@1.97.1)(sass@1.97.1)(yaml@2.8.2)
+      vue:
+        specifier: ^3.5.26
+        version: 3.5.26(typescript@5.9.3)
 
   packages/plugin-template: {}
 
@@ -805,10 +817,6 @@ packages:
   '@develar/schema-utils@2.6.5':
     resolution: {integrity: sha512-0cp4PsWQ/9avqTVMCtZ+GirikIA36ikvjtHweU4/j8yLtgObI0+JUPhYFScgwlteveGB1rt3Cm8UhN04XayDig==}
     engines: {node: '>= 8.9.0'}
-
-  '@dsz-examaware/plugin-sdk@1.1.2':
-    resolution: {integrity: sha512-NbCdJhxeZryBMIPGrFqqhkKIOYVRRtuUu6c35gP+rBiJYnR3uU/DeB11vnyzTpNza+ch2gu0XDTbqs1mOKPiWQ==}
-    hasBin: true
 
   '@electron-toolkit/eslint-config-prettier@3.0.0':
     resolution: {integrity: sha512-YapmIOVkbYdHLuTa+ad1SAVtcqYL9A/SJsc7cxQokmhcwAwonGevNom37jBf9slXegcZ/Slh01I/JARG1yhNFw==}
@@ -7072,13 +7080,6 @@ snapshots:
     dependencies:
       ajv: 6.12.6
       ajv-keywords: 3.5.2(ajv@6.12.6)
-
-  '@dsz-examaware/plugin-sdk@1.1.2':
-    dependencies:
-      archiver: 7.0.1
-    transitivePeerDependencies:
-      - bare-abort-controller
-      - react-native-b4a
 
   '@electron-toolkit/eslint-config-prettier@3.0.0(eslint@9.39.2(jiti@2.6.1))(prettier@3.7.4)':
     dependencies:

@@ -36,8 +36,8 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 
-const ipcRenderer = window.api.ipc
-const windowAPI = (window as any).electronAPI
+const windowAPI = window.api.windows
+const windowStateDisposers: Array<() => void> = []
 
 const platform = windowAPI?.platform || 'unknown'
 const isMacOS = platform === 'darwin'
@@ -48,42 +48,32 @@ const isMaximized = ref(false)
 const showControls = !isLinux && windowAPI
 
 const minimizeWindow = () => {
-  if (windowAPI?.minimize) {
-    windowAPI.minimize()
-  }
+  windowAPI.minimize()
 }
 
 const maximizeWindow = () => {
-  if (windowAPI?.maximize) {
-    windowAPI.maximize()
-  }
+  windowAPI.toggleMaximize()
 }
 
 const closeWindow = () => {
-  if (windowAPI?.close) {
-    windowAPI.close()
-  }
+  windowAPI.closeCurrent()
 }
 
 // 监听窗口状态变化
 const handleWindowStateChange = async () => {
-  if (windowAPI?.isMaximized) {
-    isMaximized.value = await windowAPI.isMaximized()
-  }
+  isMaximized.value = await windowAPI.isMaximized()
 }
 
 onMounted(() => {
   if (showControls && !isMacOS && windowAPI) {
     // 设置窗口监听器
-    if (windowAPI.setupListeners) {
-      windowAPI.setupListeners()
-    }
+    windowAPI.setupStateListeners()
 
     // 监听窗口状态变化
-    if (ipcRenderer) {
-      ipcRenderer.on('window-maximize', handleWindowStateChange)
-      ipcRenderer.on('window-unmaximize', handleWindowStateChange)
-    }
+    windowStateDisposers.push(
+      windowAPI.onMaximized(handleWindowStateChange),
+      windowAPI.onUnmaximized(handleWindowStateChange)
+    )
 
     // 初始化状态
     handleWindowStateChange()
@@ -91,10 +81,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  if (showControls && !isMacOS && ipcRenderer) {
-    ipcRenderer.off('window-maximize', handleWindowStateChange)
-    ipcRenderer.off('window-unmaximize', handleWindowStateChange)
-  }
+  windowStateDisposers.splice(0).forEach((dispose) => dispose())
 })
 </script>
 

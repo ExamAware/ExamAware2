@@ -208,7 +208,7 @@ const swaggerUrl = computed(() => `${baseUrl.value}/api/v1/swagger`)
 async function load() {
   hydrated.value = false
   try {
-    const cfg = (await window.api.http.getConfig()) as HttpApiConfig
+    const cfg = (await window.api.httpApi.getConfig()) as HttpApiConfig
     suppressWatch.value = true
     form.enabled = !!cfg?.enabled
     form.port = Number(cfg?.port) || 31234
@@ -235,7 +235,7 @@ async function applyConfig() {
   if (!hydrated.value) return
   applying.value = true
   try {
-    const cfg = (await window.api.http.setConfig({
+    const cfg = (await window.api.httpApi.setConfig({
       enabled: form.enabled,
       port: form.port,
       token: form.token?.trim() || undefined,
@@ -310,7 +310,7 @@ async function restart() {
   if (!form.enabled) return
   applying.value = true
   try {
-    await window.api.http.restart()
+    await window.api.httpApi.restart()
     MessagePlugin.success('HTTP API 已重启')
     await load()
   } catch (err) {

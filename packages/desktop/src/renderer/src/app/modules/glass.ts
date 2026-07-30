@@ -5,7 +5,7 @@ import { useSettingsStore } from '@renderer/stores/settingsStore'
 export const glassModule: AppModule = {
   name: 'glass-toggle',
   install(_app: App, ctx) {
-    const platform = (window as any).electronAPI?.platform || 'unknown'
+    const platform = window.api.windows.platform
     const hash = window.location.hash || ''
     const isMacMain = platform === 'darwin' && hash.includes('mainpage')
     if (!isMacMain) return
@@ -22,7 +22,7 @@ export const glassModule: AppModule = {
       ctx.piniaSubscribe(store as any, apply)
     } else {
       const stop = store.$subscribe(apply)
-      return () => stop()
+      ctx.effect?.(() => stop())
     }
   }
 }

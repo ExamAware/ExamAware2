@@ -20,7 +20,9 @@
     "build:linux:deb": "pnpm build && pnpm run prepare:packdeps && pnpm run prepare:workspace-deps && pnpm exec electron-builder --linux deb --publish=never",
     "build:all": "pnpm build && pnpm run prepare:packdeps && pnpm run prepare:workspace-deps && pnpm exec electron-builder --win --mac --linux --publish=never",
     "dist": "pnpm build && pnpm run prepare:packdeps && pnpm run prepare:workspace-deps && pnpm exec electron-builder --publish=never",
-    "type-check": "vue-tsc --noEmit",
+    "type-check": "run-s type-check:node type-check:web",
+    "type-check:node": "tsc -p tsconfig.node.json --noEmit",
+    "type-check:web": "vue-tsc -p tsconfig.web.json --noEmit",
     "lint": "eslint src --ext .ts,.vue",
     "clean": "rm -rf dist"
   },

@@ -96,14 +96,14 @@ const autoStart = useSettingRef<boolean>('behavior.autoStart', false)
 
 async function syncAutoStartFromSystem() {
   try {
-    const cur = await window.api.system.autostart.get()
+    const cur = await window.api.app.getAutoStart()
     autoStart.value = !!cur
   } catch {}
 }
 
 watch(autoStart, async (v) => {
   try {
-    await window.api.system.autostart.set(!!v)
+    await window.api.app.setAutoStart(!!v)
   } catch (e) {
     console.error('设置开机自启失败', e)
   }

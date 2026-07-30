@@ -6,6 +6,8 @@
     "types": ["electron-vite/node"],
     "moduleResolution": "bundler",
     "experimentalDecorators": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "ignoreDeprecations": "5.0",
     "baseUrl": ".",
     "paths": {

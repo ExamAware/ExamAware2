@@ -1,22 +1,38 @@
 import { ipcMain, type BrowserWindow } from 'electron'
-import * as fs from 'fs'
 import { is } from '@electron-toolkit/utils'
+import { ipcChannels } from '../../shared/ipc/channels'
+import { sendIpcEvent } from '../../shared/ipc/sender'
+import type { PlayerConfigStatus } from '../../shared/types/desktop'
 import { windowManager } from './windowManager'
-import { appLogger } from '../logging/winstonLogger'
-import { setSharedConfig } from '../state/sharedConfigStore'
-
-interface PlayerConfigStatus {
-  ok: boolean
-  examName?: string
-  examCount?: number
-  message?: string
-}
+import { appLogger } from '../logging/logger'
+import { setSharedConfig } from '../config/sharedConfigStore'
 
 const CONFIG_ACK_TIMEOUT_MS = 5000
 
-export function createPlayerWindow(configPath: string): BrowserWindow {
-  // Prevent the new renderer's get-config fallback from consuming the previous playback data.
-  setSharedConfig(null)
+export interface PlayerWindowHooks {
+  onConfigStatus?: (status: PlayerConfigStatus | undefined) => void
+  onClosed?: () => void
+}
+
+export interface PlayerWindowOptions {
+  fullscreen?: boolean
+  kiosk?: boolean
+  alwaysOnTop?: boolean
+  displayId?: string
+}
+
+export interface PlayerWindowConfig {
+  data: string
+  source: string
+}
+
+export function createPlayerWindow(
+  config: PlayerWindowConfig,
+  hooks: PlayerWindowHooks = {},
+  windowOptions: PlayerWindowOptions = {}
+): BrowserWindow {
+  // Make getPlayback() useful as soon as the renderer starts, even before its event listener exists.
+  setSharedConfig(config.data)
 
   return windowManager.open(
     ({ commonOptions }) => ({
@@ -26,11 +42,12 @@ export function createPlayerWindow(configPath: string): BrowserWindow {
         ...commonOptions(),
         width: 1920,
         height: 1080,
-        fullscreen: !is.dev,
-        kiosk: !is.dev
+        show: true,
+        fullscreen: windowOptions.fullscreen ?? !is.dev,
+        kiosk: windowOptions.kiosk ?? !is.dev
       },
       setup: (playerWindow) => {
-        if (!is.dev) {
+        if (windowOptions.alwaysOnTop ?? !is.dev) {
           playerWindow.setAlwaysOnTop(true, 'screen-saver')
         }
 
@@ -45,14 +62,13 @@ export function createPlayerWindow(configPath: string): BrowserWindow {
         }
         playerWindow.on('close', handleClose)
 
-        const exitChannel = 'player-window-exit'
         const onRendererExit = (event: Electron.IpcMainEvent) => {
           if (event.sender === playerWindow.webContents) {
             allowClose = true
             playerWindow.close()
           }
         }
-        ipcMain.on(exitChannel, onRendererExit)
+        ipcMain.on(ipcChannels.player.exitWindow.channel, onRendererExit)
 
         // windowManager 已统一设置外链打开处理
 
@@ -79,7 +95,6 @@ export function createPlayerWindow(configPath: string): BrowserWindow {
           }
         })
 
-        let configData: string | null = null
         let rendererReady = false
         let configSent = false
         let configAckTimer: ReturnType<typeof setTimeout> | undefined
@@ -94,9 +109,10 @@ export function createPlayerWindow(configPath: string): BrowserWindow {
         const onConfigStatus = (event: Electron.IpcMainEvent, status?: PlayerConfigStatus) => {
           if (event.sender !== playerWindow.webContents) return
           clearConfigAckTimer()
+          hooks.onConfigStatus?.(status)
           if (status?.ok) {
             appLogger.info('[player] renderer loaded configuration', {
-              path: configPath,
+              source: config.source,
               examName: status.examName,
               examCount: status.examCount
             })
@@ -107,20 +123,20 @@ export function createPlayerWindow(configPath: string): BrowserWindow {
             new Error(status?.message || 'Renderer returned an unknown configuration error')
           )
         }
-        ipcMain.on('player:config-status', onConfigStatus)
+        ipcMain.on(ipcChannels.player.configStatus.channel, onConfigStatus)
 
         const sendConfigWhenReady = () => {
-          if (!rendererReady || !configData || configSent || playerWindow.isDestroyed()) return
+          if (!rendererReady || configSent || playerWindow.isDestroyed()) return
           try {
-            playerWindow.webContents.send('load-config', configData)
+            sendIpcEvent(playerWindow.webContents, ipcChannels.config.loadPlayback, config.data)
             configSent = true
-            appLogger.debug('[player] configuration sent to renderer (len=%d)', configData.length)
+            appLogger.debug('[player] configuration sent to renderer (len=%d)', config.data.length)
             clearConfigAckTimer()
             configAckTimer = setTimeout(() => {
               configAckTimer = undefined
               appLogger.error('[player] renderer did not acknowledge configuration', {
-                path: configPath,
-                length: configData?.length ?? 0,
+                source: config.source,
+                length: config.data.length,
                 timeoutMs: CONFIG_ACK_TIMEOUT_MS
               })
             }, CONFIG_ACK_TIMEOUT_MS)
@@ -134,34 +150,18 @@ export function createPlayerWindow(configPath: string): BrowserWindow {
           rendererReady = true
           sendConfigWhenReady()
         }
-        ipcMain.on('renderer:ready', onRendererReady)
-
-        fs.readFile(configPath, 'utf-8', (err, data) => {
-          if (err) {
-            appLogger.error('Failed to read config file', err as Error)
-            return
-          }
-          if (playerWindow.isDestroyed()) return
-
-          configData = data
-          setSharedConfig(data)
-          appLogger.debug(
-            '[player] configuration file read (path=%s, len=%d)',
-            configPath,
-            data.length
-          )
-          sendConfigWhenReady()
-        })
+        ipcMain.on(ipcChannels.windows.rendererReady.channel, onRendererReady)
 
         // 返回清理函数供 WindowManager 调用
         return () => {
-          ipcMain.off(exitChannel, onRendererExit)
-          ipcMain.off('renderer:ready', onRendererReady)
-          ipcMain.off('player:config-status', onConfigStatus)
+          ipcMain.off(ipcChannels.player.exitWindow.channel, onRendererExit)
+          ipcMain.off(ipcChannels.windows.rendererReady.channel, onRendererReady)
+          ipcMain.off(ipcChannels.player.configStatus.channel, onConfigStatus)
           clearConfigAckTimer()
+          hooks.onClosed?.()
         }
       }
     }),
     true
-  ) as unknown as BrowserWindow
+  )
 }

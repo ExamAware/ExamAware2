@@ -1,6 +1,7 @@
 import { ref, computed, onUnmounted } from 'vue'
 import {
   getConfigLoader,
+  type ConfigLoaderBridge,
   type ConfigSource,
   type ConfigLoadState
 } from '@renderer/core/configLoader'
@@ -9,8 +10,8 @@ import type { ExamConfig } from '@renderer/core/configTypes'
 /**
  * 配置加载的组合式函数
  */
-export function useConfigLoader(ipcRenderer?: any) {
-  const loader = getConfigLoader(ipcRenderer)
+export function useConfigLoader(bridge: ConfigLoaderBridge = window.api) {
+  const loader = getConfigLoader(bridge)
 
   // 响应式状态
   const loading = ref(loader.getState().loading)

@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, computed } from 'vue'
+import { computed } from 'vue'
 import type { ExamConfig, ExamInfo } from '@renderer/core/configTypes'
 import ExamList from './ExamList.vue'
 import { formatLocalDateTime } from '@renderer/utils/dateFormat'

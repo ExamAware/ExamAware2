@@ -216,7 +216,7 @@ import type {
   PluginIndexItem,
   PluginIndexVersionEntry,
   PluginSourceFetchResult
-} from '../../../main/plugin/types'
+} from '../../../shared/pluginSource'
 import { DEFAULT_PLUGIN_INDEX_URL } from '../../../shared/pluginSource'
 import 'katex/dist/katex.min.css'
 import 'highlight.js/styles/github-dark.css'

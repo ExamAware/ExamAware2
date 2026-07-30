@@ -5,11 +5,10 @@ import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { createMainWindow } from './windows/mainWindow'
 import { createEditorWindow } from './windows/editorWindow'
 import { createSettingsWindow } from './windows/settingsWindow'
-import { createPlayerWindow } from './windows/playerWindow'
 import { windowManager } from './windows/windowManager'
-import { registerIpcHandlers } from './ipcHandlers'
-import { patchConsoleWithLogger, appLogger, initLoggingConfig } from './logging/winstonLogger'
-import { registerTimeSyncHandlers } from './ipcHandlers/timeServiceHandler'
+import { registerIpcHandlers } from './ipc/registerIpcHandlers'
+import { patchConsoleWithLogger, appLogger, initLoggingConfig } from './logging/logger'
+import { registerTimeSyncHandlers } from './timeSync/timeSyncHandlers'
 import {
   initializeTimeSync,
   getTimeSyncInfo,
@@ -19,20 +18,23 @@ import {
   ensureTimeSyncInitialized,
   isTimeSyncInitialized,
   getCurrentTimeMs
-} from './ntpService/timeService'
-import { httpApiService } from './http/httpApiService'
+} from './timeSync/timeService'
+import { httpApiService } from './httpApi/httpApiService'
 import { castService } from './cast/castService'
-import { createMainContext } from './runtime/context'
-import { ensureAppTray, shouldSuppressActivate, isTrayPopoverVisible } from './tray'
-import { PluginHost, createFilePreferenceStore } from './plugin'
-import { deepLinkManager, type DeepLinkService } from './runtime/deepLink'
+import { createMainContext } from './runtime/mainContext'
+import { ensureAppTray, shouldSuppressActivate, isTrayPopoverVisible } from './windows/trayManager'
+import { PluginHost, createFilePreferenceStore } from './plugins'
+import { deepLinkManager, type DeepLinkService } from './deepLink/deepLinkManager'
 import type { DeepLinkPayload } from '../shared/types/deepLink'
-import { applyDeepLinkControllers } from './deepLink/decorators'
-import { CoreDeepLinkController } from './deepLink/coreDeepLinkController'
+import { applyDeepLinkControllers } from './deepLink/deepLinkDecorators'
+import { AppDeepLinkController } from './deepLink/appDeepLinkController'
 import { composeVersionLabel } from '../shared/appInfo'
-import { flushConfig } from './configStore'
-import { createShutdownCoordinator } from './shutdownCoordinator'
-import bannerText from './banner.txt?raw'
+import { flushConfig } from './config/configStore'
+import { createShutdownCoordinator } from './runtime/shutdownCoordinator'
+import bannerText from './assets/banner.txt?raw'
+import { ipcChannels } from '../shared/ipc/channels'
+import { sendIpcEvent } from '../shared/ipc/sender'
+import { playerSessionService } from './player/playerSessionService'
 
 protocol.registerSchemesAsPrivileged([
   {
@@ -182,6 +184,9 @@ const handleBeforeQuit = createShutdownCoordinator({
       void castService.dispose()
     } catch {}
     try {
+      void playerSessionService.dispose()
+    } catch {}
+    try {
       disposeDeepLinks()
     } catch {}
     try {
@@ -315,7 +320,7 @@ app.whenReady().then(async () => {
       openSettings: (page?: string) => createSettingsWindow(page),
       openMain: () => createMainWindow(),
       openEditor: (path?: string) => createEditorWindow(path),
-      openPlayer: (path: string) => createPlayerWindow(path)
+      openPlayer: (path: string) => playerSessionService.start({ kind: 'file', path })
     }
     pluginHost.provideService('app', coreAppApi, {
       default: true,
@@ -325,7 +330,7 @@ app.whenReady().then(async () => {
 
     disposeDeepLinks = applyDeepLinkControllers(
       [
-        new CoreDeepLinkController({
+        new AppDeepLinkController({
           focusMainWindow: focusMainWindowFromDeepLink,
           broadcast: broadcastDeepLink,
           createTempConfigFromBase64
@@ -463,7 +468,7 @@ function focusMainWindowFromDeepLink() {
 function broadcastDeepLink(payload: DeepLinkPayload) {
   BrowserWindow.getAllWindows().forEach((win) => {
     try {
-      win.webContents.send('deeplink:open', payload)
+      sendIpcEvent(win.webContents, ipcChannels.deepLink.opened, payload)
     } catch (error) {
       appLogger.warn('[deeplink] broadcast failed', error as Error)
     }

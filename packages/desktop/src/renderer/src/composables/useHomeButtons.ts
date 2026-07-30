@@ -1,8 +1,9 @@
 import { getCurrentInstance, inject, ref, onMounted, onBeforeUnmount } from 'vue'
 import type { HomeButtonsRegistry } from '@renderer/app/modules/homeButtons'
+import { homeButtonsKey } from '@renderer/app/injectionKeys'
 
 export function useHomeButtons(): HomeButtonsRegistry {
-  const injected = inject<HomeButtonsRegistry>('homeButtons' as any)
+  const injected = inject(homeButtonsKey)
   if (injected) return injected
   const inst = getCurrentInstance()
   const gp = inst?.appContext.config.globalProperties as any

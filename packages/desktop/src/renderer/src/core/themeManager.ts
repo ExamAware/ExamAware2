@@ -11,7 +11,7 @@ const logger = logService.scoped('theme')
 function syncNativeThemeSource(mode: ThemeMode) {
   try {
     if (typeof window === 'undefined') return
-    const api = (window as any).electronAPI
+    const api = window.api.windows
     if (!api || typeof api.setNativeTheme !== 'function') return
     api.setNativeTheme(mode === 'auto' ? 'system' : mode)
   } catch (error) {
@@ -22,10 +22,9 @@ function syncNativeThemeSource(mode: ThemeMode) {
 function syncTitlebarOverlay(mode: 'light' | 'dark') {
   try {
     if (typeof window === 'undefined') return
-    const api = window.electronAPI
+    const api = window.api.windows
     if (!api || api.platform !== 'win32') return
-    if (typeof api.setTitlebarTheme !== 'function') return
-    api.setTitlebarTheme(mode)
+    api.setTitleBarTheme(mode)
   } catch (error) {
     logger.warn('sync titlebar overlay failed', error as any)
   }

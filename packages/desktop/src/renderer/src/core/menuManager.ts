@@ -1,4 +1,5 @@
 import type { MenuOptions } from '@imengyu/vue3-context-menu'
+import { pluginMenuContributions } from '../runtime/pluginApi/contributions'
 
 /**
  * 菜单配置管理器
@@ -40,8 +41,7 @@ export class MenuConfigManager {
    * 获取菜单配置
    */
   getMenuConfig(): MenuOptions {
-    const platform =
-      typeof window !== 'undefined' ? window.electronAPI?.platform || 'unknown' : 'unknown'
+    const platform = typeof window !== 'undefined' ? window.api.windows.platform : 'unknown'
     const isMac = platform === 'darwin'
 
     const symbols = {
@@ -105,6 +105,7 @@ export class MenuConfigManager {
     })
     fileMenuChildren.push({ label: '关闭项目', onClick: this.handlers.onCloseProject })
 
+    const pluginItems = pluginMenuContributions.list()
     return {
       x: 0,
       y: 0,
@@ -140,6 +141,17 @@ export class MenuConfigManager {
             { label: '开始放映', onClick: this.handlers.onPresentation }
           ]
         },
+        ...(pluginItems.length
+          ? [
+              {
+                label: '插件',
+                children: pluginItems.map((item) => ({
+                  label: item.label,
+                  onClick: () => void item.action()
+                }))
+              }
+            ]
+          : []),
         {
           label: '帮助',
           children: [

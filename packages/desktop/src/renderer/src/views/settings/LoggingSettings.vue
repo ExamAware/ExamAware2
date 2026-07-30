@@ -183,7 +183,7 @@ watch(
 
 async function openDir() {
   try {
-    await window.api.logging.openDir()
+    await window.api.logging.openDirectory()
   } catch (err) {
     MessagePlugin.error('打开日志目录失败')
   }
