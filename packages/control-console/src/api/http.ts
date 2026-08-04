@@ -1,8 +1,17 @@
+interface ProblemDetails {
+  code?: string;
+  detail?: string;
+  errors?: unknown;
+  message?: string;
+  title?: string;
+}
+
 export class ApiError extends Error {
   constructor(
     readonly status: number,
     readonly code: string | undefined,
-    message: string
+    message: string,
+    readonly errors?: unknown
   ) {
     super(message);
     this.name = 'ApiError';
@@ -22,16 +31,12 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}): Promi
   });
 
   if (!response.ok) {
-    const problem = (await response.json().catch(() => null)) as {
-      code?: string;
-      detail?: string;
-      message?: string;
-      title?: string;
-    } | null;
+    const problem = (await response.json().catch(() => null)) as ProblemDetails | null;
     throw new ApiError(
       response.status,
       problem?.code,
-      problem?.detail || problem?.message || problem?.title || `请求失败（${response.status}）`
+      problem?.detail || problem?.message || problem?.title || `请求失败（${response.status}）`,
+      problem?.errors
     );
   }
 

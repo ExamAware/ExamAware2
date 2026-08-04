@@ -23,22 +23,39 @@ declare module 'vue' {
     TContent: typeof import('tdesign-vue-next')['Content']
     TDescriptions: typeof import('tdesign-vue-next')['Descriptions']
     TDescriptionsItem: typeof import('tdesign-vue-next')['DescriptionsItem']
+    TDialog: typeof import('tdesign-vue-next')['Dialog']
+    TDivider: typeof import('tdesign-vue-next')['Divider']
+    TDrawer: typeof import('tdesign-vue-next')['Drawer']
     TDropdown: typeof import('tdesign-vue-next')['Dropdown']
+    TEmpty: typeof import('tdesign-vue-next')['Empty']
     TForm: typeof import('tdesign-vue-next')['Form']
     TFormItem: typeof import('tdesign-vue-next')['FormItem']
     THeader: typeof import('tdesign-vue-next')['Header']
     THeadMenu: typeof import('tdesign-vue-next')['HeadMenu']
     TIcon: typeof import('tdesign-vue-next')['Icon']
     TInput: typeof import('tdesign-vue-next')['Input']
+    TInputNumber: typeof import('tdesign-vue-next')['InputNumber']
     TLayout: typeof import('tdesign-vue-next')['Layout']
     TLoading: typeof import('tdesign-vue-next')['Loading']
     TMenu: typeof import('tdesign-vue-next')['Menu']
     TMenuItem: typeof import('tdesign-vue-next')['MenuItem']
+    TPagination: typeof import('tdesign-vue-next')['Pagination']
+    TPopconfirm: typeof import('tdesign-vue-next')['Popconfirm']
+    TRadio: typeof import('tdesign-vue-next')['Radio']
+    TRadioGroup: typeof import('tdesign-vue-next')['RadioGroup']
+    TSelect: typeof import('tdesign-vue-next')['Select']
+    TSpace: typeof import('tdesign-vue-next')['Space']
     TStepItem: typeof import('tdesign-vue-next')['StepItem']
     TSteps: typeof import('tdesign-vue-next')['Steps']
     TSubmenu: typeof import('tdesign-vue-next')['Submenu']
+    TSwitch: typeof import('tdesign-vue-next')['Switch']
+    TTable: typeof import('tdesign-vue-next')['Table']
+    TTabPanel: typeof import('tdesign-vue-next')['TabPanel']
+    TTabs: typeof import('tdesign-vue-next')['Tabs']
     TTag: typeof import('tdesign-vue-next')['Tag']
+    TTextarea: typeof import('tdesign-vue-next')['Textarea']
     TTooltip: typeof import('tdesign-vue-next')['Tooltip']
+    TTree: typeof import('tdesign-vue-next')['Tree']
   }
 }
 
@@ -55,20 +72,37 @@ declare global {
   const TContent: (typeof import('tdesign-vue-next'))['Content'];
   const TDescriptions: (typeof import('tdesign-vue-next'))['Descriptions'];
   const TDescriptionsItem: (typeof import('tdesign-vue-next'))['DescriptionsItem'];
+  const TDialog: (typeof import('tdesign-vue-next'))['Dialog'];
+  const TDivider: (typeof import('tdesign-vue-next'))['Divider'];
+  const TDrawer: (typeof import('tdesign-vue-next'))['Drawer'];
   const TDropdown: (typeof import('tdesign-vue-next'))['Dropdown'];
+  const TEmpty: (typeof import('tdesign-vue-next'))['Empty'];
   const TForm: (typeof import('tdesign-vue-next'))['Form'];
   const TFormItem: (typeof import('tdesign-vue-next'))['FormItem'];
   const THeader: (typeof import('tdesign-vue-next'))['Header'];
   const THeadMenu: (typeof import('tdesign-vue-next'))['HeadMenu'];
   const TIcon: (typeof import('tdesign-vue-next'))['Icon'];
   const TInput: (typeof import('tdesign-vue-next'))['Input'];
+  const TInputNumber: (typeof import('tdesign-vue-next'))['InputNumber'];
   const TLayout: (typeof import('tdesign-vue-next'))['Layout'];
   const TLoading: (typeof import('tdesign-vue-next'))['Loading'];
   const TMenu: (typeof import('tdesign-vue-next'))['Menu'];
   const TMenuItem: (typeof import('tdesign-vue-next'))['MenuItem'];
+  const TPagination: (typeof import('tdesign-vue-next'))['Pagination'];
+  const TPopconfirm: (typeof import('tdesign-vue-next'))['Popconfirm'];
+  const TRadio: (typeof import('tdesign-vue-next'))['Radio'];
+  const TRadioGroup: (typeof import('tdesign-vue-next'))['RadioGroup'];
+  const TSelect: (typeof import('tdesign-vue-next'))['Select'];
+  const TSpace: (typeof import('tdesign-vue-next'))['Space'];
   const TStepItem: (typeof import('tdesign-vue-next'))['StepItem'];
   const TSteps: (typeof import('tdesign-vue-next'))['Steps'];
   const TSubmenu: (typeof import('tdesign-vue-next'))['Submenu'];
+  const TSwitch: (typeof import('tdesign-vue-next'))['Switch'];
+  const TTable: (typeof import('tdesign-vue-next'))['Table'];
+  const TTabPanel: (typeof import('tdesign-vue-next'))['TabPanel'];
+  const TTabs: (typeof import('tdesign-vue-next'))['Tabs'];
   const TTag: (typeof import('tdesign-vue-next'))['Tag'];
+  const TTextarea: (typeof import('tdesign-vue-next'))['Textarea'];
   const TTooltip: (typeof import('tdesign-vue-next'))['Tooltip'];
+  const TTree: (typeof import('tdesign-vue-next'))['Tree'];
 }

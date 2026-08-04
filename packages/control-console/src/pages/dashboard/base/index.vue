@@ -30,11 +30,9 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { ApiError, apiRequest } from '@/api/http';
-
-interface HealthResponse {
-  status: string;
-}
+import { healthApi } from '@/api/health';
+import type { HealthResponse } from '@/api/health';
+import { ApiError } from '@/api/http';
 
 const health = ref<HealthResponse>();
 const ready = ref(false);
@@ -47,8 +45,8 @@ async function loadHealth() {
   loading.value = true;
   errorMessage.value = '';
   try {
-    health.value = await apiRequest<HealthResponse>('/api/health');
-    await apiRequest<HealthResponse>('/api/health/ready');
+    health.value = await healthApi.live();
+    await healthApi.ready();
     ready.value = true;
   } catch (error) {
     ready.value = false;

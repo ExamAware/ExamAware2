@@ -6,6 +6,10 @@
 
 .@{starter-prefix}-wrapper {
   min-height: 100vh;
+
+  > .t-layout {
+    min-width: 0;
+  }
 }
 
 .@{starter-prefix}-side-nav {
@@ -82,11 +86,13 @@
 
 .@{starter-prefix}-layout {
   height: calc(100vh - 64px);
+  min-width: 0;
   overflow-y: auto;
 }
 
 .@{starter-prefix}-content-layout {
   padding: var(--td-comp-paddingTB-xxl) var(--td-comp-paddingLR-xxl);
+  min-width: 0;
 }
 
 .layout-breadcrumb {

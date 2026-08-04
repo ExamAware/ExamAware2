@@ -62,6 +62,12 @@ importers:
 
   packages/control-console:
     dependencies:
+      '@dsz-examaware/control-protocol':
+        specifier: workspace:*
+        version: link:../control-protocol
+      '@dsz-examaware/core':
+        specifier: workspace:*
+        version: link:../core
       nprogress:
         specifier: ^0.2.0
         version: 0.2.0

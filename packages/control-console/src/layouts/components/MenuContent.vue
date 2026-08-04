@@ -6,7 +6,14 @@
     </t-menu-item>
     <t-submenu v-else :value="item.path" :title="item.title">
       <template #icon><t-icon v-if="item.icon" :name="item.icon" /></template>
-      <menu-content :nav-data="item.children" :base-path="item.path" />
+      <t-menu-item
+        v-for="child in item.children"
+        :key="child.path"
+        :value="child.path"
+        :to="child.path"
+      >
+        {{ child.title }}
+      </t-menu-item>
     </t-submenu>
   </template>
 </template>

@@ -35,7 +35,7 @@ export default defineConfig(({ mode }) => {
           target: controlServerUrl,
           ws: true
         },
-        '/device': {
+        '/device/v1/connect': {
           target: controlServerUrl,
           ws: true
         }

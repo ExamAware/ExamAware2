@@ -16,6 +16,8 @@
     "lint": "eslint src --ext .ts,.vue"
   },
   "dependencies": {
+    "@dsz-examaware/control-protocol": "workspace:*",
+    "@dsz-examaware/core": "workspace:*",
     "pinia": "^3.0.4",
     "nprogress": "^0.2.0",
     "pinia-plugin-persistedstate": "^4.7.1",
