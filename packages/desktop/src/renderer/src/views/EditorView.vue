@@ -17,7 +17,6 @@ const isMacOS = windowAPI?.platform === 'darwin'
 const isWindows = windowAPI?.platform === 'win32'
 console.log('platform: ' + windowAPI?.platform)
 
-// 配置 CodeLayout 的默认设置
 const config = reactive<CodeLayoutConfig>({
   ...defaultCodeLayoutConfig,
   primarySideBarSwitchWithActivityBar: true,
@@ -34,7 +33,6 @@ const config = reactive<CodeLayoutConfig>({
   primarySideBarWidth: 40
 })
 
-// 使用组合式函数管理状态
 const {
   examConfig,
   currentExamIndex,
