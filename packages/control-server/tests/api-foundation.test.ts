@@ -43,6 +43,7 @@ describe('REST application contract', () => {
     expect(response.headers['x-request-id']).toBe(requestId);
     expect(response.body).toMatchObject({
       type: '/api/problems/invalid_probe',
+      code: 'invalid_probe',
       title: 'BAD REQUEST',
       status: 400,
       instance: '/api/v1/validation-probe',

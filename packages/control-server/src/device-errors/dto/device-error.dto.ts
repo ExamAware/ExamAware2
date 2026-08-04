@@ -1,3 +1,5 @@
+import { DEVICE_ERROR_SEVERITY_VALUES } from '@dsz-examaware/control-protocol';
+import type { DeviceErrorContext, DeviceErrorReport } from '@dsz-examaware/control-protocol';
 import {
   IsIn,
   IsISO8601,
@@ -8,12 +10,10 @@ import {
   MaxLength
 } from 'class-validator';
 import { PageQueryDto } from '../../api/pagination.dto.js';
-import { DEVICE_ERROR_SEVERITY_VALUES } from '../device-errors.types.js';
-import type { DeviceErrorContext, DeviceErrorSeverity } from '../device-errors.types.js';
 
 export class ReportDeviceErrorDto {
   @IsIn(DEVICE_ERROR_SEVERITY_VALUES)
-  severity!: DeviceErrorSeverity;
+  severity!: DeviceErrorReport['severity'];
 
   @IsString()
   @MaxLength(120)
@@ -48,5 +48,5 @@ export class DeviceErrorQueryDto extends PageQueryDto {
 
   @IsOptional()
   @IsIn(DEVICE_ERROR_SEVERITY_VALUES)
-  severity?: DeviceErrorSeverity;
+  severity?: DeviceErrorReport['severity'];
 }

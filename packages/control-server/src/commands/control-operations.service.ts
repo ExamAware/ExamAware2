@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import {
   CONTROL_COMMAND_TYPES,
+  EXAM_CONFIG_ARTIFACT_MEDIA_TYPE,
   createBroadcastDismissCommand,
   createBroadcastShowCommand,
   createExamConfigPrepareCommand,
@@ -13,6 +14,7 @@ import {
 import type { ExamConfigPrepareCommand } from '@dsz-examaware/control-protocol';
 import type { WriteContext } from '../api/write-context.js';
 import { env } from '../config/env.js';
+import { createExamConfigArtifactBytes } from '../exam-configs/exam-config-artifact.js';
 import { ExamConfigsRepository } from '../exam-configs/exam-configs.repository.js';
 import { ControlCommandsService } from './control-commands.service.js';
 import { CONTROL_COMMAND_ERROR_CODES } from './control-command.constants.js';
@@ -25,8 +27,6 @@ import type {
   ShowBroadcastDto,
   StopExamDeploymentDto
 } from './dto/control-operation.dto.js';
-
-const EXAM_CONFIG_MEDIA_TYPE = 'application/vnd.examaware.exam-config+json' as const;
 
 @Injectable()
 export class ControlOperationsService {
@@ -48,7 +48,7 @@ export class ControlOperationsService {
     }
     const deploymentId = randomUUID();
     const expiresAt = this.expiresAt(input.expiresInSeconds);
-    const artifactBody = JSON.stringify(version.content);
+    const artifact = createExamConfigArtifactBytes(version.content);
     return this.commandsService.issue(
       createExamConfigPrepareCommand({
         deploymentId,
@@ -59,9 +59,9 @@ export class ControlOperationsService {
             `/api/v1/device-artifacts/exam-configs/${input.examConfigId}/versions/${input.version}?deploymentId=${deploymentId}`,
             env.betterAuthUrl
           ).toString(),
-          mediaType: EXAM_CONFIG_MEDIA_TYPE,
-          sizeBytes: Buffer.byteLength(artifactBody),
-          sha256: version.contentHash,
+          mediaType: EXAM_CONFIG_ARTIFACT_MEDIA_TYPE,
+          sizeBytes: artifact.body.byteLength,
+          sha256: artifact.sha256,
           expiresAt: expiresAt.toISOString()
         }
       }),
@@ -194,10 +194,10 @@ export class ControlOperationsService {
         message: 'Exam config artifact not found for this deployment'
       });
     }
+    const artifact = createExamConfigArtifactBytes(version.content);
     return {
-      body: Buffer.from(JSON.stringify(version.content)),
-      sha256: version.contentHash,
-      mediaType: EXAM_CONFIG_MEDIA_TYPE
+      ...artifact,
+      mediaType: EXAM_CONFIG_ARTIFACT_MEDIA_TYPE
     };
   }
 

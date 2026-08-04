@@ -1,6 +1,7 @@
 import type { INestApplication } from '@nestjs/common';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { WsAdapter } from '@nestjs/platform-ws';
 import { env } from '../config/env.js';
 import { ProblemDetailsFilter } from './problem-details.filter.js';
 import { requestContextMiddleware } from './request-context.js';
@@ -16,6 +17,7 @@ export function configureApplication(
   options: ApplicationOptions = {}
 ): void {
   app.setGlobalPrefix('api');
+  app.useWebSocketAdapter(new WsAdapter(app));
   app.enableVersioning({ type: VersioningType.URI });
   app.use(requestContextMiddleware);
   app.useGlobalPipes(

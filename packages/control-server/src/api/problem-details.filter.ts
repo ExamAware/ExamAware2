@@ -43,6 +43,7 @@ export class ProblemDetailsFilter implements ExceptionFilter {
         detail,
         instance: request.originalUrl,
         requestId: request.requestId,
+        ...(payload.code === undefined ? {} : { code: payload.code }),
         ...(payload.errors === undefined ? {} : { errors: payload.errors })
       });
   }

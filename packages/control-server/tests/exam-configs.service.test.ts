@@ -35,7 +35,11 @@ describe('ExamConfigsService', () => {
     const context = createService();
 
     await expect(
-      context.service.create('Invalid', { examName: '', examInfos: [] }, { actorUserId, requestId })
+      context.service.create(
+        'Invalid',
+        { examName: '', message: '', examInfos: [] },
+        { actorUserId, requestId }
+      )
     ).rejects.toBeInstanceOf(UnprocessableEntityException);
     expect(context.databaseService.transaction).not.toHaveBeenCalled();
   });

@@ -1,3 +1,4 @@
+import type { ExamConfig } from '@dsz-examaware/core';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsObject, IsString, Length } from 'class-validator';
 
@@ -9,11 +10,11 @@ export class CreateExamConfigDto {
 
   @ApiProperty({ type: 'object', additionalProperties: true })
   @IsObject()
-  content!: Record<string, unknown>;
+  content!: ExamConfig;
 }
 
 export class CreateExamConfigVersionDto {
   @ApiProperty({ type: 'object', additionalProperties: true })
   @IsObject()
-  content!: Record<string, unknown>;
+  content!: ExamConfig;
 }

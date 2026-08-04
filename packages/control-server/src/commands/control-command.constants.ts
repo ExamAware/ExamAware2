@@ -5,6 +5,8 @@ export const CONTROL_COMMAND_ERROR_CODES = {
   emptyTargets: 'empty_command_targets',
   targetNotFound: 'command_target_not_found',
   targetRevoked: 'command_target_revoked',
+  targetCapabilitiesUnknown: 'command_target_capabilities_unknown',
+  targetCapabilitiesUnsupported: 'command_target_capabilities_unsupported',
   deviceNotTarget: 'device_not_command_target',
   resultAlreadyTerminal: 'command_result_already_terminal',
   expired: 'command_expired',

@@ -1,4 +1,4 @@
-import type { DeviceStateSnapshot } from '@dsz-examaware/control-protocol';
+import type { DeviceCapabilities, DeviceStateSnapshot } from '@dsz-examaware/control-protocol';
 import {
   index,
   integer,
@@ -11,8 +11,12 @@ import {
   uuid
 } from 'drizzle-orm/pg-core';
 import { user } from '../database/auth-schema.js';
+import { DEVICE_LIFECYCLE_STATUS, DEVICE_LIFECYCLE_STATUS_VALUES } from './device.constants.js';
 
-export const deviceLifecycleStatus = pgEnum('device_lifecycle_status', ['active', 'revoked']);
+export const deviceLifecycleStatus = pgEnum(
+  'device_lifecycle_status',
+  DEVICE_LIFECYCLE_STATUS_VALUES
+);
 
 export type DeviceReportedState = DeviceStateSnapshot;
 
@@ -22,11 +26,14 @@ export const device = pgTable(
     id: uuid('id').defaultRandom().primaryKey(),
     schoolId: text('school_id').default('default').notNull(),
     displayName: text('display_name').notNull(),
-    lifecycleStatus: deviceLifecycleStatus('lifecycle_status').default('active').notNull(),
+    lifecycleStatus: deviceLifecycleStatus('lifecycle_status')
+      .default(DEVICE_LIFECYCLE_STATUS.active)
+      .notNull(),
     platform: text('platform'),
     architecture: text('architecture'),
     appVersion: text('app_version'),
     protocolVersion: text('protocol_version'),
+    lastCapabilities: jsonb('last_capabilities').$type<DeviceCapabilities>(),
     labels: jsonb('labels').$type<string[]>().default([]).notNull(),
     lastSeenAt: timestamp('last_seen_at', { withTimezone: true }),
     lastReportedState: jsonb('last_reported_state').$type<DeviceReportedState>(),

@@ -1,11 +1,12 @@
 import { randomUUID } from 'node:crypto';
-import { HttpException, Injectable, Logger } from '@nestjs/common';
+import { HttpException, Inject, Injectable, Logger } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, WebSocketGateway } from '@nestjs/websockets';
 import {
   CONTROL_HEARTBEAT_INTERVAL_MS,
   CONTROL_MAX_MESSAGE_SIZE_BYTES,
   CONTROL_PROTOCOL_CODEC,
   CONTROL_PROTOCOL_ERROR_CODES,
+  CONTROL_PROTOCOL_PARSE_ERROR_CODES,
   CONTROL_PROTOCOL_VERSION,
   CONTROL_WEBSOCKET_CLOSE_CODES,
   CONTROL_WEBSOCKET_PATH,
@@ -47,9 +48,13 @@ export class DeviceGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly processing = new WeakMap<WebSocket, Promise<void>>();
 
   constructor(
+    @Inject(DeviceEnrollmentService)
     private readonly enrollmentService: DeviceEnrollmentService,
+    @Inject(DevicesRepository)
     private readonly devicesRepository: DevicesRepository,
+    @Inject(DeviceConnectionsService)
     private readonly connectionsService: DeviceConnectionsService,
+    @Inject(ControlCommandsService)
     private readonly commandsService: ControlCommandsService
   ) {}
 
@@ -106,8 +111,9 @@ export class DeviceGateway implements OnGatewayConnection, OnGatewayDisconnect {
         : parsePreAuthenticationMessageText(text);
     } catch (error) {
       if (error instanceof ControlProtocolParseError) {
-        const unsupported = error.code === CONTROL_PROTOCOL_ERROR_CODES.protocolVersionUnsupported;
-        const oversized = error.code === CONTROL_PROTOCOL_ERROR_CODES.messageTooLarge;
+        const unsupported =
+          error.code === CONTROL_PROTOCOL_PARSE_ERROR_CODES.protocolVersionUnsupported;
+        const oversized = error.code === CONTROL_PROTOCOL_PARSE_ERROR_CODES.messageTooLarge;
         this.fatal(
           client,
           unsupported
@@ -189,6 +195,7 @@ export class DeviceGateway implements OnGatewayConnection, OnGatewayDisconnect {
     await this.devicesRepository.recordConnectionState(
       device.id,
       message.identity,
+      message.capabilities,
       message.state,
       serverTime
     );

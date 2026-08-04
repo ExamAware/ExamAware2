@@ -1,7 +1,7 @@
+import { DEVICE_ERROR_SEVERITY_VALUES } from '@dsz-examaware/control-protocol';
+import type { DeviceErrorContext } from '@dsz-examaware/control-protocol';
 import { index, jsonb, pgEnum, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { device } from '../devices/device.schema.js';
-import { DEVICE_ERROR_SEVERITY_VALUES } from './device-errors.types.js';
-import type { DeviceErrorContext } from './device-errors.types.js';
 
 export const deviceErrorSeverity = pgEnum('device_error_severity', DEVICE_ERROR_SEVERITY_VALUES);
 

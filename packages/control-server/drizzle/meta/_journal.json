@@ -29,6 +29,20 @@
       "when": 1785842474223,
       "tag": "0003_lame_mandroid",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1785853422815,
+      "tag": "0004_green_molecule_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1785857051222,
+      "tag": "0005_yellow_harrier",
+      "breakpoints": true
     }
   ]
 }

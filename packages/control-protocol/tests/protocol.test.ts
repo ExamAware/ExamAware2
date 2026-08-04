@@ -4,9 +4,15 @@ import {
   CONTROL_PROTOCOL_CODEC,
   CONTROL_PROTOCOL_VERSION,
   CONTROL_WEBSOCKET_CLOSE_CODES,
+  CURRENT_CONTROL_CAPABILITIES,
+  CURRENT_MANAGED_SETTING_CAPABILITIES,
+  DEVICE_ERROR_SEVERITY,
+  createDeviceErrorReport,
+  createDeviceHelloMessage,
   ControlProtocolParseError,
   commandResultSchema,
   deviceClientMessageSchema,
+  deviceHelloSchema,
   enrollDeviceRequestSchema,
   helloAcceptedMessageSchema,
   parseDeviceClientMessageText,
@@ -175,6 +181,53 @@ describe('control protocol schemas', () => {
         error: { code: 'artifact_hash_mismatch', message: 'Downloaded content hash did not match' }
       }).status
     ).toBe('failed');
+  });
+
+  it('bounds structured device error context to primitive values', () => {
+    expect(
+      createDeviceErrorReport({
+        severity: DEVICE_ERROR_SEVERITY.error,
+        source: 'control-agent',
+        message: 'Artifact download failed',
+        context: { attempt: 2, cached: false },
+        occurredAt: '2026-08-04T09:01:00.000Z'
+      }).context
+    ).toEqual({ attempt: 2, cached: false });
+    expect(() =>
+      createDeviceErrorReport({
+        severity: DEVICE_ERROR_SEVERITY.error,
+        source: 'control-agent',
+        message: 'Invalid context',
+        context: Object.fromEntries(
+          Array.from({ length: 21 }, (_, index) => [`field-${index}`, index])
+        ),
+        occurredAt: '2026-08-04T09:01:00.000Z'
+      })
+    ).toThrow('Error context accepts at most 20 fields');
+  });
+
+  it('defaults new clients to the shared capability registry while accepting legacy hello', () => {
+    expect(deviceHelloSchema.parse(hello()).capabilities).toBeUndefined();
+    const current = createDeviceHelloMessage({
+      requestId,
+      deviceId,
+      credential: 'a'.repeat(48),
+      identity: hello().identity
+    });
+    expect(current.capabilities?.commands).toEqual(CURRENT_CONTROL_CAPABILITIES);
+    expect(current.capabilities?.managedSettings).toEqual(CURRENT_MANAGED_SETTING_CAPABILITIES);
+    expect(() =>
+      deviceHelloSchema.parse({
+        ...hello(),
+        capabilities: {
+          commands: [
+            { name: 'playback', version: 1 },
+            { name: 'playback', version: 2 }
+          ],
+          managedSettings: []
+        }
+      })
+    ).toThrow('Command capabilities must be unique');
   });
 
   it('advertises fixed JSON codec, message size and close-code semantics', () => {

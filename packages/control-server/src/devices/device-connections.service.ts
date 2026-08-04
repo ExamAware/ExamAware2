@@ -24,6 +24,13 @@ export class DeviceConnectionsService {
       this.connections.delete(deviceId);
     }
   }
+  disconnect(deviceId: string, closeCode: number, reason: string): boolean {
+    const connection = this.connections.get(deviceId);
+    if (!connection) return false;
+    this.connections.delete(deviceId);
+    if (connection.socket.readyState === 1) connection.socket.close(closeCode, reason);
+    return true;
+  }
 
   isOnline(deviceId: string): boolean {
     return this.connections.get(deviceId)?.socket.readyState === 1;

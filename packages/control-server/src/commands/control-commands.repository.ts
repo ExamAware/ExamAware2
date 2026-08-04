@@ -112,6 +112,33 @@ export class ControlCommandsRepository {
         )
       );
   }
+  async markCapabilityRejected(
+    commandId: string,
+    deviceId: string,
+    completedAt: Date,
+    errorCode: string,
+    errorMessage: string
+  ): Promise<void> {
+    await this.databaseService.db
+      .update(controlCommandTarget)
+      .set({
+        status: COMMAND_TARGET_STATUS.failed,
+        completedAt,
+        errorCode,
+        errorMessage
+      })
+      .where(
+        and(
+          eq(controlCommandTarget.commandId, commandId),
+          eq(controlCommandTarget.deviceId, deviceId),
+          inArray(controlCommandTarget.status, [
+            COMMAND_TARGET_STATUS.pending,
+            COMMAND_TARGET_STATUS.delivered,
+            COMMAND_TARGET_STATUS.acknowledged
+          ])
+        )
+      );
+  }
 
   async lockTarget(
     transaction: DatabaseTransaction,

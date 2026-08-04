@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { and, count, desc, eq } from 'drizzle-orm';
+import type { DeviceErrorReport } from '@dsz-examaware/control-protocol';
 import { DatabaseService } from '../database/database.service.js';
 import { deviceErrorLog } from './device-error.schema.js';
-import type { ReportDeviceErrorDto } from './dto/device-error.dto.js';
 
 export type DeviceErrorRecord = typeof deviceErrorLog.$inferSelect;
 
@@ -10,7 +10,7 @@ export type DeviceErrorRecord = typeof deviceErrorLog.$inferSelect;
 export class DeviceErrorsRepository {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async create(deviceId: string, input: ReportDeviceErrorDto): Promise<DeviceErrorRecord> {
+  async create(deviceId: string, input: DeviceErrorReport): Promise<DeviceErrorRecord> {
     const records = await this.databaseService.db
       .insert(deviceErrorLog)
       .values({

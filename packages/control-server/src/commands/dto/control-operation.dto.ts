@@ -1,3 +1,5 @@
+import { BROADCAST_SEVERITY_VALUES } from '@dsz-examaware/control-protocol';
+import type { ManagedSetting } from '@dsz-examaware/control-protocol';
 import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
@@ -84,8 +86,8 @@ export class ShowBroadcastDto extends TargetedCommandDto {
   @MaxLength(2000)
   body!: string;
 
-  @IsIn(['info', 'warning', 'critical'])
-  severity!: 'info' | 'warning' | 'critical';
+  @IsIn(BROADCAST_SEVERITY_VALUES)
+  severity!: (typeof BROADCAST_SEVERITY_VALUES)[number];
 }
 
 export class DismissBroadcastDto extends TargetedCommandDto {
@@ -96,5 +98,5 @@ export class DismissBroadcastDto extends TargetedCommandDto {
 export class ApplyManagedSettingsDto extends TargetedCommandDto {
   @IsArray()
   @ArrayMaxSize(20)
-  settings!: unknown[];
+  settings!: ManagedSetting[];
 }

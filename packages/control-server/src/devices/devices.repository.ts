@@ -1,4 +1,8 @@
-import type { DeviceIdentity, DeviceStateSnapshot } from '@dsz-examaware/control-protocol';
+import type {
+  DeviceCapabilities,
+  DeviceIdentity,
+  DeviceStateSnapshot
+} from '@dsz-examaware/control-protocol';
 import { count, desc, eq, inArray } from 'drizzle-orm';
 import { Injectable } from '@nestjs/common';
 import type { DatabaseTransaction } from '../database/client.js';
@@ -86,6 +90,7 @@ export class DevicesRepository {
   async recordConnectionState(
     id: string,
     identity: DeviceIdentity,
+    capabilities: DeviceCapabilities | undefined,
     state: DeviceStateSnapshot | undefined,
     seenAt: Date
   ): Promise<void> {
@@ -96,6 +101,7 @@ export class DevicesRepository {
         architecture: identity.architecture,
         appVersion: identity.appVersion,
         protocolVersion: String(identity.protocolVersion),
+        lastCapabilities: capabilities ?? null,
         lastSeenAt: seenAt,
         ...(state === undefined ? {} : { lastReportedState: state }),
         updatedAt: seenAt

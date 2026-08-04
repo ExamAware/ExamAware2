@@ -1,8 +1,14 @@
-import { IsIn, IsInt, IsString, Matches, MaxLength, Min, MinLength } from 'class-validator';
+import {
+  CONTROL_PROTOCOL_VERSION,
+  DEVICE_ARCHITECTURE_VALUES,
+  DEVICE_ENROLLMENT_CODE_PATTERN,
+  DEVICE_PLATFORM_VALUES
+} from '@dsz-examaware/control-protocol';
+import { Equals, IsIn, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 
 export class EnrollDeviceDto {
   @IsString()
-  @Matches(/^EA2-[A-Za-z0-9_-]{16,128}$/)
+  @Matches(DEVICE_ENROLLMENT_CODE_PATTERN)
   enrollmentCode!: string;
 
   @IsString()
@@ -10,18 +16,17 @@ export class EnrollDeviceDto {
   @MaxLength(120)
   displayName!: string;
 
-  @IsIn(['win32', 'darwin', 'linux', 'openharmony'])
-  platform!: 'win32' | 'darwin' | 'linux' | 'openharmony';
+  @IsIn(DEVICE_PLATFORM_VALUES)
+  platform!: (typeof DEVICE_PLATFORM_VALUES)[number];
 
-  @IsIn(['x64', 'arm64'])
-  architecture!: 'x64' | 'arm64';
+  @IsIn(DEVICE_ARCHITECTURE_VALUES)
+  architecture!: (typeof DEVICE_ARCHITECTURE_VALUES)[number];
 
   @IsString()
   @MinLength(1)
   @MaxLength(64)
   appVersion!: string;
 
-  @IsInt()
-  @Min(1)
-  protocolVersion!: number;
+  @Equals(CONTROL_PROTOCOL_VERSION)
+  protocolVersion!: typeof CONTROL_PROTOCOL_VERSION;
 }

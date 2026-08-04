@@ -4,6 +4,7 @@ import type { DatabaseTransaction } from '../database/client.js';
 import { DatabaseService } from '../database/database.service.js';
 import { devicePartitionMembership } from '../partitions/partition.schema.js';
 import { device, deviceCredential, deviceEnrollmentCode } from './device.schema.js';
+import { DEVICE_LIFECYCLE_STATUS } from './device.constants.js';
 
 export type DeviceEnrollmentCodeRecord = typeof deviceEnrollmentCode.$inferSelect;
 export type DeviceCredentialRecord = typeof deviceCredential.$inferSelect;
@@ -144,7 +145,7 @@ export class DeviceEnrollmentRepository {
           eq(deviceCredential.deviceId, deviceId),
           eq(deviceCredential.credentialHash, credentialHash),
           isNull(deviceCredential.revokedAt),
-          eq(device.lifecycleStatus, 'active')
+          eq(device.lifecycleStatus, DEVICE_LIFECYCLE_STATUS.active)
         )
       )
       .limit(1);

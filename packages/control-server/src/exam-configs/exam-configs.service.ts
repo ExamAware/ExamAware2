@@ -1,4 +1,3 @@
-import { createHash } from 'node:crypto';
 import type { ExamConfig } from '@dsz-examaware/core';
 import { normalizeExamConfig, validateExamConfigDetailed } from '@dsz-examaware/core';
 import { Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
@@ -6,6 +5,7 @@ import type { Page } from '../api/pagination.dto.js';
 import { AuditService } from '../audit/audit.service.js';
 import { DatabaseService } from '../database/database.service.js';
 import type { WriteContext } from '../api/write-context.js';
+import { createExamConfigArtifactBytes } from './exam-config-artifact.js';
 import { ExamConfigsRepository } from './exam-configs.repository.js';
 import type {
   ExamConfigRecord,
@@ -55,7 +55,7 @@ export class ExamConfigsService {
 
   async create(
     name: string,
-    content: Record<string, unknown>,
+    content: ExamConfig,
     context: WriteContext
   ): Promise<ExamConfigDetail> {
     const validatedVersion = this.validateVersion(content);
@@ -80,7 +80,7 @@ export class ExamConfigsService {
 
   async createVersion(
     id: string,
-    content: Record<string, unknown>,
+    content: ExamConfig,
     context: WriteContext
   ): Promise<ExamConfigVersionRecord> {
     const validatedVersion = this.validateVersion(content);
@@ -121,7 +121,7 @@ export class ExamConfigsService {
     return config;
   }
 
-  private validateVersion(content: Record<string, unknown>): ValidatedExamConfigVersion {
+  private validateVersion(content: ExamConfig): ValidatedExamConfigVersion {
     const result = validateExamConfigDetailed(content, { overlap: 'error', sort: true });
     if (!result.valid || !result.config) {
       throw new UnprocessableEntityException({
@@ -132,7 +132,7 @@ export class ExamConfigsService {
     }
 
     const normalized = normalizeExamConfig(result.config as ExamConfig);
-    const contentHash = createHash('sha256').update(JSON.stringify(normalized)).digest('hex');
+    const contentHash = createExamConfigArtifactBytes(normalized).sha256;
     return { content: normalized, contentHash, validationIssues: result.issues };
   }
 }

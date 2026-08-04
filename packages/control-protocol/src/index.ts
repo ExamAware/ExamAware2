@@ -7,6 +7,59 @@ export const CONTROL_WEBSOCKET_PATH = '/device/v1/connect' as const;
 export const CONTROL_MAX_MESSAGE_SIZE_BYTES = 64 * 1024;
 export const CONTROL_MAX_ARTIFACT_SIZE_BYTES = 50 * 1024 * 1024;
 export const CONTROL_HEARTBEAT_INTERVAL_MS = 20_000;
+export const EXAM_CONFIG_ARTIFACT_MEDIA_TYPE =
+  'application/vnd.examaware.exam-config+json' as const;
+export const DEVICE_PLATFORM_VALUES = ['win32', 'darwin', 'linux', 'openharmony'] as const;
+export const DEVICE_ARCHITECTURE_VALUES = ['x64', 'arm64'] as const;
+export const DEVICE_ENROLLMENT_CODE_PATTERN = /^EA2-[A-Za-z0-9_-]{16,128}$/;
+export const PLAYER_STATUS_VALUES = ['idle', 'preparing', 'ready', 'playing', 'error'] as const;
+export const PLAYER_STATUS = {
+  idle: PLAYER_STATUS_VALUES[0],
+  preparing: PLAYER_STATUS_VALUES[1],
+  ready: PLAYER_STATUS_VALUES[2],
+  playing: PLAYER_STATUS_VALUES[3],
+  error: PLAYER_STATUS_VALUES[4]
+} as const;
+
+export const BROADCAST_SEVERITY_VALUES = ['info', 'warning', 'critical'] as const;
+export const BROADCAST_SEVERITY = {
+  info: BROADCAST_SEVERITY_VALUES[0],
+  warning: BROADCAST_SEVERITY_VALUES[1],
+  critical: BROADCAST_SEVERITY_VALUES[2]
+} as const;
+
+export const MANAGED_SETTING_KEYS = {
+  appearanceTheme: 'appearance.theme',
+  playerUiScale: 'player.uiScale',
+  playerUiDensity: 'player.uiDensity',
+  playerLargeClockEnabled: 'player.largeClockEnabled',
+  playerLargeClockScale: 'player.largeClockScale',
+  playerExamInfoLargeFont: 'player.examInfoLargeFont',
+  timeSyncNtpServer: 'timeSync.ntpServer',
+  timeSyncAutoSync: 'timeSync.autoSync',
+  timeSyncIntervalMinutes: 'timeSync.syncIntervalMinutes'
+} as const;
+export const APPEARANCE_THEME_VALUES = ['light', 'dark', 'auto'] as const;
+export const PLAYER_UI_DENSITY_VALUES = ['comfortable', 'cozy', 'compact'] as const;
+export const DEVICE_ERROR_SEVERITY_VALUES = ['warning', 'error', 'fatal'] as const;
+export const DEVICE_ERROR_SEVERITY = {
+  warning: DEVICE_ERROR_SEVERITY_VALUES[0],
+  error: DEVICE_ERROR_SEVERITY_VALUES[1],
+  fatal: DEVICE_ERROR_SEVERITY_VALUES[2]
+} as const;
+export const CONTROL_CAPABILITY_NAMES = {
+  examDeployment: 'exam-deployment',
+  playback: 'playback',
+  broadcast: 'broadcast',
+  managedSettings: 'managed-settings',
+  errorReporting: 'error-reporting'
+} as const;
+export const CURRENT_CONTROL_CAPABILITIES = Object.freeze(
+  Object.values(CONTROL_CAPABILITY_NAMES).map((name) => Object.freeze({ name, version: 1 }))
+);
+export const CURRENT_MANAGED_SETTING_CAPABILITIES = Object.freeze(
+  Object.values(MANAGED_SETTING_KEYS).map((key) => Object.freeze({ key, schemaVersion: 1 }))
+);
 export const CONTROL_OFFLINE_AFTER_MS = 60_000;
 
 export const CONTROL_WEBSOCKET_CLOSE_CODES = {
@@ -59,9 +112,15 @@ export const CONTROL_PROTOCOL_ERROR_CODES = {
   commandExpired: 'command_expired',
   internalError: 'internal_error'
 } as const;
+export const CONTROL_PROTOCOL_PARSE_ERROR_CODES = {
+  messageTooLarge: 'message_too_large',
+  invalidJson: 'invalid_json',
+  protocolVersionUnsupported: 'protocol_version_unsupported',
+  invalidMessage: 'invalid_message'
+} as const;
 
-export const devicePlatformSchema = z.enum(['win32', 'darwin', 'linux', 'openharmony']);
-export const deviceArchitectureSchema = z.enum(['x64', 'arm64']);
+export const devicePlatformSchema = z.enum(DEVICE_PLATFORM_VALUES);
+export const deviceArchitectureSchema = z.enum(DEVICE_ARCHITECTURE_VALUES);
 
 export const deviceIdentitySchema = z
   .object({
@@ -75,10 +134,7 @@ export const deviceIdentitySchema = z
 
 export const enrollDeviceRequestSchema = deviceIdentitySchema
   .extend({
-    enrollmentCode: z
-      .string()
-      .trim()
-      .regex(/^EA2-[A-Za-z0-9_-]{16,128}$/)
+    enrollmentCode: z.string().trim().regex(DEVICE_ENROLLMENT_CODE_PATTERN)
   })
   .strict();
 
@@ -90,10 +146,9 @@ export const enrollDeviceResponseSchema = z
     protocolVersion: z.literal(CONTROL_PROTOCOL_VERSION)
   })
   .strict();
-
 export const playerStateSchema = z
   .object({
-    status: z.enum(['idle', 'preparing', 'ready', 'playing', 'error']),
+    status: z.enum(PLAYER_STATUS_VALUES),
     deploymentId: z.uuid().optional(),
     examConfigVersionId: z.uuid().optional(),
     errorCode: z.string().trim().min(1).max(120).optional()
@@ -113,6 +168,45 @@ export const deviceStateSnapshotSchema = z
   })
   .strict();
 
+export const controlCapabilitySchema = z
+  .object({
+    name: z.string().regex(/^[a-z][a-z0-9-]{0,63}$/),
+    version: z.number().int().positive().max(1000)
+  })
+  .strict();
+
+export const managedSettingCapabilitySchema = z
+  .object({
+    key: z.string().regex(/^[A-Za-z][A-Za-z0-9.]{0,119}$/),
+    schemaVersion: z.number().int().positive().max(1000)
+  })
+  .strict();
+
+export const deviceCapabilitiesSchema = z
+  .object({
+    commands: z.array(controlCapabilitySchema).max(100),
+    managedSettings: z.array(managedSettingCapabilitySchema).max(100)
+  })
+  .strict()
+  .superRefine((capabilities, context) => {
+    const commandNames = capabilities.commands.map((capability) => capability.name);
+    if (new Set(commandNames).size !== commandNames.length) {
+      context.addIssue({
+        code: 'custom',
+        message: 'Command capabilities must be unique',
+        path: ['commands']
+      });
+    }
+    const settingKeys = capabilities.managedSettings.map((capability) => capability.key);
+    if (new Set(settingKeys).size !== settingKeys.length) {
+      context.addIssue({
+        code: 'custom',
+        message: 'Managed setting capabilities must be unique',
+        path: ['managedSettings']
+      });
+    }
+  });
+
 export const deviceHelloSchema = z
   .object({
     type: z.literal(DEVICE_CLIENT_MESSAGE_TYPES.hello),
@@ -120,7 +214,8 @@ export const deviceHelloSchema = z
     deviceId: z.uuid(),
     credential: z.string().min(43).max(256),
     identity: deviceIdentitySchema,
-    state: deviceStateSnapshotSchema.optional()
+    state: deviceStateSnapshotSchema.optional(),
+    capabilities: deviceCapabilitiesSchema.optional()
   })
   .strict();
 
@@ -157,14 +252,14 @@ export const commandResultSchema = z
   })
   .strict()
   .superRefine((result, context) => {
-    if (result.status === 'failed' && !result.error) {
+    if (result.status === COMMAND_RESULT_STATUS.failed && !result.error) {
       context.addIssue({
         code: 'custom',
         message: 'A failed command result requires an error',
         path: ['error']
       });
     }
-    if (result.status !== 'failed' && result.error) {
+    if (result.status !== COMMAND_RESULT_STATUS.failed && result.error) {
       context.addIssue({
         code: 'custom',
         message: 'Only a failed command result may include an error',
@@ -182,7 +277,7 @@ export const deviceClientMessageSchema = z.discriminatedUnion('type', [
 export const examConfigArtifactSchema = z
   .object({
     url: z.url(),
-    mediaType: z.literal('application/vnd.examaware.exam-config+json'),
+    mediaType: z.literal(EXAM_CONFIG_ARTIFACT_MEDIA_TYPE),
     sizeBytes: z.number().int().positive().max(CONTROL_MAX_ARTIFACT_SIZE_BYTES),
     sha256: z.string().regex(/^[a-f0-9]{64}$/),
     expiresAt: z.iso.datetime({ offset: true })
@@ -218,7 +313,7 @@ export const broadcastShowPayloadSchema = z
     broadcastId: z.uuid(),
     title: z.string().trim().min(1).max(120),
     body: z.string().trim().min(1).max(2000),
-    severity: z.enum(['info', 'warning', 'critical']),
+    severity: z.enum(BROADCAST_SEVERITY_VALUES),
     expiresAt: z.iso.datetime({ offset: true })
   })
   .strict();
@@ -229,29 +324,72 @@ export const broadcastDismissPayloadSchema = z
   })
   .strict();
 
+export const deviceErrorContextValueSchema = z.union([
+  z.string().max(1000),
+  z.number().finite(),
+  z.boolean(),
+  z.null()
+]);
+
+export const deviceErrorContextSchema = z
+  .record(z.string().min(1).max(100), deviceErrorContextValueSchema)
+  .refine((context) => Object.keys(context).length <= 20, {
+    message: 'Error context accepts at most 20 fields'
+  });
+
+export const deviceErrorReportSchema = z
+  .object({
+    severity: z.enum(DEVICE_ERROR_SEVERITY_VALUES),
+    source: z.string().trim().min(1).max(120),
+    code: z.string().trim().min(1).max(120).optional(),
+    message: z.string().trim().min(1).max(4000),
+    stack: z.string().max(20_000).optional(),
+    context: deviceErrorContextSchema.default({}),
+    occurredAt: z.iso.datetime({ offset: true })
+  })
+  .strict();
+
 export const managedSettingSchema = z.discriminatedUnion('key', [
   z
-    .object({ key: z.literal('appearance.theme'), value: z.enum(['light', 'dark', 'auto']) })
-    .strict(),
-  z.object({ key: z.literal('player.uiScale'), value: z.number().min(0.5).max(2) }).strict(),
-  z
     .object({
-      key: z.literal('player.uiDensity'),
-      value: z.enum(['comfortable', 'cozy', 'compact'])
+      key: z.literal(MANAGED_SETTING_KEYS.appearanceTheme),
+      value: z.enum(APPEARANCE_THEME_VALUES)
     })
     .strict(),
-  z.object({ key: z.literal('player.largeClockEnabled'), value: z.boolean() }).strict(),
-  z
-    .object({ key: z.literal('player.largeClockScale'), value: z.number().min(0.5).max(1.8) })
-    .strict(),
-  z.object({ key: z.literal('player.examInfoLargeFont'), value: z.boolean() }).strict(),
-  z
-    .object({ key: z.literal('timeSync.ntpServer'), value: z.string().trim().min(1).max(253) })
-    .strict(),
-  z.object({ key: z.literal('timeSync.autoSync'), value: z.boolean() }).strict(),
   z
     .object({
-      key: z.literal('timeSync.syncIntervalMinutes'),
+      key: z.literal(MANAGED_SETTING_KEYS.playerUiScale),
+      value: z.number().min(0.5).max(2)
+    })
+    .strict(),
+  z
+    .object({
+      key: z.literal(MANAGED_SETTING_KEYS.playerUiDensity),
+      value: z.enum(PLAYER_UI_DENSITY_VALUES)
+    })
+    .strict(),
+  z
+    .object({ key: z.literal(MANAGED_SETTING_KEYS.playerLargeClockEnabled), value: z.boolean() })
+    .strict(),
+  z
+    .object({
+      key: z.literal(MANAGED_SETTING_KEYS.playerLargeClockScale),
+      value: z.number().min(0.5).max(1.8)
+    })
+    .strict(),
+  z
+    .object({ key: z.literal(MANAGED_SETTING_KEYS.playerExamInfoLargeFont), value: z.boolean() })
+    .strict(),
+  z
+    .object({
+      key: z.literal(MANAGED_SETTING_KEYS.timeSyncNtpServer),
+      value: z.string().trim().min(1).max(253)
+    })
+    .strict(),
+  z.object({ key: z.literal(MANAGED_SETTING_KEYS.timeSyncAutoSync), value: z.boolean() }).strict(),
+  z
+    .object({
+      key: z.literal(MANAGED_SETTING_KEYS.timeSyncIntervalMinutes),
       value: z.number().int().min(1).max(1440)
     })
     .strict()
@@ -343,7 +481,7 @@ export const serverCommandMessageSchema = z
       });
     }
     if (
-      message.command.type === 'broadcast.show' &&
+      message.command.type === CONTROL_COMMAND_TYPES.broadcastShow &&
       Date.parse(message.command.payload.expiresAt) > Date.parse(message.expiresAt)
     ) {
       context.addIssue({
@@ -414,10 +552,7 @@ export const deviceServerMessageSchema = z.discriminatedUnion('type', [
 ]);
 
 export type ControlProtocolParseErrorCode =
-  | 'message_too_large'
-  | 'invalid_json'
-  | 'protocol_version_unsupported'
-  | 'invalid_message';
+  (typeof CONTROL_PROTOCOL_PARSE_ERROR_CODES)[keyof typeof CONTROL_PROTOCOL_PARSE_ERROR_CODES];
 
 export class ControlProtocolParseError extends Error {
   constructor(
@@ -450,7 +585,7 @@ export function utf8ByteLength(value: string): number {
 export function parseDeviceClientMessageText(text: string): DeviceClientMessage {
   if (utf8ByteLength(text) > CONTROL_MAX_MESSAGE_SIZE_BYTES) {
     throw new ControlProtocolParseError(
-      'message_too_large',
+      CONTROL_PROTOCOL_PARSE_ERROR_CODES.messageTooLarge,
       'Control protocol message exceeds 64 KiB'
     );
   }
@@ -460,7 +595,7 @@ export function parseDeviceClientMessageText(text: string): DeviceClientMessage 
     value = JSON.parse(text) as unknown;
   } catch (error) {
     throw new ControlProtocolParseError(
-      'invalid_json',
+      CONTROL_PROTOCOL_PARSE_ERROR_CODES.invalidJson,
       'Control protocol message is not valid JSON',
       error
     );
@@ -478,7 +613,7 @@ export function parseDeviceClientMessageText(text: string): DeviceClientMessage 
     value.identity.protocolVersion !== CONTROL_PROTOCOL_VERSION
   ) {
     throw new ControlProtocolParseError(
-      'protocol_version_unsupported',
+      CONTROL_PROTOCOL_PARSE_ERROR_CODES.protocolVersionUnsupported,
       `Control protocol version ${String(value.identity.protocolVersion)} is not supported`
     );
   }
@@ -486,7 +621,7 @@ export function parseDeviceClientMessageText(text: string): DeviceClientMessage 
   const result = deviceClientMessageSchema.safeParse(value);
   if (!result.success) {
     throw new ControlProtocolParseError(
-      'invalid_message',
+      CONTROL_PROTOCOL_PARSE_ERROR_CODES.invalidMessage,
       'Control protocol message does not match schema',
       result.error
     );
@@ -498,7 +633,7 @@ export function parsePreAuthenticationMessageText(text: string): DeviceHello {
   const message = parseDeviceClientMessageText(text);
   if (message.type !== DEVICE_CLIENT_MESSAGE_TYPES.hello) {
     throw new ControlProtocolParseError(
-      'invalid_message',
+      CONTROL_PROTOCOL_PARSE_ERROR_CODES.invalidMessage,
       'device.hello is the only message allowed before authentication'
     );
   }
@@ -510,18 +645,27 @@ export type DeviceArchitecture = z.infer<typeof deviceArchitectureSchema>;
 export type DeviceIdentity = z.infer<typeof deviceIdentitySchema>;
 export type EnrollDeviceRequest = z.infer<typeof enrollDeviceRequestSchema>;
 export type EnrollDeviceResponse = z.infer<typeof enrollDeviceResponseSchema>;
+
 export type DeviceStateSnapshot = z.infer<typeof deviceStateSnapshotSchema>;
+export type DeviceCapabilities = z.infer<typeof deviceCapabilitiesSchema>;
+export type DeviceHelloInput = Omit<z.input<typeof deviceHelloSchema>, 'type' | 'capabilities'> & {
+  capabilities?: z.input<typeof deviceCapabilitiesSchema>;
+};
 export type DeviceHello = z.infer<typeof deviceHelloSchema>;
-export type DeviceClientMessage = z.infer<typeof deviceClientMessageSchema>;
+export type DeviceHeartbeat = z.infer<typeof deviceHeartbeatSchema>;
 export type CommandResult = z.infer<typeof commandResultSchema>;
+export type DeviceClientMessage = z.infer<typeof deviceClientMessageSchema>;
+export type DeviceErrorContextValue = z.infer<typeof deviceErrorContextValueSchema>;
+export type DeviceErrorContext = z.infer<typeof deviceErrorContextSchema>;
+export type DeviceErrorReport = z.infer<typeof deviceErrorReportSchema>;
 export type ManagedSetting = z.infer<typeof managedSettingSchema>;
 export type ControlCommand = z.infer<typeof controlCommandSchema>;
-export type ExamConfigPrepareCommand = Extract<ControlCommand, { type: 'exam-config.prepare' }>;
-export type PlaybackActivateCommand = Extract<ControlCommand, { type: 'playback.activate' }>;
-export type PlaybackStopCommand = Extract<ControlCommand, { type: 'playback.stop' }>;
-export type BroadcastShowCommand = Extract<ControlCommand, { type: 'broadcast.show' }>;
-export type BroadcastDismissCommand = Extract<ControlCommand, { type: 'broadcast.dismiss' }>;
-export type SettingsApplyCommand = Extract<ControlCommand, { type: 'settings.apply' }>;
+export type ExamConfigPrepareCommand = z.infer<typeof examConfigPrepareCommandSchema>;
+export type PlaybackActivateCommand = z.infer<typeof playbackActivateCommandSchema>;
+export type PlaybackStopCommand = z.infer<typeof playbackStopCommandSchema>;
+export type BroadcastShowCommand = z.infer<typeof broadcastShowCommandSchema>;
+export type BroadcastDismissCommand = z.infer<typeof broadcastDismissCommandSchema>;
+export type SettingsApplyCommand = z.infer<typeof settingsApplyCommandSchema>;
 export type ServerCommandMessage = z.infer<typeof serverCommandMessageSchema>;
 export type DeviceServerMessage = z.infer<typeof deviceServerMessageSchema>;
 
@@ -530,6 +674,40 @@ export type HelloAcceptedMessage = z.infer<typeof helloAcceptedMessageSchema>;
 export type HeartbeatAcceptedMessage = z.infer<typeof heartbeatAcceptedMessageSchema>;
 export type CommandResultAcceptedMessage = z.infer<typeof commandResultAcceptedMessageSchema>;
 export type ProtocolErrorMessage = z.infer<typeof protocolErrorMessageSchema>;
+
+export function createDeviceErrorReport(
+  input: z.input<typeof deviceErrorReportSchema>
+): DeviceErrorReport {
+  return deviceErrorReportSchema.parse(input);
+}
+
+export function createEnrollDeviceRequest(
+  input: z.input<typeof enrollDeviceRequestSchema>
+): EnrollDeviceRequest {
+  return enrollDeviceRequestSchema.parse(input);
+}
+export function createDeviceHelloMessage(input: DeviceHelloInput): DeviceHello {
+  return deviceHelloSchema.parse({
+    type: DEVICE_CLIENT_MESSAGE_TYPES.hello,
+    ...input,
+    capabilities: input.capabilities ?? {
+      commands: CURRENT_CONTROL_CAPABILITIES,
+      managedSettings: CURRENT_MANAGED_SETTING_CAPABILITIES
+    }
+  });
+}
+
+export function createDeviceHeartbeatMessage(
+  input: Omit<z.input<typeof deviceHeartbeatSchema>, 'type'>
+): DeviceHeartbeat {
+  return deviceHeartbeatSchema.parse({ type: DEVICE_CLIENT_MESSAGE_TYPES.heartbeat, ...input });
+}
+
+export function createCommandResultMessage(
+  input: Omit<z.input<typeof commandResultSchema>, 'type'>
+): CommandResult {
+  return commandResultSchema.parse({ type: DEVICE_CLIENT_MESSAGE_TYPES.commandResult, ...input });
+}
 
 export function createExamConfigPrepareCommand(
   payload: z.input<typeof examConfigPreparePayloadSchema>

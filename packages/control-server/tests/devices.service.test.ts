@@ -1,5 +1,12 @@
 import { BadRequestException } from '@nestjs/common';
+import { CONTROL_WEBSOCKET_CLOSE_CODES } from '@dsz-examaware/control-protocol';
 import { describe, expect, it, vi } from 'vitest';
+import type { DeviceConnectionsService } from '../src/devices/device-connections.service.js';
+import {
+  DEVICE_CONNECTION_CLOSE_REASONS,
+  DEVICE_CONNECTION_STATUS,
+  DEVICE_LIFECYCLE_STATUS
+} from '../src/devices/device.constants.js';
 import { DevicesService, deriveDeviceConnectionStatus } from '../src/devices/devices.service.js';
 import type { DeviceRecord } from '../src/devices/devices.repository.js';
 import type { AuditService } from '../src/audit/audit.service.js';
@@ -11,11 +18,12 @@ const baseDevice: DeviceRecord = {
   id: '04ae0ed9-d420-4cf6-9529-50429817a304',
   schoolId: 'default',
   displayName: 'Room 101',
-  lifecycleStatus: 'active',
+  lifecycleStatus: DEVICE_LIFECYCLE_STATUS.active,
   platform: null,
   architecture: null,
   appVersion: null,
   protocolVersion: null,
+  lastCapabilities: null,
   labels: [],
   lastSeenAt: null,
   lastReportedState: null,
@@ -115,23 +123,31 @@ describe('DevicesService', () => {
       record: vi.fn().mockResolvedValue(undefined)
     } as unknown as AuditService;
     const partitionsRepository = emptyPartitionsRepository();
+    const disconnect = vi.fn();
+    const connectionsService = { disconnect } as unknown as DeviceConnectionsService;
     const service = new DevicesService(
       databaseService,
       devicesRepository,
       partitionsRepository,
-      auditService
+      auditService,
+      connectionsService
     );
     const requestId = crypto.randomUUID();
 
     const result = await service.revoke(baseDevice.id, { actorUserId: 'admin', requestId });
 
-    expect(result.connectionStatus).toBe('revoked');
+    expect(result.connectionStatus).toBe(DEVICE_CONNECTION_STATUS.revoked);
     expect(devicesRepository.update).toHaveBeenCalledWith(transaction, baseDevice.id, {
-      lifecycleStatus: 'revoked'
+      lifecycleStatus: DEVICE_LIFECYCLE_STATUS.revoked
     });
     expect(auditService.record).toHaveBeenCalledWith(
       transaction,
       expect.objectContaining({ action: 'device.revoked', resourceId: baseDevice.id, requestId })
+    );
+    expect(disconnect).toHaveBeenCalledWith(
+      baseDevice.id,
+      CONTROL_WEBSOCKET_CLOSE_CODES.deviceRevoked,
+      DEVICE_CONNECTION_CLOSE_REASONS.deviceRevoked
     );
   });
 

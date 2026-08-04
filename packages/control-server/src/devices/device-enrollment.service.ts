@@ -9,6 +9,7 @@ import {
 import {
   CONTROL_PROTOCOL_VERSION,
   CONTROL_WEBSOCKET_PATH,
+  CONTROL_WEBSOCKET_CLOSE_CODES,
   enrollDeviceRequestSchema
 } from '@dsz-examaware/control-protocol';
 import type { EnrollDeviceResponse } from '@dsz-examaware/control-protocol';
@@ -16,6 +17,14 @@ import type { WriteContext } from '../api/write-context.js';
 import { AuditService } from '../audit/audit.service.js';
 import { env } from '../config/env.js';
 import { DatabaseService } from '../database/database.service.js';
+import { DeviceConnectionsService } from './device-connections.service.js';
+import {
+  DEVICE_ENROLLMENT_AUDIT,
+  DEVICE_ENROLLMENT_CODE_STATUS,
+  DEVICE_ENROLLMENT_ERROR_CODES
+} from './device-enrollment.constants.js';
+import type { DeviceEnrollmentCodeStatus } from './device-enrollment.constants.js';
+import { DEVICE_CONNECTION_CLOSE_REASONS, DEVICE_LIFECYCLE_STATUS } from './device.constants.js';
 import { DeviceEnrollmentRepository } from './device-enrollment.repository.js';
 import type { DeviceEnrollmentCodeRecord } from './device-enrollment.repository.js';
 import { DevicesRepository } from './devices.repository.js';
@@ -29,7 +38,7 @@ export interface CreateEnrollmentCodeInput {
 }
 
 export type EnrollmentCodeView = Omit<DeviceEnrollmentCodeRecord, 'codeHash'> & {
-  status: 'active' | 'expired' | 'consumed' | 'revoked';
+  status: DeviceEnrollmentCodeStatus;
 };
 
 export type CreatedEnrollmentCode = EnrollmentCodeView & { code: string };
@@ -41,7 +50,8 @@ export class DeviceEnrollmentService {
     private readonly enrollmentRepository: DeviceEnrollmentRepository,
     private readonly devicesRepository: DevicesRepository,
     private readonly devicesService: DevicesService,
-    private readonly auditService: AuditService
+    private readonly auditService: AuditService,
+    private readonly connectionsService: DeviceConnectionsService
   ) {}
 
   async listCodes(): Promise<EnrollmentCodeView[]> {
@@ -72,8 +82,8 @@ export class DeviceEnrollmentService {
       });
       await this.auditService.record(transaction, {
         actorUserId: context.actorUserId,
-        action: 'device-enrollment-code.created',
-        resourceType: 'device-enrollment-code',
+        action: DEVICE_ENROLLMENT_AUDIT.codeCreated,
+        resourceType: DEVICE_ENROLLMENT_AUDIT.codeResource,
         resourceId: created.id,
         requestId: context.requestId,
         metadata: { expiresAt: expiresAt.toISOString(), maxUses: input.maxUses, partitionNodeIds }
@@ -90,14 +100,14 @@ export class DeviceEnrollmentService {
       const revoked = await this.enrollmentRepository.revokeCode(transaction, id, new Date());
       if (!revoked) {
         throw new NotFoundException({
-          code: 'device_enrollment_code_not_found',
+          code: DEVICE_ENROLLMENT_ERROR_CODES.codeNotFound,
           message: 'Device enrollment code not found'
         });
       }
       await this.auditService.record(transaction, {
         actorUserId: context.actorUserId,
-        action: 'device-enrollment-code.revoked',
-        resourceType: 'device-enrollment-code',
+        action: DEVICE_ENROLLMENT_AUDIT.codeRevoked,
+        resourceType: DEVICE_ENROLLMENT_AUDIT.codeResource,
         resourceId: id,
         requestId: context.requestId,
         metadata: {}
@@ -112,7 +122,7 @@ export class DeviceEnrollmentService {
     const parsed = enrollDeviceRequestSchema.safeParse(input);
     if (!parsed.success) {
       throw new BadRequestException({
-        code: 'invalid_device_enrollment',
+        code: DEVICE_ENROLLMENT_ERROR_CODES.invalidRequest,
         message: 'Device enrollment request does not match the control protocol',
         errors: parsed.error.issues
       });
@@ -126,20 +136,20 @@ export class DeviceEnrollmentService {
       );
       if (!code) {
         throw new UnauthorizedException({
-          code: 'invalid_device_enrollment_code',
+          code: DEVICE_ENROLLMENT_ERROR_CODES.invalidCode,
           message: 'Device enrollment code is invalid'
         });
       }
       const status = this.codeStatus(code);
-      if (status === 'expired') {
+      if (status === DEVICE_ENROLLMENT_CODE_STATUS.expired) {
         throw new GoneException({
-          code: 'device_enrollment_code_expired',
+          code: DEVICE_ENROLLMENT_ERROR_CODES.codeExpired,
           message: 'Device enrollment code has expired'
         });
       }
-      if (status !== 'active') {
+      if (status !== DEVICE_ENROLLMENT_CODE_STATUS.active) {
         throw new GoneException({
-          code: 'device_enrollment_code_unavailable',
+          code: DEVICE_ENROLLMENT_ERROR_CODES.codeUnavailable,
           message: 'Device enrollment code is no longer available'
         });
       }
@@ -165,8 +175,8 @@ export class DeviceEnrollmentService {
       await this.enrollmentRepository.consumeCode(transaction, code.id);
       await this.auditService.record(transaction, {
         actorUserId: code.createdBy,
-        action: 'device.enrolled',
-        resourceType: 'device',
+        action: DEVICE_ENROLLMENT_AUDIT.deviceEnrolled,
+        resourceType: DEVICE_ENROLLMENT_AUDIT.deviceResource,
         resourceId: created.id,
         requestId,
         metadata: {
@@ -195,11 +205,14 @@ export class DeviceEnrollmentService {
     const record = await this.databaseService.transaction(async (transaction) => {
       const device = await this.devicesRepository.lockById(transaction, deviceId);
       if (!device) {
-        throw new NotFoundException({ code: 'device_not_found', message: 'Device not found' });
+        throw new NotFoundException({
+          code: DEVICE_ENROLLMENT_ERROR_CODES.deviceNotFound,
+          message: 'Device not found'
+        });
       }
-      if (device.lifecycleStatus === 'revoked') {
+      if (device.lifecycleStatus === DEVICE_LIFECYCLE_STATUS.revoked) {
         throw new BadRequestException({
-          code: 'device_revoked',
+          code: DEVICE_ENROLLMENT_ERROR_CODES.deviceRevoked,
           message: 'A revoked device cannot receive a new credential'
         });
       }
@@ -210,14 +223,19 @@ export class DeviceEnrollmentService {
       );
       await this.auditService.record(transaction, {
         actorUserId: context.actorUserId,
-        action: 'device.credential-rotated',
-        resourceType: 'device',
+        action: DEVICE_ENROLLMENT_AUDIT.credentialRotated,
+        resourceType: DEVICE_ENROLLMENT_AUDIT.deviceResource,
         resourceId: deviceId,
         requestId: context.requestId,
         metadata: { credentialVersion: rotated.version }
       });
       return rotated;
     });
+    this.connectionsService.disconnect(
+      deviceId,
+      CONTROL_WEBSOCKET_CLOSE_CODES.authenticationRequired,
+      DEVICE_CONNECTION_CLOSE_REASONS.credentialRotated
+    );
     return { deviceId, credential, version: record.version };
   }
 
@@ -236,11 +254,11 @@ export class DeviceEnrollmentService {
 
   private codeStatus(
     record: Pick<DeviceEnrollmentCodeRecord, 'revokedAt' | 'expiresAt' | 'usedCount' | 'maxUses'>
-  ): EnrollmentCodeView['status'] {
-    if (record.revokedAt) return 'revoked';
-    if (record.usedCount >= record.maxUses) return 'consumed';
-    if (record.expiresAt.getTime() <= Date.now()) return 'expired';
-    return 'active';
+  ): DeviceEnrollmentCodeStatus {
+    if (record.revokedAt) return DEVICE_ENROLLMENT_CODE_STATUS.revoked;
+    if (record.usedCount >= record.maxUses) return DEVICE_ENROLLMENT_CODE_STATUS.consumed;
+    if (record.expiresAt.getTime() <= Date.now()) return DEVICE_ENROLLMENT_CODE_STATUS.expired;
+    return DEVICE_ENROLLMENT_CODE_STATUS.active;
   }
 
   private websocketUrl(): string {

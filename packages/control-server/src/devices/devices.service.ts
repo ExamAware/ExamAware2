@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException, Optional } from '@nestjs/common';
+import { CONTROL_WEBSOCKET_CLOSE_CODES } from '@dsz-examaware/control-protocol';
 import { AuditService } from '../audit/audit.service.js';
 import { DatabaseService } from '../database/database.service.js';
 import type { DatabaseTransaction } from '../database/client.js';
@@ -8,11 +9,16 @@ import { PartitionsRepository } from '../partitions/partitions.repository.js';
 import { DeviceConnectionsService } from './device-connections.service.js';
 import type { DevicePartitionAssignment } from '../partitions/partitions.repository.js';
 import { DevicesRepository } from './devices.repository.js';
+import {
+  DEVICE_CONNECTION_CLOSE_REASONS,
+  DEVICE_CONNECTION_STATUS,
+  DEVICE_LIFECYCLE_STATUS
+} from './device.constants.js';
+import type { DeviceConnectionStatus } from './device.constants.js';
 import type { DeviceRecord, DeviceUpdate } from './devices.repository.js';
 
 const DEVICE_ONLINE_WINDOW_MS = 60_000;
 
-export type DeviceConnectionStatus = 'online' | 'offline' | 'never_connected' | 'revoked';
 export type DeviceView = DeviceRecord & {
   connectionStatus: DeviceConnectionStatus;
   partitions: DevicePartitionAssignment[];
@@ -22,13 +28,15 @@ export function deriveDeviceConnectionStatus(
   record: Pick<DeviceRecord, 'lifecycleStatus' | 'lastSeenAt'>,
   now = Date.now()
 ): DeviceConnectionStatus {
-  if (record.lifecycleStatus === 'revoked') {
-    return 'revoked';
+  if (record.lifecycleStatus === DEVICE_LIFECYCLE_STATUS.revoked) {
+    return DEVICE_CONNECTION_STATUS.revoked;
   }
   if (!record.lastSeenAt) {
-    return 'never_connected';
+    return DEVICE_CONNECTION_STATUS.neverConnected;
   }
-  return now - record.lastSeenAt.getTime() <= DEVICE_ONLINE_WINDOW_MS ? 'online' : 'offline';
+  return now - record.lastSeenAt.getTime() <= DEVICE_ONLINE_WINDOW_MS
+    ? DEVICE_CONNECTION_STATUS.online
+    : DEVICE_CONNECTION_STATUS.offline;
 }
 
 @Injectable()
@@ -165,12 +173,12 @@ export class DevicesService {
       if (!current) {
         throw new NotFoundException({ code: 'device_not_found', message: 'Device not found' });
       }
-      if (current.lifecycleStatus === 'revoked') {
+      if (current.lifecycleStatus === DEVICE_LIFECYCLE_STATUS.revoked) {
         return current;
       }
 
       const revoked = await this.devicesRepository.update(transaction, id, {
-        lifecycleStatus: 'revoked'
+        lifecycleStatus: DEVICE_LIFECYCLE_STATUS.revoked
       });
       await this.auditService.record(transaction, {
         actorUserId: context.actorUserId,
@@ -182,6 +190,11 @@ export class DevicesService {
       });
       return revoked!;
     });
+    this.connectionsService?.disconnect(
+      id,
+      CONTROL_WEBSOCKET_CLOSE_CODES.deviceRevoked,
+      DEVICE_CONNECTION_CLOSE_REASONS.deviceRevoked
+    );
 
     const assignments = await this.partitionsRepository.assignmentsForDevices([id]);
     return this.toView(record, assignments.get(id) ?? []);
@@ -189,13 +202,11 @@ export class DevicesService {
 
   private toView(record: DeviceRecord, partitions: DevicePartitionAssignment[]): DeviceView {
     const connectionStatus =
-      record.lifecycleStatus === 'revoked'
-        ? 'revoked'
+      record.lifecycleStatus === DEVICE_LIFECYCLE_STATUS.revoked
+        ? DEVICE_CONNECTION_STATUS.revoked
         : this.connectionsService?.isOnline(record.id)
-          ? 'online'
-          : record.lastSeenAt
-            ? 'offline'
-            : 'never_connected';
+          ? DEVICE_CONNECTION_STATUS.online
+          : deriveDeviceConnectionStatus(record);
     return { ...record, connectionStatus, partitions };
   }
 }
