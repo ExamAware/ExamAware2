@@ -1,7 +1,14 @@
 {
   "name": "examaware-workspace",
   "private": true,
+  "packageManager": "pnpm@10.18.2",
   "description": "ExamAware 知试",
+  "engines": {
+    "node": ">=22.22.1"
+  },
+  "volta": {
+    "node": "22.22.1"
+  },
   "scripts": {
     "dev:prebuild": "pnpm rpc:build && pnpm core:build && pnpm player:build",
     "dev:watch": "pnpm -r --parallel --filter @dsz-examaware/core --filter @dsz-examaware/player dev",
@@ -17,6 +24,15 @@
     "player:dev": "pnpm --filter @dsz-examaware/player dev",
     "web:build": "pnpm --filter @dsz-examaware/web build",
     "web:dev": "pnpm --filter @dsz-examaware/web dev",
+    "control:protocol:build": "pnpm --filter @dsz-examaware/control-protocol build",
+    "control:console:build": "pnpm --filter @dsz-examaware/control-console build",
+    "control:console:dev": "pnpm --filter @dsz-examaware/control-console dev",
+    "control:build": "pnpm core:build && pnpm control:protocol:build && pnpm --filter @dsz-examaware/control-server build && pnpm control:console:build",
+    "control:dev": "pnpm core:build && pnpm control:protocol:build && pnpm --filter @dsz-examaware/control-server dev",
+    "control:db:up": "docker compose up -d --wait control-postgres",
+    "control:db:down": "docker compose down",
+    "control:db:migrate": "pnpm --filter @dsz-examaware/control-server db:migrate",
+    "control:bootstrap-admin": "pnpm --filter @dsz-examaware/control-server auth:bootstrap-admin",
     "desktop:build:win": "pnpm --filter @dsz-examaware/desktop build:win",
     "desktop:build:mac": "pnpm --filter @dsz-examaware/desktop build:mac",
     "desktop:build:linux": "pnpm --filter @dsz-examaware/desktop build:linux",
@@ -58,7 +74,6 @@
   "lint-staged": {
     "*.{js,jsx,ts,tsx,vue,json,yaml,yml,md,css,scss,less,html,mcconfig}": "prettier --write"
   },
-  "packageManager": "pnpm@10.18.2",
   "author": "hello8693 <hello8693@hello8693.xyz>",
   "license": "GPL-3.0-only",
   "pnpm": {
