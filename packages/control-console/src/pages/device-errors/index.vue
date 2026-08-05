@@ -1,7 +1,6 @@
 <template>
   <div class="console-page device-error-page">
     <PageHeader
-      eyebrow="CLIENT DIAGNOSTICS"
       title="客户端错误"
       description="集中排查设备主动上报的结构化错误；上下文仅保留有界标量字段。"
     >

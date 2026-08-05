@@ -36,6 +36,7 @@ import { ipcChannels } from '../shared/ipc/channels'
 import { sendIpcEvent } from '../shared/ipc/sender'
 import { playerSessionService } from './player/playerSessionService'
 import { createDesktopControlAgentService } from './control/controlRuntime'
+import { controlService } from './control/controlService'
 import type { ControlAgentService } from './control/controlAgentService'
 
 protocol.registerSchemesAsPrivileged([
@@ -171,6 +172,16 @@ if (!gotLock) {
 const handleBeforeQuit = createShutdownCoordinator({
   app,
   flush: flushConfig,
+  block: () => (controlService.isQuitPrevented() ? '集控策略禁止退出应用' : null),
+  onBlocked: (reason) => {
+    appLogger.warn(`[app] quit blocked by control policy: ${reason}`)
+    const main = windowManager.get('main')
+    if (main) {
+      if (main.isMinimized()) main.restore()
+      main.show()
+      main.focus()
+    }
+  },
   logger: appLogger,
   cleanup: () => {
     ;(app as any).isQuitting = true
@@ -257,6 +268,7 @@ app.whenReady().then(async () => {
   // 恢复已注册设备的集控长连接；未注册设备保持静默等待后续接入。
   try {
     controlAgentService = createDesktopControlAgentService()
+    await controlService.initializeManagedState()
     await controlAgentService.start()
   } catch (error) {
     appLogger.error('Failed to start control agent', error as Error)

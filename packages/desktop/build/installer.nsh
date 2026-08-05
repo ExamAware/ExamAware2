@@ -32,6 +32,19 @@
 !macroend
 
 !macro customUnInstall
+  ; 集控绑定期间禁止卸载（标记由应用写入 %ProgramData% 与 HKCU）
+  ExpandEnvStrings $0 "%ProgramData%\ExamAware\control-device.json"
+  IfFileExists "$0" 0 control_check_registry
+    MessageBox MB_ICONSTOP|MB_OK "设备仍受集控管理（已绑定学校集控中心），禁止卸载。请先由集控管理员解除绑定后再卸载。"
+    Abort
+
+  control_check_registry:
+  ReadRegStr $0 HKCU "Software\ExamAware\ControlEnrolled" "data"
+  StrCmp $0 "" control_uninstall_allowed
+    MessageBox MB_ICONSTOP|MB_OK "设备仍受集控管理（已绑定学校集控中心），禁止卸载。请先由集控管理员解除绑定后再卸载。"
+    Abort
+
+  control_uninstall_allowed:
   ; 删除程序组
   RMDir /r "$SMPROGRAMS\${PRODUCT_NAME}"
 

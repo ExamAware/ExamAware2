@@ -18,6 +18,7 @@ import { ControlAgentService, type ControlCommandHandler } from './controlAgentS
 import { ControlApiClient } from './controlApiClient'
 import { ControlCredentialStore } from './controlCredentialStore'
 import { controlService } from './controlService'
+import { deleteControlRegistry, readControlRegistry, writeControlRegistry } from './controlRegistry'
 import { ipcChannels } from '../../shared/ipc/channels'
 import { sendIpcEvent } from '../../shared/ipc/sender'
 
@@ -31,7 +32,13 @@ export function getDesktopControlAgentService(): ControlAgentService | undefined
 export function createDesktopControlAgentService(): ControlAgentService {
   const credentialStore = new ControlCredentialStore(
     path.join(app.getPath('userData'), CONTROL_CREDENTIAL_FILE_NAME),
-    safeStorage
+    safeStorage,
+    {
+      logger: appLogger,
+      extraPersist: writeControlRegistry,
+      extraLoad: readControlRegistry,
+      extraClear: deleteControlRegistry
+    }
   )
   const apiClient = new ControlApiClient()
   const service = new ControlAgentService({

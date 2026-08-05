@@ -1,7 +1,6 @@
 <template>
   <header class="console-page-header">
     <div class="console-page-header__copy">
-      <span v-if="eyebrow" class="console-page-header__eyebrow">{{ eyebrow }}</span>
       <div class="console-page-header__title-row">
         <h1>{{ title }}</h1>
         <slot name="status" />
@@ -19,7 +18,6 @@
 defineProps<{
   title: string;
   description?: string;
-  eyebrow?: string;
 }>();
 </script>
 
@@ -34,15 +32,6 @@ defineProps<{
 
   &__copy {
     min-width: 0;
-  }
-
-  &__eyebrow {
-    display: block;
-    margin-bottom: var(--td-comp-margin-xs);
-    color: var(--td-brand-color);
-    font: var(--td-font-body-small);
-    font-weight: 600;
-    letter-spacing: 0.06em;
   }
 
   &__title-row {

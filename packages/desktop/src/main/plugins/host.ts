@@ -7,6 +7,7 @@ import path from 'path'
 import { URLSearchParams } from 'url'
 import semver from 'semver'
 import { JsonRpcClient, JsonRpcServer, createRpcProxy } from '@dsz-examaware/rpc'
+import { PluginApiError } from '@dsz-examaware/plugin-sdk'
 import { ipcChannels, pluginRpcChannels } from '../../shared/ipc/channels'
 import { dynamicEventEndpoint, dynamicInvokeEndpoint } from '../../shared/ipc/contract'
 import { sendIpcEvent } from '../../shared/ipc/sender'
@@ -34,6 +35,7 @@ import { PluginLoader } from './loader'
 import { DownloadManager } from '../runtime/downloadManager'
 import { IpcRegistrar } from '../ipc/ipcRegistrar'
 import { createMainPluginContext } from './api/mainPluginApi'
+import { controlService } from '../control/controlService'
 
 type AnyRecord = Record<string, any>
 
@@ -1037,6 +1039,12 @@ export class PluginHost extends EventEmitter {
       },
       ipc: {
         registerChannel: (channel, handler) => {
+          if (
+            (controlService.isUnbindPrevented() || controlService.isQuitPrevented()) &&
+            /^(control|player|app|window):/.test(channel)
+          ) {
+            throw new PluginApiError('permission-denied', 'ipc', '集控策略禁止注册系统 IPC 通道')
+          }
           const endpoint = dynamicInvokeEndpoint<any[], unknown>(channel)
           ipcMain.handle(endpoint.channel, handler)
           const disposer = () => ipcMain.removeHandler(endpoint.channel)

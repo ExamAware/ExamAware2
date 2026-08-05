@@ -2,9 +2,8 @@
   <t-loading :loading="loading" show-overlay>
     <div class="console-page overview-page">
       <PageHeader
-        eyebrow="OPERATIONS"
         title="运行总览"
-        :description="`欢迎回来，${session.user?.name || session.user?.username || '管理员'}。这里汇总当前集控运行态势与待处理事项。`"
+        :description="`欢迎回来，${session.user?.name || session.user?.username || '管理员'}。`"
       >
         <template #actions>
           <t-space>
@@ -72,7 +71,9 @@
               <t-list-item v-for="action in quickActions" :key="action.path">
                 <t-list-item-meta :title="action.title" :description="action.description">
                   <template #image>
-                    <t-icon :name="action.icon" size="24px" />
+                    <span class="quick-action-icon">
+                      <t-icon :name="action.icon" size="24px" />
+                    </span>
                   </template>
                 </t-list-item-meta>
                 <template #action>
@@ -302,6 +303,14 @@ onUnmounted(() => {
 .overview-card {
   width: 100%;
   height: 100%;
+}
+
+.quick-action-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .device-chart {

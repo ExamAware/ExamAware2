@@ -95,6 +95,7 @@ describe('ControlOperationsService', () => {
     const service = createService({
       commands: { issue },
       examConfigs: {
+        findById: vi.fn().mockResolvedValue({ id: examConfigId, status: 'draft' }),
         findVersion: vi.fn().mockResolvedValue({
           id: examConfigVersionId,
           content: {},
@@ -135,6 +136,63 @@ describe('ControlOperationsService', () => {
     expect(expiresAt).toBeInstanceOf(Date);
     expect(writeContext).toBe(context);
     expect(requestedCommandId).toBe(command.payload.deploymentId);
+  });
+
+  it('restores the previous exam status when prepare command issuance fails', async () => {
+    const setStatus = vi.fn().mockResolvedValue(undefined);
+    const service = createService({
+      commands: { issue: vi.fn().mockRejectedValue(new Error('delivery rejected')) },
+      examConfigs: {
+        findById: vi.fn().mockResolvedValue({ id: examConfigId, status: 'draft' }),
+        findVersion: vi.fn().mockResolvedValue({
+          id: examConfigVersionId,
+          content: {},
+          contentHash
+        }),
+        setStatus
+      }
+    });
+
+    await expect(
+      service.prepareExam(
+        {
+          examConfigId,
+          version: 1,
+          targets: { deviceIds: [firstDeviceId], partitionNodeIds: [] },
+          expiresInSeconds: 300
+        },
+        context
+      )
+    ).rejects.toThrow('delivery rejected');
+    expect(setStatus.mock.calls).toEqual([
+      [examConfigId, 'preparing'],
+      [examConfigId, 'draft']
+    ]);
+  });
+
+  it('completes an active exam only after every activated client exits', async () => {
+    const allActivatedDevicesExited = vi.fn().mockResolvedValueOnce(false).mockResolvedValue(true);
+    const setStatus = vi.fn().mockResolvedValue(undefined);
+    const service = createService({
+      commands: {
+        get: vi.fn().mockResolvedValue(prepareView()),
+        latestPrepareForExam: vi.fn().mockResolvedValue({ id: deploymentId }),
+        allActivatedDevicesExited
+      },
+      examConfigs: {
+        findById: vi.fn().mockResolvedValue({ id: examConfigId, status: 'active' }),
+        setStatus
+      }
+    });
+    const idleState = { player: { status: 'idle' as const, deploymentId } };
+
+    await service.reconcileDeviceState({ player: { status: 'playing', deploymentId } });
+    await service.reconcileDeviceState(idleState);
+    expect(setStatus).not.toHaveBeenCalled();
+    await service.reconcileDeviceState(idleState);
+
+    expect(setStatus).toHaveBeenCalledOnce();
+    expect(setStatus).toHaveBeenCalledWith(examConfigId, 'completed');
   });
 
   it('activates only devices whose prepare command succeeded', async () => {

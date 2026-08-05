@@ -79,7 +79,7 @@ export interface ControlAgentLogger {
 }
 
 export interface ControlAgentServiceOptions {
-  credentialStore: Pick<ControlCredentialStore, 'load' | 'save' | 'clear'>
+  credentialStore: Pick<ControlCredentialStore, 'load' | 'save' | 'clear' | 'watch'>
   apiClient: Pick<ControlApiClient, 'enroll' | 'reportError' | 'callProctor'>
   createSocket: (
     url: string,
@@ -116,6 +116,7 @@ export class ControlAgentService {
   private heartbeatTimer?: ReturnType<typeof setInterval>
   private handshakeTimer?: ReturnType<typeof setTimeout>
   private reconnectTimer?: ReturnType<typeof setTimeout>
+  private disposeCredentialWatcher?: () => void
 
   constructor(private readonly options: ControlAgentServiceOptions) {
     this.capabilities = deviceCapabilitiesSchema.parse(
@@ -157,6 +158,7 @@ export class ControlAgentService {
       this.updateSnapshot('unenrolled')
       return
     }
+    this.startCredentialWatcher()
     this.connect(false)
   }
 
@@ -175,6 +177,7 @@ export class ControlAgentService {
       this.displayName = enrollmentDisplayName
       await this.options.credentialStore.save(registration)
       this.registration = registration
+      this.startCredentialWatcher()
       this.started = true
       this.reconnectAttempt = 0
       this.closeSocket(CONTROL_WEBSOCKET_CLOSE_CODES.normal, 'device re-enrolled')
@@ -216,6 +219,8 @@ export class ControlAgentService {
   }
 
   async clearEnrollment(): Promise<void> {
+    this.disposeCredentialWatcher?.()
+    this.disposeCredentialWatcher = undefined
     await this.options.credentialStore.clear()
     this.registration = undefined
     this.pendingResults.clear()
@@ -226,6 +231,8 @@ export class ControlAgentService {
   }
 
   async dispose(): Promise<void> {
+    this.disposeCredentialWatcher?.()
+    this.disposeCredentialWatcher = undefined
     this.started = false
     this.clearTimers()
     this.closeSocket(CONTROL_WEBSOCKET_CLOSE_CODES.normal, 'application shutting down')
@@ -234,6 +241,14 @@ export class ControlAgentService {
     this.inFlightCommands.clear()
     this.updateSnapshot('stopped')
     this.listeners.clear()
+  }
+
+  private startCredentialWatcher(): void {
+    this.disposeCredentialWatcher?.()
+    this.disposeCredentialWatcher = this.options.credentialStore.watch(async () => {
+      const registration = this.registration
+      if (registration) await this.options.credentialStore.save(registration)
+    })
   }
 
   private connect(reconnecting: boolean) {

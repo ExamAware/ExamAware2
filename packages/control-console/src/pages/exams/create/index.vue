@@ -1,7 +1,6 @@
 <template>
   <div class="console-page exam-create-page">
     <PageHeader
-      eyebrow="EXAM WORKFLOW"
       title="发起考试"
       description="上传客户端制作的 .ea2 档案，分配目标考场，再确认下发策略。"
     >

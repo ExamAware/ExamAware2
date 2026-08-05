@@ -190,7 +190,7 @@ const isControlSession = ref(false)
 const allowUserExit = computed(
   () =>
     !isControlSession.value ||
-    !Boolean(settingsStore.get<boolean>('player.preventControlSessionExit', false))
+    settingsStore.get<boolean>('player.preventControlSessionExit', false) !== true
 )
 let disposePlayerSessionEvents = () => {}
 

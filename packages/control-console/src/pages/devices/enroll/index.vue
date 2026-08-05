@@ -1,7 +1,6 @@
 <template>
   <div class="console-page enrollment-page">
     <PageHeader
-      eyebrow="DEVICE ONBOARDING"
       title="注册设备"
       description="生成一次性注册码，引导客户端安全加入本校集控并预先分配设备组。"
     >

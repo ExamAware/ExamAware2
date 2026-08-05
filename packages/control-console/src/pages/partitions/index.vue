@@ -1,7 +1,6 @@
 <template>
   <div class="console-page partition-page">
     <PageHeader
-      eyebrow="DEVICE ORGANIZATION"
       title="设备分组"
       description="使用位置、管理区域等多维树结构组织考场大屏；左侧维护分组，右侧核对成员设备。"
     >

@@ -1,7 +1,6 @@
 <template>
   <div class="console-page audit-page">
     <PageHeader
-      eyebrow="SECURITY & COMPLIANCE"
       title="审计日志"
       description="检索所有管理写操作的不可修改记录，用于安全复核与责任追踪。"
     >

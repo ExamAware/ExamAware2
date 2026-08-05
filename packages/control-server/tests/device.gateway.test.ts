@@ -7,6 +7,7 @@ import {
   CONTROL_PROTOCOL_VERSION,
   CONTROL_WEBSOCKET_CLOSE_CODES,
   CONTROL_WEBSOCKET_PATH,
+  MANAGED_SETTING_KEYS,
   PLAYER_STATUS,
   DEVICE_SERVER_MESSAGE_TYPES,
   createCommandResultMessage,
@@ -17,12 +18,15 @@ import {
 import type { DeviceServerMessage } from '@dsz-examaware/control-protocol';
 import { WebSocket } from 'ws';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Mock } from 'vitest';
 import { configureApplication } from '../src/api/application.js';
 import { ControlCommandsService } from '../src/commands/control-commands.service.js';
+import { ControlOperationsService } from '../src/commands/control-operations.service.js';
 import { DeviceConnectionsService } from '../src/devices/device-connections.service.js';
 import { DeviceEnrollmentService } from '../src/devices/device-enrollment.service.js';
 import { DeviceGateway } from '../src/devices/device.gateway.js';
 import { DevicesRepository } from '../src/devices/devices.repository.js';
+import { PoliciesService } from '../src/policies/policies.service.js';
 
 const deviceId = '779267c1-75b9-43f0-ae1c-9b4b7d782013';
 const credential = 'c'.repeat(43);
@@ -38,6 +42,8 @@ let commandsService: {
   deliverPending: ReturnType<typeof vi.fn>;
   recordResult: ReturnType<typeof vi.fn>;
 };
+let operationsService: { reconcileDeviceState: Mock; applyPolicySettings: Mock };
+let policiesService: { effectiveForDevice: Mock };
 
 function helloMessage() {
   return createDeviceHelloMessage({
@@ -102,13 +108,22 @@ beforeEach(async () => {
     deliverPending: vi.fn().mockResolvedValue(undefined),
     recordResult: vi.fn().mockResolvedValue(undefined)
   };
+  operationsService = {
+    reconcileDeviceState: vi.fn().mockResolvedValue(undefined),
+    applyPolicySettings: vi.fn().mockResolvedValue(undefined)
+  };
+  policiesService = {
+    effectiveForDevice: vi.fn().mockResolvedValue({ policies: [], settings: [] })
+  };
   const moduleRef = await Test.createTestingModule({
     providers: [
       DeviceGateway,
       DeviceConnectionsService,
       { provide: DeviceEnrollmentService, useValue: enrollmentService },
       { provide: DevicesRepository, useValue: devicesRepository },
-      { provide: ControlCommandsService, useValue: commandsService }
+      { provide: ControlCommandsService, useValue: commandsService },
+      { provide: ControlOperationsService, useValue: operationsService },
+      { provide: PoliciesService, useValue: policiesService }
     ]
   }).compile();
   app = moduleRef.createNestApplication();
@@ -177,6 +192,13 @@ describe('DeviceGateway', () => {
       expect.any(Date)
     );
     expect(commandsService.deliverPending).toHaveBeenCalledWith(deviceId);
+    await vi.waitFor(() => {
+      expect(operationsService.applyPolicySettings).toHaveBeenCalledWith(
+        [{ key: MANAGED_SETTING_KEYS.playerPreventControlSessionExit, value: false }],
+        [deviceId],
+        { actorUserId: 'system', requestId: expect.any(String) }
+      );
+    });
 
     const heartbeat = createDeviceHeartbeatMessage({
       requestId: crypto.randomUUID(),
@@ -197,6 +219,41 @@ describe('DeviceGateway', () => {
       heartbeat.state,
       expect.any(Date)
     );
+    expect(operationsService.reconcileDeviceState).toHaveBeenCalledWith(heartbeat.state);
+  });
+
+  it('pushes effective managed settings after hello', async () => {
+    policiesService.effectiveForDevice.mockResolvedValue({
+      policies: [],
+      settings: [{ key: MANAGED_SETTING_KEYS.controlPreventUnbind, value: true }]
+    });
+    const socket = await openSocket();
+
+    await expect(authenticateSocket(socket)).resolves.toEqual(
+      expect.objectContaining({ type: DEVICE_SERVER_MESSAGE_TYPES.helloAccepted })
+    );
+
+    await vi.waitFor(() => {
+      expect(operationsService.applyPolicySettings).toHaveBeenCalledWith(
+        [
+          { key: MANAGED_SETTING_KEYS.controlPreventUnbind, value: true },
+          { key: MANAGED_SETTING_KEYS.playerPreventControlSessionExit, value: false }
+        ],
+        [deviceId],
+        { actorUserId: 'system', requestId: expect.any(String) }
+      );
+    });
+  });
+
+  it('keeps the authenticated connection open when the settings push fails', async () => {
+    operationsService.applyPolicySettings.mockRejectedValue(new Error('push failed'));
+    const socket = await openSocket();
+
+    await expect(authenticateSocket(socket)).resolves.toEqual(
+      expect.objectContaining({ type: DEVICE_SERVER_MESSAGE_TYPES.helloAccepted })
+    );
+    await vi.waitFor(() => expect(operationsService.applyPolicySettings).toHaveBeenCalled());
+    expect(socket.readyState).toBe(WebSocket.OPEN);
   });
 
   it('rejects an invalid device credential with an authentication close code', async () => {

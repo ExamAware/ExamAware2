@@ -38,6 +38,8 @@ const mocks = vi.hoisted(() => {
     hideColorfulAlert: vi.fn(),
     controlListener: undefined as ((event: ControlAgentEvent) => void) | undefined,
     disposeControlListener: vi.fn(),
+    listSessions: vi.fn(),
+    exitWindow: vi.fn(),
     disposeSessionListener: vi.fn()
   }
 })
@@ -47,6 +49,10 @@ vi.mock('@dsz-examaware/player', async () => {
   return {
     ExamPlayer: defineComponent({
       name: 'ExamPlayer',
+      props: {
+        allowExit: { type: Boolean, default: true },
+        showCallProctor: { type: Boolean, default: false }
+      },
       emits: ['colorful-alert'],
       setup(_props, { expose }) {
         expose({
@@ -171,6 +177,8 @@ describe('PlayerView reminder sound integration', () => {
     mocks.closeCurrentNotice.mockReset()
     mocks.showColorfulAlert.mockReset()
     mocks.hideColorfulAlert.mockReset()
+    mocks.listSessions.mockReset().mockResolvedValue([])
+    mocks.exitWindow.mockReset()
     mocks.controlListener = undefined
     mocks.disposeControlListener.mockReset()
     mocks.disposeSessionListener.mockReset()
@@ -185,8 +193,9 @@ describe('PlayerView reminder sound integration', () => {
         },
         player: {
           reportConfigStatus: vi.fn(),
-          listSessions: vi.fn().mockResolvedValue([]),
-          onSessionChanged: vi.fn().mockReturnValue(mocks.disposeSessionListener)
+          listSessions: mocks.listSessions,
+          onSessionChanged: vi.fn().mockReturnValue(mocks.disposeSessionListener),
+          exitWindow: mocks.exitWindow
         },
         control: {
           onEvent: vi.fn((listener: (event: ControlAgentEvent) => void) => {
@@ -220,6 +229,30 @@ describe('PlayerView reminder sound integration', () => {
     expect(document.documentElement.classList.contains('dark')).toBe(false)
     expect(document.documentElement.getAttribute('theme-mode')).toBe('light')
     expect(document.documentElement.hasAttribute('data-player-force-dark')).toBe(false)
+  })
+
+  it.each([
+    ['local sessions remain exit-enabled', [], true, true],
+    [
+      'control sessions remain exit-enabled when the policy is disabled',
+      [{ windowId: 'player-window', origin: 'control' }],
+      false,
+      true
+    ],
+    [
+      'control sessions disable exit when the policy is enabled',
+      [{ windowId: 'player-window', origin: 'control' }],
+      true,
+      false
+    ]
+  ] as const)('%s', async (_name, sessions, preventExit, expected) => {
+    mocks.settingsProxy!['player.preventControlSessionExit'] = preventExit
+    mocks.listSessions.mockResolvedValue(sessions)
+    const wrapper = mount(PlayerView)
+    await flushPromises()
+
+    expect(wrapper.findComponent({ name: 'ExamPlayer' }).props('allowExit')).toBe(expected)
+    wrapper.unmount()
   })
 
   it('creates one shared controller and reports failures with event context', async () => {

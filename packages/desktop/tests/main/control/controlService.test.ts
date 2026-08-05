@@ -6,6 +6,7 @@ import {
   type DeviceStateSnapshot
 } from '@dsz-examaware/control-protocol'
 import type { ExamConfig } from '@dsz-examaware/core'
+import type { PlayerSessionEvent } from '@dsz-examaware/plugin-sdk'
 import type { ControlAgentEvent } from '../../../src/shared/types/control'
 import type { ControlRegistration } from '../../../src/main/control/controlTypes'
 
@@ -13,8 +14,13 @@ const state = vi.hoisted(() => ({
   start: vi.fn(),
   close: vi.fn(),
   onChanged: vi.fn(),
+  sessionListener: undefined as ((event: PlayerSessionEvent) => void) | undefined,
   setConfig: vi.fn(),
-  applyTimeConfig: vi.fn()
+  applyTimeConfig: vi.fn(),
+  loadManagedValues: vi.fn(),
+  saveManagedValues: vi.fn(),
+  clearManagedValues: vi.fn(),
+  startManagedConfigWatch: vi.fn()
 }))
 
 vi.mock('../../../src/main/player/playerSessionService', () => ({
@@ -31,6 +37,13 @@ vi.mock('../../../src/main/config/configStore', () => ({
 
 vi.mock('../../../src/main/timeSync/timeService', () => ({
   applyTimeConfig: state.applyTimeConfig
+}))
+
+vi.mock('../../../src/main/control/managedControlStore', () => ({
+  loadManagedValues: state.loadManagedValues,
+  saveManagedValues: state.saveManagedValues,
+  clearManagedValues: state.clearManagedValues,
+  startManagedConfigWatch: state.startManagedConfigWatch
 }))
 
 import { ControlService } from '../../../src/main/control/controlService'
@@ -64,9 +77,17 @@ const registration: ControlRegistration = {
 describe('ControlService', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    state.onChanged.mockReturnValue(() => {})
+    state.sessionListener = undefined
+    state.onChanged.mockImplementation((listener) => {
+      state.sessionListener = listener
+      return () => {}
+    })
     state.start.mockResolvedValue({ id: 'control-session', state: 'ready' })
     state.close.mockResolvedValue(undefined)
+    state.loadManagedValues.mockResolvedValue({})
+    state.saveManagedValues.mockResolvedValue(undefined)
+    state.clearManagedValues.mockResolvedValue(undefined)
+    state.startManagedConfigWatch.mockReturnValue(() => {})
   })
 
   it('prepares, activates, and stops a control deployment', async () => {
@@ -85,7 +106,8 @@ describe('ControlService', () => {
       onChanged: vi.fn().mockReturnValue(() => {}),
       enroll: vi.fn(),
       clearEnrollment: vi.fn(),
-      callProctor: vi.fn()
+      callProctor: vi.fn(),
+      reportState: vi.fn()
     }
     const service = new ControlService()
     service.attach(agent as never, apiClient as never)
@@ -109,16 +131,35 @@ describe('ControlService', () => {
     const playing = await service.activateDeployment({ deploymentId, examConfigVersionId })
     expect(state.start).toHaveBeenCalledWith(
       { kind: 'config', config: expect.objectContaining({ examName: 'Final Exam' }) },
-      { replaceExisting: true, origin: 'control', deploymentId }
+      { replaceExisting: true, origin: 'control', deploymentId },
+      { allowUserExit: expect.any(Function) }
     )
+    const startPolicy = state.start.mock.calls[0]?.[2]
+    expect(startPolicy.allowUserExit()).toBe(true)
+    service.applyManagedSettings([{ key: 'player.preventControlSessionExit', value: true }])
+    expect(startPolicy.allowUserExit()).toBe(false)
     expect(playing).toEqual<DeviceStateSnapshot>({
       player: { status: 'playing', deploymentId, examConfigVersionId }
     })
 
     await expect(service.stopDeployment({ deploymentId })).resolves.toEqual({
-      player: { status: 'idle' }
+      player: { status: 'idle', deploymentId, examConfigVersionId }
     })
     expect(state.close).toHaveBeenCalledWith('control-session')
+
+    state.sessionListener?.({
+      session: {
+        id: 'control-session',
+        state: 'closed',
+        source: 'config',
+        origin: 'control',
+        deploymentId,
+        createdAt: Date.now()
+      },
+      previousState: 'closing'
+    })
+    expect(agent.reportState).toHaveBeenCalledOnce()
+    expect(service.getDevicePlayerState()).toEqual({ status: 'idle', deploymentId })
   })
 
   it('applies managed settings and emits status and broadcast events', () => {
@@ -166,6 +207,37 @@ describe('ControlService', () => {
     expect(events).toContainEqual({
       type: 'broadcast-dismiss',
       payload: { broadcastId: deploymentId }
+    })
+  })
+
+  it('restores and enforces managed unbind and quit restrictions', async () => {
+    state.loadManagedValues.mockResolvedValue({ 'control.preventQuit': true })
+    const agent = {
+      getSnapshot: vi.fn().mockReturnValue({ state: 'online' }),
+      getRegistration: vi.fn().mockReturnValue(registration),
+      onChanged: vi.fn().mockReturnValue(() => {}),
+      enroll: vi.fn(),
+      clearEnrollment: vi.fn(),
+      reportError: vi.fn()
+    }
+    const service = new ControlService()
+    service.attach(agent as never, { downloadArtifact: vi.fn() } as never)
+
+    await service.initializeManagedState()
+    expect(service.isQuitPrevented()).toBe(true)
+    expect(state.startManagedConfigWatch).toHaveBeenCalledOnce()
+
+    service.applyManagedSettings([{ key: 'control.preventUnbind', value: true }])
+    expect(service.isUnbindPrevented()).toBe(true)
+    await expect(service.unbind()).rejects.toMatchObject({ code: 'unbind_blocked_by_policy' })
+    await expect(
+      service.bind({ serverUrl: registration.serverUrl, enrollmentCode: 'EA2-test' })
+    ).rejects.toMatchObject({ code: 'bind_blocked_by_policy' })
+    expect(agent.clearEnrollment).not.toHaveBeenCalled()
+    expect(agent.enroll).not.toHaveBeenCalled()
+    expect(state.saveManagedValues).toHaveBeenCalledWith({
+      'control.preventQuit': true,
+      'control.preventUnbind': true
     })
   })
 })

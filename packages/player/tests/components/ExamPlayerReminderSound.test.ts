@@ -109,6 +109,28 @@ const colorfulEvents = (wrapper: ReturnType<typeof mountPlayer>, kind?: string) 
 };
 
 describe('ExamPlayer reminder sound events', () => {
+  it('hides the exit action when user exit is disabled', async () => {
+    const wrapper = mount(ExamPlayer, {
+      props: { examConfig: configWith(), showActionBar: true, allowExit: false },
+      global: {
+        stubs: {
+          ClockCard: true,
+          ExamInfoCard: true,
+          ExamRoomCard: true,
+          CurrentListCard: true,
+          TDialog: true,
+          TInput: true,
+          TButton: true
+        }
+      }
+    });
+    mountedWrappers.push(wrapper);
+
+    expect(wrapper.find('.exit-button').exists()).toBe(false);
+    await wrapper.setProps({ allowExit: true });
+    expect(wrapper.find('.exit-button').exists()).toBe(true);
+  });
+
   it.each([
     ['start', '考试开始', () => handlers.onExamStart?.(firstExam)],
     ['alert', '考试即将结束', () => handlers.onExamAlert?.(firstExam, 10)],

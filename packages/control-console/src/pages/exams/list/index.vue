@@ -1,7 +1,6 @@
 <template>
   <div class="console-page exam-list-page">
     <PageHeader
-      eyebrow="EXAM OPERATIONS"
       title="考试管理"
       description="管理考试档案、设备分配和放映生命周期，进行中的任务会优先显示。"
     >

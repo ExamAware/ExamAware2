@@ -9,6 +9,7 @@ import { PoliciesService } from './policies.service.js';
 @Module({
   imports: [AuditModule, ControlCommandsModule, PartitionsModule],
   controllers: [PoliciesController],
-  providers: [PoliciesRepository, PoliciesService]
+  providers: [PoliciesRepository, PoliciesService],
+  exports: [PoliciesService]
 })
 export class PoliciesModule {}

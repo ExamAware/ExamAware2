@@ -6,6 +6,7 @@ import {
   CONTROL_WEBSOCKET_CLOSE_CODES,
   CURRENT_CONTROL_CAPABILITIES,
   CURRENT_MANAGED_SETTING_CAPABILITIES,
+  MANAGED_SETTING_KEYS,
   DEVICE_ERROR_SEVERITY,
   createDeviceErrorReport,
   createProctorCallRequest,
@@ -20,6 +21,7 @@ import {
   parseDeviceServerMessageText,
   parsePreAuthenticationMessageText,
   serverCommandMessageSchema,
+  settingsApplyPayloadSchema,
   utf8ByteLength
 } from '../src/index.js';
 
@@ -265,6 +267,37 @@ describe('control protocol schemas', () => {
         }
       })
     ).toThrow('Command capabilities must be unique');
+  });
+
+  it('validates the managed control-session exit restriction', () => {
+    const revision = '908122a7-7ec1-49d1-aacf-4a99bb3e928d';
+    expect(
+      settingsApplyPayloadSchema.parse({
+        revision,
+        settings: [{ key: MANAGED_SETTING_KEYS.playerPreventControlSessionExit, value: true }]
+      }).settings
+    ).toEqual([{ key: 'player.preventControlSessionExit', value: true }]);
+    expect(() =>
+      settingsApplyPayloadSchema.parse({
+        revision,
+        settings: [{ key: MANAGED_SETTING_KEYS.playerPreventControlSessionExit, value: 'true' }]
+      })
+    ).toThrow();
+  });
+
+  it('validates managed unbind and quit restrictions', () => {
+    const revision = '908122a7-7ec1-49d1-aacf-4a99bb3e928d';
+    for (const key of [
+      MANAGED_SETTING_KEYS.controlPreventUnbind,
+      MANAGED_SETTING_KEYS.controlPreventQuit
+    ]) {
+      expect(
+        settingsApplyPayloadSchema.parse({ revision, settings: [{ key, value: true }] }).settings
+      ).toEqual([{ key, value: true }]);
+      expect(() =>
+        settingsApplyPayloadSchema.parse({ revision, settings: [{ key, value: 'true' }] })
+      ).toThrow();
+    }
   });
 
   it('advertises fixed JSON codec, message size and close-code semantics', () => {

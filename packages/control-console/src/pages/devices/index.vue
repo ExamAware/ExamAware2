@@ -1,7 +1,6 @@
 <template>
   <div class="console-page device-page">
     <PageHeader
-      eyebrow="DEVICE FLEET"
       title="设备管理"
       description="集中查看客户端连接、版本、能力与设备组归属，并处理设备生命周期。"
     >

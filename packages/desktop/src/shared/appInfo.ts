@@ -1,4 +1,5 @@
 import packageJson from '@app/package.json'
+declare const __EXAMAWARE_GIT_HASH__: string
 
 const pkg = packageJson as typeof packageJson & { productName?: string }
 
@@ -26,7 +27,11 @@ export const APP_VERSION = (
   'dev'
 ).trim()
 
+const embeddedGitHash =
+  typeof __EXAMAWARE_GIT_HASH__ === 'string' ? __EXAMAWARE_GIT_HASH__.trim() : ''
+
 const rawGitHash =
+  embeddedGitHash ||
   runtimeEnv.VITE_GIT_HASH ||
   runtimeEnv.VITE_APP_GIT_HASH ||
   runtimeEnv.EXAMAWARE_GIT_HASH ||

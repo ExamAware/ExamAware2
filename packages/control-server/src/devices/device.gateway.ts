@@ -9,6 +9,7 @@ import {
   CONTROL_PROTOCOL_PARSE_ERROR_CODES,
   CONTROL_PROTOCOL_VERSION,
   CONTROL_WEBSOCKET_CLOSE_CODES,
+  MANAGED_SETTING_KEYS,
   CONTROL_WEBSOCKET_PATH,
   ControlProtocolParseError,
   DEVICE_CLIENT_MESSAGE_TYPES,
@@ -32,6 +33,7 @@ import { ControlOperationsService } from '../commands/control-operations.service
 import { DeviceConnectionsService } from './device-connections.service.js';
 import { DeviceEnrollmentService } from './device-enrollment.service.js';
 import { DevicesRepository } from './devices.repository.js';
+import { PoliciesService } from '../policies/policies.service.js';
 
 interface ConnectionSession {
   connectionId: string;
@@ -58,7 +60,9 @@ export class DeviceGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @Inject(ControlCommandsService)
     private readonly commandsService: ControlCommandsService,
     @Inject(ControlOperationsService)
-    private readonly operationsService: ControlOperationsService
+    private readonly operationsService: ControlOperationsService,
+    @Inject(PoliciesService)
+    private readonly policiesService: PoliciesService
   ) {}
 
   handleConnection(client: WebSocket): void {
@@ -232,6 +236,26 @@ export class DeviceGateway implements OnGatewayConnection, OnGatewayDisconnect {
       })
     );
     await this.commandsService.deliverPending(device.id);
+    try {
+      await this.pushEffectiveSettings(device.id);
+    } catch (error) {
+      this.logger.error('Failed to push effective settings after hello', error);
+    }
+  }
+
+  private async pushEffectiveSettings(deviceId: string): Promise<void> {
+    const { settings } = await this.policiesService.effectiveForDevice(deviceId);
+    // Keep the default aligned with PoliciesService.syncEffectiveSettings.
+    const effective = settings.some(
+      (setting) => setting.key === MANAGED_SETTING_KEYS.playerPreventControlSessionExit
+    )
+      ? settings
+      : [...settings, { key: MANAGED_SETTING_KEYS.playerPreventControlSessionExit, value: false }];
+    if (!effective.length) return;
+    await this.operationsService.applyPolicySettings(effective, [deviceId], {
+      actorUserId: 'system',
+      requestId: randomUUID()
+    });
   }
 
   private async handleCommandResult(

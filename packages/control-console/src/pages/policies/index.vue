@@ -1,7 +1,6 @@
 <template>
   <div class="console-page policy-page">
     <PageHeader
-      eyebrow="MANAGED SETTINGS"
       title="设备策略"
       description="通过优先级和设备组继承统一管理客户端设置，并随时核验单台设备的最终生效结果。"
     >
@@ -261,6 +260,8 @@ const SETTING_DEFINITIONS: Record<string, SettingDefinition> = {
     label: '禁止客户端主动退出集控放映',
     type: 'boolean'
   },
+  [MANAGED_SETTING_KEYS.controlPreventUnbind]: { type: 'boolean', label: '禁止解绑集控' },
+  [MANAGED_SETTING_KEYS.controlPreventQuit]: { type: 'boolean', label: '禁止退出应用' },
   [MANAGED_SETTING_KEYS.timeSyncNtpServer]: { label: 'NTP 服务器', type: 'string' },
   [MANAGED_SETTING_KEYS.timeSyncAutoSync]: { label: '自动时间同步', type: 'boolean' },
   [MANAGED_SETTING_KEYS.timeSyncIntervalMinutes]: {

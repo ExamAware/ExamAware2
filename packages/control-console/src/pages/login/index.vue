@@ -2,9 +2,9 @@
   <main class="login-page">
     <section class="login-page__intro">
       <div>
-        <span class="login-page__eyebrow">ExamAware 2</span>
-        <h1>把每间考场的状态，放在一个可信的控制面里。</h1>
-        <p>设备接入、考试配置、统一播放与操作审计使用同一套校内私有部署服务。</p>
+        <span class="login-page__eyebrow">ExamAware 2 集控</span>
+        <h1>每间考场，都尽在掌握。</h1>
+        <p>欢迎使用ExamAware集控服务。</p>
       </div>
     </section>
 
@@ -65,7 +65,7 @@ async function submit() {
   &__intro {
     padding: 10vw;
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     color: var(--td-text-color-anti);
     background:
       linear-gradient(145deg, rgba(0, 82, 217, 96%), rgba(0, 42, 124, 92%)), var(--td-brand-color);

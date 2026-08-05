@@ -1,7 +1,6 @@
 <template>
   <div class="console-page user-page">
     <PageHeader
-      eyebrow="IDENTITY & ACCESS"
       title="用户管理"
       description="维护控制台用户名账户、角色与可用状态，并安全地批量交付一次性密码。"
     >

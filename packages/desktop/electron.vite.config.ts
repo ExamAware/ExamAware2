@@ -1,4 +1,5 @@
-import { resolve } from 'path'
+import { execFileSync } from 'node:child_process'
+import { resolve } from 'node:path'
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
@@ -8,11 +9,43 @@ import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { TDesignResolver } from 'unplugin-vue-components/resolvers'
 
+const GIT_HASH_ENV_KEYS = [
+  'VITE_GIT_HASH',
+  'VITE_APP_GIT_HASH',
+  'EXAMAWARE_GIT_HASH',
+  'GITHUB_SHA',
+  'GIT_COMMIT_SHA',
+  'GIT_COMMIT',
+  'COMMIT_SHA',
+  'npm_package_gitHead'
+] as const
+
+export function resolveBuildGitHash(env: NodeJS.ProcessEnv = process.env): string {
+  for (const key of GIT_HASH_ENV_KEYS) {
+    const value = env[key]?.trim()
+    if (value) return value
+  }
+
+  try {
+    return execFileSync('git', ['rev-parse', 'HEAD'], {
+      cwd: resolve(__dirname, '../..'),
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore']
+    }).trim()
+  } catch {
+    return ''
+  }
+}
+
 export default defineConfig(({ mode }) => {
   const isProduction = mode === 'production'
+  const buildConstants = {
+    __EXAMAWARE_GIT_HASH__: JSON.stringify(resolveBuildGitHash())
+  }
 
   return {
     main: {
+      define: buildConstants,
       plugins: [
         externalizeDepsPlugin({
           exclude: [
@@ -48,6 +81,7 @@ export default defineConfig(({ mode }) => {
       }
     },
     preload: {
+      define: buildConstants,
       plugins: [
         externalizeDepsPlugin({
           exclude: ['@dsz-examaware/core', '@dsz-examaware/player', '@dsz-examaware/rpc']
@@ -74,6 +108,7 @@ export default defineConfig(({ mode }) => {
       }
     },
     renderer: {
+      define: buildConstants,
       root: 'src/renderer',
       build: {
         outDir: 'dist/renderer',

@@ -1,7 +1,6 @@
 <template>
   <div class="console-page command-page">
     <PageHeader
-      eyebrow="COMMAND OBSERVABILITY"
       title="命令记录"
       description="追踪每条集控命令的固定目标、分发进度与逐设备执行结果。"
     >

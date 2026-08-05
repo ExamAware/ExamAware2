@@ -5,8 +5,10 @@ import {
   CURRENT_CONTROL_CAPABILITIES,
   CURRENT_MANAGED_SETTING_CAPABILITIES,
   MANAGED_SETTING_KEYS,
+  EXAM_CONFIG_ARTIFACT_MEDIA_TYPE,
   createCommandResultMessage,
   createPlaybackStopCommand,
+  createExamConfigPrepareCommand,
   createSettingsApplyCommand
 } from '@dsz-examaware/control-protocol';
 import { describe, expect, it, vi } from 'vitest';
@@ -20,6 +22,7 @@ import type {
 } from '../src/commands/control-commands.repository.js';
 import type { AuditService } from '../src/audit/audit.service.js';
 import type { DatabaseService } from '../src/database/database.service.js';
+import type { ExamConfigsRepository } from '../src/exam-configs/exam-configs.repository.js';
 import type { DeviceConnectionsService } from '../src/devices/device-connections.service.js';
 import type { DevicesRepository } from '../src/devices/devices.repository.js';
 import type { DeviceRecord } from '../src/devices/devices.repository.js';
@@ -27,6 +30,9 @@ import type { PartitionsRepository } from '../src/partitions/partitions.reposito
 
 const commandId = '0d352207-54be-49cb-93db-55c547d00e53';
 const deviceId = '78030c38-1479-4ac6-b2fa-65f5e299efb4';
+const examConfigId = '01817d1d-aa28-43d0-82f5-559a48d02bd2';
+const examConfigVersionId = 'd2ee584c-8ffc-4c76-a7cd-bdb31887d33b';
+const deploymentId = '90d6af2c-7226-4918-b646-247f6fa5db2d';
 const command = createPlaybackStopCommand({ deploymentId: crypto.randomUUID() });
 
 const commandRecord: ControlCommandRecord = {
@@ -38,6 +44,25 @@ const commandRecord: ControlCommandRecord = {
   issuedAt: new Date('2026-08-04T00:00:00Z'),
   expiresAt: new Date('2026-08-04T00:01:00Z'),
   cancelledAt: null
+};
+const prepareCommand = createExamConfigPrepareCommand({
+  deploymentId,
+  examConfigId,
+  examConfigVersionId,
+  artifact: {
+    url: `http://localhost/artifact?deploymentId=${deploymentId}`,
+    mediaType: EXAM_CONFIG_ARTIFACT_MEDIA_TYPE,
+    sizeBytes: 2,
+    sha256: 'a'.repeat(64),
+    expiresAt: new Date(Date.now() + 60_000).toISOString()
+  }
+});
+const prepareCommandRecord: ControlCommandRecord = {
+  ...commandRecord,
+  id: deploymentId,
+  commandType: prepareCommand.type,
+  command: prepareCommand,
+  expiresAt: new Date(Date.now() + 60_000)
 };
 
 const pendingTarget: CommandTargetRecord = {
@@ -57,6 +82,7 @@ function createService(
   repository: ControlCommandsRepository,
   devicesRepository = {} as DevicesRepository,
   partitionsRepository = {} as PartitionsRepository,
+  examConfigsRepository = {} as ExamConfigsRepository,
   connectionsService = {} as DeviceConnectionsService,
   auditService = {} as AuditService
 ) {
@@ -65,6 +91,7 @@ function createService(
     repository,
     devicesRepository,
     partitionsRepository,
+    examConfigsRepository,
     connectionsService,
     auditService
   );
@@ -145,6 +172,120 @@ describe('ControlCommandsService command results', () => {
 
     expect(result).toBe(succeededTarget);
     expect(repository.updateTarget).not.toHaveBeenCalled();
+  });
+});
+
+describe('ControlCommandsService exam preparation lifecycle', () => {
+  it.each([
+    [[COMMAND_TARGET_STATUS.succeeded], 'ready'],
+    [[COMMAND_TARGET_STATUS.succeeded, COMMAND_TARGET_STATUS.failed], 'ready'],
+    [[COMMAND_TARGET_STATUS.failed, COMMAND_TARGET_STATUS.failed], 'draft']
+  ] as const)('moves a terminal preparation with %j targets to %s', async (statuses, expected) => {
+    const databaseService = {
+      transaction: vi.fn(async (work) => work({}))
+    } as unknown as DatabaseService;
+    const completedTarget = {
+      ...pendingTarget,
+      commandId: deploymentId,
+      status: statuses[0],
+      completedAt: new Date()
+    };
+    const targets = statuses.map((status, index) => ({
+      ...completedTarget,
+      deviceId: index === 0 ? deviceId : crypto.randomUUID(),
+      status
+    }));
+    const repository = {
+      findById: vi.fn().mockResolvedValue(prepareCommandRecord),
+      lockTarget: vi.fn().mockResolvedValue({ ...pendingTarget, commandId: deploymentId }),
+      updateTarget: vi.fn().mockResolvedValue(completedTarget),
+      latestPrepareForExam: vi.fn().mockResolvedValue(prepareCommandRecord),
+      targets: vi.fn().mockResolvedValue(targets)
+    } as unknown as ControlCommandsRepository;
+    const examConfigsRepository = {
+      findById: vi.fn().mockResolvedValue({ id: examConfigId, status: 'preparing' }),
+      setStatus: vi.fn().mockResolvedValue(undefined)
+    } as unknown as ExamConfigsRepository;
+    const service = createService(
+      databaseService,
+      repository,
+      {} as DevicesRepository,
+      {} as PartitionsRepository,
+      examConfigsRepository
+    );
+
+    const resultStatus = statuses[0];
+    await service.recordResult(
+      deviceId,
+      createCommandResultMessage({
+        requestId: crypto.randomUUID(),
+        commandId: deploymentId,
+        status: resultStatus,
+        occurredAt: new Date().toISOString(),
+        ...(resultStatus === COMMAND_RESULT_STATUS.failed
+          ? { error: { code: 'prepare_failed', message: 'download failed' } }
+          : {})
+      })
+    );
+
+    expect(examConfigsRepository.setStatus).toHaveBeenCalledWith(examConfigId, expected);
+  });
+
+  it('returns an all-expired preparation to draft when command state is read', async () => {
+    const expiredTarget = {
+      ...pendingTarget,
+      commandId: deploymentId,
+      status: COMMAND_TARGET_STATUS.expired,
+      completedAt: new Date()
+    };
+    const repository = {
+      expireTargets: vi.fn().mockResolvedValue([deploymentId]),
+      findById: vi.fn().mockResolvedValue(prepareCommandRecord),
+      latestPrepareForExam: vi.fn().mockResolvedValue(prepareCommandRecord),
+      targets: vi.fn().mockResolvedValue([expiredTarget])
+    } as unknown as ControlCommandsRepository;
+    const examConfigsRepository = {
+      findById: vi.fn().mockResolvedValue({ id: examConfigId, status: 'preparing' }),
+      setStatus: vi.fn().mockResolvedValue(undefined)
+    } as unknown as ExamConfigsRepository;
+    const service = createService(
+      {} as DatabaseService,
+      repository,
+      {} as DevicesRepository,
+      {} as PartitionsRepository,
+      examConfigsRepository
+    );
+
+    await service.get(deploymentId);
+
+    expect(examConfigsRepository.setStatus).toHaveBeenCalledWith(examConfigId, 'draft');
+  });
+
+  it('detects completion only after every activated device reports idle for the deployment', async () => {
+    const activationId = crypto.randomUUID();
+    const secondDeviceId = crypto.randomUUID();
+    const repository = {
+      latestActivationForDeployment: vi.fn().mockResolvedValue({
+        ...commandRecord,
+        id: activationId,
+        commandType: 'playback.activate'
+      }),
+      deviceIdsByStatus: vi.fn().mockResolvedValue([deviceId, secondDeviceId])
+    } as unknown as ControlCommandsRepository;
+    const findByIds = vi.fn().mockResolvedValue([
+      { id: deviceId, lastReportedState: { player: { status: 'idle', deploymentId } } },
+      { id: secondDeviceId, lastReportedState: { player: { status: 'playing', deploymentId } } }
+    ]);
+    const service = createService({} as DatabaseService, repository, {
+      findByIds
+    } as unknown as DevicesRepository);
+
+    await expect(service.allActivatedDevicesExited(deploymentId)).resolves.toBe(false);
+    findByIds.mockResolvedValue([
+      { id: deviceId, lastReportedState: { player: { status: 'idle', deploymentId } } },
+      { id: secondDeviceId, lastReportedState: { player: { status: 'idle', deploymentId } } }
+    ]);
+    await expect(service.allActivatedDevicesExited(deploymentId)).resolves.toBe(true);
   });
 });
 
@@ -263,6 +404,7 @@ describe('ControlCommandsService target capabilities', () => {
         })
       } as unknown as DevicesRepository,
       {} as PartitionsRepository,
+      {} as ExamConfigsRepository,
       { sendCommand } as unknown as DeviceConnectionsService
     );
 
@@ -317,6 +459,7 @@ describe('ControlCommandsService immediate delivery', () => {
         ])
       } as unknown as DevicesRepository,
       {} as PartitionsRepository,
+      {} as ExamConfigsRepository,
       { sendCommand } as unknown as DeviceConnectionsService,
       { record: vi.fn().mockResolvedValue(undefined) } as unknown as AuditService
     );

@@ -2,7 +2,6 @@
   <t-loading :loading="loading" show-overlay>
     <div v-if="exam" class="console-page exam-detail-page">
       <PageHeader
-        eyebrow="EXAM CONTROL"
         :title="exam.name"
         :description="`配置版本 v${exam.latestVersion} · 更新于 ${formatDateTime(exam.updatedAt)}`"
       >

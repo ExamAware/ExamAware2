@@ -120,4 +120,25 @@ describe('ExamConfigsService', () => {
       })
     );
   });
+  it('allows a prepared but inactive exam to be deleted', async () => {
+    const current = {
+      id: crypto.randomUUID(),
+      name: 'Prepared exam',
+      status: 'ready',
+      deletedAt: null
+    } as ExamConfigRecord;
+    const softDelete = vi.fn().mockResolvedValue({ ...current, status: 'archived' });
+    const context = createService({
+      lockById: vi.fn().mockResolvedValue(current),
+      softDelete
+    });
+
+    await context.service.remove(current.id, { actorUserId, requestId });
+
+    expect(softDelete).toHaveBeenCalledWith(context.transaction, current.id);
+    expect(context.auditService.record).toHaveBeenCalledWith(
+      context.transaction,
+      expect.objectContaining({ action: 'exam.deleted', resourceId: current.id })
+    );
+  });
 });

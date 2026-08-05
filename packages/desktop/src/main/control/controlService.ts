@@ -18,6 +18,13 @@ import type { ControlAgentEvent } from '../../shared/types/control'
 import type { ControlApiClient } from './controlApiClient'
 import type { ControlAgentService } from './controlAgentService'
 import { ControlAgentError, type ControlRegistration } from './controlTypes'
+import {
+  clearManagedValues,
+  loadManagedValues,
+  saveManagedValues,
+  startManagedConfigWatch
+} from './managedControlStore'
+import { clearEnrollmentMarker, writeEnrollmentMarker } from './controlEnrollmentMarker'
 
 interface PreparedDeployment {
   deploymentId: string
@@ -38,6 +45,8 @@ export class ControlService {
   private agent?: ControlAgentService
   private apiClient?: ControlApiClient
   private disposeAgentListener?: () => void
+  private managedStateInitialized = false
+  private disposeManagedConfigWatch?: () => void
 
   constructor() {
     playerSessionService.onChanged((event) => {
@@ -75,6 +84,22 @@ export class ControlService {
     })
   }
 
+  async initializeManagedState(): Promise<void> {
+    if (this.managedStateInitialized) return
+    this.managedStateInitialized = true
+    const values = await loadManagedValues()
+    const allowedKeys = new Set<string>(Object.values(MANAGED_SETTING_KEYS))
+    for (const [key, value] of Object.entries(values)) {
+      if (!allowedKeys.has(key)) continue
+      this.managedKeys.add(key)
+      this.managedValues.set(key as ManagedSetting['key'], value as ManagedSetting['value'])
+    }
+    this.disposeManagedConfigWatch = startManagedConfigWatch((detail) =>
+      this.reportManagedTamper(detail)
+    )
+    this.emitStatusChanged()
+  }
+
   getStatus(): ControlStatusSnapshot {
     if (!this.agent) {
       return { state: 'stopped', managedSettingKeys: [...this.managedKeys] }
@@ -102,17 +127,27 @@ export class ControlService {
     enrollmentCode: string
     displayName?: string
   }): Promise<ControlStatusSnapshot> {
+    if (this.agent?.getRegistration() && this.isUnbindPrevented()) {
+      throw new ControlAgentError('bind_blocked_by_policy', '集控策略禁止重新绑定或更换集控服务器')
+    }
     await this.requireAgent().enroll(input.serverUrl, input.enrollmentCode, input.displayName)
+    const registration = this.agent?.getRegistration()
+    if (registration) void writeEnrollmentMarker(registration)
     return this.getStatus()
   }
 
   async unbind(): Promise<ControlStatusSnapshot> {
+    if (this.isUnbindPrevented()) {
+      throw new ControlAgentError('unbind_blocked_by_policy', '集控策略禁止解绑本设备')
+    }
     await this.requireAgent().clearEnrollment()
     this.preparedDeployments.clear()
     this.managedKeys.clear()
     this.managedValues.clear()
     this.playerState = undefined
+    void clearManagedValues()
     this.emitStatusChanged()
+    void clearEnrollmentMarker()
     return this.getStatus()
   }
 
@@ -234,6 +269,7 @@ export class ControlService {
       this.managedKeys.add(setting.key)
       this.managedValues.set(setting.key, setting.value)
     }
+    void saveManagedValues(Object.fromEntries(this.managedValues))
     this.emitStatusChanged()
   }
 
@@ -243,6 +279,28 @@ export class ControlService {
 
   isControlSessionExitPrevented(): boolean {
     return this.managedValues.get(MANAGED_SETTING_KEYS.playerPreventControlSessionExit) === true
+  }
+
+  isUnbindPrevented(): boolean {
+    return this.managedValues.get(MANAGED_SETTING_KEYS.controlPreventUnbind) === true
+  }
+
+  isQuitPrevented(): boolean {
+    return this.managedValues.get(MANAGED_SETTING_KEYS.controlPreventQuit) === true
+  }
+
+  reportManagedTamper(detail: string): void {
+    if (!this.agent?.getRegistration()) return
+    void this.agent
+      .reportError({
+        severity: 'warning',
+        source: 'managed-settings',
+        code: 'managed_settings_tamper_detected',
+        message: detail,
+        context: {},
+        occurredAt: new Date().toISOString()
+      })
+      .catch(() => {})
   }
 
   protected emit(event: ControlAgentEvent): void {

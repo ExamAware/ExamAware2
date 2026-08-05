@@ -73,7 +73,8 @@ function createService(
     credentialStore: {
       load: vi.fn().mockResolvedValue(registration()),
       save: vi.fn(),
-      clear: vi.fn()
+      clear: vi.fn(),
+      watch: vi.fn().mockReturnValue(() => {})
     },
     apiClient: {
       enroll: vi.fn(),
@@ -157,6 +158,22 @@ describe('ControlAgentService', () => {
     expect(service.getSnapshot()).toMatchObject({ state: 'reconnecting' })
     await vi.advanceTimersByTimeAsync(1_000)
     expect(sockets).toHaveLength(2)
+  })
+
+  it('reports a state change immediately while online', async () => {
+    const { service, sockets } = createService()
+    expect(service.reportState()).toBe(false)
+    await service.start()
+    sockets[0].open()
+    acceptHello(sockets[0])
+
+    const sentBefore = sockets[0].sent.length
+    expect(service.reportState()).toBe(true)
+    expect(sockets[0].sent).toHaveLength(sentBefore + 1)
+    expect(sockets[0].sent.at(-1)).toMatchObject({
+      type: 'device.heartbeat',
+      state: { player: { status: 'idle' } }
+    })
   })
 
   it('submits proctor calls with the enrolled device credential', async () => {

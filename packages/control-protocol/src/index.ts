@@ -36,6 +36,8 @@ export const MANAGED_SETTING_KEYS = {
   playerLargeClockScale: 'player.largeClockScale',
   playerExamInfoLargeFont: 'player.examInfoLargeFont',
   playerPreventControlSessionExit: 'player.preventControlSessionExit',
+  controlPreventUnbind: 'control.preventUnbind',
+  controlPreventQuit: 'control.preventQuit',
   timeSyncNtpServer: 'timeSync.ntpServer',
   timeSyncAutoSync: 'timeSync.autoSync',
   timeSyncIntervalMinutes: 'timeSync.syncIntervalMinutes'
@@ -394,6 +396,12 @@ export const managedSettingSchema = z.discriminatedUnion('key', [
       key: z.literal(MANAGED_SETTING_KEYS.playerPreventControlSessionExit),
       value: z.boolean()
     })
+    .strict(),
+  z
+    .object({ key: z.literal(MANAGED_SETTING_KEYS.controlPreventUnbind), value: z.boolean() })
+    .strict(),
+  z
+    .object({ key: z.literal(MANAGED_SETTING_KEYS.controlPreventQuit), value: z.boolean() })
     .strict(),
   z
     .object({

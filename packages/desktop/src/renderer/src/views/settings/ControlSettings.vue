@@ -54,10 +54,13 @@
           <t-space>
             <t-button v-if="!isBound" theme="primary" @click="openBindWindow"> 绑定集控 </t-button>
             <template v-else>
-              <t-button variant="outline" @click="openBindWindow">重新绑定</t-button>
-              <t-popconfirm content="确认解绑并清除本机设备凭据？" @confirm="handleUnbind">
-                <t-button theme="danger" variant="outline" :loading="unbinding">解绑</t-button>
-              </t-popconfirm>
+              <template v-if="!isUnbindBlocked">
+                <t-button variant="outline" @click="openBindWindow">重新绑定</t-button>
+                <t-popconfirm content="确认解绑并清除本机设备凭据？" @confirm="handleUnbind">
+                  <t-button theme="danger" variant="outline" :loading="unbinding">解绑</t-button>
+                </t-popconfirm>
+              </template>
+              <t-tag v-else theme="warning">集控中心已启用「禁止解绑」策略</t-tag>
             </template>
           </t-space>
         </template>
@@ -120,6 +123,8 @@ const settingLabels: Record<string, string> = {
   'player.largeClockScale': '大时钟字号',
   'player.examInfoLargeFont': '考试信息大字号',
   'player.preventControlSessionExit': '禁止主动退出集控放映',
+  'control.preventUnbind': '禁止解绑集控',
+  'control.preventQuit': '禁止退出应用',
   'timeSync.ntpServer': 'NTP 服务器',
   'timeSync.autoSync': '自动校时',
   'timeSync.syncIntervalMinutes': '校时间隔'
@@ -129,6 +134,8 @@ const booleanKeys = new Set([
   'player.largeClockEnabled',
   'player.examInfoLargeFont',
   'player.preventControlSessionExit',
+  'control.preventUnbind',
+  'control.preventQuit',
   'timeSync.autoSync'
 ])
 const numberKeys = new Set([
@@ -140,6 +147,7 @@ const managedKeys = computed(() => snapshot.value?.managedSettingKeys ?? [])
 const isBound = computed(
   () => snapshot.value?.state !== 'stopped' && snapshot.value?.state !== 'unenrolled'
 )
+const isUnbindBlocked = computed(() => managedValues['control.preventUnbind'] === true)
 
 const toDesktopConfigKey = (key: string) =>
   key.startsWith('timeSync.') ? `time.${key.slice('timeSync.'.length)}` : key

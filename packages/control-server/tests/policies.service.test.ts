@@ -164,6 +164,13 @@ describe('PoliciesService policy synchronization', () => {
 
     await service.update(updated.id, { settings: updated.settings }, context);
 
-    expect(applyPolicySettings).toHaveBeenCalledWith(updated.settings, [deviceId], context);
+    expect(applyPolicySettings).toHaveBeenCalledWith(
+      [
+        ...updated.settings,
+        { key: MANAGED_SETTING_KEYS.playerPreventControlSessionExit, value: false }
+      ],
+      [deviceId],
+      context
+    );
   });
 });

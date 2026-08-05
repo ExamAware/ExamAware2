@@ -6,6 +6,8 @@ interface ShutdownCoordinatorOptions {
   app: { quit(): void }
   flush: () => Promise<void>
   cleanup?: () => void
+  block?: () => string | null
+  onBlocked?: (reason: string) => void
   logger: { error(message: string, error: unknown): void }
 }
 
@@ -13,13 +15,21 @@ export function createShutdownCoordinator({
   app,
   flush,
   cleanup,
-  logger
+  logger,
+  block,
+  onBlocked
 }: ShutdownCoordinatorOptions): (event: QuitEvent) => void {
   let pending = false
   let allowQuit = false
 
   return (event) => {
     if (allowQuit) return
+    const reason = block?.()
+    if (reason) {
+      event.preventDefault()
+      onBlocked?.(reason)
+      return
+    }
 
     event.preventDefault()
     if (pending) return

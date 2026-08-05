@@ -93,6 +93,11 @@ export class ControlCommandsService {
     const expiredCommandIds = await this.commandsRepository.expireTargets(new Date());
     await Promise.all(expiredCommandIds.map((commandId) => this.finalizePrepareCommand(commandId)));
     const result = await this.commandsRepository.list(page, pageSize);
+    await Promise.all(
+      result.records
+        .filter((record) => record.command.type === CONTROL_COMMAND_TYPES.examConfigPrepare)
+        .map((record) => this.finalizePrepareCommand(record.id))
+    );
     return {
       items: await Promise.all(result.records.map((record) => this.toView(record))),
       page,
@@ -110,6 +115,9 @@ export class ControlCommandsService {
         code: CONTROL_COMMAND_ERROR_CODES.notFound,
         message: 'Control command not found'
       });
+    }
+    if (record.command.type === CONTROL_COMMAND_TYPES.examConfigPrepare) {
+      await this.finalizePrepareCommand(record.id);
     }
     return this.toView(record);
   }
@@ -185,7 +193,9 @@ export class ControlCommandsService {
           problem.code,
           problem.message
         );
-        await this.finalizePrepareCommand(command.id);
+        if (command.command.type === CONTROL_COMMAND_TYPES.examConfigPrepare) {
+          await this.finalizePrepareCommand(command.id);
+        }
         continue;
       }
       await this.deliver(command, deviceId);

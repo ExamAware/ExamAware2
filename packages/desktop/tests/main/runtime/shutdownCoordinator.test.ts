@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { describe, expect, it, vi } from 'vitest'
+import { createShutdownCoordinator } from '../../../src/main/runtime/shutdownCoordinator'
 
 describe('shutdown integration', () => {
   it('guards before-quit and flushes configuration before quitting', () => {
@@ -16,8 +17,6 @@ describe('shutdown integration', () => {
 
 describe('createShutdownCoordinator', () => {
   it('prevents duplicate quit events while one flush is pending, then permits reentry', async () => {
-    const { createShutdownCoordinator } =
-      await import('../../../src/main/runtime/shutdownCoordinator')
     let resolveFlush!: () => void
     const flush = vi.fn(() => new Promise<void>((resolve) => (resolveFlush = resolve)))
     const app = { quit: vi.fn() }
@@ -51,8 +50,6 @@ describe('createShutdownCoordinator', () => {
   })
 
   it('logs a flush failure and still quits exactly once', async () => {
-    const { createShutdownCoordinator } =
-      await import('../../../src/main/runtime/shutdownCoordinator')
     const diskError = new Error('disk error')
     const logger = { error: vi.fn() }
     const app = { quit: vi.fn() }
@@ -73,8 +70,6 @@ describe('createShutdownCoordinator', () => {
   })
 
   it('logs a synchronous cleanup failure and still flushes and quits', async () => {
-    const { createShutdownCoordinator } =
-      await import('../../../src/main/runtime/shutdownCoordinator')
     const cleanupError = new Error('cleanup error')
     const logger = { error: vi.fn() }
     const flush = vi.fn().mockResolvedValue(undefined)
@@ -95,5 +90,29 @@ describe('createShutdownCoordinator', () => {
     expect(logger.error).toHaveBeenCalledWith('[shutdown] cleanup failed', cleanupError)
     expect(flush).toHaveBeenCalledTimes(1)
     expect(app.quit).toHaveBeenCalledTimes(1)
+  })
+
+  it('blocks shutdown before cleanup and config flush when policy denies quit', async () => {
+    const app = { quit: vi.fn() }
+    const flush = vi.fn().mockResolvedValue(undefined)
+    const cleanup = vi.fn()
+    const onBlocked = vi.fn()
+    const coordinator = createShutdownCoordinator({
+      app,
+      flush,
+      cleanup,
+      logger: { error: vi.fn() },
+      block: () => '集控策略禁止退出应用',
+      onBlocked
+    })
+    const event = { preventDefault: vi.fn() }
+
+    coordinator(event)
+
+    expect(event.preventDefault).toHaveBeenCalledOnce()
+    expect(onBlocked).toHaveBeenCalledWith('集控策略禁止退出应用')
+    expect(cleanup).not.toHaveBeenCalled()
+    expect(flush).not.toHaveBeenCalled()
+    expect(app.quit).not.toHaveBeenCalled()
   })
 })
