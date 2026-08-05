@@ -20,7 +20,8 @@ import type { ExamConfigsRepository } from '../src/exam-configs/exam-configs.rep
 
 const context = {
   actorUserId: 'admin-user',
-  requestId: '3f7ed739-1168-4370-a671-a26235475362'
+  requestId: '3f7ed739-1168-4370-a671-a26235475362',
+  publicOrigin: 'http://127.0.0.1:5174'
 };
 const examConfigId = 'b6b4ce90-2d28-47cb-848a-9b9fbd5c227e';
 const examConfigVersionId = '2a1feb14-e56c-43c7-8508-8f27cd481f31';
@@ -83,7 +84,7 @@ function createService(options: {
 }) {
   return new ControlOperationsService(
     options.commands as ControlCommandsService,
-    options.examConfigs as ExamConfigsRepository
+    { setStatus: vi.fn(), ...options.examConfigs } as ExamConfigsRepository
   );
 }
 
@@ -126,6 +127,9 @@ describe('ControlOperationsService', () => {
           })
         })
       })
+    );
+    expect(command.payload.artifact.url).toMatch(
+      /^http:\/\/127\.0\.0\.1:5174\/api\/v1\/device-artifacts\//
     );
     expect(targets).toBe(selection);
     expect(expiresAt).toBeInstanceOf(Date);
@@ -187,6 +191,26 @@ describe('ControlOperationsService', () => {
       )
     ).toThrow(BadRequestException);
     expect(issue).not.toHaveBeenCalled();
+  });
+
+  it('issues policy settings immediately without rejecting devices before delivery', async () => {
+    const issue = vi.fn().mockResolvedValue(prepareView());
+    const service = createService({ commands: { issue } });
+    const settings = [{ key: MANAGED_SETTING_KEYS.appearanceTheme, value: 'dark' }] as const;
+
+    await service.applyPolicySettings([...settings], [firstDeviceId], context);
+
+    expect(issue).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: CONTROL_COMMAND_TYPES.settingsApply,
+        payload: expect.objectContaining({ settings })
+      }),
+      { deviceIds: [firstDeviceId], partitionNodeIds: [] },
+      expect.any(Date),
+      context,
+      expect.any(String),
+      { validateTargetCapabilities: false }
+    );
   });
 
   it('keeps artifact access bound to the prepared target and immutable version', async () => {

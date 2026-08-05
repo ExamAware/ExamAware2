@@ -8,6 +8,7 @@ import {
   definePluginApiModuleToken,
   type AppApi,
   type CastApi,
+  type ControlApi,
   type CommandsApi,
   type DeepLinksApi,
   type DialogsApi,
@@ -42,6 +43,7 @@ import {
   createPluginApiValueModule
 } from '../../../shared/pluginApi/runtime'
 import { secureFetch } from '../../network/secureFetch'
+import { controlService } from '../../control/controlService'
 import { playerSessionService } from '../../player/playerSessionService'
 import { createMainWindow } from '../../windows/mainWindow'
 import { createEditorWindow } from '../../windows/editorWindow'
@@ -544,6 +546,32 @@ export async function createMainPluginContext(
       own(scope, { dispose: runtime.settings.onChange(listener) })
   }
 
+  const controlApi: ControlApi = {
+    getStatus: async () => {
+      permissions.require(PluginPermissions.Control.Read)
+      return controlService.getStatus()
+    },
+    onStatusChanged: (listener) => {
+      permissions.require(PluginPermissions.Control.Read)
+      const dispose = controlService.onEvent((event) => {
+        if (event.type === 'state-changed') listener(event.snapshot)
+      })
+      return own(scope, { dispose })
+    },
+    bind: async (input) => {
+      permissions.require(PluginPermissions.Control.Manage)
+      return controlService.bind(input)
+    },
+    unbind: async () => {
+      permissions.require(PluginPermissions.Control.Manage)
+      return controlService.unbind()
+    },
+    callProctor: async () => {
+      permissions.require(PluginPermissions.Control.Manage)
+      await controlService.callProctor()
+    }
+  }
+
   const playerApi = createPlayerApiForContext(permissions, scope)
   const modules = [
     appModule,
@@ -563,7 +591,8 @@ export async function createMainPluginContext(
     createPluginApiValueModule('core.deep-links', 'main', 'deepLinks', deepLinksApi),
     createPluginApiValueModule('core.logging', 'main', 'logging', loggingApi),
     createPluginApiValueModule('core.plugins', 'main', 'plugins', pluginsApi),
-    createPluginApiValueModule('core.services', 'main', 'services', servicesApi)
+    createPluginApiValueModule('core.services', 'main', 'services', servicesApi),
+    createPluginApiValueModule('core.control', 'main', 'control', controlApi)
   ] as const
   const registry = new PluginApiModuleRegistry(modules)
   const moduleApi = await registry.create({

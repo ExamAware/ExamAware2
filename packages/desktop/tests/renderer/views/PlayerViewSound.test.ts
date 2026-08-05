@@ -5,6 +5,7 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { nextTick, reactive, ref } from 'vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { ControlAgentEvent } from '../../../src/shared/types/control'
 
 const mocks = vi.hoisted(() => {
   const settings: Record<string, unknown> = {}
@@ -29,9 +30,15 @@ const mocks = vi.hoisted(() => {
     createController,
     loadFromIPC: vi.fn(() => Promise.resolve()),
     performSync: vi.fn(() => Promise.resolve()),
-    controllerOptions: undefined as any,
     listPacks: vi.fn(),
-    setNativeTheme: vi.fn()
+    setNativeTheme: vi.fn(),
+    notify: vi.fn(),
+    closeCurrentNotice: vi.fn(),
+    showColorfulAlert: vi.fn(),
+    hideColorfulAlert: vi.fn(),
+    controlListener: undefined as ((event: ControlAgentEvent) => void) | undefined,
+    disposeControlListener: vi.fn(),
+    disposeSessionListener: vi.fn()
   }
 })
 
@@ -41,6 +48,15 @@ vi.mock('@dsz-examaware/player', async () => {
     ExamPlayer: defineComponent({
       name: 'ExamPlayer',
       emits: ['colorful-alert'],
+      setup(_props, { expose }) {
+        expose({
+          notify: mocks.notify,
+          closeCurrentNotice: mocks.closeCurrentNotice,
+          showColorfulAlert: mocks.showColorfulAlert,
+          hideColorfulAlert: mocks.hideColorfulAlert
+        })
+        return {}
+      },
       template: '<div data-testid="exam-player" />'
     })
   }
@@ -151,12 +167,34 @@ describe('PlayerView reminder sound integration', () => {
     mocks.loadFromIPC.mockReset().mockResolvedValue(undefined)
     mocks.performSync.mockReset().mockResolvedValue(undefined)
     mocks.setNativeTheme.mockReset()
+    mocks.notify.mockReset()
+    mocks.closeCurrentNotice.mockReset()
+    mocks.showColorfulAlert.mockReset()
+    mocks.hideColorfulAlert.mockReset()
+    mocks.controlListener = undefined
+    mocks.disposeControlListener.mockReset()
+    mocks.disposeSessionListener.mockReset()
     Object.defineProperty(window, 'api', {
       configurable: true,
       value: {
         config: {},
         reminderSounds: { list: mocks.listPacks },
-        windows: { setNativeTheme: mocks.setNativeTheme }
+        windows: {
+          setNativeTheme: mocks.setNativeTheme,
+          currentId: vi.fn().mockResolvedValue('player-window')
+        },
+        player: {
+          reportConfigStatus: vi.fn(),
+          listSessions: vi.fn().mockResolvedValue([]),
+          onSessionChanged: vi.fn().mockReturnValue(mocks.disposeSessionListener)
+        },
+        control: {
+          onEvent: vi.fn((listener: (event: ControlAgentEvent) => void) => {
+            mocks.controlListener = listener
+            return mocks.disposeControlListener
+          })
+        },
+        timeSync: {}
       }
     })
   })
@@ -191,7 +229,6 @@ describe('PlayerView reminder sound integration', () => {
 
     expect(mocks.createController).toHaveBeenCalledTimes(1)
     const options = mocks.createController.mock.calls[0]?.[0]
-    mocks.controllerOptions = options
     expect(options).toEqual(
       expect.objectContaining({
         baseUrl: document.baseURI,
@@ -343,6 +380,52 @@ describe('PlayerView reminder sound integration', () => {
 
     expect(mocks.play).toHaveBeenNthCalledWith(1, 'alert', expect.any(Object))
     expect(mocks.play).toHaveBeenNthCalledWith(2, 'end', expect.any(Object))
+    wrapper.unmount()
+  })
+  it('uses colorful alerts for important broadcasts and closes both alert surfaces', async () => {
+    const wrapper = mount(PlayerView)
+    await flushPromises()
+    const expiresAt = new Date(Date.now() + 30_000).toISOString()
+
+    mocks.controlListener?.({
+      type: 'broadcast',
+      payload: {
+        broadcastId: crypto.randomUUID(),
+        title: '一般通知',
+        body: '请检查准考证',
+        severity: 'info',
+        expiresAt
+      }
+    })
+    expect(mocks.notify).toHaveBeenCalledWith('## 一般通知\n\n请检查准考证', {
+      timeoutMs: expect.any(Number),
+      id: expect.any(String)
+    })
+
+    mocks.controlListener?.({
+      type: 'broadcast',
+      payload: {
+        broadcastId: crypto.randomUUID(),
+        title: '紧急通知',
+        body: '请立即停止答题',
+        severity: 'critical',
+        expiresAt
+      }
+    })
+    expect(mocks.showColorfulAlert).toHaveBeenCalledWith({
+      durationMs: expect.any(Number),
+      title: '紧急通知',
+      message: '请立即停止答题',
+      themeBaseColor: '#c9353f',
+      forceWhiteText: true
+    })
+
+    mocks.controlListener?.({
+      type: 'broadcast-dismiss',
+      payload: { broadcastId: crypto.randomUUID() }
+    })
+    expect(mocks.closeCurrentNotice).toHaveBeenCalledOnce()
+    expect(mocks.hideColorfulAlert).toHaveBeenCalledOnce()
     wrapper.unmount()
   })
 })

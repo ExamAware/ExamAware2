@@ -5,6 +5,7 @@ export type CloseReason = 'manual' | 'timeout';
 export interface ColorfulOptions {
   durationMs?: number;
   title?: string;
+  message?: string;
   themeBaseColor?: string;
   forceWhiteText?: boolean;
 }

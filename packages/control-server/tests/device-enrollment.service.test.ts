@@ -55,6 +55,7 @@ const device: DeviceRecord = {
   labels: [],
   lastSeenAt: null,
   lastReportedState: null,
+  deletedAt: null,
   enrolledAt: new Date(),
   createdAt: new Date(),
   updatedAt: new Date()
@@ -163,11 +164,13 @@ describe('DeviceEnrollmentService', () => {
         appVersion: '2.0.0',
         protocolVersion: CONTROL_PROTOCOL_VERSION
       }),
-      requestId
+      requestId,
+      'http://127.0.0.1:5174'
     );
 
     expect(result.deviceId).toBe(deviceId);
     expect(result.credential).toHaveLength(43);
+    expect(result.websocketUrl).toBe('ws://127.0.0.1:5174/device/v1/connect');
     expect(createDevice).toHaveBeenCalledWith(
       transaction,
       expect.objectContaining({ displayName: enrollmentCode.displayName })
@@ -188,6 +191,29 @@ describe('DeviceEnrollmentService', () => {
       transaction,
       expect.objectContaining({ action: DEVICE_ENROLLMENT_AUDIT.deviceEnrolled })
     );
+  });
+
+  it('returns a stable error for an unsupported device protocol version', async () => {
+    const { service } = createService({});
+
+    await expect(
+      service.enroll(
+        {
+          enrollmentCode: `EA2-${'a'.repeat(32)}`,
+          displayName: 'Room 101',
+          platform: 'linux',
+          architecture: 'arm64',
+          appVersion: '2.0.0',
+          protocolVersion: 2
+        },
+        requestId
+      )
+    ).rejects.toMatchObject({
+      response: {
+        code: 'device_protocol_version_unsupported',
+        message: 'Device protocol version is not supported by this server'
+      }
+    });
   });
 
   it('rejects an expired enrollment code before creating a device', async () => {

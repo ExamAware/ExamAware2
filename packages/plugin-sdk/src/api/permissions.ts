@@ -5,6 +5,10 @@ export const PluginPermissions = {
     Observe: 'player.observe',
     Contribute: 'player.contribute'
   },
+  Control: {
+    Read: 'control.read',
+    Manage: 'control.manage'
+  },
   Files: {
     Dialog: 'files.dialog',
     Read: 'files.read',
@@ -73,6 +77,7 @@ type DeepValue<T> = T extends string ? T : T extends object ? DeepValue<T[keyof 
 export type PluginPermission = DeepValue<typeof PluginPermissions>;
 
 export const defaultPluginPermissions = [
+  PluginPermissions.Control.Read,
   PluginPermissions.Time.Read,
   PluginPermissions.Logging.Read,
   PluginPermissions.Plugins.Read,

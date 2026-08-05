@@ -55,15 +55,15 @@ describe('authentication configuration', () => {
 });
 
 describe('initial administrator input', () => {
-  it('normalizes an administrator email address', () => {
+  it('normalizes an administrator username', () => {
     const result = readBootstrapAdminInput({
-      CONTROL_ADMIN_EMAIL: ' Admin@Example.EDU ',
+      CONTROL_ADMIN_USERNAME: ' School.Admin ',
       CONTROL_ADMIN_NAME: 'School administrator',
       CONTROL_ADMIN_PASSWORD: 'a-strong-bootstrap-password'
     });
 
     expect(result).toEqual({
-      email: 'admin@example.edu',
+      username: 'school.admin',
       name: 'School administrator',
       password: 'a-strong-bootstrap-password'
     });
@@ -72,7 +72,7 @@ describe('initial administrator input', () => {
   it('rejects a weak bootstrap password', () => {
     expect(() =>
       readBootstrapAdminInput({
-        CONTROL_ADMIN_EMAIL: 'admin@example.edu',
+        CONTROL_ADMIN_USERNAME: 'school.admin',
         CONTROL_ADMIN_NAME: 'School administrator',
         CONTROL_ADMIN_PASSWORD: 'short'
       })

@@ -27,6 +27,7 @@ const MAX_READY_TIMEOUT_MS = 5 * 60_000
 
 export interface PlayerStartPolicy {
   allowLocalNetwork?: boolean
+  allowUserExit?: () => boolean
 }
 
 interface SessionRecord {
@@ -148,6 +149,8 @@ export class PlayerSessionService {
         createdAt: Date.now()
       }
     }
+    record.snapshot.origin = options.origin
+    record.snapshot.deploymentId = options.deploymentId
     this.sessions.set(id, record)
     this.emit(record)
 
@@ -188,6 +191,7 @@ export class PlayerSessionService {
             })
             this.onRendererStatus(record, status, resolveReady, rejectReady)
           },
+          allowUserExit: policy.allowUserExit,
           onClosed: () => {
             if (record.snapshot.state !== 'failed') this.transition(record, 'closed')
             if (this.activeSessionId === id) this.activeSessionId = undefined

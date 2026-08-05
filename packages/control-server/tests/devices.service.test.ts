@@ -27,6 +27,7 @@ const baseDevice: DeviceRecord = {
   labels: [],
   lastSeenAt: null,
   lastReportedState: null,
+  deletedAt: null,
   enrolledAt: new Date('2026-08-04T00:00:00Z'),
   createdAt: new Date('2026-08-04T00:00:00Z'),
   updatedAt: new Date('2026-08-04T00:00:00Z')
@@ -51,6 +52,39 @@ describe('device connection status', () => {
     expect(deriveDeviceConnectionStatus({ ...baseDevice, lifecycleStatus: 'revoked' }, now)).toBe(
       'revoked'
     );
+  });
+});
+
+describe('device target resolution', () => {
+  it('includes descendant partition devices and deduplicates direct targets', async () => {
+    const secondDevice = {
+      ...baseDevice,
+      id: '01ad793b-df24-41c6-afcd-799cd27beef3',
+      displayName: 'Room 102'
+    };
+    const devicesRepository = {
+      findByIds: vi.fn().mockResolvedValue([secondDevice, baseDevice])
+    } as unknown as DevicesRepository;
+    const partitionsRepository = {
+      descendantNodeIds: vi.fn().mockResolvedValue(['root-node', 'child-node']),
+      deviceIdsForNodeIds: vi.fn().mockResolvedValue([baseDevice.id, secondDevice.id]),
+      assignmentsForDevices: vi.fn().mockResolvedValue(new Map())
+    } as unknown as PartitionsRepository;
+    const service = new DevicesService(
+      {} as DatabaseService,
+      devicesRepository,
+      partitionsRepository,
+      {} as AuditService
+    );
+
+    const result = await service.resolveTargets([baseDevice.id], ['root-node']);
+
+    expect(result.map((item) => item.id)).toEqual([baseDevice.id, secondDevice.id]);
+    expect(devicesRepository.findByIds).toHaveBeenCalledWith([baseDevice.id, secondDevice.id]);
+    expect(partitionsRepository.deviceIdsForNodeIds).toHaveBeenCalledWith([
+      'root-node',
+      'child-node'
+    ]);
   });
 });
 
@@ -177,6 +211,67 @@ describe('DevicesService', () => {
     expect(result.connectionStatus).toBe('revoked');
     expect(devicesRepository.update).not.toHaveBeenCalled();
     expect(auditService.record).not.toHaveBeenCalled();
+  });
+
+  it('requires revocation before permanent deletion', async () => {
+    const transaction = {};
+    const databaseService = {
+      transaction: vi.fn(async (work) => work(transaction))
+    } as unknown as DatabaseService;
+    const softDelete = vi.fn();
+    const devicesRepository = {
+      lockById: vi.fn().mockResolvedValue(baseDevice),
+      softDelete
+    } as unknown as DevicesRepository;
+    const service = new DevicesService(
+      databaseService,
+      devicesRepository,
+      emptyPartitionsRepository(),
+      { record: vi.fn() } as unknown as AuditService
+    );
+
+    const rejection = await service
+      .remove(baseDevice.id, { actorUserId: 'admin', requestId: crypto.randomUUID() })
+      .catch((error: unknown) => error as BadRequestException);
+
+    expect(rejection.getResponse()).toEqual({
+      code: 'device_must_be_revoked',
+      message: 'A device must be revoked before it can be deleted'
+    });
+    expect(softDelete).not.toHaveBeenCalled();
+  });
+
+  it('soft deletes a revoked device and records the deletion', async () => {
+    const transaction = {};
+    const databaseService = {
+      transaction: vi.fn(async (work) => work(transaction))
+    } as unknown as DatabaseService;
+    const revokedDevice = { ...baseDevice, lifecycleStatus: DEVICE_LIFECYCLE_STATUS.revoked };
+    const softDelete = vi.fn().mockResolvedValue({ ...revokedDevice, deletedAt: new Date() });
+    const devicesRepository = {
+      lockById: vi.fn().mockResolvedValue(revokedDevice),
+      softDelete
+    } as unknown as DevicesRepository;
+    const record = vi.fn().mockResolvedValue(undefined);
+    const service = new DevicesService(
+      databaseService,
+      devicesRepository,
+      emptyPartitionsRepository(),
+      { record } as unknown as AuditService
+    );
+    const requestId = crypto.randomUUID();
+
+    await service.remove(baseDevice.id, { actorUserId: 'admin', requestId });
+
+    expect(softDelete).toHaveBeenCalledWith(transaction, baseDevice.id, expect.any(Date));
+    expect(record).toHaveBeenCalledWith(transaction, {
+      actorUserId: 'admin',
+      action: 'device.deleted',
+      resourceType: 'device',
+      resourceId: baseDevice.id,
+      requestId,
+      metadata: { displayName: baseDevice.displayName }
+    });
   });
 
   it('rejects multiple assignments in an exclusive partition dimension', async () => {

@@ -1,5 +1,7 @@
 <template>
-  <router-view :class="settingStore.displayMode" />
+  <div :class="settingStore.displayMode">
+    <router-view />
+  </div>
 </template>
 
 <script setup lang="ts">

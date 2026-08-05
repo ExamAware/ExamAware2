@@ -11,7 +11,10 @@ import {
   createSettingsApplyCommand,
   settingsApplyPayloadSchema
 } from '@dsz-examaware/control-protocol';
-import type { ExamConfigPrepareCommand } from '@dsz-examaware/control-protocol';
+import type {
+  DeviceStateSnapshot,
+  ExamConfigPrepareCommand
+} from '@dsz-examaware/control-protocol';
 import type { WriteContext } from '../api/write-context.js';
 import { env } from '../config/env.js';
 import { createExamConfigArtifactBytes } from '../exam-configs/exam-config-artifact.js';
@@ -28,6 +31,8 @@ import type {
   StopExamDeploymentDto
 } from './dto/control-operation.dto.js';
 
+const POLICY_SETTINGS_EXPIRY_SECONDS = 86_400;
+
 @Injectable()
 export class ControlOperationsService {
   constructor(
@@ -39,8 +44,11 @@ export class ControlOperationsService {
     input: PrepareExamDeploymentDto,
     context: WriteContext
   ): Promise<ControlCommandView> {
-    const version = await this.examConfigsRepository.findVersion(input.examConfigId, input.version);
-    if (!version) {
+    const [exam, version] = await Promise.all([
+      this.examConfigsRepository.findById(input.examConfigId),
+      this.examConfigsRepository.findVersion(input.examConfigId, input.version)
+    ]);
+    if (!exam || !version) {
       throw new NotFoundException({
         code: CONTROL_COMMAND_ERROR_CODES.examVersionNotFound,
         message: 'Exam config version not found'
@@ -49,27 +57,33 @@ export class ControlOperationsService {
     const deploymentId = randomUUID();
     const expiresAt = this.expiresAt(input.expiresInSeconds);
     const artifact = createExamConfigArtifactBytes(version.content);
-    return this.commandsService.issue(
-      createExamConfigPrepareCommand({
-        deploymentId,
-        examConfigId: input.examConfigId,
-        examConfigVersionId: version.id,
-        artifact: {
-          url: new URL(
-            `/api/v1/device-artifacts/exam-configs/${input.examConfigId}/versions/${input.version}?deploymentId=${deploymentId}`,
-            env.betterAuthUrl
-          ).toString(),
-          mediaType: EXAM_CONFIG_ARTIFACT_MEDIA_TYPE,
-          sizeBytes: artifact.body.byteLength,
-          sha256: artifact.sha256,
-          expiresAt: expiresAt.toISOString()
-        }
-      }),
-      input.targets,
-      expiresAt,
-      context,
-      deploymentId
-    );
+    await this.examConfigsRepository.setStatus(input.examConfigId, 'preparing');
+    try {
+      return await this.commandsService.issue(
+        createExamConfigPrepareCommand({
+          deploymentId,
+          examConfigId: input.examConfigId,
+          examConfigVersionId: version.id,
+          artifact: {
+            url: new URL(
+              `/api/v1/device-artifacts/exam-configs/${input.examConfigId}/versions/${input.version}?deploymentId=${deploymentId}`,
+              context.publicOrigin ?? env.betterAuthUrl
+            ).toString(),
+            mediaType: EXAM_CONFIG_ARTIFACT_MEDIA_TYPE,
+            sizeBytes: artifact.body.byteLength,
+            sha256: artifact.sha256,
+            expiresAt: expiresAt.toISOString()
+          }
+        }),
+        input.targets,
+        expiresAt,
+        context,
+        deploymentId
+      );
+    } catch (error) {
+      await this.examConfigsRepository.setStatus(input.examConfigId, exam.status);
+      throw error;
+    }
   }
 
   async activateExam(
@@ -85,7 +99,7 @@ export class ControlOperationsService {
         message: 'No target device has successfully prepared this deployment'
       });
     }
-    return this.commandsService.issue(
+    const command = await this.commandsService.issue(
       createPlaybackActivateCommand({
         deploymentId,
         examConfigVersionId: prepare.command.payload.examConfigVersionId,
@@ -95,6 +109,8 @@ export class ControlOperationsService {
       this.expiresAt(input.expiresInSeconds),
       context
     );
+    await this.examConfigsRepository.setStatus(prepare.command.payload.examConfigId, 'active');
+    return command;
   }
 
   async stopExam(
@@ -104,7 +120,7 @@ export class ControlOperationsService {
   ): Promise<ControlCommandView> {
     const prepare = await this.requirePrepareCommand(deploymentId);
     const deviceIds = prepare.targets.map((target) => target.deviceId);
-    return this.commandsService.issue(
+    const command = await this.commandsService.issue(
       createPlaybackStopCommand({
         deploymentId,
         ...(input.reason ? { reason: input.reason } : {})
@@ -113,6 +129,8 @@ export class ControlOperationsService {
       this.expiresAt(input.expiresInSeconds),
       context
     );
+    await this.examConfigsRepository.setStatus(prepare.command.payload.examConfigId, 'completed');
+    return command;
   }
 
   showBroadcast(input: ShowBroadcastDto, context: WriteContext): Promise<ControlCommandView> {
@@ -162,6 +180,52 @@ export class ControlOperationsService {
       context,
       revision
     );
+  }
+
+  applyPolicySettings(
+    settings: ApplyManagedSettingsDto['settings'],
+    deviceIds: string[],
+    context: WriteContext
+  ): Promise<ControlCommandView> {
+    const revision = randomUUID();
+    const payload = settingsApplyPayloadSchema.safeParse({ revision, settings });
+    if (!payload.success) {
+      throw new BadRequestException({
+        code: CONTROL_COMMAND_ERROR_CODES.invalidManagedSettings,
+        message: 'Managed settings do not match the allowed setting registry',
+        errors: payload.error.issues
+      });
+    }
+    return this.commandsService.issue(
+      createSettingsApplyCommand(payload.data),
+      { deviceIds, partitionNodeIds: [] },
+      this.expiresAt(POLICY_SETTINGS_EXPIRY_SECONDS),
+      context,
+      revision,
+      { validateTargetCapabilities: false }
+    );
+  }
+
+  async reconcileDeviceState(state: DeviceStateSnapshot): Promise<void> {
+    const player = state.player;
+    if (player?.status !== 'idle' || !player.deploymentId) return;
+
+    let prepare: ControlCommandView;
+    try {
+      prepare = await this.commandsService.get(player.deploymentId);
+    } catch {
+      return;
+    }
+    if (prepare.command.type !== CONTROL_COMMAND_TYPES.examConfigPrepare) return;
+    const examConfigId = prepare.command.payload.examConfigId;
+    const [exam, latestPrepare] = await Promise.all([
+      this.examConfigsRepository.findById(examConfigId),
+      this.commandsService.latestPrepareForExam(examConfigId)
+    ]);
+    if (exam?.status !== 'active' || latestPrepare?.id !== player.deploymentId) return;
+    if (await this.commandsService.allActivatedDevicesExited(player.deploymentId)) {
+      await this.examConfigsRepository.setStatus(examConfigId, 'completed');
+    }
   }
 
   async readExamArtifact(

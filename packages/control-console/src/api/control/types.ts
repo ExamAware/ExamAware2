@@ -113,18 +113,35 @@ export interface ExamConfigVersion {
   createdAt: string;
 }
 
+export type ExamStatus = 'active' | 'preparing' | 'ready' | 'draft' | 'completed' | 'archived';
 export interface ExamConfigSummary {
   id: string;
   schoolId: string;
   name: string;
   latestVersion: number;
+  status: ExamStatus;
+  assignedDeviceIds: string[];
+  assignedPartitionNodeIds: string[];
   createdBy: string;
   createdAt: string;
   updatedAt: string;
 }
 
+export interface ProctorCallView {
+  id: string;
+  schoolId: string;
+  deviceId: string;
+  deviceDisplayName: string;
+  roomNumber: string | null;
+  message: string | null;
+  occurredAt: string;
+  receivedAt: string;
+  acknowledgedAt: string | null;
+  acknowledgedBy: string | null;
+}
 export interface ExamConfigDetail extends ExamConfigSummary {
   latest: ExamConfigVersion;
+  versions: ExamConfigVersion[];
 }
 
 export type CommandTargetStatus =
@@ -222,4 +239,59 @@ export interface ApplyManagedSettingsInput {
   settings: ManagedSetting[];
   targets: CommandTargetsInput;
   expiresInSeconds: number;
+}
+
+export type UserRole = 'admin' | 'operator' | 'viewer';
+
+export interface UserView {
+  id: string;
+  username: string;
+  name: string;
+  role: UserRole;
+  banned: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreatedCredential extends UserView {
+  password: string;
+}
+
+export interface BatchUsersResult {
+  credentials: CreatedCredential[];
+  created: string[];
+  replaced: string[];
+  skipped: Array<{
+    username: string;
+    reason: 'invalid' | 'duplicate' | 'exists' | 'protected';
+  }>;
+}
+
+export interface AuditLogView {
+  id: string;
+  actorUserId: string | null;
+  actorUsername: string | null;
+  action: string;
+  resourceType: string;
+  resourceId: string | null;
+  requestId: string;
+  metadata: Record<string, unknown>;
+  createdAt: string;
+}
+
+export interface DevicePolicyView {
+  id: string;
+  name: string;
+  description: string;
+  priority: number;
+  enabled: boolean;
+  settings: ManagedSetting[];
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  targets: { deviceIds: string[]; partitionNodeIds: string[] };
+}
+
+export interface EffectivePolicyView extends DevicePolicyView {
+  assignment: { type: 'device' | 'node'; nodeId?: string; ancestorDistance: number };
 }

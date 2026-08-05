@@ -24,6 +24,6 @@ import { ControlCommandsService } from './control-commands.service.js';
     DeviceArtifactsController
   ],
   providers: [ControlCommandsRepository, ControlCommandsService, ControlOperationsService],
-  exports: [ControlCommandsRepository, ControlCommandsService]
+  exports: [ControlCommandsRepository, ControlCommandsService, ControlOperationsService]
 })
 export class ControlCommandsModule {}

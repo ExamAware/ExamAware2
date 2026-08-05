@@ -11,6 +11,7 @@ import {
   CONTROL_CAPABILITY_NAMES,
   CONTROL_COMMAND_TYPES,
   controlCommandSchema,
+  PLAYER_STATUS,
   createServerCommandMessage
 } from '@dsz-examaware/control-protocol';
 import type { CommandResult, ControlCommand } from '@dsz-examaware/control-protocol';
@@ -21,6 +22,7 @@ import { DatabaseService } from '../database/database.service.js';
 import { DeviceConnectionsService } from '../devices/device-connections.service.js';
 import { DevicesRepository } from '../devices/devices.repository.js';
 import { DEVICE_LIFECYCLE_STATUS } from '../devices/device.constants.js';
+import { ExamConfigsRepository } from '../exam-configs/exam-configs.repository.js';
 import type { DeviceRecord } from '../devices/devices.repository.js';
 import { PartitionsRepository } from '../partitions/partitions.repository.js';
 import { CONTROL_COMMAND_AUDIT, CONTROL_COMMAND_ERROR_CODES } from './control-command.constants.js';
@@ -82,12 +84,14 @@ export class ControlCommandsService {
     private readonly commandsRepository: ControlCommandsRepository,
     private readonly devicesRepository: DevicesRepository,
     private readonly partitionsRepository: PartitionsRepository,
+    private readonly examConfigsRepository: ExamConfigsRepository,
     private readonly connectionsService: DeviceConnectionsService,
     private readonly auditService: AuditService
   ) {}
 
   async list(page: number, pageSize: number): Promise<Page<ControlCommandView>> {
-    await this.commandsRepository.expireTargets(new Date());
+    const expiredCommandIds = await this.commandsRepository.expireTargets(new Date());
+    await Promise.all(expiredCommandIds.map((commandId) => this.finalizePrepareCommand(commandId)));
     const result = await this.commandsRepository.list(page, pageSize);
     return {
       items: await Promise.all(result.records.map((record) => this.toView(record))),
@@ -98,7 +102,8 @@ export class ControlCommandsService {
   }
 
   async get(id: string): Promise<ControlCommandView> {
-    await this.commandsRepository.expireTargets(new Date());
+    const expiredCommandIds = await this.commandsRepository.expireTargets(new Date());
+    await Promise.all(expiredCommandIds.map((commandId) => this.finalizePrepareCommand(commandId)));
     const record = await this.commandsRepository.findById(id);
     if (!record) {
       throw new NotFoundException({
@@ -114,7 +119,8 @@ export class ControlCommandsService {
     selection: CommandTargetSelection,
     expiresAt: Date,
     context: WriteContext,
-    requestedCommandId?: string
+    requestedCommandId?: string,
+    options: { validateTargetCapabilities?: boolean } = {}
   ): Promise<ControlCommandView> {
     const parsedCommand = controlCommandSchema.safeParse(command);
     if (!parsedCommand.success) {
@@ -131,7 +137,11 @@ export class ControlCommandsService {
         message: 'Command expiry must be in the future'
       });
     }
-    const deviceIds = await this.resolveTargets(selection, parsedCommand.data);
+    const deviceIds = await this.resolveTargets(
+      selection,
+      parsedCommand.data,
+      options.validateTargetCapabilities !== false
+    );
     const commandId = requestedCommandId ?? randomUUID();
     const record = await this.databaseService.transaction(async (transaction) => {
       const created = await this.commandsRepository.create(transaction, {
@@ -175,6 +185,7 @@ export class ControlCommandsService {
           problem.code,
           problem.message
         );
+        await this.finalizePrepareCommand(command.id);
         continue;
       }
       await this.deliver(command, deviceId);
@@ -247,6 +258,9 @@ export class ControlCommandsService {
         return { accepted: true, target: completed };
       }
     );
+    if (result.status !== COMMAND_RESULT_STATUS.acknowledged) {
+      await this.finalizePrepareCommand(result.commandId);
+    }
     if (!outcome.accepted) {
       throw new GoneException({
         code: CONTROL_COMMAND_ERROR_CODES.expired,
@@ -260,9 +274,32 @@ export class ControlCommandsService {
     return this.commandsRepository.deviceIdsByStatus(commandId, [COMMAND_TARGET_STATUS.succeeded]);
   }
 
+  async latestPrepareForExam(examConfigId: string): Promise<ControlCommandRecord | undefined> {
+    return this.commandsRepository.latestPrepareForExam(examConfigId);
+  }
+
+  async allActivatedDevicesExited(deploymentId: string): Promise<boolean> {
+    const activation = await this.commandsRepository.latestActivationForDeployment(deploymentId);
+    if (!activation) return false;
+    const deviceIds = await this.commandsRepository.deviceIdsByStatus(activation.id, [
+      COMMAND_TARGET_STATUS.succeeded
+    ]);
+    if (deviceIds.length === 0) return false;
+    const devices = await this.devicesRepository.findByIds(deviceIds);
+    return (
+      devices.length === deviceIds.length &&
+      devices.every(
+        (device) =>
+          device.lastReportedState?.player?.status === PLAYER_STATUS.idle &&
+          device.lastReportedState.player.deploymentId === deploymentId
+      )
+    );
+  }
+
   private async resolveTargets(
     selection: CommandTargetSelection,
-    command: ControlCommand
+    command: ControlCommand,
+    validateTargetCapabilities: boolean
   ): Promise<string[]> {
     const selectedIds = new Set(selection.deviceIds);
     for (const rootId of new Set(selection.partitionNodeIds)) {
@@ -299,7 +336,7 @@ export class ControlCommandsService {
         message: `Device ${revoked.id} is revoked`
       });
     }
-    this.assertTargetCapabilities(records, command);
+    if (validateTargetCapabilities) this.assertTargetCapabilities(records, command);
     return records.map((record) => record.id).sort();
   }
 
@@ -351,6 +388,30 @@ export class ControlCommandsService {
           errors: { devices: unsupported }
         }
       : undefined;
+  }
+
+  private async finalizePrepareCommand(commandId: string): Promise<void> {
+    const command = await this.commandsRepository.findById(commandId);
+    if (command?.command.type !== CONTROL_COMMAND_TYPES.examConfigPrepare) return;
+    const latest = await this.commandsRepository.latestPrepareForExam(
+      command.command.payload.examConfigId
+    );
+    if (latest?.id !== command.id) return;
+    const exam = await this.examConfigsRepository.findById(command.command.payload.examConfigId);
+    if (exam?.status !== 'preparing') return;
+    const targets = await this.commandsRepository.targets(command.id);
+    if (
+      targets.length === 0 ||
+      targets.some((target) => !TERMINAL_TARGET_STATUSES.includes(target.status))
+    ) {
+      return;
+    }
+    await this.examConfigsRepository.setStatus(
+      command.command.payload.examConfigId,
+      targets.some((target) => target.status === COMMAND_TARGET_STATUS.succeeded)
+        ? 'ready'
+        : 'draft'
+    );
   }
 
   private async deliver(record: ControlCommandRecord, deviceId: string): Promise<void> {

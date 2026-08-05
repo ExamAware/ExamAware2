@@ -34,6 +34,6 @@ export const useSettingStore = defineStore('setting', {
     }
   },
   persist: {
-    pick: ['mode', 'isSidebarCompact']
+    pick: ['mode', 'isSidebarCompact', 'showBreadcrumb']
   }
 });

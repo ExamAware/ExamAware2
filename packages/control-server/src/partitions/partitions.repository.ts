@@ -91,6 +91,10 @@ export class PartitionsRepository {
     return records[0];
   }
 
+  async deleteDimension(transaction: DatabaseTransaction, id: string): Promise<void> {
+    await transaction.delete(partitionDimension).where(eq(partitionDimension.id, id));
+  }
+
   listNodes(dimensionId: string): Promise<PartitionNodeRecord[]> {
     return this.databaseService.db
       .select()
@@ -149,6 +153,10 @@ export class PartitionsRepository {
       .where(eq(partitionNode.id, id))
       .returning();
     return records[0];
+  }
+
+  async deleteNode(transaction: DatabaseTransaction, id: string): Promise<void> {
+    await transaction.delete(partitionNode).where(eq(partitionNode.id, id));
   }
 
   async findNodesByIds(

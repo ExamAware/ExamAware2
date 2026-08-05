@@ -101,6 +101,21 @@ export class PartitionsService {
     });
   }
 
+  async removeDimension(id: string, context: WriteContext): Promise<void> {
+    const current = await this.requireDimension(id);
+    await this.databaseService.transaction(async (transaction) => {
+      await this.partitionsRepository.deleteDimension(transaction, id);
+      await this.auditService.record(transaction, {
+        actorUserId: context.actorUserId,
+        action: 'partition-dimension.deleted',
+        resourceType: 'partition-dimension',
+        resourceId: id,
+        requestId: context.requestId,
+        metadata: { key: current.key, name: current.name }
+      });
+    });
+  }
+
   async createNode(
     dimensionId: string,
     input: Omit<PartitionNodeCreate, 'dimensionId' | 'createdBy'>,
@@ -194,6 +209,25 @@ export class PartitionsService {
         metadata: { changedFields: Object.keys(patch) }
       });
       return updated!;
+    });
+  }
+
+  async removeNode(id: string, context: WriteContext): Promise<void> {
+    const current = await this.requireNode(id);
+    await this.databaseService.transaction(async (transaction) => {
+      await this.partitionsRepository.deleteNode(transaction, id);
+      await this.auditService.record(transaction, {
+        actorUserId: context.actorUserId,
+        action: 'partition-node.deleted',
+        resourceType: 'partition-node',
+        resourceId: id,
+        requestId: context.requestId,
+        metadata: {
+          dimensionId: current.dimensionId,
+          parentId: current.parentId,
+          name: current.name
+        }
+      });
     });
   }
 

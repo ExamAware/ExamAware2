@@ -5,7 +5,7 @@ async function main(): Promise<void> {
   try {
     const input = readBootstrapAdminInput(process.env);
     const userId = await bootstrapInitialAdmin(input);
-    console.log(`Created initial administrator ${input.email} (${userId})`);
+    console.log(`Created initial administrator ${input.username} (${userId})`);
   } finally {
     await postgresClient.end();
   }

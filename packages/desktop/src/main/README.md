@@ -8,6 +8,7 @@ executable entry point; feature implementation does not belong at the root.
 - `assets`: main-process static assets imported by the bundle.
 - `cast`: local sharing service and its IPC controller.
 - `config`: persisted application configuration and in-memory shared exam configuration.
+- `control`: outbound control-center enrollment, encrypted credentials, HTTP APIs, and WSS lifecycle.
 - `deepLink`: deep-link parsing, dispatch, decorators, and application routes.
 - `fileSystem`: reusable file-system APIs exposed to the preload or IPC layers.
 - `httpApi`: HTTP API service, route types, path handling, and its IPC controller.

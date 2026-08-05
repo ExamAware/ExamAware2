@@ -22,6 +22,7 @@
 import { computed, type PropType } from 'vue';
 import type { RouteRecordRaw } from 'vue-router';
 
+import { useSessionStore } from '@/store';
 interface MenuItem {
   path: string;
   title: string;
@@ -34,11 +35,16 @@ const props = defineProps({
   basePath: { type: String, default: '' }
 });
 
+const session = useSessionStore();
 const menuItems = computed(() => buildMenu(props.navData, props.basePath));
 
 function buildMenu(routes: RouteRecordRaw[], basePath = ''): MenuItem[] {
   return routes
     .filter((route) => route.meta?.hidden !== true)
+    .filter((route) => {
+      const roles = route.meta?.roles;
+      return !Array.isArray(roles) || roles.includes(session.user?.role ?? '');
+    })
     .map((route) => {
       const path = route.path.startsWith('/') ? route.path : `${basePath}/${route.path}`;
       return {

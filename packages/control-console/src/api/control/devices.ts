@@ -20,6 +20,12 @@ export const devicesApi = {
   get(id: string) {
     return apiRequest<DeviceView>(`${DEVICES_PATH}/${encodeURIComponent(id)}`);
   },
+  resolveTargets(deviceIds: string[], partitionNodeIds: string[]) {
+    return apiRequest<DeviceView[]>(`${DEVICES_PATH}/resolve-targets`, {
+      method: 'POST',
+      body: JSON.stringify({ deviceIds, partitionNodeIds })
+    });
+  },
   listEnrollmentCodes() {
     return apiRequest<EnrollmentCodeView[]>(ENROLLMENT_CODES_PATH);
   },
@@ -44,6 +50,11 @@ export const devicesApi = {
   revoke(id: string) {
     return apiRequest<DeviceView>(`${DEVICES_PATH}/${encodeURIComponent(id)}/revoke`, {
       method: 'POST'
+    });
+  },
+  remove(id: string) {
+    return apiRequest<void>(`${DEVICES_PATH}/${encodeURIComponent(id)}`, {
+      method: 'DELETE'
     });
   },
   setPartitions(id: string, nodeIds: string[]) {

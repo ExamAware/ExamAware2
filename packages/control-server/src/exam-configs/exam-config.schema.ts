@@ -10,6 +10,7 @@ import {
   uuid
 } from 'drizzle-orm/pg-core';
 import { user } from '../database/auth-schema.js';
+import type { ExamStatus } from './exam-config.constants.js';
 
 export const examConfig = pgTable(
   'exam_config',
@@ -18,6 +19,13 @@ export const examConfig = pgTable(
     schoolId: text('school_id').default('default').notNull(),
     name: text('name').notNull(),
     latestVersion: integer('latest_version').default(0).notNull(),
+    status: text('status').$type<ExamStatus>().default('draft').notNull(),
+    assignedDeviceIds: jsonb('assigned_device_ids').$type<string[]>().default([]).notNull(),
+    assignedPartitionNodeIds: jsonb('assigned_partition_node_ids')
+      .$type<string[]>()
+      .default([])
+      .notNull(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true }),
     createdBy: text('created_by')
       .notNull()
       .references(() => user.id, { onDelete: 'restrict' }),

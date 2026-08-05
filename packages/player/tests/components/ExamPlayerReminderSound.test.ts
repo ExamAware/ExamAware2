@@ -98,6 +98,11 @@ const mountPlayer = (examConfig = configWith()) => {
   return wrapper;
 };
 
+interface ExamPlayerExposed {
+  showColorfulAlert(options: { title: string; message: string; durationMs: number }): void;
+  notify(markdown: string, options: { timeoutMs: number }): string;
+}
+
 const colorfulEvents = (wrapper: ReturnType<typeof mountPlayer>, kind?: string) => {
   const events = wrapper.emitted('colorfulAlert') ?? [];
   return kind ? events.filter(([payload]) => payload.kind === kind) : events;
@@ -359,5 +364,31 @@ describe('ExamPlayer reminder sound events', () => {
     expect(wrapper.find('.colorful-overlay').exists()).toBe(false);
     expect(wrapper.emitted('colorfulAlert')).toBeUndefined();
     wrapper.unmount();
+  });
+  it('renders important broadcast title and message through the colorful alert surface', async () => {
+    const wrapper = mountPlayer();
+
+    const player = wrapper.vm as unknown as ExamPlayerExposed;
+    player.showColorfulAlert({
+      title: '紧急通知',
+      message: '请立即停止答题',
+      durationMs: 30_000
+    });
+    await nextTick();
+
+    expect(wrapper.get('.colorful-title').text()).toBe('紧急通知');
+    expect(wrapper.get('.colorful-message').text()).toBe('请立即停止答题');
+  });
+
+  it('renders ordinary broadcast content without a card frame', async () => {
+    const wrapper = mountPlayer();
+
+    const player = wrapper.vm as unknown as ExamPlayerExposed;
+    player.notify('## 考务通知\n\n请检查准考证', { timeoutMs: 30_000 });
+    await nextTick();
+
+    expect(wrapper.get('.notice-message').text()).toContain('考务通知');
+    expect(wrapper.get('.notice-message').text()).toContain('请检查准考证');
+    expect(wrapper.find('.notice-card').exists()).toBe(false);
   });
 });

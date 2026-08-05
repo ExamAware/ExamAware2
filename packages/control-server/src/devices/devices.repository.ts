@@ -3,12 +3,14 @@ import type {
   DeviceIdentity,
   DeviceStateSnapshot
 } from '@dsz-examaware/control-protocol';
-import { count, desc, eq, inArray } from 'drizzle-orm';
+import { and, count, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { Injectable } from '@nestjs/common';
 import type { DatabaseTransaction } from '../database/client.js';
 import { DatabaseService } from '../database/database.service.js';
+import { examConfig } from '../exam-configs/exam-config.schema.js';
 import { devicePartitionMembership } from '../partitions/partition.schema.js';
-import { device } from './device.schema.js';
+import { devicePolicyDevice } from '../policies/policy.schema.js';
+import { device, deviceCredential } from './device.schema.js';
 
 export type DeviceRecord = typeof device.$inferSelect;
 export type DeviceUpdate = Partial<Pick<DeviceRecord, 'displayName' | 'labels'>>;
@@ -27,7 +29,7 @@ export class DevicesRepository {
     }
 
     const offset = (page - 1) * pageSize;
-    const filter = partitionNodeIds
+    const partitionFilter = partitionNodeIds
       ? inArray(
           device.id,
           this.databaseService.db
@@ -36,6 +38,7 @@ export class DevicesRepository {
             .where(inArray(devicePartitionMembership.nodeId, partitionNodeIds))
         )
       : undefined;
+    const filter = and(isNull(device.deletedAt), partitionFilter);
     const [records, totals] = await Promise.all([
       this.databaseService.db
         .select()
@@ -54,21 +57,24 @@ export class DevicesRepository {
     const records = await this.databaseService.db
       .select()
       .from(device)
-      .where(eq(device.id, id))
+      .where(and(eq(device.id, id), isNull(device.deletedAt)))
       .limit(1);
     return records[0];
   }
 
   findByIds(ids: string[]): Promise<DeviceRecord[]> {
     if (ids.length === 0) return Promise.resolve([]);
-    return this.databaseService.db.select().from(device).where(inArray(device.id, ids));
+    return this.databaseService.db
+      .select()
+      .from(device)
+      .where(and(inArray(device.id, ids), isNull(device.deletedAt)));
   }
 
   async lockById(transaction: DatabaseTransaction, id: string): Promise<DeviceRecord | undefined> {
     const records = await transaction
       .select()
       .from(device)
-      .where(eq(device.id, id))
+      .where(and(eq(device.id, id), isNull(device.deletedAt)))
       .limit(1)
       .for('update');
     return records[0];
@@ -82,7 +88,29 @@ export class DevicesRepository {
     const records = await transaction
       .update(device)
       .set({ ...patch, updatedAt: new Date() })
-      .where(eq(device.id, id))
+      .where(and(eq(device.id, id), isNull(device.deletedAt)))
+      .returning();
+    return records[0];
+  }
+
+  async softDelete(
+    transaction: DatabaseTransaction,
+    id: string,
+    deletedAt: Date
+  ): Promise<DeviceRecord | undefined> {
+    await transaction.delete(deviceCredential).where(eq(deviceCredential.deviceId, id));
+    await transaction
+      .delete(devicePartitionMembership)
+      .where(eq(devicePartitionMembership.deviceId, id));
+    await transaction.delete(devicePolicyDevice).where(eq(devicePolicyDevice.deviceId, id));
+    await transaction
+      .update(examConfig)
+      .set({ assignedDeviceIds: sql`${examConfig.assignedDeviceIds} - ${id}` })
+      .where(sql`${examConfig.assignedDeviceIds} @> ${JSON.stringify([id])}::jsonb`);
+    const records = await transaction
+      .update(device)
+      .set({ deletedAt, updatedAt: deletedAt })
+      .where(and(eq(device.id, id), isNull(device.deletedAt)))
       .returning();
     return records[0];
   }
@@ -106,13 +134,13 @@ export class DevicesRepository {
         ...(state === undefined ? {} : { lastReportedState: state }),
         updatedAt: seenAt
       })
-      .where(eq(device.id, id));
+      .where(and(eq(device.id, id), isNull(device.deletedAt)));
   }
 
   async recordHeartbeat(id: string, state: DeviceStateSnapshot, seenAt: Date): Promise<void> {
     await this.databaseService.db
       .update(device)
       .set({ lastSeenAt: seenAt, lastReportedState: state, updatedAt: seenAt })
-      .where(eq(device.id, id));
+      .where(and(eq(device.id, id), isNull(device.deletedAt)));
   }
 }

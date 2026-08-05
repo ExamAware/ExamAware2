@@ -5,14 +5,20 @@ export const asyncRouterList: RouteRecordRaw[] = [...controlRoutes];
 
 export const allRoutes: RouteRecordRaw[] = [
   {
+    path: '/browser-incompatible',
+    name: 'browser-incompatible',
+    component: () => import('@/pages/browser-incompatible/index.vue'),
+    meta: { anonymous: true, title: '浏览器不兼容' }
+  },
+  {
     path: '/login',
     name: 'login',
     component: () => import('@/pages/login/index.vue'),
     meta: { anonymous: true, title: '登录' }
   },
-  { path: '/', redirect: '/dashboard/base' },
+  { path: '/', redirect: '/overview' },
   ...asyncRouterList,
-  { path: '/:pathMatch(.*)*', redirect: '/dashboard/base' }
+  { path: '/:pathMatch(.*)*', redirect: '/overview' }
 ];
 
 const router = createRouter({

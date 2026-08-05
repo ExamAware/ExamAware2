@@ -4,7 +4,7 @@ import {
   DEVICE_ENROLLMENT_CODE_PATTERN,
   DEVICE_PLATFORM_VALUES
 } from '@dsz-examaware/control-protocol';
-import { Equals, IsIn, IsString, Matches, MaxLength, MinLength } from 'class-validator';
+import { IsIn, IsInt, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 
 export class EnrollDeviceDto {
   @IsString()
@@ -27,6 +27,6 @@ export class EnrollDeviceDto {
   @MaxLength(64)
   appVersion!: string;
 
-  @Equals(CONTROL_PROTOCOL_VERSION)
+  @IsInt()
   protocolVersion!: typeof CONTROL_PROTOCOL_VERSION;
 }

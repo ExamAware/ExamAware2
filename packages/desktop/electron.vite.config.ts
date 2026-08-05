@@ -15,12 +15,21 @@ export default defineConfig(({ mode }) => {
     main: {
       plugins: [
         externalizeDepsPlugin({
-          exclude: ['@dsz-examaware/core', '@dsz-examaware/player', '@dsz-examaware/rpc']
+          exclude: [
+            '@dsz-examaware/control-protocol',
+            '@dsz-examaware/core',
+            '@dsz-examaware/player',
+            '@dsz-examaware/rpc'
+          ]
         })
       ],
       resolve: {
         alias: [
           { find: '@app/package.json', replacement: resolve(__dirname, 'package.json') },
+          {
+            find: '@dsz-examaware/control-protocol',
+            replacement: resolve(__dirname, '../control-protocol/src/index.ts')
+          },
           ...(!isProduction
             ? [{ find: '@dsz-examaware/rpc', replacement: resolve(__dirname, '../rpc/src') }]
             : [])

@@ -1,26 +1,38 @@
 <template>
-  <t-space direction="vertical" size="large">
-    <t-card title="客户端错误日志" subtitle="设备主动上报的结构化错误，仅保留有界标量上下文">
-      <t-form layout="inline" :data="filters" @submit="applyFilters">
-        <t-form-item label="设备 ID">
-          <t-input v-model="filters.deviceId" clearable placeholder="可选 UUID" />
-        </t-form-item>
-        <t-form-item label="严重级别">
-          <t-select v-model="filters.severity" clearable :options="severityOptions" />
-        </t-form-item>
-        <t-form-item>
-          <t-space>
-            <t-button type="submit" :loading="loading">查询</t-button>
-            <t-button variant="outline" @click="resetFilters">重置</t-button>
-          </t-space>
-        </t-form-item>
-      </t-form>
-    </t-card>
-
-    <t-card>
+  <div class="console-page device-error-page">
+    <PageHeader
+      eyebrow="CLIENT DIAGNOSTICS"
+      title="客户端错误"
+      description="集中排查设备主动上报的结构化错误；上下文仅保留有界标量字段。"
+    >
       <template #actions>
-        <t-button variant="text" :loading="loading" @click="loadErrors">刷新</t-button>
+        <t-button variant="outline" :loading="loading" @click="loadErrors">
+          <template #icon><t-icon name="refresh" /></template>
+          刷新
+        </t-button>
       </template>
+    </PageHeader>
+
+    <t-card class="device-error-workspace" :bordered="false">
+      <t-form
+        class="console-toolbar error-filter-form"
+        layout="inline"
+        :data="filters"
+        @submit="applyFilters"
+      >
+        <div class="console-toolbar__filters">
+          <t-form-item label="设备 ID">
+            <t-input v-model="filters.deviceId" clearable placeholder="可选 UUID" />
+          </t-form-item>
+          <t-form-item label="严重级别">
+            <t-select v-model="filters.severity" clearable :options="severityOptions" />
+          </t-form-item>
+        </div>
+        <div class="console-toolbar__actions">
+          <t-button type="submit" :loading="loading">查询</t-button>
+          <t-button variant="outline" @click="resetFilters">重置</t-button>
+        </div>
+      </t-form>
       <t-alert
         v-if="errorMessage"
         theme="error"
@@ -47,7 +59,7 @@
         @change="loadErrors"
       />
     </t-card>
-  </t-space>
+  </div>
 
   <t-drawer v-model:visible="detailVisible" header="错误详情" size="large" :footer="false">
     <t-space v-if="selectedError" direction="vertical" size="large">
@@ -96,6 +108,7 @@ import type { PrimaryTableCol, SelectOption, SubmitContext, TagProps } from 'tde
 import { deviceErrorsApi } from '@/api/control/device-errors';
 import type { DeviceErrorView } from '@/api/control/types';
 import { ApiError } from '@/api/http';
+import PageHeader from '@/components/page-header/index.vue';
 
 const errors = ref<DeviceErrorView[]>([]);
 const selectedError = ref<DeviceErrorView>();
@@ -117,10 +130,10 @@ const severityOptions: SelectOption[] = [
 ];
 const columns: PrimaryTableCol<DeviceErrorView>[] = [
   { colKey: 'severity', title: '级别', width: 90 },
-  { colKey: 'source', title: '来源', width: 150 },
-  { colKey: 'code', title: '错误代码', minWidth: 160 },
+  { colKey: 'source', title: '来源', width: 150, ellipsis: true },
+  { colKey: 'code', title: '错误代码', minWidth: 160, ellipsis: true },
   { colKey: 'message', title: '消息', ellipsis: true, minWidth: 280 },
-  { colKey: 'deviceId', title: '设备 ID', width: 300 },
+  { colKey: 'deviceId', title: '设备 ID', width: 300, ellipsis: true },
   { colKey: 'occurredAt', title: '发生时间', width: 180 },
   { colKey: 'operation', title: '操作', width: 80, fixed: 'right' }
 ];
@@ -184,3 +197,17 @@ function openDetail(row: DeviceErrorView) {
 
 onMounted(() => void loadErrors());
 </script>
+
+<style scoped>
+.error-filter-form :deep(.t-form__item) {
+  margin-bottom: 0;
+}
+
+.error-filter-form :deep(.t-input) {
+  width: 280px;
+}
+
+.error-filter-form :deep(.t-select__wrap) {
+  width: 180px;
+}
+</style>

@@ -5,3 +5,5 @@ export * from '../device-errors/device-error.schema.js';
 export * from '../devices/device.schema.js';
 export * from '../exam-configs/exam-config.schema.js';
 export * from '../partitions/partition.schema.js';
+export * from '../policies/policy.schema.js';
+export * from '../proctor-calls/proctor-call.schema.js';

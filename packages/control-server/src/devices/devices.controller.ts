@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Inject,
@@ -18,6 +19,7 @@ import { RequestId } from '../api/request-context.js';
 import type { AuthenticatedSession } from '../auth/auth.types.js';
 import { ListDevicesQueryDto } from './dto/list-devices.dto.js';
 import { SetDevicePartitionsDto } from './dto/set-device-partitions.dto.js';
+import { ResolveDeviceTargetsDto } from './dto/resolve-device-targets.dto.js';
 import { UpdateDeviceDto } from './dto/update-device.dto.js';
 import { DevicesService } from './devices.service.js';
 
@@ -32,6 +34,14 @@ export class DevicesController {
   @ApiOperation({ summary: 'List enrolled devices' })
   list(@Query() query: ListDevicesQueryDto) {
     return this.devicesService.list(query.page, query.pageSize, query.partitionId);
+  }
+
+  @Post('resolve-targets')
+  @HttpCode(200)
+  @Roles(['admin', 'operator', 'viewer'])
+  @ApiOperation({ summary: 'Resolve direct devices and partition trees to a device snapshot' })
+  resolveTargets(@Body() input: ResolveDeviceTargetsDto) {
+    return this.devicesService.resolveTargets(input.deviceIds, input.partitionNodeIds);
   }
 
   @Get(':id')
@@ -81,6 +91,21 @@ export class DevicesController {
     @RequestId() requestId: string
   ) {
     return this.devicesService.revoke(id, {
+      actorUserId: session.user.id,
+      requestId
+    });
+  }
+
+  @Delete(':id')
+  @HttpCode(204)
+  @Roles(['admin'])
+  @ApiOperation({ summary: 'Permanently remove a revoked device from active management' })
+  async remove(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Session() session: AuthenticatedSession,
+    @RequestId() requestId: string
+  ) {
+    await this.devicesService.remove(id, {
       actorUserId: session.user.id,
       requestId
     });

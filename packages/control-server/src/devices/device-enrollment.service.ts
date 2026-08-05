@@ -118,7 +118,23 @@ export class DeviceEnrollmentService {
     return { ...view, status: this.codeStatus(record) };
   }
 
-  async enroll(input: unknown, requestId: string): Promise<EnrollDeviceResponse> {
+  async enroll(
+    input: unknown,
+    requestId: string,
+    publicOrigin = env.betterAuthUrl
+  ): Promise<EnrollDeviceResponse> {
+    if (
+      typeof input === 'object' &&
+      input !== null &&
+      'protocolVersion' in input &&
+      input.protocolVersion !== CONTROL_PROTOCOL_VERSION
+    ) {
+      throw new BadRequestException({
+        code: 'device_protocol_version_unsupported',
+        message: 'Device protocol version is not supported by this server'
+      });
+    }
+
     const parsed = enrollDeviceRequestSchema.safeParse(input);
     if (!parsed.success) {
       throw new BadRequestException({
@@ -192,7 +208,7 @@ export class DeviceEnrollmentService {
     return {
       deviceId: device.id,
       credential,
-      websocketUrl: this.websocketUrl(),
+      websocketUrl: this.websocketUrl(publicOrigin),
       protocolVersion: CONTROL_PROTOCOL_VERSION
     };
   }
@@ -261,8 +277,8 @@ export class DeviceEnrollmentService {
     return DEVICE_ENROLLMENT_CODE_STATUS.active;
   }
 
-  private websocketUrl(): string {
-    const url = new URL(CONTROL_WEBSOCKET_PATH, env.betterAuthUrl);
+  private websocketUrl(publicOrigin: string): string {
+    const url = new URL(CONTROL_WEBSOCKET_PATH, publicOrigin);
     url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
     return url.toString();
   }

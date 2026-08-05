@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Inject, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Inject,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post
+} from '@nestjs/common';
 import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Roles, Session } from '@thallesp/nestjs-better-auth';
 import { API_VERSION } from '../api/application.js';
@@ -61,6 +72,21 @@ export class PartitionDimensionsController {
     });
   }
 
+  @Delete(':id')
+  @HttpCode(204)
+  @Roles(['admin'])
+  @ApiOperation({ summary: 'Delete a partition dimension and its hierarchy' })
+  async remove(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Session() session: AuthenticatedSession,
+    @RequestId() requestId: string
+  ) {
+    await this.partitionsService.removeDimension(id, {
+      actorUserId: session.user.id,
+      requestId
+    });
+  }
+
   @Post(':id/nodes')
   @Roles(['admin'])
   @ApiOperation({ summary: 'Create a root or child node in a partition dimension' })
@@ -93,6 +119,21 @@ export class PartitionNodesController {
     @RequestId() requestId: string
   ) {
     return this.partitionsService.updateNode(id, patch, {
+      actorUserId: session.user.id,
+      requestId
+    });
+  }
+
+  @Delete(':id')
+  @HttpCode(204)
+  @Roles(['admin'])
+  @ApiOperation({ summary: 'Delete a partition node and all descendants' })
+  async remove(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Session() session: AuthenticatedSession,
+    @RequestId() requestId: string
+  ) {
+    await this.partitionsService.removeNode(id, {
       actorUserId: session.user.id,
       requestId
     });

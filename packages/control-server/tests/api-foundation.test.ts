@@ -1,9 +1,10 @@
-import { BadRequestException, Controller, Post } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Post } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { API_VERSION, configureApplication } from '../src/api/application.js';
+import { RequestOrigin } from '../src/api/request-context.js';
 import type { INestApplication } from '@nestjs/common';
 
 @AllowAnonymous()
@@ -15,12 +16,21 @@ class ValidationProbeController {
   }
 }
 
+@AllowAnonymous()
+@Controller({ path: 'origin-probe', version: API_VERSION })
+class OriginProbeController {
+  @Get()
+  read(@RequestOrigin() origin: string) {
+    return { origin };
+  }
+}
+
 describe('REST application contract', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
-      controllers: [ValidationProbeController]
+      controllers: [ValidationProbeController, OriginProbeController]
     }).compile();
     app = moduleRef.createNestApplication();
     configureApplication(app, { docsEnabled: false, shutdownHooks: false });
@@ -49,5 +59,21 @@ describe('REST application contract', () => {
       instance: '/api/v1/validation-probe',
       requestId
     });
+  });
+
+  it('uses the frontend or reverse-proxy origin for generated device URLs', async () => {
+    const developmentResponse = await request(app.getHttpServer())
+      .get('/api/v1/origin-probe')
+      .set('host', '127.0.0.1:5174')
+      .expect(200);
+    expect(developmentResponse.body).toEqual({ origin: 'http://127.0.0.1:5174' });
+
+    const proxyResponse = await request(app.getHttpServer())
+      .get('/api/v1/origin-probe')
+      .set('host', '127.0.0.1:3100')
+      .set('x-forwarded-host', 'control.example.edu')
+      .set('x-forwarded-proto', 'https')
+      .expect(200);
+    expect(proxyResponse.body).toEqual({ origin: 'https://control.example.edu' });
   });
 });

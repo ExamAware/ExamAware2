@@ -57,7 +57,8 @@ function createService(
   repository: ControlCommandsRepository,
   devicesRepository = {} as DevicesRepository,
   partitionsRepository = {} as PartitionsRepository,
-  connectionsService = {} as DeviceConnectionsService
+  connectionsService = {} as DeviceConnectionsService,
+  auditService = {} as AuditService
 ) {
   return new ControlCommandsService(
     databaseService,
@@ -65,7 +66,7 @@ function createService(
     devicesRepository,
     partitionsRepository,
     connectionsService,
-    {} as AuditService
+    auditService
   );
 }
 
@@ -164,6 +165,7 @@ describe('ControlCommandsService target capabilities', () => {
     labels: [],
     lastSeenAt: new Date(),
     lastReportedState: null,
+    deletedAt: null,
     enrolledAt: new Date(),
     createdAt: new Date(),
     updatedAt: new Date()
@@ -274,5 +276,64 @@ describe('ControlCommandsService target capabilities', () => {
       'One or more target devices do not support this command'
     );
     expect(sendCommand).not.toHaveBeenCalled();
+  });
+});
+
+describe('ControlCommandsService immediate delivery', () => {
+  it('sends a policy theme command to an online device before returning', async () => {
+    const revision = crypto.randomUUID();
+    const settingsCommand = createSettingsApplyCommand({
+      revision,
+      settings: [{ key: MANAGED_SETTING_KEYS.appearanceTheme, value: 'dark' }]
+    });
+    const issuedAt = new Date();
+    const expiresAt = new Date(issuedAt.getTime() + 60_000);
+    const issuedRecord: ControlCommandRecord = {
+      ...commandRecord,
+      id: revision,
+      commandType: settingsCommand.type,
+      command: settingsCommand,
+      issuedAt,
+      expiresAt
+    };
+    const sendCommand = vi.fn().mockReturnValue(true);
+    const markDelivered = vi.fn().mockResolvedValue(undefined);
+    const service = createService(
+      {
+        transaction: vi.fn(async (work) => work({}))
+      } as unknown as DatabaseService,
+      {
+        create: vi.fn().mockResolvedValue(issuedRecord),
+        markDelivered,
+        targets: vi.fn().mockResolvedValue([{ ...pendingTarget, commandId: revision }])
+      } as unknown as ControlCommandsRepository,
+      {
+        findByIds: vi.fn().mockResolvedValue([
+          {
+            id: deviceId,
+            lifecycleStatus: 'active',
+            lastCapabilities: null
+          }
+        ])
+      } as unknown as DevicesRepository,
+      {} as PartitionsRepository,
+      { sendCommand } as unknown as DeviceConnectionsService,
+      { record: vi.fn().mockResolvedValue(undefined) } as unknown as AuditService
+    );
+
+    await service.issue(
+      settingsCommand,
+      { deviceIds: [deviceId], partitionNodeIds: [] },
+      expiresAt,
+      { actorUserId: 'admin', requestId: crypto.randomUUID() },
+      revision,
+      { validateTargetCapabilities: false }
+    );
+
+    expect(sendCommand).toHaveBeenCalledWith(
+      deviceId,
+      expect.objectContaining({ commandId: revision, command: settingsCommand })
+    );
+    expect(markDelivered).toHaveBeenCalledWith(revision, deviceId, expect.any(Date));
   });
 });

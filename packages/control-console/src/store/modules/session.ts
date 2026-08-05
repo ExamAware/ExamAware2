@@ -24,8 +24,8 @@ export const useSessionStore = defineStore('session', () => {
     return authenticated.value;
   }
 
-  async function signIn(email: string, password: string): Promise<void> {
-    await authApi.signIn(email, password);
+  async function signIn(username: string, password: string): Promise<void> {
+    await authApi.signIn(username, password);
     await refresh();
   }
 

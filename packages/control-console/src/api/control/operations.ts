@@ -47,6 +47,16 @@ export const operationsApi = {
       body: JSON.stringify(input)
     });
   },
+  dismissBroadcast(input: {
+    broadcastId: string;
+    targets: { deviceIds: string[]; partitionNodeIds: string[] };
+    expiresInSeconds: number;
+  }) {
+    return apiRequest<ControlCommandView>(`${BROADCASTS_PATH}/dismiss`, {
+      method: 'POST',
+      body: JSON.stringify(input)
+    });
+  },
   applySettings(input: ApplyManagedSettingsInput) {
     return apiRequest<ControlCommandView>(SETTINGS_PATH, {
       method: 'POST',

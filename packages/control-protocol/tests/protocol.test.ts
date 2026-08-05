@@ -8,6 +8,7 @@ import {
   CURRENT_MANAGED_SETTING_CAPABILITIES,
   DEVICE_ERROR_SEVERITY,
   createDeviceErrorReport,
+  createProctorCallRequest,
   createDeviceHelloMessage,
   ControlProtocolParseError,
   commandResultSchema,
@@ -16,6 +17,7 @@ import {
   enrollDeviceRequestSchema,
   helloAcceptedMessageSchema,
   parseDeviceClientMessageText,
+  parseDeviceServerMessageText,
   parsePreAuthenticationMessageText,
   serverCommandMessageSchema,
   utf8ByteLength
@@ -66,6 +68,26 @@ describe('control protocol schemas', () => {
     ).toMatchObject({ platform: 'openharmony', architecture: 'arm64' });
   });
 
+  it('validates bounded proctor calls from enrolled devices', () => {
+    expect(
+      createProctorCallRequest({
+        occurredAt: '2026-08-05T10:00:00.000Z',
+        roomNumber: 'A-101',
+        message: '需要巡考人员到场'
+      })
+    ).toEqual({
+      occurredAt: '2026-08-05T10:00:00.000Z',
+      roomNumber: 'A-101',
+      message: '需要巡考人员到场'
+    });
+    expect(() =>
+      createProctorCallRequest({
+        occurredAt: '2026-08-05T10:00:00.000Z',
+        message: 'x'.repeat(501)
+      })
+    ).toThrow();
+  });
+
   it('rejects unsupported versions and unknown fields', () => {
     expect(() =>
       deviceClientMessageSchema.parse({
@@ -100,6 +122,21 @@ describe('control protocol schemas', () => {
     } catch (error) {
       expect((error as ControlProtocolParseError).code).toBe('message_too_large');
     }
+  });
+
+  it('runtime-validates server messages before client dispatch', () => {
+    expect(
+      parseDeviceServerMessageText(
+        JSON.stringify({
+          type: 'server.heartbeat-accepted',
+          requestId,
+          serverTime: '2026-08-04T09:00:00.000Z'
+        })
+      )
+    ).toMatchObject({ type: 'server.heartbeat-accepted', requestId });
+    expect(() =>
+      parseDeviceServerMessageText(JSON.stringify({ type: 'server.command', commandId }))
+    ).toThrow(ControlProtocolParseError);
   });
 
   it('requires command expiry and an HTTPS artifact contract instead of inline content', () => {

@@ -1,5 +1,6 @@
 import { ipcChannels } from '../../../shared/ipc/channels'
 import { getAllConfig, getConfig, patchConfig, setConfig } from '../../config/configStore'
+import { controlService } from '../../control/controlService'
 import { getSharedConfig, setSharedConfig } from '../../config/sharedConfigStore'
 import { appLogger } from '../../logging/logger'
 import { applyTimeConfig } from '../../timeSync/timeService'
@@ -20,6 +21,10 @@ export function registerConfigHandlers(ipc: IpcRegistrar) {
   ipc.handle(ipcChannels.config.all, () => getAllConfig())
   ipc.handle(ipcChannels.config.get, (_event, key, defaultValue) => getConfig(key, defaultValue))
   ipc.handle(ipcChannels.config.set, (_event, key, value) => {
+    if (controlService.isManagedKey(key)) {
+      appLogger.warn(`[config] rejected renderer update to managed key ${key}`)
+      return false
+    }
     setConfig(key, value)
     if (key?.startsWith('time.')) {
       applyTimeConfig({ [key.slice(5)]: value } as any)
@@ -27,10 +32,29 @@ export function registerConfigHandlers(ipc: IpcRegistrar) {
     return true
   })
   ipc.handle(ipcChannels.config.patch, (_event, partial) => {
+    const managedKey = collectConfigKeys(partial).find((key) => controlService.isManagedKey(key))
+    if (managedKey) {
+      appLogger.warn(`[config] rejected renderer patch containing managed key ${managedKey}`)
+      return false
+    }
     patchConfig(partial)
     applyTimePatch(partial)
     return true
   })
+}
+
+function collectConfigKeys(value: unknown, prefix = ''): string[] {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return prefix ? [prefix] : []
+  const keys: string[] = []
+  for (const [key, child] of Object.entries(value)) {
+    const path = prefix ? `${prefix}.${key}` : key
+    if (child && typeof child === 'object' && !Array.isArray(child)) {
+      keys.push(...collectConfigKeys(child, path))
+    } else {
+      keys.push(path)
+    }
+  }
+  return keys
 }
 
 function applyTimePatch(partial: any) {

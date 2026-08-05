@@ -74,6 +74,29 @@ export class DevicesService {
     return this.toView(record, assignments.get(id) ?? []);
   }
 
+  async resolveTargets(deviceIds: string[], partitionNodeIds: string[]): Promise<DeviceView[]> {
+    const resolvedIds = new Set(deviceIds);
+    for (const rootId of new Set(partitionNodeIds)) {
+      const nodeIds = await this.partitionsRepository.descendantNodeIds(rootId);
+      if (nodeIds.length === 0) {
+        throw new BadRequestException({
+          code: 'partition_node_not_found',
+          message: `Partition node ${rootId} does not exist`
+        });
+      }
+      for (const deviceId of await this.partitionsRepository.deviceIdsForNodeIds(nodeIds)) {
+        resolvedIds.add(deviceId);
+      }
+    }
+    const records = await this.devicesRepository.findByIds([...resolvedIds]);
+    const assignments = await this.partitionsRepository.assignmentsForDevices(
+      records.map((record) => record.id)
+    );
+    return records
+      .map((record) => this.toView(record, assignments.get(record.id) ?? []))
+      .sort((left, right) => left.displayName.localeCompare(right.displayName));
+  }
+
   async update(id: string, patch: DeviceUpdate, context: WriteContext): Promise<DeviceView> {
     const changedFields = Object.keys(patch);
     if (changedFields.length === 0) {
@@ -198,6 +221,33 @@ export class DevicesService {
 
     const assignments = await this.partitionsRepository.assignmentsForDevices([id]);
     return this.toView(record, assignments.get(id) ?? []);
+  }
+
+  async remove(id: string, context: WriteContext): Promise<void> {
+    await this.databaseService.transaction(async (transaction) => {
+      const current = await this.devicesRepository.lockById(transaction, id);
+      if (!current) {
+        throw new NotFoundException({ code: 'device_not_found', message: 'Device not found' });
+      }
+      if (current.lifecycleStatus !== DEVICE_LIFECYCLE_STATUS.revoked) {
+        throw new BadRequestException({
+          code: 'device_must_be_revoked',
+          message: 'A device must be revoked before it can be deleted'
+        });
+      }
+      const removed = await this.devicesRepository.softDelete(transaction, id, new Date());
+      if (!removed) {
+        throw new NotFoundException({ code: 'device_not_found', message: 'Device not found' });
+      }
+      await this.auditService.record(transaction, {
+        actorUserId: context.actorUserId,
+        action: 'device.deleted',
+        resourceType: 'device',
+        resourceId: id,
+        requestId: context.requestId,
+        metadata: { displayName: current.displayName }
+      });
+    });
   }
 
   private toView(record: DeviceRecord, partitions: DevicePartitionAssignment[]): DeviceView {

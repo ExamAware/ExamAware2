@@ -11,6 +11,7 @@ const CONFIG_ACK_TIMEOUT_MS = 5000
 
 export interface PlayerWindowHooks {
   onConfigStatus?: (status: PlayerConfigStatus | undefined) => void
+  allowUserExit?: () => boolean
   onClosed?: () => void
 }
 
@@ -63,10 +64,13 @@ export function createPlayerWindow(
         playerWindow.on('close', handleClose)
 
         const onRendererExit = (event: Electron.IpcMainEvent) => {
-          if (event.sender === playerWindow.webContents) {
-            allowClose = true
-            playerWindow.close()
+          if (event.sender !== playerWindow.webContents) return
+          if (hooks.allowUserExit?.() === false) {
+            playerWindow.focus()
+            return
           }
+          allowClose = true
+          playerWindow.close()
         }
         ipcMain.on(ipcChannels.player.exitWindow.channel, onRendererExit)
 

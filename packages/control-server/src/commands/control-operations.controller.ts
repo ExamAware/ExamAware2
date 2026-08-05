@@ -2,7 +2,7 @@ import { Body, Controller, Inject, Param, ParseUUIDPipe, Post } from '@nestjs/co
 import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Roles, Session } from '@thallesp/nestjs-better-auth';
 import { API_VERSION } from '../api/application.js';
-import { RequestId } from '../api/request-context.js';
+import { RequestId, RequestOrigin } from '../api/request-context.js';
 import type { AuthenticatedSession } from '../auth/auth.types.js';
 import { ControlOperationsService } from './control-operations.service.js';
 import {
@@ -29,11 +29,13 @@ export class ExamDeploymentsController {
   prepare(
     @Body() input: PrepareExamDeploymentDto,
     @Session() session: AuthenticatedSession,
-    @RequestId() requestId: string
+    @RequestId() requestId: string,
+    @RequestOrigin() publicOrigin: string
   ) {
     return this.operationsService.prepareExam(input, {
       actorUserId: session.user.id,
-      requestId
+      requestId,
+      publicOrigin
     });
   }
 

@@ -2,6 +2,7 @@
   <div class="player-view-container">
     <!-- 使用新的 ExamPlayer 组件 -->
     <ExamPlayer
+      ref="examPlayerRef"
       :exam-config="configData"
       :config="playerConfig"
       :time-provider="timeProvider"
@@ -15,6 +16,9 @@
       :large-clock-scale="largeClockScaleSetting"
       :exam-info-large-font="examInfoLargeFontSetting"
       :hdr-highlight="hdrHighlightSetting"
+      :allow-exit="allowUserExit"
+      :show-call-proctor="isControlSession"
+      :call-proctor-loading="callingProctor"
       @exit="handleExit"
       @room-number-click="handleRoomNumberClick"
       @room-number-change="handleRoomNumberChange"
@@ -29,6 +33,7 @@
       @colorful-alert="handleColorfulAlert"
       @exam-switch="handleExamSwitch"
       @error="handleError"
+      @call-proctor="handleCallProctor"
     >
       <!-- 额外内容插槽保留为空，由 ExamPlayer 内部处理考场号设置 -->
       <template #extra>
@@ -51,6 +56,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { NotifyPlugin } from 'tdesign-vue-next'
+import { BROADCAST_SEVERITY } from '@dsz-examaware/control-protocol'
 import { ExamPlayer, type PlayerConfig } from '@dsz-examaware/player'
 // 导入 player 包的样式
 import '@dsz-examaware/player/dist/player.css'
@@ -165,6 +171,42 @@ watch(
 
 // 考场号相关状态
 const roomNumber = ref(defaultRoomSetting.value)
+const callingProctor = ref(false)
+
+const examPlayerRef = ref<{
+  notify(markdown: string, options?: { timeoutMs?: number; id?: string }): string
+  closeCurrentNotice(): void
+  showColorfulAlert(options: {
+    durationMs?: number
+    title?: string
+    message?: string
+    themeBaseColor?: string
+    forceWhiteText?: boolean
+  }): void
+  hideColorfulAlert(): void
+} | null>(null)
+let disposeControlEvents = () => {}
+const isControlSession = ref(false)
+const allowUserExit = computed(
+  () =>
+    !isControlSession.value ||
+    !Boolean(settingsStore.get<boolean>('player.preventControlSessionExit', false))
+)
+let disposePlayerSessionEvents = () => {}
+
+const syncControlSession = async () => {
+  try {
+    const [windowId, sessions] = await Promise.all([
+      window.api.windows.currentId(),
+      window.api.player.listSessions()
+    ])
+    isControlSession.value =
+      sessions.find((session) => session.windowId === windowId)?.origin === 'control'
+  } catch (error) {
+    console.warn('识别集控放映会话失败:', error)
+    isControlSession.value = false
+  }
+}
 
 // 使用配置加载器
 const {
@@ -257,6 +299,40 @@ const handleExamInfoLargeFontToggle = (enabled: boolean) => {
   examInfoLargeFontSetting.value = flag
 }
 
+const handleCallProctor = async () => {
+  if (callingProctor.value) return
+  callingProctor.value = true
+  try {
+    const snapshot = await window.api.control.getSnapshot()
+    if (snapshot.state === 'incompatible') {
+      NotifyPlugin.error({
+        title: '呼叫巡考失败',
+        content: '集控服务端版本不兼容，无法呼叫巡考',
+        placement: 'bottom-right',
+        closeBtn: true
+      })
+      return
+    }
+    await window.api.control.callProctor({
+      occurredAt: new Date().toISOString()
+    })
+    NotifyPlugin.success({
+      title: '已呼叫巡考',
+      content: '集控中心已收到请求，请留意巡考人员到场。',
+      placement: 'bottom-right',
+      closeBtn: true
+    })
+  } catch (error) {
+    NotifyPlugin.error({
+      title: '呼叫巡考失败',
+      content: error instanceof Error ? error.message : '无法连接集控中心',
+      placement: 'bottom-right',
+      closeBtn: true
+    })
+  } finally {
+    callingProctor.value = false
+  }
+}
 // 考试开始事件
 const handleExamStart = (exam: any) => {
   console.log('考试开始:', exam)
@@ -345,6 +421,30 @@ onMounted(async () => {
 
   console.log('PlayerViewNew mounted, starting initialization...')
 
+  disposeControlEvents = window.api.control.onEvent((event) => {
+    if (event.type === 'broadcast') {
+      const timeoutMs = Math.max(1_000, Date.parse(event.payload.expiresAt) - Date.now())
+      if (event.payload.severity === BROADCAST_SEVERITY.info) {
+        examPlayerRef.value?.notify(`## ${event.payload.title}\n\n${event.payload.body}`, {
+          timeoutMs,
+          id: event.payload.broadcastId
+        })
+      } else {
+        examPlayerRef.value?.showColorfulAlert({
+          durationMs: timeoutMs,
+          title: event.payload.title,
+          message: event.payload.body,
+          themeBaseColor:
+            event.payload.severity === BROADCAST_SEVERITY.critical ? '#c9353f' : '#b54708',
+          forceWhiteText: true
+        })
+      }
+    } else if (event.type === 'broadcast-dismiss') {
+      examPlayerRef.value?.closeCurrentNotice()
+      examPlayerRef.value?.hideColorfulAlert()
+    }
+  })
+
   // 先注册配置监听，避免时间同步或页面初始化较慢时错过主进程发送的数据。
   const configLoadPromise = loadFromIPC(30000)
 
@@ -352,6 +452,11 @@ onMounted(async () => {
     .performSync()
     .then(() => console.log('初始时间同步完成'))
     .catch((error) => console.warn('初始时间同步失败:', error))
+
+  void syncControlSession()
+  disposePlayerSessionEvents = window.api.player.onSessionChanged(() => {
+    void syncControlSession()
+  })
 
   // 使用新的配置加载器从 IPC 加载配置
   try {
@@ -408,6 +513,8 @@ onMounted(async () => {
 
 onUnmounted(() => {
   console.log('PlayerViewNew 卸载')
+  disposeControlEvents()
+  disposePlayerSessionEvents()
 
   // 清理资源
   reminderSoundController.dispose()

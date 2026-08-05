@@ -35,6 +35,7 @@ export const MANAGED_SETTING_KEYS = {
   playerLargeClockEnabled: 'player.largeClockEnabled',
   playerLargeClockScale: 'player.largeClockScale',
   playerExamInfoLargeFont: 'player.examInfoLargeFont',
+  playerPreventControlSessionExit: 'player.preventControlSessionExit',
   timeSyncNtpServer: 'timeSync.ntpServer',
   timeSyncAutoSync: 'timeSync.autoSync',
   timeSyncIntervalMinutes: 'timeSync.syncIntervalMinutes'
@@ -349,6 +350,14 @@ export const deviceErrorReportSchema = z
   })
   .strict();
 
+export const proctorCallRequestSchema = z
+  .object({
+    occurredAt: z.iso.datetime({ offset: true }),
+    roomNumber: z.string().trim().min(1).max(20).optional(),
+    message: z.string().trim().min(1).max(500).optional()
+  })
+  .strict();
+
 export const managedSettingSchema = z.discriminatedUnion('key', [
   z
     .object({
@@ -379,6 +388,12 @@ export const managedSettingSchema = z.discriminatedUnion('key', [
     .strict(),
   z
     .object({ key: z.literal(MANAGED_SETTING_KEYS.playerExamInfoLargeFont), value: z.boolean() })
+    .strict(),
+  z
+    .object({
+      key: z.literal(MANAGED_SETTING_KEYS.playerPreventControlSessionExit),
+      value: z.boolean()
+    })
     .strict(),
   z
     .object({
@@ -629,6 +644,36 @@ export function parseDeviceClientMessageText(text: string): DeviceClientMessage 
   return result.data;
 }
 
+export function parseDeviceServerMessageText(text: string): DeviceServerMessage {
+  if (utf8ByteLength(text) > CONTROL_MAX_MESSAGE_SIZE_BYTES) {
+    throw new ControlProtocolParseError(
+      CONTROL_PROTOCOL_PARSE_ERROR_CODES.messageTooLarge,
+      'Control protocol message exceeds 64 KiB'
+    );
+  }
+
+  let value: unknown;
+  try {
+    value = JSON.parse(text) as unknown;
+  } catch (error) {
+    throw new ControlProtocolParseError(
+      CONTROL_PROTOCOL_PARSE_ERROR_CODES.invalidJson,
+      'Control protocol message is not valid JSON',
+      error
+    );
+  }
+
+  const result = deviceServerMessageSchema.safeParse(value);
+  if (!result.success) {
+    throw new ControlProtocolParseError(
+      CONTROL_PROTOCOL_PARSE_ERROR_CODES.invalidMessage,
+      'Control protocol message does not match schema',
+      result.error
+    );
+  }
+  return result.data;
+}
+
 export function parsePreAuthenticationMessageText(text: string): DeviceHello {
   const message = parseDeviceClientMessageText(text);
   if (message.type !== DEVICE_CLIENT_MESSAGE_TYPES.hello) {
@@ -658,6 +703,7 @@ export type DeviceClientMessage = z.infer<typeof deviceClientMessageSchema>;
 export type DeviceErrorContextValue = z.infer<typeof deviceErrorContextValueSchema>;
 export type DeviceErrorContext = z.infer<typeof deviceErrorContextSchema>;
 export type DeviceErrorReport = z.infer<typeof deviceErrorReportSchema>;
+export type ProctorCallRequest = z.infer<typeof proctorCallRequestSchema>;
 export type ManagedSetting = z.infer<typeof managedSettingSchema>;
 export type ControlCommand = z.infer<typeof controlCommandSchema>;
 export type ExamConfigPrepareCommand = z.infer<typeof examConfigPrepareCommandSchema>;
@@ -679,6 +725,12 @@ export function createDeviceErrorReport(
   input: z.input<typeof deviceErrorReportSchema>
 ): DeviceErrorReport {
   return deviceErrorReportSchema.parse(input);
+}
+
+export function createProctorCallRequest(
+  input: z.input<typeof proctorCallRequestSchema>
+): ProctorCallRequest {
+  return proctorCallRequestSchema.parse(input);
 }
 
 export function createEnrollDeviceRequest(

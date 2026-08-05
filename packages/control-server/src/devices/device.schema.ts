@@ -37,6 +37,7 @@ export const device = pgTable(
     labels: jsonb('labels').$type<string[]>().default([]).notNull(),
     lastSeenAt: timestamp('last_seen_at', { withTimezone: true }),
     lastReportedState: jsonb('last_reported_state').$type<DeviceReportedState>(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true }),
     enrolledAt: timestamp('enrolled_at', { withTimezone: true }).defaultNow().notNull(),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true })
@@ -47,6 +48,7 @@ export const device = pgTable(
   (table) => [
     index('device_school_status_idx').on(table.schoolId, table.lifecycleStatus),
     index('device_last_seen_at_idx').on(table.lastSeenAt),
+    index('device_school_deleted_updated_idx').on(table.schoolId, table.deletedAt, table.updatedAt),
     index('device_school_updated_at_idx').on(table.schoolId, table.updatedAt)
   ]
 );

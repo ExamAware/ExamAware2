@@ -100,47 +100,6 @@
         </t-form>
       </t-tab-panel>
 
-      <t-tab-panel value="broadcast" label="实时广播" :disabled="!canOperate">
-        <t-form :data="broadcastForm" :rules="broadcastRules" @submit="showBroadcast">
-          <t-form-item label="标题" name="title">
-            <t-input v-model="broadcastForm.title" :maxlength="120" />
-          </t-form-item>
-          <t-form-item label="内容" name="body">
-            <t-textarea
-              v-model="broadcastForm.body"
-              :maxlength="2000"
-              :autosize="{ minRows: 4, maxRows: 10 }"
-            />
-          </t-form-item>
-          <t-form-item label="级别">
-            <t-radio-group v-model="broadcastForm.severity">
-              <t-radio :value="BROADCAST_SEVERITY.info">普通</t-radio>
-              <t-radio :value="BROADCAST_SEVERITY.warning">警告</t-radio>
-              <t-radio :value="BROADCAST_SEVERITY.critical">紧急</t-radio>
-            </t-radio-group>
-          </t-form-item>
-          <t-form-item label="目标设备" name="deviceIds">
-            <t-select
-              v-model="broadcastForm.deviceIds"
-              :options="deviceOptions"
-              multiple
-              filterable
-            />
-          </t-form-item>
-          <t-form-item label="显示时长">
-            <t-input-number
-              v-model="broadcastForm.expiresInSeconds"
-              :min="5"
-              :max="86400"
-              suffix="秒"
-            />
-          </t-form-item>
-          <t-form-item>
-            <t-button type="submit" :loading="submitting">发送广播</t-button>
-          </t-form-item>
-        </t-form>
-      </t-tab-panel>
-
       <t-tab-panel value="settings" label="受管设置" :disabled="!isAdmin">
         <t-alert
           theme="info"
@@ -188,11 +147,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue';
-import {
-  BROADCAST_SEVERITY,
-  CONTROL_COMMAND_TYPES,
-  MANAGED_SETTING_KEYS
-} from '@dsz-examaware/control-protocol';
+import { CONTROL_COMMAND_TYPES, MANAGED_SETTING_KEYS } from '@dsz-examaware/control-protocol';
 import type { ManagedSetting } from '@dsz-examaware/control-protocol';
 import { MessagePlugin } from 'tdesign-vue-next';
 import type { FormRules, PrimaryTableCol, SelectOption, SubmitContext } from 'tdesign-vue-next';
@@ -227,13 +182,6 @@ const deploymentForm = reactive({
   deviceIds: [] as string[],
   expiresInSeconds: 300
 });
-const broadcastForm = reactive({
-  title: '',
-  body: '',
-  severity: BROADCAST_SEVERITY.info,
-  deviceIds: [] as string[],
-  expiresInSeconds: 300
-});
 const settingsForm = reactive({
   key: MANAGED_SETTING_KEYS.appearanceTheme as ConsoleSettingKey,
   theme: 'auto' as 'light' | 'dark' | 'auto',
@@ -245,11 +193,6 @@ const settingsForm = reactive({
 const targetRules = [{ required: true, message: '请选择至少一台目标设备' }];
 const deploymentRules: FormRules = {
   examConfigId: [{ required: true, message: '请选择考试配置' }],
-  deviceIds: targetRules
-};
-const broadcastRules: FormRules = {
-  title: [{ required: true, message: '请输入广播标题' }],
-  body: [{ required: true, message: '请输入广播内容' }],
   deviceIds: targetRules
 };
 const settingsRules: FormRules = { deviceIds: targetRules };
@@ -375,27 +318,6 @@ async function stopDeployment(row: ControlCommandView) {
     await loadCommands();
   } catch (error) {
     await MessagePlugin.error(describeApiError(error, '停止播放失败'));
-  } finally {
-    submitting.value = false;
-  }
-}
-
-async function showBroadcast(context: SubmitContext) {
-  if (context.validateResult !== true) return;
-  submitting.value = true;
-  try {
-    await operationsApi.showBroadcast({
-      title: broadcastForm.title,
-      body: broadcastForm.body,
-      severity: broadcastForm.severity,
-      targets: { deviceIds: broadcastForm.deviceIds, partitionNodeIds: [] },
-      expiresInSeconds: broadcastForm.expiresInSeconds
-    });
-    activeTab.value = 'commands';
-    await MessagePlugin.success('广播已发送');
-    await loadCommands();
-  } catch (error) {
-    await MessagePlugin.error(describeApiError(error, '广播发送失败'));
   } finally {
     submitting.value = false;
   }

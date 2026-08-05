@@ -1,4 +1,4 @@
-import { count, desc, eq, and } from 'drizzle-orm';
+import { and, asc, count, desc, eq, isNull, sql } from 'drizzle-orm';
 import { Injectable } from '@nestjs/common';
 import type { ExamConfig, ExamConfigIssue } from '@dsz-examaware/core';
 import type { DatabaseTransaction } from '../database/client.js';
@@ -27,10 +27,18 @@ export class ExamConfigsRepository {
       this.databaseService.db
         .select()
         .from(examConfig)
-        .orderBy(desc(examConfig.updatedAt), desc(examConfig.id))
+        .where(isNull(examConfig.deletedAt))
+        .orderBy(
+          sql`case ${examConfig.status} when 'active' then 0 when 'preparing' then 1 when 'ready' then 2 when 'draft' then 3 when 'completed' then 4 else 5 end`,
+          desc(examConfig.updatedAt),
+          desc(examConfig.id)
+        )
         .limit(pageSize)
         .offset(offset),
-      this.databaseService.db.select({ value: count() }).from(examConfig)
+      this.databaseService.db
+        .select({ value: count() })
+        .from(examConfig)
+        .where(isNull(examConfig.deletedAt))
     ]);
     return { records, total: totals[0]?.value ?? 0 };
   }
@@ -39,7 +47,7 @@ export class ExamConfigsRepository {
     const records = await this.databaseService.db
       .select()
       .from(examConfig)
-      .where(eq(examConfig.id, id))
+      .where(and(eq(examConfig.id, id), isNull(examConfig.deletedAt)))
       .limit(1);
     return records[0];
   }
@@ -59,6 +67,14 @@ export class ExamConfigsRepository {
       )
       .limit(1);
     return records[0];
+  }
+
+  listVersions(examConfigId: string): Promise<ExamConfigVersionRecord[]> {
+    return this.databaseService.db
+      .select()
+      .from(examConfigVersion)
+      .where(eq(examConfigVersion.examConfigId, examConfigId))
+      .orderBy(desc(examConfigVersion.version));
   }
 
   async create(
@@ -118,5 +134,39 @@ export class ExamConfigsRepository {
       })
       .returning();
     return versions[0]!;
+  }
+
+  async update(
+    transaction: DatabaseTransaction,
+    id: string,
+    patch: Partial<
+      Pick<ExamConfigRecord, 'name' | 'assignedDeviceIds' | 'assignedPartitionNodeIds' | 'status'>
+    >
+  ): Promise<ExamConfigRecord | undefined> {
+    const records = await transaction
+      .update(examConfig)
+      .set({ ...patch, updatedAt: new Date() })
+      .where(and(eq(examConfig.id, id), isNull(examConfig.deletedAt)))
+      .returning();
+    return records[0];
+  }
+
+  async softDelete(
+    transaction: DatabaseTransaction,
+    id: string
+  ): Promise<ExamConfigRecord | undefined> {
+    const records = await transaction
+      .update(examConfig)
+      .set({ status: 'archived', deletedAt: new Date(), updatedAt: new Date() })
+      .where(and(eq(examConfig.id, id), isNull(examConfig.deletedAt)))
+      .returning();
+    return records[0];
+  }
+
+  async setStatus(id: string, status: ExamConfigRecord['status']): Promise<void> {
+    await this.databaseService.db
+      .update(examConfig)
+      .set({ status, updatedAt: new Date() })
+      .where(and(eq(examConfig.id, id), isNull(examConfig.deletedAt)));
   }
 }

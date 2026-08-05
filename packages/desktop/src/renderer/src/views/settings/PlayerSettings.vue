@@ -31,6 +31,7 @@
           <div class="settings-item-main">
             <div class="settings-item-title">默认界面缩放</div>
             <div class="settings-item-desc">调整播放器内 UI 的默认缩放倍率，范围 50%-200%。</div>
+            <SettingManagedHint v-if="control.isManaged('player.uiScale')" />
             <div class="settings-item-extra">
               <t-slider
                 v-model="defaultScale"
@@ -39,6 +40,7 @@
                 :step="0.05"
                 :show-tooltip="false"
                 :marks="scaleMarks"
+                :disabled="control.isManaged('player.uiScale')"
               />
             </div>
           </div>
@@ -50,6 +52,7 @@
               :step="0.05"
               :decimal-places="2"
               suffix="倍"
+              :disabled="control.isManaged('player.uiScale')"
             />
             <!-- <t-tag theme="success" variant="light-outline">{{ scalePercent }}%</t-tag> -->
           </div>
@@ -65,9 +68,81 @@
           <div class="settings-item-main">
             <div class="settings-item-title">大时钟模式</div>
             <div class="settings-item-desc">开启后隐藏时钟右侧提示文字，仅保留更大的时间显示。</div>
+            <SettingManagedHint v-if="control.isManaged('player.largeClockEnabled')" />
           </div>
           <div class="settings-item-action">
-            <t-switch v-model="largeClockEnabled" size="large" />
+            <t-switch
+              v-model="largeClockEnabled"
+              size="large"
+              :disabled="control.isManaged('player.largeClockEnabled')"
+            />
+          </div>
+        </div>
+
+        <t-divider />
+
+        <div class="settings-item">
+          <div class="settings-item-icon">
+            <TIcon name="view-module" size="22px" />
+          </div>
+          <div class="settings-item-main">
+            <div class="settings-item-title">界面密度</div>
+            <div class="settings-item-desc">调整播放器信息区域的默认紧凑程度。</div>
+            <SettingManagedHint v-if="control.isManaged('player.uiDensity')" />
+          </div>
+          <div class="settings-item-action">
+            <t-select
+              v-model="uiDensity"
+              :disabled="control.isManaged('player.uiDensity')"
+              style="width: 160px"
+            >
+              <t-option value="comfortable" label="舒适" />
+              <t-option value="cozy" label="紧凑" />
+              <t-option value="compact" label="最紧凑" />
+            </t-select>
+          </div>
+        </div>
+
+        <t-divider />
+
+        <div class="settings-item">
+          <div class="settings-item-icon">
+            <TIcon name="time" size="22px" />
+          </div>
+          <div class="settings-item-main">
+            <div class="settings-item-title">大时钟字号</div>
+            <div class="settings-item-desc">调整大时钟模式下时间文字的缩放倍率。</div>
+            <SettingManagedHint v-if="control.isManaged('player.largeClockScale')" />
+          </div>
+          <div class="settings-item-action">
+            <t-input-number
+              v-model="largeClockScale"
+              :min="0.5"
+              :max="1.8"
+              :step="0.05"
+              :disabled="control.isManaged('player.largeClockScale')"
+              style="width: 160px"
+            />
+          </div>
+        </div>
+
+        <t-divider />
+
+        <div class="settings-item">
+          <div class="settings-item-icon">
+            <TIcon name="font" size="22px" />
+          </div>
+          <div class="settings-item-main">
+            <div class="settings-item-title">考试信息大字号</div>
+            <div class="settings-item-desc">放大当前考试信息卡片中的主要文字。</div>
+            <SettingManagedHint v-if="control.isManaged('player.examInfoLargeFont')" />
+          </div>
+          <div class="settings-item-action">
+            <t-switch
+              v-model="examInfoLargeFont"
+              size="large"
+              :disabled="control.isManaged('player.examInfoLargeFont')"
+            />
           </div>
         </div>
 
@@ -250,6 +325,8 @@
 import { Icon as TIcon } from 'tdesign-icons-vue-next'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useSettingsGroup } from '@renderer/composables/useSetting'
+import SettingManagedHint from '@renderer/components/SettingManagedHint.vue'
+import { useControlAgent } from '@renderer/composables/useControlAgent'
 import {
   createReminderSoundController,
   normalizeReminderSoundSettings,
@@ -280,15 +357,29 @@ const defaultRoom = settings.ref<string>('defaultRoom', '01', {
   mapOut: sanitizeRoom
 })
 
-const defaultScale = settings.ref<number>('defaultScale', 1, {
+const defaultScale = settings.ref<number>('uiScale', 1, {
   mapIn: clampScale,
   mapOut: clampScale
 })
 
-const largeClockEnabled = settings.ref<boolean>('largeClock', false, {
+const uiDensity = settings.ref<'comfortable' | 'cozy' | 'compact'>('uiDensity', 'comfortable')
+
+const largeClockEnabled = settings.ref<boolean>('largeClockEnabled', false, {
   mapIn: (value) => Boolean(value),
   mapOut: (value) => Boolean(value)
 })
+
+const largeClockScale = settings.ref<number>('largeClockScale', 1, {
+  mapIn: clampScale,
+  mapOut: clampScale
+})
+
+const examInfoLargeFont = settings.ref<boolean>('examInfoLargeFont', false, {
+  mapIn: (value) => Boolean(value),
+  mapOut: (value) => Boolean(value)
+})
+
+const control = useControlAgent()
 
 const hdrHighlight = settings.ref<boolean>('hdrHighlight', false, {
   mapIn: (value) => Boolean(value),

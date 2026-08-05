@@ -1,4 +1,4 @@
-import { UnprocessableEntityException } from '@nestjs/common';
+import { BadRequestException, UnprocessableEntityException } from '@nestjs/common';
 import { describe, expect, it, vi } from 'vitest';
 import type { AuditService } from '../src/audit/audit.service.js';
 import type { DatabaseService } from '../src/database/database.service.js';
@@ -41,6 +41,18 @@ describe('ExamConfigsService', () => {
         { actorUserId, requestId }
       )
     ).rejects.toBeInstanceOf(UnprocessableEntityException);
+    expect(context.databaseService.transaction).not.toHaveBeenCalled();
+  });
+
+  it('rejects an invalid .ea2 artifact before opening a transaction', () => {
+    const context = createService();
+
+    expect(() =>
+      context.service.createFromEa2('Invalid file', new TextEncoder().encode('{not-json'), {
+        actorUserId,
+        requestId
+      })
+    ).toThrow(BadRequestException);
     expect(context.databaseService.transaction).not.toHaveBeenCalled();
   });
 

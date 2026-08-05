@@ -28,6 +28,7 @@ import type {
 } from '@dsz-examaware/control-protocol';
 import type { RawData, WebSocket } from 'ws';
 import { ControlCommandsService } from '../commands/control-commands.service.js';
+import { ControlOperationsService } from '../commands/control-operations.service.js';
 import { DeviceConnectionsService } from './device-connections.service.js';
 import { DeviceEnrollmentService } from './device-enrollment.service.js';
 import { DevicesRepository } from './devices.repository.js';
@@ -55,7 +56,9 @@ export class DeviceGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @Inject(DeviceConnectionsService)
     private readonly connectionsService: DeviceConnectionsService,
     @Inject(ControlCommandsService)
-    private readonly commandsService: ControlCommandsService
+    private readonly commandsService: ControlCommandsService,
+    @Inject(ControlOperationsService)
+    private readonly operationsService: ControlOperationsService
   ) {}
 
   handleConnection(client: WebSocket): void {
@@ -157,6 +160,11 @@ export class DeviceGateway implements OnGatewayConnection, OnGatewayDisconnect {
           serverTime: serverTime.toISOString()
         })
       );
+      try {
+        await this.operationsService.reconcileDeviceState(message.state);
+      } catch (error) {
+        this.logger.error('Failed to reconcile device playback state', error);
+      }
       return;
     }
     await this.handleCommandResult(client, session.deviceId, message);

@@ -5,9 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
     <title>ExamAware 集控中心</title>
+    <style>
+      #legacy-browser-warning {
+        display: none;
+        min-height: 100vh;
+        padding: 48px 24px;
+        box-sizing: border-box;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        color: #181818;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        text-align: center;
+        background: #f3f3f3;
+      }
+      #legacy-browser-warning h1 {
+        margin: 24px 0 8px;
+        font-size: 24px;
+      }
+      #legacy-browser-warning p {
+        margin: 0 0 32px;
+        color: #5e5e5e;
+      }
+      #legacy-browser-warning section {
+        width: 640px;
+        max-width: 100%;
+        padding: 24px 32px;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-radius: 6px;
+        background: #fff;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      }
+    </style>
   </head>
   <body>
+    <div id="legacy-browser-warning">
+      <h1>浏览器不兼容</h1>
+      <p>抱歉，您正在使用的浏览器版本过低，无法打开当前网页。</p>
+      <section>
+        <span>TDesign Starter 推荐以下主流浏览器</span
+        ><strong>Chrome&nbsp;&nbsp;&nbsp;QQ Browser</strong>
+      </section>
+    </div>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
+    <script nomodule>
+      document.getElementById('app').style.display = 'none';
+      document.getElementById('legacy-browser-warning').style.display = 'flex';
+    </script>
   </body>
 </html>

@@ -41,6 +41,7 @@ import type {
 import type { PluginSourceFetchRequest, PluginSourceFetchResult } from '../pluginSource'
 import type { ReminderSoundPackImportResult, ReminderSoundPackSummary } from '../reminderSoundPack'
 import type {
+  ControlStatusSnapshot,
   FileStat,
   NetworkRequestOptions,
   PluginAppInfo,
@@ -50,6 +51,7 @@ import type {
   PlayerStartOptions,
   PreparedPlayerSource
 } from '@dsz-examaware/plugin-sdk'
+import type { ControlAgentEvent } from '../types/control'
 
 export interface WindowOpenRequest {
   id?: string
@@ -109,6 +111,16 @@ export const ipcChannels = {
     request: invokeEndpoint<[url: string, options?: NetworkRequestOptions], NetworkResponseWire>(
       'network:request'
     )
+  },
+  control: {
+    getSnapshot: invokeEndpoint<[], ControlStatusSnapshot>('control:get-snapshot'),
+    enroll: invokeEndpoint<
+      [input: { serverUrl: string; enrollmentCode: string; displayName?: string }],
+      ControlStatusSnapshot
+    >('control:enroll'),
+    clearEnrollment: invokeEndpoint<[], ControlStatusSnapshot>('control:clear-enrollment'),
+    callProctor: invokeEndpoint<[input: { occurredAt: string }], void>('control:call-proctor'),
+    onEvent: eventEndpoint<[event: ControlAgentEvent]>('control:event')
   },
   player: {
     prepare: invokeEndpoint<
@@ -227,6 +239,8 @@ export const ipcChannels = {
     openCast: sendEndpoint('open-cast-window'),
     openLogs: sendEndpoint('open-logs-window'),
     openSettings: sendEndpoint<[page?: string]>('open-settings-window'),
+    openBindControl: sendEndpoint('open-bind-control-window'),
+    settingsNavigate: eventEndpoint<[page: string]>('settings:navigate'),
     openPluginStore: sendEndpoint('open-plugin-store-window'),
     minimize: sendEndpoint('window-minimize'),
     closeCurrent: sendEndpoint('window-close'),

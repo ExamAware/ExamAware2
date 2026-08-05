@@ -11,7 +11,7 @@ import {
 import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AllowAnonymous, Roles, Session } from '@thallesp/nestjs-better-auth';
 import { API_VERSION } from '../api/application.js';
-import { RequestId } from '../api/request-context.js';
+import { RequestId, RequestOrigin } from '../api/request-context.js';
 import type { AuthenticatedSession } from '../auth/auth.types.js';
 import { DeviceEnrollmentService } from './device-enrollment.service.js';
 import { CreateDeviceEnrollmentCodeDto } from './dto/create-enrollment-code.dto.js';
@@ -74,8 +74,12 @@ export class DeviceEnrollmentsController {
 
   @Post()
   @ApiOperation({ summary: 'Exchange an enrollment code for a device identity and credential' })
-  enroll(@Body() input: EnrollDeviceDto, @RequestId() requestId: string) {
-    return this.enrollmentService.enroll(input, requestId);
+  enroll(
+    @Body() input: EnrollDeviceDto,
+    @RequestId() requestId: string,
+    @RequestOrigin() publicOrigin: string
+  ) {
+    return this.enrollmentService.enroll(input, requestId, publicOrigin);
   }
 }
 

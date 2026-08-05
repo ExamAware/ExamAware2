@@ -82,6 +82,13 @@ export const settingsModule: AppModule = {
         component: () => import('@renderer/views/settings/AppearanceSettings.vue')
       },
       {
+        id: 'control',
+        label: '学校集控',
+        icon: 'control-platform',
+        order: 2.5,
+        component: () => import('@renderer/views/settings/ControlSettings.vue')
+      },
+      {
         id: 'player',
         label: '播放器',
         icon: 'play-circle',

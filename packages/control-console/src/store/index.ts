@@ -6,3 +6,4 @@ store.use(createPersistedState());
 
 export * from './modules/session';
 export * from './modules/setting';
+export * from './modules/tabs-router';

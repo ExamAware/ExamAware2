@@ -129,6 +129,25 @@ describe('PlayerSessionService', () => {
     await service.dispose()
   })
 
+  it('preserves control deployment metadata in the session snapshot', async () => {
+    const service = new PlayerSessionService()
+
+    const session = await service.start(
+      { kind: 'config', config: examConfig() },
+      { origin: 'control', deploymentId: '43408313-512f-4e86-a91b-0a5f58b7ee3e' }
+    )
+
+    expect(session).toMatchObject({
+      origin: 'control',
+      deploymentId: '43408313-512f-4e86-a91b-0a5f58b7ee3e'
+    })
+    expect(service.get(session.id)).toMatchObject({
+      origin: 'control',
+      deploymentId: '43408313-512f-4e86-a91b-0a5f58b7ee3e'
+    })
+    await service.dispose()
+  })
+
   it('destroys the window but preserves failed state when renderer readiness times out', async () => {
     state.rendererStatus = undefined
     const service = new PlayerSessionService()

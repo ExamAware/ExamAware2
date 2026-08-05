@@ -3,6 +3,8 @@ import { onMounted } from 'vue'
 import { useTimeSync } from '@renderer/utils/timeUtils'
 import { useSettingRef } from '@renderer/composables/useSetting'
 import { NotifyPlugin } from 'tdesign-vue-next'
+import SettingManagedHint from '@renderer/components/SettingManagedHint.vue'
+import { useControlAgent } from '@renderer/composables/useControlAgent'
 
 const { syncInfo, syncStatus, isLoading, currentTime, loadSyncInfo, performSync } = useTimeSync()
 
@@ -13,6 +15,7 @@ const autoSync = useSettingRef<boolean>('time.autoSync', true)
 const syncIntervalMinutes = useSettingRef<number>('time.syncIntervalMinutes', 60)
 const autoIncrementEnabled = useSettingRef<boolean>('time.autoIncrementEnabled', false)
 const autoIncrementSeconds = useSettingRef<number>('time.autoIncrementSeconds', 0)
+const control = useControlAgent()
 
 const syncTimeNow = async () => {
   try {
@@ -65,7 +68,12 @@ onMounted(() => {
     <t-card title="时间同步配置">
       <t-form labelAlign="right" labelWidth="15%">
         <t-form-item label="NTP 服务器" name="ntpServer">
-          <t-input v-model="ntpServer" placeholder="请输入 NTP 服务器地址" />
+          <t-input
+            v-model="ntpServer"
+            placeholder="请输入 NTP 服务器地址"
+            :disabled="control.isManaged('timeSync.ntpServer')"
+          />
+          <SettingManagedHint v-if="control.isManaged('timeSync.ntpServer')" />
         </t-form-item>
 
         <t-form-item label="时间偏移" name="manualOffsetSeconds">
@@ -90,7 +98,8 @@ onMounted(() => {
         </t-form-item>
 
         <t-form-item label="自动同步" name="autoSync">
-          <t-switch v-model="autoSync" />
+          <t-switch v-model="autoSync" :disabled="control.isManaged('timeSync.autoSync')" />
+          <SettingManagedHint v-if="control.isManaged('timeSync.autoSync')" />
         </t-form-item>
 
         <t-form-item label="同步间隔" name="syncIntervalMinutes">
@@ -98,9 +107,10 @@ onMounted(() => {
             v-model="syncIntervalMinutes"
             step="5"
             :min="5"
-            :disabled="!autoSync"
+            :disabled="!autoSync || control.isManaged('timeSync.syncIntervalMinutes')"
             suffix="分钟"
           />
+          <SettingManagedHint v-if="control.isManaged('timeSync.syncIntervalMinutes')" />
         </t-form-item>
       </t-form>
     </t-card>

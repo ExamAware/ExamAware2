@@ -5,18 +5,20 @@ import { database } from '../database/client.js';
 import { account, user } from '../database/schema.js';
 
 export interface BootstrapAdminInput {
-  email: string;
+  username: string;
   name: string;
   password: string;
 }
 
 export function readBootstrapAdminInput(source: NodeJS.ProcessEnv): BootstrapAdminInput {
-  const email = source.CONTROL_ADMIN_EMAIL?.trim().toLowerCase() ?? '';
+  const username = source.CONTROL_ADMIN_USERNAME?.trim().toLowerCase() ?? '';
   const name = source.CONTROL_ADMIN_NAME?.trim() ?? '';
   const password = source.CONTROL_ADMIN_PASSWORD ?? '';
 
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-    throw new Error('CONTROL_ADMIN_EMAIL must be a valid email address');
+  if (!/^[a-zA-Z0-9_.]{3,32}$/.test(username)) {
+    throw new Error(
+      'CONTROL_ADMIN_USERNAME must contain 3-32 letters, digits, underscores or dots'
+    );
   }
   if (!name) {
     throw new Error('CONTROL_ADMIN_NAME is required');
@@ -25,7 +27,7 @@ export function readBootstrapAdminInput(source: NodeJS.ProcessEnv): BootstrapAdm
     throw new Error('CONTROL_ADMIN_PASSWORD must contain between 12 and 128 characters');
   }
 
-  return { email, name, password };
+  return { username, name, password };
 }
 
 export async function bootstrapInitialAdmin(input: BootstrapAdminInput): Promise<string> {
@@ -46,8 +48,10 @@ export async function bootstrapInitialAdmin(input: BootstrapAdminInput): Promise
     await transaction.insert(user).values({
       id: userId,
       name: input.name,
-      email: input.email,
+      email: `${input.username}@local.examaware.invalid`,
       emailVerified: true,
+      username: input.username,
+      displayUsername: input.username,
       role: 'admin',
       banned: false,
       createdAt: now,

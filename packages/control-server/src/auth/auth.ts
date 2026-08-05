@@ -3,7 +3,7 @@ import { drizzleAdapter } from '@better-auth/drizzle-adapter';
 import { betterAuth } from 'better-auth';
 import type { BetterAuthOptions } from 'better-auth';
 import { APIError, createAuthMiddleware, getSessionFromCtx } from 'better-auth/api';
-import { admin } from 'better-auth/plugins';
+import { admin, username } from 'better-auth/plugins';
 import { env } from '../config/env.js';
 import { database } from '../database/client.js';
 import * as schema from '../database/auth-schema.js';
@@ -54,6 +54,7 @@ const authOptions: BetterAuthOptions = {
       adminRoles: ['admin'],
       defaultRole: 'viewer'
     }),
+    username({ minUsernameLength: 3, maxUsernameLength: 32 }),
     sso({
       disableImplicitSignUp: !env.auth.allowSelfRegistration,
       organizationProvisioning: { disabled: true },

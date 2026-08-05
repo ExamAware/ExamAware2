@@ -3,6 +3,7 @@ import { ipcChannels } from '../../../shared/ipc/channels'
 import { sendIpcEvent } from '../../../shared/ipc/sender'
 import { appLogger } from '../../logging/logger'
 import { applyTitleBarOverlay, type OverlayTheme } from '../../windows/titleBarOverlay'
+import { createBindControlWindow } from '../../windows/bindControlWindow'
 import { createCastWindow } from '../../windows/castWindow'
 import { createEditorWindow } from '../../windows/editorWindow'
 import { createLogsWindow } from '../../windows/logsWindow'
@@ -22,6 +23,7 @@ export function registerWindowHandlers(ipc: IpcRegistrar) {
   })
   ipc.on(ipcChannels.windows.openLogs, () => createLogsWindow())
   ipc.on(ipcChannels.windows.openSettings, (_event, page) => createSettingsWindow(page))
+  ipc.on(ipcChannels.windows.openBindControl, () => createBindControlWindow())
   ipc.on(ipcChannels.windows.openPluginStore, () => createPluginStoreWindow())
 
   ipc.handle(

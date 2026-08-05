@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { and, count, desc, eq, gt, inArray, isNull, lte } from 'drizzle-orm';
-import type { ControlCommand } from '@dsz-examaware/control-protocol';
+import { and, count, desc, eq, gt, inArray, isNull, lte, sql } from 'drizzle-orm';
+import { CONTROL_COMMAND_TYPES, type ControlCommand } from '@dsz-examaware/control-protocol';
 import type { DatabaseTransaction } from '../database/client.js';
 import { DatabaseService } from '../database/database.service.js';
 import {
@@ -68,6 +68,38 @@ export class ControlCommandsRepository {
       .select()
       .from(controlCommand)
       .where(eq(controlCommand.id, id))
+      .limit(1);
+    return records[0];
+  }
+
+  async latestActivationForDeployment(
+    deploymentId: string
+  ): Promise<ControlCommandRecord | undefined> {
+    const records = await this.databaseService.db
+      .select()
+      .from(controlCommand)
+      .where(
+        and(
+          eq(controlCommand.commandType, CONTROL_COMMAND_TYPES.playbackActivate),
+          sql`${controlCommand.command} -> 'payload' ->> 'deploymentId' = ${deploymentId}`
+        )
+      )
+      .orderBy(desc(controlCommand.issuedAt), desc(controlCommand.id))
+      .limit(1);
+    return records[0];
+  }
+
+  async latestPrepareForExam(examConfigId: string): Promise<ControlCommandRecord | undefined> {
+    const records = await this.databaseService.db
+      .select()
+      .from(controlCommand)
+      .where(
+        and(
+          eq(controlCommand.commandType, CONTROL_COMMAND_TYPES.examConfigPrepare),
+          sql`${controlCommand.command} -> 'payload' ->> 'examConfigId' = ${examConfigId}`
+        )
+      )
+      .orderBy(desc(controlCommand.issuedAt), desc(controlCommand.id))
       .limit(1);
     return records[0];
   }
@@ -178,12 +210,12 @@ export class ControlCommandsRepository {
     return records[0]!;
   }
 
-  async expireTargets(now: Date): Promise<void> {
+  async expireTargets(now: Date): Promise<string[]> {
     const expiredCommandIds = this.databaseService.db
       .select({ id: controlCommand.id })
       .from(controlCommand)
       .where(lte(controlCommand.expiresAt, now));
-    await this.databaseService.db
+    const rows = await this.databaseService.db
       .update(controlCommandTarget)
       .set({ status: COMMAND_TARGET_STATUS.expired, completedAt: now })
       .where(
@@ -195,7 +227,9 @@ export class ControlCommandsRepository {
             COMMAND_TARGET_STATUS.acknowledged
           ])
         )
-      );
+      )
+      .returning({ commandId: controlCommandTarget.commandId });
+    return [...new Set(rows.map((row) => row.commandId))];
   }
 
   async deviceIdsByStatus(commandId: string, statuses: CommandTargetStatus[]): Promise<string[]> {

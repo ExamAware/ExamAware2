@@ -13,8 +13,8 @@
         <h2>登录集控中心</h2>
         <p>使用学校管理员为你创建的账户。</p>
         <t-form :data="form" layout="vertical" @submit="submit">
-          <t-form-item label="邮箱" name="email">
-            <t-input v-model="form.email" type="email" autocomplete="username" />
+          <t-form-item label="用户名" name="username">
+            <t-input v-model="form.username" autocomplete="username" placeholder="请输入用户名" />
           </t-form-item>
           <t-form-item label="密码" name="password">
             <t-input v-model="form.password" type="password" autocomplete="current-password" />
@@ -38,13 +38,13 @@ const router = useRouter();
 const session = useSessionStore();
 const submitting = ref(false);
 const errorMessage = ref('');
-const form = reactive({ email: '', password: '' });
+const form = reactive({ username: '', password: '' });
 
 async function submit() {
   errorMessage.value = '';
   submitting.value = true;
   try {
-    await session.signIn(form.email.trim(), form.password);
+    await session.signIn(form.username.trim(), form.password);
     const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/overview';
     await router.replace(redirect);
   } catch (error) {

@@ -35,6 +35,8 @@ import bannerText from './assets/banner.txt?raw'
 import { ipcChannels } from '../shared/ipc/channels'
 import { sendIpcEvent } from '../shared/ipc/sender'
 import { playerSessionService } from './player/playerSessionService'
+import { createDesktopControlAgentService } from './control/controlRuntime'
+import type { ControlAgentService } from './control/controlAgentService'
 
 protocol.registerSchemesAsPrivileged([
   {
@@ -101,6 +103,7 @@ let disposeDeepLinks = () => {}
 let disposeMainCtx = () => {}
 let disposeIpc = () => {}
 let disposeTimeIpc = () => {}
+let controlAgentService: ControlAgentService | null = null
 
 // Ensure a friendly app name in development and across platforms (especially macOS About menu)
 try {
@@ -184,6 +187,9 @@ const handleBeforeQuit = createShutdownCoordinator({
       void castService.dispose()
     } catch {}
     try {
+      void controlAgentService?.dispose()
+    } catch {}
+    try {
       void playerSessionService.dispose()
     } catch {}
     try {
@@ -247,6 +253,14 @@ app.whenReady().then(async () => {
 
   // 初始化时间同步服务
   initializeTimeSync()
+
+  // 恢复已注册设备的集控长连接；未注册设备保持静默等待后续接入。
+  try {
+    controlAgentService = createDesktopControlAgentService()
+    await controlAgentService.start()
+  } catch (error) {
+    appLogger.error('Failed to start control agent', error as Error)
+  }
 
   // 始终注册托盘
   ensureAppTray()
