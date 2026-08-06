@@ -1,18 +1,23 @@
-node_modules
-dist
-out
-.DS_Store
+node_modules/
+dist/
+out/
+coverage/
+*.tsbuildinfo
 *.log*
-packages/core/tsconfig.tsbuildinfo
+.DS_Store
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.local
+omp-session-*.html
 packages/desktop/plugins/*
 
-node_modules/
 docs/.vuepress/.cache/
 docs/.vuepress/.temp/
 docs/.vuepress/dist/
 packages/desktop/docs/*
 ignore/
 
-packages/rpc/tsconfig.tsbuildinfo
 docs/superpowers
 copyright/

@@ -1,4 +1,6 @@
 import { BrowserWindow } from 'electron'
+import { ipcChannels } from '../../shared/ipc/channels'
+import { sendIpcEvent } from '../../shared/ipc/sender'
 import { windowManager } from './windowManager'
 import {
   buildTitleBarOverlay,
@@ -7,7 +9,8 @@ import {
 } from './titleBarOverlay'
 
 export function createSettingsWindow(page?: string): BrowserWindow {
-  return windowManager.open(({ commonOptions }) => {
+  const existing = windowManager.get('settings')
+  const window = windowManager.open(({ commonOptions }) => {
     const options: Electron.BrowserWindowConstructorOptions = {
       ...commonOptions(),
       width: 1280,
@@ -30,5 +33,9 @@ export function createSettingsWindow(page?: string): BrowserWindow {
         attachTitleBarOverlayLifecycle(win)
       }
     }
-  }) as unknown as BrowserWindow
+  })
+  if (page && existing && !existing.isDestroyed()) {
+    sendIpcEvent(window.webContents, ipcChannels.windows.settingsNavigate, page)
+  }
+  return window
 }

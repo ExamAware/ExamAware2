@@ -47,6 +47,12 @@ const router = createRouter({
       component: () => import('@renderer/views/SettingsShell.vue')
     },
     {
+      path: '/bind-control',
+      name: 'bind-control',
+      component: () => import('@renderer/views/BindControlWizard.vue'),
+      meta: { hideTitlebar: true }
+    },
+    {
       path: '/plugin-store',
       name: 'plugin-store',
       component: () => import('@renderer/views/PluginStoreWindow.vue')

@@ -1,6 +1,6 @@
 {
   "name": "@dsz-examaware/desktop",
-  "version": "1.4.4",
+  "version": "1.5.0",
   "description": "ExamAware Desktop",
   "homepage": "https://examaware.cn",
   "author": "ExamAware Team <team@examaware.cn>",
@@ -11,7 +11,7 @@
     "build": "electron-vite build --mode production",
     "preview": "electron-vite preview",
     "prepare:workspace-deps": "node ./scripts/prepare-workspace-deps.mjs",
-    "prepare:packdeps": "python3 ./scripts/prepare-packdeps.py",
+    "prepare:packdeps": "node ./scripts/prepare-packdeps.mjs",
     "build:win": "pnpm build && pnpm run prepare:packdeps && pnpm run prepare:workspace-deps && pnpm exec electron-builder --win --publish=never",
     "build:mac": "pnpm build && pnpm run prepare:packdeps && pnpm run prepare:workspace-deps && pnpm exec electron-builder --mac --publish=never",
     "build:linux": "pnpm build && pnpm run prepare:packdeps && pnpm run prepare:workspace-deps && pnpm exec electron-builder --linux --publish=never",
@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@dsz-examaware/core": "workspace:*",
+    "@dsz-examaware/control-protocol": "workspace:*",
     "@dsz-examaware/player": "workspace:*",
     "@dsz-examaware/plugin-sdk": "workspace:*",
     "@dsz-examaware/rpc": "workspace:*",

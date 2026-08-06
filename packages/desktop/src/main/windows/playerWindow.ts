@@ -11,6 +11,7 @@ const CONFIG_ACK_TIMEOUT_MS = 5000
 
 export interface PlayerWindowHooks {
   onConfigStatus?: (status: PlayerConfigStatus | undefined) => void
+  allowUserExit?: () => boolean
   onClosed?: () => void
 }
 
@@ -51,6 +52,8 @@ export function createPlayerWindow(
           playerWindow.setAlwaysOnTop(true, 'screen-saver')
         }
 
+        playerWindow.removeMenu()
+
         let allowClose = false
         const handleClose = (e: Electron.Event) => {
           if (!allowClose) {
@@ -63,10 +66,13 @@ export function createPlayerWindow(
         playerWindow.on('close', handleClose)
 
         const onRendererExit = (event: Electron.IpcMainEvent) => {
-          if (event.sender === playerWindow.webContents) {
-            allowClose = true
-            playerWindow.close()
+          if (event.sender !== playerWindow.webContents) return
+          if (hooks.allowUserExit?.() === false) {
+            playerWindow.focus()
+            return
           }
+          allowClose = true
+          playerWindow.close()
         }
         ipcMain.on(ipcChannels.player.exitWindow.channel, onRendererExit)
 
@@ -79,6 +85,8 @@ export function createPlayerWindow(
           const shift = input.shift
 
           const block =
+            // 阻止 Windows/Linux 用单独 Alt 激活隐藏菜单栏
+            key === 'alt' ||
             // 退出/关闭/刷新
             (ctrlOrCmd && (key === 'q' || key === 'w' || key === 'r')) ||
             // 开发者工具

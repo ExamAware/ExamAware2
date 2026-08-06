@@ -21,6 +21,39 @@ export interface AppApi {
   quit(): void;
 }
 
+export type ControlStatusState =
+  | 'stopped'
+  | 'unenrolled'
+  | 'connecting'
+  | 'authenticating'
+  | 'online'
+  | 'reconnecting'
+  | 'authentication-failed'
+  | 'incompatible'
+  | 'connection-replaced';
+
+export interface ControlStatusSnapshot {
+  state: ControlStatusState;
+  deviceId?: string;
+  serverUrl?: string;
+  connectedAt?: string;
+  displayName?: string;
+  lastError?: { code: string; message: string };
+  managedSettingKeys: string[];
+}
+
+export interface ControlApi {
+  getStatus(): Promise<ControlStatusSnapshot>;
+  onStatusChanged(listener: (snapshot: ControlStatusSnapshot) => void): Disposable;
+  bind(input: {
+    serverUrl: string;
+    enrollmentCode: string;
+    displayName?: string;
+  }): Promise<ControlStatusSnapshot>;
+  unbind(): Promise<ControlStatusSnapshot>;
+  callProctor(input: { occurredAt: string }): Promise<void>;
+}
+
 export type PlayerSource =
   | { kind: 'file'; path: string }
   | { kind: 'config'; config: ExamConfig }
@@ -35,6 +68,8 @@ export interface PlayerStartOptions {
   maxBytes?: number;
   allowLocalNetwork?: boolean;
   validation?: ExamConfigValidationOptions;
+  origin?: 'control';
+  deploymentId?: string;
   window?: {
     fullscreen?: boolean;
     kiosk?: boolean;
@@ -59,6 +94,8 @@ export interface PlayerSessionSnapshot {
   examCount?: number;
   windowId?: number;
   createdAt: number;
+  origin?: 'control';
+  deploymentId?: string;
   error?: { code: string; message: string; details?: unknown };
 }
 
@@ -467,6 +504,7 @@ export interface ExamAwareCommonApi<TSettings extends object = Record<string, un
   cast: CastApi;
   network: NetworkApi;
   http: HttpControlApi;
+  control: ControlApi;
   deepLinks: DeepLinkClientApi;
   logging: LoggingApi;
   plugins: PluginsApi;

@@ -35,6 +35,9 @@ import bannerText from './assets/banner.txt?raw'
 import { ipcChannels } from '../shared/ipc/channels'
 import { sendIpcEvent } from '../shared/ipc/sender'
 import { playerSessionService } from './player/playerSessionService'
+import { createDesktopControlAgentService } from './control/controlRuntime'
+import { controlService } from './control/controlService'
+import type { ControlAgentService } from './control/controlAgentService'
 
 protocol.registerSchemesAsPrivileged([
   {
@@ -101,6 +104,7 @@ let disposeDeepLinks = () => {}
 let disposeMainCtx = () => {}
 let disposeIpc = () => {}
 let disposeTimeIpc = () => {}
+let controlAgentService: ControlAgentService | null = null
 
 // Ensure a friendly app name in development and across platforms (especially macOS About menu)
 try {
@@ -168,6 +172,16 @@ if (!gotLock) {
 const handleBeforeQuit = createShutdownCoordinator({
   app,
   flush: flushConfig,
+  block: () => (controlService.isQuitPrevented() ? '集控策略禁止退出应用' : null),
+  onBlocked: (reason) => {
+    appLogger.warn(`[app] quit blocked by control policy: ${reason}`)
+    const main = windowManager.get('main')
+    if (main) {
+      if (main.isMinimized()) main.restore()
+      main.show()
+      main.focus()
+    }
+  },
   logger: appLogger,
   cleanup: () => {
     ;(app as any).isQuitting = true
@@ -182,6 +196,9 @@ const handleBeforeQuit = createShutdownCoordinator({
     } catch {}
     try {
       void castService.dispose()
+    } catch {}
+    try {
+      void controlAgentService?.dispose()
     } catch {}
     try {
       void playerSessionService.dispose()
@@ -248,6 +265,15 @@ app.whenReady().then(async () => {
   // 初始化时间同步服务
   initializeTimeSync()
 
+  // 恢复已注册设备的集控长连接；未注册设备保持静默等待后续接入。
+  try {
+    controlAgentService = createDesktopControlAgentService()
+    await controlService.initializeManagedState()
+    await controlAgentService.start()
+  } catch (error) {
+    appLogger.error('Failed to start control agent', error as Error)
+  }
+
   // 始终注册托盘
   ensureAppTray()
 
@@ -270,6 +296,8 @@ app.whenReady().then(async () => {
       ctx: _mainCtx,
       pluginDirectories,
       preferences: preferenceStore,
+      assertPluginInstallAllowed: (pluginName) =>
+        controlService.assertPluginInstallAllowed(pluginName),
       logger: {
         info: (...args: any[]) => appLogger.info(fmt('[PluginHost]', ...args)),
         warn: (...args: any[]) => appLogger.warn(fmt('[PluginHost]', ...args)),

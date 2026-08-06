@@ -7,6 +7,9 @@ packages:
   - packages/plugin-template
   - packages/ringtone-factory
   - packages/rpc
+  - packages/control-server
+  - packages/control-protocol
+  - packages/control-console
   - packages/desktop/plugins/*
 
 onlyBuiltDependencies:

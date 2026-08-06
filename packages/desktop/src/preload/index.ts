@@ -64,6 +64,13 @@ const api: DesktopBridge = {
   network: {
     request: (url, options) => ipc.invoke(ipcChannels.network.request, url, options)
   },
+  control: {
+    getSnapshot: () => ipc.invoke(ipcChannels.control.getSnapshot),
+    enroll: (input) => ipc.invoke(ipcChannels.control.enroll, input),
+    clearEnrollment: () => ipc.invoke(ipcChannels.control.clearEnrollment),
+    callProctor: (input) => ipc.invoke(ipcChannels.control.callProctor, input),
+    onEvent: (listener) => ipc.on(ipcChannels.control.onEvent, listener)
+  },
   player: {
     prepare: (source, options) => ipc.invoke(ipcChannels.player.prepare, source, options),
     start: (source, options) => ipc.invoke(ipcChannels.player.start, source, options),
@@ -164,6 +171,8 @@ const api: DesktopBridge = {
     openCast: () => ipc.send(ipcChannels.windows.openCast),
     openLogs: () => ipc.send(ipcChannels.windows.openLogs),
     openSettings: (page) => ipc.send(ipcChannels.windows.openSettings, page),
+    openBindControl: () => ipc.send(ipcChannels.windows.openBindControl),
+    onSettingsNavigate: (listener) => ipc.on(ipcChannels.windows.settingsNavigate, listener),
     openPluginStore: () => ipc.send(ipcChannels.windows.openPluginStore),
     minimize: () => ipc.send(ipcChannels.windows.minimize),
     closeCurrent: () => ipc.send(ipcChannels.windows.closeCurrent),

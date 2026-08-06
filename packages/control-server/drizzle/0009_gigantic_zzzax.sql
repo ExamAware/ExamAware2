@@ -1,0 +1,1 @@
+ALTER TABLE "control_command" ALTER COLUMN "issued_by" DROP NOT NULL;

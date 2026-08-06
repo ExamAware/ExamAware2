@@ -1,0 +1,230 @@
+@starter-prefix: tdesign-starter;
+
+.t-layout__sider {
+  width: fit-content;
+}
+
+.@{starter-prefix}-wrapper {
+  min-height: 100vh;
+
+  > .t-layout {
+    min-width: 0;
+  }
+}
+
+.@{starter-prefix}-side-nav {
+  position: sticky;
+  top: 0;
+  width: 232px;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--td-gray-color-14);
+  transition: width 0.2s cubic-bezier(0.38, 0, 0.24, 1);
+
+  &--compact {
+    width: 64px;
+  }
+
+  .t-default-menu {
+    height: 100vh;
+  }
+
+  .t-menu__operations {
+    padding: 0 var(--td-comp-paddingLR-s);
+    display: flex;
+    align-items: center;
+  }
+
+  .version-container {
+    margin-left: var(--td-comp-margin-s);
+    color: rgb(--td-font-black-3);
+    font: var(--td-font-body-small);
+    white-space: nowrap;
+  }
+}
+
+.t-layout__sider.@{starter-prefix}-side-nav--compact {
+  width: 64px;
+  min-width: 64px;
+  max-width: 64px;
+  flex: 0 0 64px;
+
+  .t-menu,
+  .side-nav__brand {
+    width: 64px;
+    max-width: 64px;
+  }
+}
+
+.side-nav__brand {
+  width: 100%;
+  height: 64px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--td-comp-margin-s);
+  color: var(--td-text-color);
+  cursor: pointer;
+
+  &-logo {
+    width: 32px;
+    height: 32px;
+    flex: none;
+    object-fit: contain;
+  }
+  &-copy {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  strong {
+    font: var(--td-font-title-large);
+    white-space: nowrap;
+  }
+
+  span {
+    color: var(--td-font-black-2);
+    font: var(--td-font-body-small);
+    white-space: nowrap;
+  }
+}
+
+.@{starter-prefix}-header-menu {
+  border-bottom: 1px solid var(--td-border-level-1-color);
+
+  .header-operate-left,
+  .operations-container {
+    display: flex;
+    align-items: center;
+  }
+
+  .header-operate-left {
+    gap: var(--td-comp-margin-m);
+
+    > div {
+      display: flex;
+      flex-direction: column;
+    }
+
+    strong {
+      font: var(--td-font-title-medium);
+    }
+
+    span {
+      color: var(--td-text-color-secondary);
+      font: var(--td-font-body-small);
+    }
+  }
+
+  .operations-container {
+    padding-right: var(--td-comp-paddingLR-l);
+    gap: var(--td-comp-margin-s);
+  }
+
+  .header-user-btn .t-button__text {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.@{starter-prefix}-layout {
+  height: calc(100vh - 64px);
+  min-width: 0;
+  overflow-y: auto;
+  background: var(--td-bg-color-page);
+}
+
+.@{starter-prefix}-layout-tabs-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  max-width: 100%;
+  overflow: visible;
+  background: var(--td-bg-color-container);
+}
+
+.@{starter-prefix}-layout {
+  &::-webkit-scrollbar {
+    width: 8px;
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 6px;
+    background-clip: content-box;
+    background-color: var(--td-scrollbar-color);
+  }
+}
+
+.route-tabs-dropdown .t-icon {
+  margin-right: 8px;
+}
+
+.@{starter-prefix}-content-layout {
+  min-width: 0;
+  padding: 0 var(--td-comp-paddingLR-xxl) var(--td-comp-paddingTB-xxl);
+}
+
+.layout-content-frame {
+  width: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+}
+
+.layout-breadcrumb {
+  min-height: 48px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.layout-page-container {
+  min-width: 0;
+}
+
+@media (max-width: 800px) {
+  .@{starter-prefix}-content-layout {
+    padding: 0 var(--td-comp-paddingLR-l) var(--td-comp-paddingTB-l);
+  }
+
+  .@{starter-prefix}-header-menu {
+    .header-operate-left {
+      min-width: 0;
+
+      > div {
+        min-width: 0;
+      }
+
+      strong {
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      span {
+        display: none;
+      }
+    }
+
+    .operations-container {
+      padding-right: var(--td-comp-paddingLR-s);
+      gap: 0;
+    }
+
+    .header-user-btn {
+      width: 40px;
+      padding: 0;
+
+      .t-button__text,
+      .t-button__suffix {
+        display: none;
+      }
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import { EventEmitter } from 'node:events'
 import { promises as fs, watch as watchFile } from 'node:fs'
+import path from 'node:path'
 import { app, dialog, Notification } from 'electron'
 import {
   PluginApiError,
@@ -8,6 +9,7 @@ import {
   definePluginApiModuleToken,
   type AppApi,
   type CastApi,
+  type ControlApi,
   type CommandsApi,
   type DeepLinksApi,
   type DialogsApi,
@@ -42,7 +44,9 @@ import {
   createPluginApiValueModule
 } from '../../../shared/pluginApi/runtime'
 import { secureFetch } from '../../network/secureFetch'
+import { controlService } from '../../control/controlService'
 import { playerSessionService } from '../../player/playerSessionService'
+import { assertControlSessionClosable } from '../../player/controlSessionGuard'
 import { createMainWindow } from '../../windows/mainWindow'
 import { createEditorWindow } from '../../windows/editorWindow'
 import { createSettingsWindow } from '../../windows/settingsWindow'
@@ -84,6 +88,9 @@ const appModule = definePluginApiModule({
       },
       quit: () => {
         ctx.requirePermission(PluginPermissions.App.Quit)
+        if (controlService.isQuitPrevented()) {
+          throw new PluginApiError('permission-denied', 'app', '集控策略禁止退出应用')
+        }
         app.quit()
       }
     }
@@ -113,6 +120,29 @@ function own<T extends { dispose(): void | Promise<void> }>(
 ) {
   scope.add(disposable)
   return disposable
+}
+
+function assertControlFileWritable(file: string): void {
+  const target = path.resolve(file)
+  const userData = app.getPath('userData')
+  const protectedPaths = [
+    path.join(userData, 'config.json'),
+    path.join(userData, 'control-device.json'),
+    path.join(userData, 'control-device.json.shadow'),
+    path.join(userData, 'managed-control.json'),
+    ...(process.platform === 'win32'
+      ? [
+          path.join(
+            process.env.ProgramData ?? 'C:\\ProgramData',
+            'ExamAware',
+            'control-device.json'
+          )
+        ]
+      : [])
+  ].map((filePath) => path.resolve(filePath))
+  if (protectedPaths.includes(target)) {
+    throw new PluginApiError('permission-denied', 'files', '该文件受集控保护，不可写入')
+  }
 }
 
 interface MainApiEnvironment {
@@ -165,10 +195,12 @@ export async function createMainPluginContext(
     },
     writeText: async (file, content) => {
       permissions.require(PluginPermissions.Files.Write)
+      assertControlFileWritable(file)
       await fs.writeFile(file, content, 'utf8')
     },
     writeBytes: async (file, content) => {
       permissions.require(PluginPermissions.Files.Write)
+      assertControlFileWritable(file)
       await fs.writeFile(file, content)
     },
     exists: async (file) => {
@@ -354,6 +386,10 @@ export async function createMainPluginContext(
     },
     configure: async (config) => {
       permissions.require(PluginPermissions.Time.Configure)
+      const managed = Object.keys(config).find((key) => controlService.isManagedKey(`time.${key}`))
+      if (managed) {
+        throw new PluginApiError('permission-denied', 'time', '该设置由集控中心管理')
+      }
       return applyTimeConfig(config) as unknown as Record<string, unknown>
     },
     onChanged: (listener) => {
@@ -544,6 +580,32 @@ export async function createMainPluginContext(
       own(scope, { dispose: runtime.settings.onChange(listener) })
   }
 
+  const controlApi: ControlApi = {
+    getStatus: async () => {
+      permissions.require(PluginPermissions.Control.Read)
+      return controlService.getStatus()
+    },
+    onStatusChanged: (listener) => {
+      permissions.require(PluginPermissions.Control.Read)
+      const dispose = controlService.onEvent((event) => {
+        if (event.type === 'state-changed') listener(event.snapshot)
+      })
+      return own(scope, { dispose })
+    },
+    bind: async (input) => {
+      permissions.require(PluginPermissions.Control.Manage)
+      return controlService.bind(input)
+    },
+    unbind: async () => {
+      permissions.require(PluginPermissions.Control.Manage)
+      return controlService.unbind()
+    },
+    callProctor: async () => {
+      permissions.require(PluginPermissions.Control.Manage)
+      await controlService.callProctor()
+    }
+  }
+
   const playerApi = createPlayerApiForContext(permissions, scope)
   const modules = [
     appModule,
@@ -563,7 +625,8 @@ export async function createMainPluginContext(
     createPluginApiValueModule('core.deep-links', 'main', 'deepLinks', deepLinksApi),
     createPluginApiValueModule('core.logging', 'main', 'logging', loggingApi),
     createPluginApiValueModule('core.plugins', 'main', 'plugins', pluginsApi),
-    createPluginApiValueModule('core.services', 'main', 'services', servicesApi)
+    createPluginApiValueModule('core.services', 'main', 'services', servicesApi),
+    createPluginApiValueModule('core.control', 'main', 'control', controlApi)
   ] as const
   const registry = new PluginApiModuleRegistry(modules)
   const moduleApi = await registry.create({
@@ -603,11 +666,13 @@ function createPlayerApiForContext(
     },
     close: async () => {
       permissions.require(PluginPermissions.Player.Control)
+      assertControlSessionClosable(playerSessionService.get(snapshot.id))
       await playerSessionService.close(snapshot.id)
     },
     replaceSource: async (source, options) => {
       permissions.require(PluginPermissions.Player.Start)
       requireSourcePermissions(permissions, source, options)
+      assertControlSessionClosable(playerSessionService.get(snapshot.id))
       return createHandle(
         await playerSessionService.replace(snapshot.id, source, options, {
           allowLocalNetwork: permissions.has(PluginPermissions.Network.Local)
@@ -617,6 +682,7 @@ function createPlayerApiForContext(
     dispose: async () => {
       permissions.require(PluginPermissions.Player.Control)
       if (playerSessionService.get(snapshot.id)?.state !== 'closed') {
+        assertControlSessionClosable(playerSessionService.get(snapshot.id))
         await playerSessionService.close(snapshot.id)
       }
     }

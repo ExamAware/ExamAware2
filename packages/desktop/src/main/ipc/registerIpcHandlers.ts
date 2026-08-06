@@ -12,6 +12,7 @@ import { ReminderSoundPackStore } from '../reminderSound/soundPackStore'
 import type { MainContext } from '../runtime/mainContext'
 import { registerAppHandlers } from './handlers/appHandlers'
 import { registerConfigHandlers } from './handlers/configHandlers'
+import { registerControlHandlers } from './handlers/controlHandlers'
 import { registerFileHandlers } from './handlers/fileHandlers'
 import { registerPlayerHandlers } from './handlers/playerHandlers'
 import { registerNetworkHandlers } from './handlers/networkHandlers'
@@ -41,6 +42,7 @@ export function registerIpcHandlers(context?: MainContext): () => void {
 
   registerAppHandlers(ipc)
   registerConfigHandlers(ipc)
+  registerControlHandlers(ipc)
   registerPlayerHandlers(ipc)
   registerNetworkHandlers(ipc)
   registerWindowHandlers(ipc)

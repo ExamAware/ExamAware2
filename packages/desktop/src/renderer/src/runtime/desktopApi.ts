@@ -3,6 +3,7 @@ import type { BrowserWindowConstructorOptions } from 'electron'
 import { setActivePinia } from 'pinia'
 import type { AppContext } from '../app/types'
 import type { UIDensity } from '@dsz-examaware/player'
+import type { ControlApi } from '@dsz-examaware/plugin-sdk'
 import { DisposerGroup } from './disposable'
 import { useSettingsStore } from '../stores/settingsStore'
 import { useSettingRef, type UseSettingOptions } from '../composables/useSetting'
@@ -13,6 +14,7 @@ import {
   normalizeDensity,
   type PlaybackSettingsRefs
 } from '../composables/usePlaybackSettings'
+import { useControlAgent } from '../composables/useControlAgent'
 import { createDesktopPluginHost } from './desktopPluginHost'
 import type {
   PluginListItem,
@@ -123,6 +125,7 @@ export interface DesktopAPI {
   ctx: AppContext
   settings: SettingsGateway
   playback: PlaybackAPI
+  control: ControlApi
   deeplink: DeepLinkAPI
   plugins: PluginRegistry
   services: DesktopServicesAPI
@@ -153,6 +156,7 @@ export function initDesktopApi(ctx: AppContext, app?: App): DesktopAPI {
 
   const settingsGateway = createSettingsGateway()
   const playback = createPlaybackApi()
+  const control = createControlApi()
   const deeplink = createDeepLinkApi(ctx)
   const pluginRegistry = createPluginRegistry(ctx)
   const pluginHost = createDesktopPluginHost(ctx)
@@ -162,6 +166,7 @@ export function initDesktopApi(ctx: AppContext, app?: App): DesktopAPI {
     ctx,
     settings: settingsGateway,
     playback,
+    control,
     deeplink,
     plugins: {
       list: pluginRegistry.list,
@@ -269,6 +274,23 @@ function createPlaybackApi(): PlaybackAPI {
       refs.largeClockScale.value = clampLargeClockScale(1)
       refs.examInfoLargeFont.value = false
     }
+  }
+}
+
+function createControlApi(): ControlApi {
+  const control = useControlAgent()
+  return {
+    getStatus: control.refresh,
+    onStatusChanged(listener) {
+      if (control.snapshot.value) listener(control.snapshot.value)
+      const dispose = window.api.control.onEvent((event) => {
+        if (event.type === 'state-changed') listener(event.snapshot)
+      })
+      return { dispose }
+    },
+    bind: control.bind,
+    unbind: control.unbind,
+    callProctor: async () => control.callProctor()
   }
 }
 

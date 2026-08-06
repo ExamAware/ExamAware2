@@ -44,6 +44,9 @@
       :initial-large-clock-scale="largeClockScaleState"
       :initial-exam-info-large-font="examInfoLargeFontState"
       :extra-tools="toolbarTools"
+      :allow-exit="allowExit"
+      :show-call-proctor="showCallProctor"
+      :call-proctor-loading="callProctorLoading"
       @exit="emit('exit')"
       @scale-change="emit('scaleChange', $event)"
       @density-change="handleDensityChange"
@@ -52,6 +55,7 @@
       @exam-info-large-font-toggle="handleExamInfoLargeFontToggle"
       @dev-reminder-test="handleDevReminderTest"
       @dev-reminder-hide="handleDevReminderHide"
+      @call-proctor="emit('callProctor')"
     />
 
     <!-- 彩色提醒：用于考试开始/即将结束/考试结束，淡入动画 -->
@@ -62,16 +66,19 @@
         :class="{ 'hdr-highlight': colorfulHdrActive }"
         :style="colorfulOverlayStyle"
       >
-        <div class="colorful-title">{{ colorfulTitle }}</div>
+        <div class="colorful-copy">
+          <div class="colorful-title">{{ colorfulTitle }}</div>
+          <div v-if="colorfulMessage" class="colorful-message">{{ colorfulMessage }}</div>
+        </div>
       </div>
     </transition>
 
     <!-- 普通提醒：全屏高斯模糊遮罩 + Markdown 内容 + 关闭按钮（含倒计时） -->
     <transition name="fade-soft">
       <div v-if="currentNotice" class="overlay notice-overlay">
-        <div class="notice-card">
+        <div class="notice-message">
           <div class="notice-content" v-html="renderedMarkdown"></div>
-          <t-button theme="primary" size="large" @click="handleCloseNotice">
+          <t-button theme="default" variant="outline" size="large" @click="handleCloseNotice">
             关闭（{{ currentNotice?.remainingSec }}s）
           </t-button>
         </div>
@@ -181,6 +188,12 @@ interface Props {
   roomNumber?: string;
   /** 是否显示操作栏 */
   showActionBar?: boolean;
+  /** 是否允许用户主动退出放映 */
+  allowExit?: boolean;
+  /** 是否显示呼叫巡考操作 */
+  showCallProctor?: boolean;
+  /** 是否正在提交巡考呼叫 */
+  callProctorLoading?: boolean;
   /** HDR 高亮提醒（仅对白色文字生效） */
   hdrHighlight?: boolean;
   /** 是否启用大时钟样式 */
@@ -213,6 +226,7 @@ interface Emits {
   (e: 'largeClockScaleChange', scale: number): void;
   (e: 'examInfoLargeFontToggle', enabled: boolean): void;
   (e: 'densityChange', density: UIDensity): void;
+  (e: 'callProctor'): void;
   (e: 'examStart', exam: any): void;
   (e: 'examEnd', exam: any): void;
   (e: 'examAlert', exam: any, alertTime: number): void;
@@ -233,6 +247,9 @@ const props = withDefaults(defineProps<Props>(), {
   timeSyncStatus: '电脑时间',
   roomNumber: '01',
   showActionBar: true,
+  allowExit: true,
+  showCallProctor: false,
+  callProctorLoading: false,
   hdrHighlight: false,
   largeClock: false,
   allowEditRoomNumber: true,
@@ -511,6 +528,7 @@ const handleDevReminderHide = () => {
 // colorful 提醒派生
 const colorfulVisible = reminder.isColorfulVisible;
 const colorfulTitle = computed(() => reminder._colorfulReminder.value?.title || '提示');
+const colorfulMessage = computed(() => reminder._colorfulReminder.value?.message || '');
 const colorfulOverlayStyle = computed(() => {
   const base = reminder._colorfulReminder.value?.themeBaseColor || '#ff3b30';
   const forceWhite = Boolean(reminder._colorfulReminder.value?.forceWhiteText);
@@ -1242,61 +1260,78 @@ const resolvedCards = computed(() => ({
   transform: scale(1.02);
 }
 
-/* 彩色提醒：全屏遮罩（可定制颜色） */
+/* 彩色提醒：全屏纯色信息层 */
 .colorful-overlay {
+  padding: clamp(24px, 4vw, 72px);
+  overflow: auto;
   background: var(--colorful-bg, #ff3b30);
-  background: color-mix(in srgb, var(--colorful-bg, #ff3b30) 85%, transparent);
+  background: color-mix(in srgb, var(--colorful-bg, #ff3b30) 88%, transparent);
   backdrop-filter: blur(2px);
+}
+.colorful-copy {
+  width: min(94vw, 1800px);
+  text-align: center;
 }
 .colorful-title {
   color: var(--colorful-text, #fff);
-  font-size: calc(var(--ui-scale, 1) * 5rem);
+  font-size: clamp(4rem, calc(var(--ui-scale, 1) * 8vw), 10rem);
   font-weight: 800;
-  letter-spacing: 0.05em;
+  line-height: 1.05;
+  letter-spacing: 0.03em;
+  overflow-wrap: anywhere;
   text-shadow: var(--colorful-shadow, 0 6px 24px rgba(0, 0, 0, 0.35));
-  text-align: center;
+}
+.colorful-message {
+  margin-top: clamp(24px, 4vh, 64px);
+  color: var(--colorful-text, #fff);
+  font-size: clamp(2.5rem, calc(var(--ui-scale, 1) * 4.5vw), 5.5rem);
+  font-weight: 650;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  text-shadow: var(--colorful-shadow, 0 6px 24px rgba(0, 0, 0, 0.35));
 }
 
 @media (dynamic-range: high) {
-  .colorful-overlay.hdr-highlight .colorful-title {
+  .colorful-overlay.hdr-highlight :is(.colorful-title, .colorful-message) {
     color: color(display-p3 1 1 1);
   }
 }
 
-/* 普通通知：毛玻璃卡片 */
+/* 普通公告：无边框、无卡片的大字全屏信息层 */
 .notice-overlay {
-  backdrop-filter: blur(12px) saturate(1.1);
-  background: rgba(0, 0, 0, 0.35);
-  padding: 24px;
+  padding: clamp(24px, 4vw, 72px);
+  overflow: auto;
+  background: rgba(0, 0, 0, 0.76);
+  backdrop-filter: blur(2px);
 }
-.notice-card {
-  background: rgba(16, 22, 33, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  max-width: min(960px, 92vw);
-  padding: 28px;
+.notice-message {
+  width: min(94vw, 1800px);
   color: #fff;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  text-align: center;
 }
 .notice-content :is(h1, h2, h3) {
-  margin: 0 0 12px 0;
+  margin: 0 0 clamp(24px, 4vh, 64px);
+  font-size: clamp(4rem, calc(var(--ui-scale, 1) * 8vw), 10rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: 0.03em;
+  overflow-wrap: anywhere;
 }
-.notice-content h1 {
-  font-size: 2rem;
+.notice-content :is(p, li) {
+  margin: 0;
+  font-size: clamp(2.5rem, calc(var(--ui-scale, 1) * 4.5vw), 5.5rem);
+  font-weight: 650;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
-.notice-content h2 {
-  font-size: 1.5rem;
+.notice-content :is(ul, ol) {
+  display: inline-block;
+  margin: 0;
+  padding-left: 1.2em;
+  text-align: left;
 }
-.notice-content p,
-.notice-content br {
-  line-height: 1.6;
-}
-.notice-content code {
-  background: rgba(255, 255, 255, 0.08);
-  padding: 0 6px;
-  border-radius: 4px;
-}
-.notice-card :deep(.t-button) {
-  margin-top: 18px;
+.notice-message :deep(.t-button) {
+  margin-top: clamp(28px, 5vh, 72px);
 }
 </style>

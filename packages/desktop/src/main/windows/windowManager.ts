@@ -74,12 +74,23 @@ export class WindowManager {
         backgroundColor: this.backgroundColor,
         webPreferences: {
           preload: path.join(__dirname, '../preload/index.mjs'),
-          sandbox: false
+          sandbox: false,
+          devTools: is.dev
         }
       })
     }
 
     const { id, route, options, setup, externalOpenHandler = true } = factory(ctx)
+    // 插件窗口可以提供额外选项，但发行版的 DevTools 禁令必须在最终边界生效。
+    const browserWindowOptions = is.dev
+      ? options
+      : {
+          ...options,
+          webPreferences: {
+            ...options.webPreferences,
+            devTools: false
+          }
+        }
 
     const existing = this.windows.get(id)
     if (existing && !existing.win.isDestroyed() && !forceRecreate) {
@@ -108,7 +119,7 @@ export class WindowManager {
       this.windows.delete(id)
     }
 
-    const win = new BrowserWindow(options)
+    const win = new BrowserWindow(browserWindowOptions)
     const createdAt = performance.now()
     // track window for disposal safety
     this.ctx?.windows.track(win)

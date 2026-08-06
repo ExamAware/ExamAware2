@@ -126,6 +126,7 @@ export interface PluginHostOptions {
   ctx: MainContext
   pluginDirectories: string[]
   preferences?: PluginPreferenceStore
+  assertPluginInstallAllowed?: (pluginName?: string) => void
   logger?: PluginLogger
 }
 

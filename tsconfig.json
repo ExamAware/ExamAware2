@@ -49,6 +49,15 @@
     },
     {
       "path": "./packages/plugin-sdk"
+    },
+    {
+      "path": "./packages/control-server"
+    },
+    {
+      "path": "./packages/control-protocol"
+    },
+    {
+      "path": "./packages/control-console"
     }
   ],
   "include": [

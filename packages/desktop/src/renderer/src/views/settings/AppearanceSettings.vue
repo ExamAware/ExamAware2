@@ -10,9 +10,10 @@
           <div class="settings-item-main">
             <div class="settings-item-title">界面主题</div>
             <div class="settings-item-desc">浅色、深色或跟随系统自动切换</div>
+            <SettingManagedHint v-if="control.isManaged('appearance.theme')" />
           </div>
           <div class="settings-item-action">
-            <t-radio-group v-model="theme">
+            <t-radio-group v-model="theme" :disabled="control.isManaged('appearance.theme')">
               <t-radio value="auto">跟随系统</t-radio>
               <t-radio value="light">浅色</t-radio>
               <t-radio value="dark">深色</t-radio>
@@ -26,10 +27,13 @@
 
 <script setup lang="ts">
 import { useSettingRef } from '@renderer/composables/useSetting'
+import SettingManagedHint from '@renderer/components/SettingManagedHint.vue'
+import { useControlAgent } from '@renderer/composables/useControlAgent'
 
 type ThemeMode = 'light' | 'dark' | 'auto'
 
 const theme = useSettingRef<ThemeMode>('appearance.theme', 'auto')
+const control = useControlAgent()
 </script>
 
 <style scoped>

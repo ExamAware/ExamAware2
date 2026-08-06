@@ -1,7 +1,6 @@
 import type { App } from 'vue'
 import type { AppModule } from '../types'
 import { DisposerGroup } from '@renderer/runtime/disposable'
-import { MessagePlugin } from 'tdesign-vue-next'
 import { homeButtonsKey } from '../injectionKeys'
 
 export interface HomeButtonMeta {
@@ -114,11 +113,16 @@ export const homeButtonsModule: AppModule = {
       id: 'control',
       label: '集控',
       icon: 'server',
-      hint: '敬请期待',
+      hint: '连接与管理',
       theme: 'default',
       order: 4,
-      action: () => {
-        MessagePlugin.info('敬请期待')
+      action: async () => {
+        const snapshot = await window.api.control.getSnapshot()
+        if (snapshot.state === 'stopped' || snapshot.state === 'unenrolled') {
+          window.api.windows.openBindControl()
+        } else {
+          window.api.windows.openSettings('control')
+        }
       }
     })
 

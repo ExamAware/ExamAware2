@@ -3,6 +3,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { ipcChannels } from '../../../shared/ipc/channels'
 import { appLogger } from '../../logging/logger'
+import { controlService } from '../../control/controlService'
 import { createMainWindow } from '../../windows/mainWindow'
 import type { IpcRegistrar } from '../ipcRegistrar'
 import { deepLinkManager } from '../../deepLink/deepLinkManager'
@@ -24,6 +25,10 @@ export function registerAppHandlers(ipc: IpcRegistrar) {
   ipc.handle(ipcChannels.deepLink.dispatch, (_event, url) => deepLinkManager.dispatch(url))
   ipc.on(ipcChannels.windows.openMain, () => createMainWindow())
   ipc.on(ipcChannels.app.quit, () => {
+    if (controlService.isQuitPrevented()) {
+      appLogger.warn('[app] quit blocked by control policy')
+      return
+    }
     ;(app as any).isQuitting = true
     app.quit()
   })

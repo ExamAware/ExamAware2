@@ -12,6 +12,7 @@ export interface NormalNoticeOptions {
 export interface ColorfulAlertOptions {
   durationMs?: number; // default 8000
   title?: string; // default '提示'
+  message?: string;
   themeBaseColor?: string; // 用于计算对比色
   forceWhiteText?: boolean; // 强制白字（覆盖自动对比色）
 }
@@ -48,6 +49,7 @@ export interface NormalReminder extends BaseReminder {
 export interface ColorfulReminder extends BaseReminder {
   kind: 'colorful';
   title: string;
+  message?: string;
   durationMs: number;
   themeBaseColor?: string;
   forceWhiteText?: boolean;
@@ -179,6 +181,7 @@ export function useReminderService(): (ReminderServiceApi & {
 
     // 若已有相同类型，刷新时长与标题
     const title = options.title ?? '提示';
+    const message = options.message;
     const durationMs = options.durationMs ?? 5000;
     const themeBaseColor = options.themeBaseColor;
     const forceWhiteText = options.forceWhiteText;
@@ -188,6 +191,7 @@ export function useReminderService(): (ReminderServiceApi & {
       kind: 'colorful',
       createdAt: Date.now(),
       title,
+      message,
       durationMs,
       themeBaseColor,
       forceWhiteText

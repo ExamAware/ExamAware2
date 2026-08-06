@@ -36,6 +36,7 @@ const route = useRoute()
 
 const pages = ref(registry?.list?.() ?? [])
 let stopRegistryWatch: (() => void) | undefined
+let stopSettingsNavigation: (() => void) | undefined
 if (registry?.subscribe) {
   stopRegistryWatch = registry.subscribe(() => {
     pages.value = registry.list?.() ?? []
@@ -43,6 +44,7 @@ if (registry?.subscribe) {
 }
 onUnmounted(() => {
   stopRegistryWatch?.()
+  stopSettingsNavigation?.()
 })
 const active = ref<string | null>(null)
 
@@ -86,6 +88,9 @@ watch(active, () => loadCurrent())
 watch(pages, () => ensureActiveFromRoute())
 
 onMounted(() => {
+  stopSettingsNavigation = window.api.windows.onSettingsNavigate((page) => {
+    if (registry?.get?.(page)) void router.replace({ path: `/settings/${page}` })
+  })
   ensureActiveFromRoute()
   loadCurrent()
 })

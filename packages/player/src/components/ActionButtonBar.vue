@@ -21,6 +21,7 @@
     <div class="button-container">
       <!-- 退出播放按钮 - 长按退出 -->
       <button
+        v-if="allowExit"
         class="action-button exit-button"
         :class="{ pressing: isPressing }"
         @mousedown="startLongPress"
@@ -39,6 +40,18 @@
           <LogoutIcon />
         </div>
         <div class="button-text">{{ isPressing ? '按住退出' : '退出播放' }}</div>
+      </button>
+      <button
+        v-if="showCallProctor"
+        class="action-button call-proctor-button"
+        type="button"
+        :disabled="callProctorLoading"
+        @click="emit('callProctor')"
+      >
+        <div class="button-icon">
+          <ServiceIcon />
+        </div>
+        <div class="button-text">{{ callProctorLoading ? '呼叫中…' : '呼叫巡考' }}</div>
       </button>
 
       <!-- 播放设置按钮 -->
@@ -133,6 +146,9 @@ const props = withDefaults(
     initialLargeClockEnabled?: boolean;
     initialExamInfoLargeFont?: boolean;
     extraTools?: readonly PlayerToolbarItem[];
+    allowExit?: boolean;
+    showCallProctor?: boolean;
+    callProctorLoading?: boolean;
   }>(),
   {
     initialScale: undefined,
@@ -140,6 +156,9 @@ const props = withDefaults(
     initialLargeClockScale: 1,
     initialLargeClockEnabled: false,
     initialExamInfoLargeFont: false,
+    allowExit: true,
+    showCallProctor: false,
+    callProctorLoading: false,
     extraTools: () => []
   }
 );
@@ -152,8 +171,15 @@ const emit = defineEmits<{
   (e: 'examInfoLargeFontToggle', enabled: boolean): void;
   (e: 'devReminderTest', preset: DevReminderPreset | DevReminderPayload): void;
   (e: 'devReminderHide'): void;
+  (e: 'callProctor'): void;
 }>();
-import { LogoutIcon, SettingIcon, ChevronLeftIcon, ChevronRightIcon } from 'tdesign-icons-vue-next';
+import {
+  LogoutIcon,
+  SettingIcon,
+  ServiceIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon
+} from 'tdesign-icons-vue-next';
 
 const isDevMode = Boolean(import.meta.env?.DEV ?? false);
 
@@ -1021,5 +1047,20 @@ const formatScale = (value: number | string) => {
 
 .dev-reminder-tools :deep(.t-button) {
   border-color: rgba(255, 255, 255, 0.3);
+}
+
+.call-proctor-button {
+  border-color: rgba(255, 159, 67, 0.72);
+  background: linear-gradient(145deg, rgba(255, 59, 48, 0.92), rgba(255, 159, 67, 0.92));
+}
+
+.call-proctor-button:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.8);
+  background: linear-gradient(145deg, #ff3b30, #ff9f43);
+}
+
+.call-proctor-button:disabled {
+  cursor: wait;
+  opacity: 0.72;
 }
 </style>

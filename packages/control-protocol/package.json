@@ -1,0 +1,44 @@
+{
+  "name": "@dsz-examaware/control-protocol",
+  "version": "0.1.1",
+  "private": true,
+  "type": "module",
+  "description": "Runtime-validated ExamAware control protocol",
+  "license": "GPL-3.0-only",
+  "engines": {
+    "node": ">=22.22.1"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "dev": "tsup --watch",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run --root ../.. packages/control-protocol/tests",
+    "lint": "eslint src tests --ext .ts",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "eslint": "^9.39.2",
+    "rimraf": "^6.1.2",
+    "tsup": "^8.5.1",
+    "typescript": "~5.9.3",
+    "vitest": "^4.1.10"
+  }
+}

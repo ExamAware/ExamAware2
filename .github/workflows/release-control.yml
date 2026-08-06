@@ -1,0 +1,167 @@
+name: Release Control Center
+
+on:
+  push:
+    tags:
+      - 'control-v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release tag (control-vX.Y.Z)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  VERSION: ${{ github.event_name == 'push' && github.ref_name || inputs.version }}
+  CONTROL_RELEASE_REPOSITORY: ExamAware/ExamAware-Control
+  PNPM_YES: 'true'
+  HUSKY: '0'
+  HUSKY_SKIP_INSTALL: '1'
+  HUSKY_SKIP_HOOKS: '1'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate release version
+        run: |
+          case "$VERSION" in
+            control-v*) ;;
+            *) echo "Version must match control-vX.Y.Z" >&2; exit 1 ;;
+          esac
+
+      - name: Verify cross-repository release token
+        env:
+          CONTROL_RELEASE_TOKEN: ${{ secrets.CONTROL_RELEASE_TOKEN }}
+        run: |
+          test -n "$CONTROL_RELEASE_TOKEN" || {
+            echo "CONTROL_RELEASE_TOKEN is required to publish to $CONTROL_RELEASE_REPOSITORY" >&2
+            exit 1
+          }
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.18.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Make pnpm non-interactive
+        run: pnpm config set yes true
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build control center
+        run: |
+          pnpm core:build
+          pnpm control:protocol:build
+          pnpm --filter @dsz-examaware/control-server build
+          pnpm --filter @dsz-examaware/control-console build
+
+      - name: Assemble production server workspace
+        run: |
+          mkdir -p out/staging/packages/core out/staging/packages/control-protocol out/staging/packages/control-server
+          cp packages/core/package.json out/staging/packages/core/
+          cp -a packages/core/dist out/staging/packages/core/
+          cp packages/control-protocol/package.json out/staging/packages/control-protocol/
+          cp -a packages/control-protocol/dist out/staging/packages/control-protocol/
+          cp packages/control-server/package.json out/staging/packages/control-server/
+          cp -a packages/control-server/dist packages/control-server/drizzle out/staging/packages/control-server/
+          cp package.json pnpm-lock.yaml pnpm-workspace.yaml out/staging/
+          node -e "const fs=require('node:fs');const p=require('./out/staging/package.json');delete p.scripts;fs.writeFileSync('./out/staging/package.json',JSON.stringify(p))"
+          cd out/staging
+          pnpm install --prod --frozen-lockfile
+          test -f packages/control-server/node_modules/@dsz-examaware/core/dist/index.mjs
+          test -f packages/control-server/node_modules/@dsz-examaware/control-protocol/dist/index.js
+
+      - name: Assemble container contexts
+        run: |
+          mkdir -p out/server-image out/console-image/dist
+          cp deploy/docker/server/Dockerfile out/server-image/
+          cp -a out/staging/. out/server-image/
+          mkdir -p out/server-image/scripts
+          cp deploy/scripts/prestart.sh out/server-image/scripts/
+          chmod 755 out/server-image/scripts/prestart.sh
+          cp deploy/docker/console/Dockerfile out/console-image/
+          cp deploy/Caddyfile.docker out/console-image/Caddyfile
+          cp -a packages/control-console/dist/. out/console-image/dist/
+
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push server image
+        uses: docker/build-push-action@v6
+        with:
+          context: out/server-image
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ghcr.io/examaware/control-server:${{ env.VERSION }}
+            ghcr.io/examaware/control-server:latest
+
+      - name: Build and push console image
+        uses: docker/build-push-action@v6
+        with:
+          context: out/console-image
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ghcr.io/examaware/control-console:${{ env.VERSION }}
+            ghcr.io/examaware/control-console:latest
+
+      - name: Assemble release archives
+        run: |
+          mkdir -p out/full/deploy out/full/scripts out/full/systemd out/full/server out/full/console/dist out/docker
+          cp deploy/install.sh deploy/backup.sh out/full/
+          cp deploy/compose.yml deploy/Caddyfile.docker deploy/Caddyfile.native deploy/.env.example out/full/deploy/
+          cp deploy/scripts/prestart.sh out/full/scripts/
+          cp deploy/systemd/examaware-control-server.service out/full/systemd/
+          cp -a out/staging/. out/full/server/
+          cp -a packages/control-console/dist/. out/full/console/dist/
+          printf '%s\n' "$VERSION" > out/full/VERSION
+          chmod 755 out/full/install.sh out/full/backup.sh out/full/scripts/prestart.sh
+
+          cp deploy/install.sh deploy/backup.sh deploy/compose.yml deploy/Caddyfile.docker deploy/.env.example out/docker/
+          chmod 755 out/docker/install.sh out/docker/backup.sh
+
+          tar czf "examaware-control-${VERSION}.tar.gz" -C out/full .
+          tar czf "examaware-control-docker-${VERSION}.tar.gz" -C out/docker .
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.VERSION }}
+          repository: ${{ env.CONTROL_RELEASE_REPOSITORY }}
+          target_commitish: main
+          token: ${{ secrets.CONTROL_RELEASE_TOKEN }}
+          fail_on_unmatched_files: true
+          files: |
+            examaware-control-${{ env.VERSION }}.tar.gz
+            examaware-control-docker-${{ env.VERSION }}.tar.gz
+            deploy/install.sh

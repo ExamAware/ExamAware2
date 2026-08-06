@@ -1,0 +1,21 @@
+[Unit]
+Description=ExamAware Control Server
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=examaware-control
+Group=examaware-control
+EnvironmentFile={{INSTALL_DIR}}/.env
+WorkingDirectory={{INSTALL_DIR}}/server
+ExecStartPre={{INSTALL_DIR}}/scripts/prestart.sh
+ExecStart=/usr/bin/env node packages/control-server/dist/main.js
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

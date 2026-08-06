@@ -29,6 +29,7 @@ import type { PluginSourceFetchRequest, PluginSourceFetchResult } from '../plugi
 import type { ReminderSoundPackImportResult, ReminderSoundPackSummary } from '../reminderSoundPack'
 import type { WindowOpenRequest, WindowOpenResult } from './channels'
 import type {
+  ControlStatusSnapshot,
   FileStat,
   NetworkRequestOptions,
   PluginAppInfo,
@@ -39,6 +40,7 @@ import type {
   PreparedPlayerSource
 } from '@dsz-examaware/plugin-sdk'
 import type { NetworkResponseWire } from './channels'
+import type { ControlAgentEvent } from '../types/control'
 
 export interface PluginRpcTransport {
   send(message: string): void
@@ -83,6 +85,17 @@ export interface DesktopBridge {
   }
   network: {
     request(url: string, options?: NetworkRequestOptions): Promise<NetworkResponseWire>
+  }
+  control: {
+    getSnapshot(): Promise<ControlStatusSnapshot>
+    enroll(input: {
+      serverUrl: string
+      enrollmentCode: string
+      displayName?: string
+    }): Promise<ControlStatusSnapshot>
+    clearEnrollment(): Promise<ControlStatusSnapshot>
+    callProctor(input: { occurredAt: string }): Promise<void>
+    onEvent(listener: (event: ControlAgentEvent) => void): () => void
   }
   player: {
     prepare(source: PlayerSource, options?: PlayerStartOptions): Promise<PreparedPlayerSource>
@@ -177,6 +190,8 @@ export interface DesktopBridge {
     openLogs(): void
     openSettings(page?: string): void
     openPluginStore(): void
+    openBindControl(): void
+    onSettingsNavigate(listener: (page: string) => void): () => void
     minimize(): void
     closeCurrent(): void
     toggleMaximize(): void

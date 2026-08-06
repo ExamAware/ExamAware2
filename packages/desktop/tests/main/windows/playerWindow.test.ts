@@ -12,7 +12,8 @@ const mocks = vi.hoisted(() => {
     focus: vi.fn(),
     isDestroyed: vi.fn(() => false),
     on: vi.fn(),
-    setAlwaysOnTop: vi.fn()
+    setAlwaysOnTop: vi.fn(),
+    removeMenu: vi.fn()
   }
 
   return {
@@ -101,6 +102,30 @@ describe('createPlayerWindow config delivery', () => {
     )
   })
 
+  it('removes the Windows/Linux menu and blocks bare Alt activation', () => {
+    createPlayerWindow({ data: '{}', source: 'config' })
+
+    expect(mocks.playerWindow.removeMenu).toHaveBeenCalledOnce()
+
+    const beforeInput = mocks.webContents.on.mock.calls.find(
+      ([eventName]) => eventName === 'before-input-event'
+    )?.[1]
+    expect(beforeInput).toBeTypeOf('function')
+    const preventDefault = vi.fn()
+    beforeInput(
+      { preventDefault },
+      { key: 'Alt', alt: true, control: false, meta: false, shift: false }
+    )
+    expect(preventDefault).toHaveBeenCalledOnce()
+
+    preventDefault.mockClear()
+    beforeInput(
+      { preventDefault },
+      { key: 'Tab', alt: true, control: false, meta: false, shift: false }
+    )
+    expect(preventDefault).not.toHaveBeenCalled()
+  })
+
   it('removes its readiness listener when the player closes', () => {
     createPlayerWindow({ data: '{}', source: 'config' })
     expect(mocks.listeners.get('renderer:ready')?.size).toBe(1)
@@ -121,6 +146,19 @@ describe('createPlayerWindow config delivery', () => {
     emit('player:config-status', mocks.webContents, status)
     expect(onConfigStatus).toHaveBeenCalledOnce()
     expect(onConfigStatus).toHaveBeenCalledWith(status)
+  })
+
+  it('blocks renderer exit requests when the session policy forbids them', () => {
+    const allowUserExit = vi.fn(() => false)
+    createPlayerWindow({ data: '{}', source: 'config' }, { allowUserExit })
+
+    emit('player-window-exit', mocks.webContents)
+    expect(mocks.playerWindow.focus).toHaveBeenCalledOnce()
+    expect(mocks.playerWindow.close).not.toHaveBeenCalled()
+
+    allowUserExit.mockReturnValue(true)
+    emit('player-window-exit', mocks.webContents)
+    expect(mocks.playerWindow.close).toHaveBeenCalledOnce()
   })
 
   it('logs an error when the renderer does not acknowledge delivered data', async () => {

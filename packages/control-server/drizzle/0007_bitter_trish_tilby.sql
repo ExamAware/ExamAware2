@@ -1,0 +1,2 @@
+ALTER TABLE "device" ADD COLUMN "deleted_at" timestamp with time zone;--> statement-breakpoint
+CREATE INDEX "device_school_deleted_updated_idx" ON "device" USING btree ("school_id","deleted_at","updated_at");

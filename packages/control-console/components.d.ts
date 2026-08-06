@@ -12,6 +12,7 @@ export {};
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    DeviceFilterPanel: typeof import('./src/components/device-filter-panel/index.vue')['default']
     DeviceOperationButtons: typeof import('./src/components/device-operation-buttons/index.vue')['default']
     DotField: typeof import('./src/components/dot-field/index.vue')['default']
     MetricTile: typeof import('./src/components/metric-tile/index.vue')['default']
@@ -86,6 +87,7 @@ declare module 'vue' {
 
 // For TSX support
 declare global {
+  const DeviceFilterPanel: (typeof import('./src/components/device-filter-panel/index.vue'))['default'];
   const DeviceOperationButtons: (typeof import('./src/components/device-operation-buttons/index.vue'))['default'];
   const DotField: (typeof import('./src/components/dot-field/index.vue'))['default'];
   const MetricTile: (typeof import('./src/components/metric-tile/index.vue'))['default'];

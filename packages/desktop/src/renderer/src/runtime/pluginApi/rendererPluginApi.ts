@@ -4,6 +4,7 @@ import {
   PluginPermissions,
   type AppApi,
   type CastApi,
+  type ControlApi,
   type CommandsApi,
   type DeepLinkClientApi,
   type DialogsApi,
@@ -450,6 +451,41 @@ export async function createRendererPluginContext(
       own({ dispose: runtime.settings.onChange(listener) })
   }
 
+  const controlApi: ControlApi = {
+    getStatus: () => {
+      permissions.require(PluginPermissions.Control.Read)
+      return window.api.control.getSnapshot()
+    },
+    onStatusChanged: (listener) => {
+      permissions.require(PluginPermissions.Control.Read)
+      let active = true
+      void window.api.control.getSnapshot().then((snapshot) => {
+        if (active) listener(snapshot)
+      })
+      const dispose = window.api.control.onEvent((event) => {
+        if (event.type === 'state-changed') listener(event.snapshot)
+      })
+      return own({
+        dispose: () => {
+          active = false
+          dispose()
+        }
+      })
+    },
+    bind: (input) => {
+      permissions.require(PluginPermissions.Control.Manage)
+      return window.api.control.enroll(input)
+    },
+    unbind: () => {
+      permissions.require(PluginPermissions.Control.Manage)
+      return window.api.control.clearEnrollment()
+    },
+    callProctor: (input) => {
+      permissions.require(PluginPermissions.Control.Manage)
+      return window.api.control.callProctor(input)
+    }
+  }
+
   const uiApi = createUiApi(plugin, permissions, scope, appContext, desktopApi, commandsApi)
   const modules = [
     createPluginApiValueModule('core.app', 'renderer', 'app', appApi),
@@ -470,6 +506,7 @@ export async function createRendererPluginContext(
     createPluginApiValueModule('core.logging', 'renderer', 'logging', loggingApi),
     createPluginApiValueModule('core.plugins', 'renderer', 'plugins', pluginsApi),
     createPluginApiValueModule('core.services', 'renderer', 'services', servicesApi),
+    createPluginApiValueModule('core.control', 'renderer', 'control', controlApi),
     createPluginApiValueModule('core.ui', 'renderer', 'ui', uiApi)
   ] as const
   const api = (await new PluginApiModuleRegistry(modules).create({
