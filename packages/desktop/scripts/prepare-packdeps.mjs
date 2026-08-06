@@ -68,6 +68,15 @@ async function run(cmd, args, options = {}) {
   if (cmd === 'pnpm') {
     const { path: resolved, pnpmHome, tried } = findPnpmExecutable(args)
     console.error('[prepare-packdeps] resolved pnpm', { resolved, pnpmHome, tried })
+    if (process.platform === 'win32') {
+      attempts.push({
+        spawnCmd: 'pnpm',
+        spawnArgs: args,
+        shell: process.env.ComSpec || true,
+        pnpmHome
+      })
+    }
+
     if (resolved) {
       const ext = extname(resolved).toLowerCase()
       if (ext === '.js' || ext === '.cjs' || ext === '.mjs') {
@@ -96,7 +105,7 @@ async function run(cmd, args, options = {}) {
       }
     }
 
-    // Fallbacks: PATH-resolved pnpm executables (never through cmd.exe)
+    // Fallbacks for PATH-resolved pnpm executables.
     attempts.push({ spawnCmd: 'pnpm.exe', spawnArgs: args, shell: false, pnpmHome })
     attempts.push({ spawnCmd: 'pnpm.cmd', spawnArgs: args, shell: false, pnpmHome })
     attempts.push({
