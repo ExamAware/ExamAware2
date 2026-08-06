@@ -18,7 +18,7 @@
             variant="text"
             @click="openProject"
           >
-            <t-icon name="logo-github" />
+            <ConsoleIcon name="logo-github" />
           </t-button>
         </t-tooltip>
         <t-tooltip placement="bottom" content="使用帮助">
@@ -29,7 +29,7 @@
             variant="text"
             @click="openHelp"
           >
-            <t-icon name="help-circle" />
+            <ConsoleIcon name="help-circle" />
           </t-button>
         </t-tooltip>
         <t-tooltip
@@ -43,7 +43,7 @@
             variant="text"
             @click="settingStore.toggleMode"
           >
-            <t-icon :name="settingStore.displayMode === 'dark' ? 'sunny' : 'moon'" />
+            <ConsoleIcon :name="settingStore.displayMode === 'dark' ? 'sunny' : 'moon'" />
           </t-button>
         </t-tooltip>
         <t-dropdown :min-column-width="140" trigger="click">
@@ -53,18 +53,18 @@
               class="operations-dropdown-container-item"
               @click="router.push('/governance/users')"
             >
-              <t-icon name="user-circle" />用户管理
+              <ConsoleIcon name="user-circle" />用户管理
             </t-dropdown-item>
             <t-dropdown-item class="operations-dropdown-container-item" @click="signOut">
-              <t-icon name="poweroff" />退出登录
+              <ConsoleIcon name="poweroff" />退出登录
             </t-dropdown-item>
           </template>
           <t-button class="header-user-btn" theme="default" variant="text">
-            <template #icon><t-icon class="header-user-avatar" name="user-circle" /></template>
+            <template #icon><ConsoleIcon class="header-user-avatar" name="user-circle" /></template>
             <span class="header-user-account">
               {{ session.user?.name || session.user?.displayUsername || session.user?.username }}
             </span>
-            <template #suffix><t-icon name="chevron-down" /></template>
+            <template #suffix><ConsoleIcon name="chevron-down" /></template>
           </t-button>
         </t-dropdown>
         <t-tooltip placement="bottom" content="界面设置">
@@ -75,7 +75,7 @@
             variant="text"
             @click="settingsVisible = true"
           >
-            <t-icon name="setting" />
+            <ConsoleIcon name="setting" />
           </t-button>
         </t-tooltip>
       </div>

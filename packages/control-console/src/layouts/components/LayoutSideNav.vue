@@ -35,7 +35,7 @@
             @click="settingStore.toggleSidebar"
           >
             <template #icon>
-              <t-icon :name="isCompact ? 'chevron-right' : 'chevron-left'" />
+              <ConsoleIcon :name="isCompact ? 'chevron-right' : 'chevron-left'" />
             </template>
           </t-button>
         </t-tooltip>

@@ -164,7 +164,7 @@
           >
             <div class="tab-panel-content broadcast-workspace">
               <section class="broadcast-workspace__intro">
-                <t-icon name="notification" size="32px" />
+                <ConsoleIcon name="notification" size="32px" />
                 <h3>发送场内实时通知</h3>
                 <p>通知会显示在当前考试的播放器中，适用于临时考务提醒与紧急广播。</p>
                 <t-alert
@@ -312,7 +312,7 @@
         @change="readVersionFile"
       >
         <t-button variant="outline"
-          ><template #icon><t-icon name="upload" /></template>选择 .ea2 文件</t-button
+          ><template #icon><ConsoleIcon name="upload" /></template>选择 .ea2 文件</t-button
         >
       </t-upload>
       <t-alert

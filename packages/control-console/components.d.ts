@@ -12,6 +12,7 @@ export {};
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    ConsoleIcon: typeof import('./src/components/console-icon/index.vue')['default']
     DeviceFilterPanel: typeof import('./src/components/device-filter-panel/index.vue')['default']
     DeviceOperationButtons: typeof import('./src/components/device-operation-buttons/index.vue')['default']
     DotField: typeof import('./src/components/dot-field/index.vue')['default']
@@ -48,7 +49,6 @@ declare module 'vue' {
     TFormItem: typeof import('tdesign-vue-next')['FormItem']
     THeader: typeof import('tdesign-vue-next')['Header']
     THeadMenu: typeof import('tdesign-vue-next')['HeadMenu']
-    TIcon: typeof import('tdesign-vue-next')['Icon']
     TInput: typeof import('tdesign-vue-next')['Input']
     TInputNumber: typeof import('tdesign-vue-next')['InputNumber']
     TLayout: typeof import('tdesign-vue-next')['Layout']
@@ -87,6 +87,7 @@ declare module 'vue' {
 
 // For TSX support
 declare global {
+  const ConsoleIcon: (typeof import('./src/components/console-icon/index.vue'))['default'];
   const DeviceFilterPanel: (typeof import('./src/components/device-filter-panel/index.vue'))['default'];
   const DeviceOperationButtons: (typeof import('./src/components/device-operation-buttons/index.vue'))['default'];
   const DotField: (typeof import('./src/components/dot-field/index.vue'))['default'];
@@ -123,7 +124,6 @@ declare global {
   const TFormItem: (typeof import('tdesign-vue-next'))['FormItem'];
   const THeader: (typeof import('tdesign-vue-next'))['Header'];
   const THeadMenu: (typeof import('tdesign-vue-next'))['HeadMenu'];
-  const TIcon: (typeof import('tdesign-vue-next'))['Icon'];
   const TInput: (typeof import('tdesign-vue-next'))['Input'];
   const TInputNumber: (typeof import('tdesign-vue-next'))['InputNumber'];
   const TLayout: (typeof import('tdesign-vue-next'))['Layout'];

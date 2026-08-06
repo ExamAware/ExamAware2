@@ -7,11 +7,11 @@
       <template #actions>
         <t-space>
           <t-button variant="outline" @click="batchVisible = true">
-            <template #icon><t-icon name="usergroup-add" /></template>
+            <template #icon><ConsoleIcon name="usergroup-add" /></template>
             批量创建
           </t-button>
           <t-button @click="openCreate">
-            <template #icon><t-icon name="user-add" /></template>
+            <template #icon><ConsoleIcon name="user-add" /></template>
             创建用户
           </t-button>
         </t-space>
@@ -22,7 +22,7 @@
       <div class="console-toolbar">
         <div class="console-toolbar__filters user-filter-bar">
           <t-input v-model="search" clearable placeholder="用户名或姓名" @enter="loadUsers">
-            <template #prefix-icon><t-icon name="search" /></template>
+            <template #prefix-icon><ConsoleIcon name="search" /></template>
           </t-input>
           <t-select
             v-model="roleFilter"

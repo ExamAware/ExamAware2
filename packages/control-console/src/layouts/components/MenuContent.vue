@@ -1,11 +1,11 @@
 <template>
   <template v-for="item in menuItems" :key="item.path">
     <t-menu-item v-if="!item.children.length" :value="item.path" :to="item.path">
-      <template #icon><t-icon v-if="item.icon" :name="item.icon" /></template>
+      <template #icon><ConsoleIcon v-if="item.icon" :name="item.icon" /></template>
       {{ item.title }}
     </t-menu-item>
     <t-submenu v-else :value="item.path" :title="item.title">
-      <template #icon><t-icon v-if="item.icon" :name="item.icon" /></template>
+      <template #icon><ConsoleIcon v-if="item.icon" :name="item.icon" /></template>
       <t-menu-item
         v-for="child in item.children"
         :key="child.path"

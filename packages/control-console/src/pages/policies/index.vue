@@ -6,7 +6,7 @@
     >
       <template #actions>
         <t-button v-if="canWrite" @click="openCreate">
-          <template #icon><t-icon name="add" /></template>
+          <template #icon><ConsoleIcon name="add" /></template>
           新建策略
         </t-button>
       </template>

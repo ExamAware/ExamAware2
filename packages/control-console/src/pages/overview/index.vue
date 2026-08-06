@@ -8,14 +8,14 @@
         <template #actions>
           <t-space>
             <t-button variant="outline" :loading="loading" @click="loadDashboard">
-              <template #icon><t-icon name="refresh" /></template>
+              <template #icon><ConsoleIcon name="refresh" /></template>
               刷新数据
             </t-button>
             <t-button
               v-if="['admin', 'operator'].includes(session.user?.role ?? '')"
               @click="router.push('/exams/create')"
             >
-              <template #icon><t-icon name="play-circle" /></template>
+              <template #icon><ConsoleIcon name="play-circle" /></template>
               发起考试
             </t-button>
           </t-space>
@@ -72,7 +72,7 @@
                 <t-list-item-meta :title="action.title" :description="action.description">
                   <template #image>
                     <span class="quick-action-icon">
-                      <t-icon :name="action.icon" size="24px" />
+                      <ConsoleIcon :name="action.icon" size="24px" />
                     </span>
                   </template>
                 </t-list-item-meta>

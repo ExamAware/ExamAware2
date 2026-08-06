@@ -48,7 +48,7 @@
                 @change="readEa2File"
               >
                 <t-button variant="outline">
-                  <template #icon><t-icon name="upload" /></template>
+                  <template #icon><ConsoleIcon name="upload" /></template>
                   选择 .ea2 文件
                 </t-button>
               </t-upload>

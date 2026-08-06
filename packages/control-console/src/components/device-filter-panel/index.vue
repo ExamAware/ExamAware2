@@ -7,7 +7,7 @@
         <span>显示 {{ resultCount }} / {{ devices.length }} 台</span>
       </t-space>
       <t-button variant="text" :disabled="!activeCount" @click="resetFilters">
-        <template #icon><t-icon name="rollback" /></template>
+        <template #icon><ConsoleIcon name="rollback" /></template>
         清空筛选
       </t-button>
     </div>
@@ -19,7 +19,7 @@
           clearable
           placeholder="名称、ID、版本、标签或设备组关键词"
         >
-          <template #prefix-icon><t-icon name="search" /></template>
+          <template #prefix-icon><ConsoleIcon name="search" /></template>
         </t-input>
       </t-col>
       <t-col :xs="12" :md="3">

@@ -6,7 +6,7 @@
     >
       <template #actions>
         <t-button variant="outline" :loading="loading" @click="loadCommands">
-          <template #icon><t-icon name="refresh" /></template>
+          <template #icon><ConsoleIcon name="refresh" /></template>
           刷新
         </t-button>
       </template>
