@@ -19,7 +19,7 @@ const runtimeEnv: EnvRecord = (() => {
 })()
 
 export const APP_NAME = pkg.productName || 'ExamAware'
-export const APP_CODENAME = runtimeEnv.VITE_APP_CODENAME || 'Lake / 静湖'
+export const APP_CODENAME = runtimeEnv.VITE_APP_CODENAME || 'Harbor / 港湾'
 export const APP_VERSION = (
   runtimeEnv.VITE_APP_VERSION ||
   runtimeEnv.APP_VERSION ||
