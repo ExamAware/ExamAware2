@@ -39,6 +39,24 @@ describe('GitHub workflows', () => {
     }
   });
 
+  it('builds desktop workspace dependencies before release packaging', () => {
+    const releaseWorkflow = readFileSync(resolve(workflowsDirectory, 'release.yml'), 'utf8');
+    const desktopBuildIndex = releaseWorkflow.indexOf('run: pnpm ${{ matrix.build_script }}');
+    const buildCommands = [
+      'run: pnpm rpc:build',
+      'run: pnpm core:build',
+      'run: pnpm player:build',
+      'run: pnpm --filter @dsz-examaware/plugin-sdk build',
+      'run: pnpm control:protocol:build'
+    ];
+
+    expect(desktopBuildIndex).toBeGreaterThanOrEqual(0);
+    for (const buildCommand of buildCommands) {
+      expect(releaseWorkflow.indexOf(buildCommand), buildCommand).toBeGreaterThanOrEqual(0);
+      expect(releaseWorkflow.indexOf(buildCommand), buildCommand).toBeLessThan(desktopBuildIndex);
+    }
+  });
+
   it('builds publishable packages without running monorepo tests', () => {
     const publishWorkflow = readFileSync(
       resolve(workflowsDirectory, 'publish-packages.yml'),
