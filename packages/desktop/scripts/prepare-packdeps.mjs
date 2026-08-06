@@ -1,7 +1,7 @@
 import fs, { chmodSync, mkdtempSync, writeFileSync } from 'node:fs'
-import { rm } from 'node:fs/promises'
+import { access, cp, mkdir, mkdtemp, readdir, realpath, rename, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { extname, join, resolve, delimiter } from 'node:path'
+import { delimiter, extname, join, relative, resolve, sep } from 'node:path'
 import { spawn } from 'node:child_process'
 import { resolveDesktopRoot } from './prepare-packdeps-path.mjs'
 
@@ -171,21 +171,93 @@ async function run(cmd, args, options = {}) {
   throw lastError ?? new Error('Failed to run command')
 }
 
+async function assertPortableNodeModules(nodeModulesRoot) {
+  await access(join(nodeModulesRoot, 'call-bound', 'package.json'))
+
+  async function walk(directory) {
+    for (const entry of await readdir(directory, { withFileTypes: true })) {
+      const entryPath = join(directory, entry.name)
+      if (entry.isSymbolicLink()) {
+        const target = await realpath(entryPath)
+        const targetRelativePath = relative(nodeModulesRoot, target)
+        if (targetRelativePath === '..' || targetRelativePath.startsWith(`..${sep}`)) {
+          throw new Error(
+            `Dependency link escapes the portable node_modules: ${entryPath} -> ${target}`
+          )
+        }
+      } else if (entry.isDirectory()) {
+        await walk(entryPath)
+      }
+    }
+  }
+
+  await walk(nodeModulesRoot)
+}
+
+async function materializeNodeModules(source, destination) {
+  await mkdir(destination, { recursive: true })
+  for (const entry of await readdir(source, { withFileTypes: true })) {
+    if (entry.name === '.pnpm' || entry.name === '.modules.yaml') continue
+    await cp(join(source, entry.name), join(destination, entry.name), {
+      recursive: true,
+      dereference: true,
+      force: true
+    })
+  }
+}
+
+async function replaceNodeModules(source, destination) {
+  const backup = `${destination}.packdeps-backup`
+  await rm(backup, { recursive: true, force: true })
+
+  let hasBackup = false
+  try {
+    await rename(destination, backup)
+    hasBackup = true
+  } catch (error) {
+    if (error?.code !== 'ENOENT') throw error
+  }
+
+  try {
+    await rename(source, destination)
+  } catch (error) {
+    if (hasBackup) await rename(backup, destination)
+    throw error
+  }
+
+  if (hasBackup) await rm(backup, { recursive: true, force: true })
+}
+
 async function main() {
-  const nm = resolve(cwd, 'node_modules')
-  await rm(nm, { recursive: true, force: true })
+  const workspaceRoot = resolve(cwd, '..', '..')
+  const deploymentRoot = await mkdtemp(join(workspaceRoot, '.packdeps-'))
+  const deploymentDir = join(deploymentRoot, 'app')
+  const deployedNodeModules = join(deploymentDir, 'node_modules')
+  const portableNodeModules = join(deploymentRoot, 'node_modules')
+  const nodeModules = resolve(cwd, 'node_modules')
 
-  const installArgs = [
-    'install',
-    '--filter=@dsz-examaware/desktop...',
-    '--prod',
-    '--frozen-lockfile',
-    '--config.node-linker=isolated',
-    '--config.package-import-method=copy',
-    '--config.save-workspace-protocol=false'
-  ]
+  try {
+    await run('pnpm', [
+      '--filter=@dsz-examaware/desktop',
+      '--prod',
+      'deploy',
+      '--legacy',
+      '--config.package-import-method=copy',
+      deploymentDir
+    ])
 
-  await run('pnpm', installArgs)
+    // pnpm deploy creates a self-link for workspace executables; it is not a runtime dependency.
+    await rm(join(deployedNodeModules, '@dsz-examaware', 'desktop'), {
+      recursive: true,
+      force: true
+    })
+    await materializeNodeModules(deployedNodeModules, portableNodeModules)
+    await assertPortableNodeModules(portableNodeModules)
+    await replaceNodeModules(portableNodeModules, nodeModules)
+  } finally {
+    await rm(deploymentRoot, { recursive: true, force: true })
+    await rm(huskyStubDir, { recursive: true, force: true })
+  }
 }
 
 main().catch((err) => {

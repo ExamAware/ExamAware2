@@ -13,6 +13,10 @@ const outputDir = path.join(desktopRoot, 'out')
 
 const packagesToMirror = [
   {
+    name: '@dsz-examaware/control-protocol',
+    source: path.join(workspaceRoot, 'control-protocol')
+  },
+  {
     name: '@dsz-examaware/core',
     source: path.join(workspaceRoot, 'core')
   },
@@ -22,8 +26,11 @@ const packagesToMirror = [
   },
   {
     name: '@dsz-examaware/plugin-sdk',
-    source: path.join(workspaceRoot, 'plugin-sdk'),
-    optional: true
+    source: path.join(workspaceRoot, 'plugin-sdk')
+  },
+  {
+    name: '@dsz-examaware/rpc',
+    source: path.join(workspaceRoot, 'rpc')
   }
 ]
 
@@ -40,19 +47,13 @@ async function copyPackage(pkg) {
   const sourceDist = path.join(pkg.source, 'dist')
   const destDir = path.join(nodeModulesRoot, pkg.name)
 
-  // Remove existing pnpm link/symlink to avoid electron-builder rejecting out-of-tree paths
-  await fs.rm(destDir, { recursive: true, force: true })
-
   if (!(await pathExists(sourceDist))) {
-    if (pkg.optional) {
-      console.warn(`[prepare-workspace-deps] skip ${pkg.name}: dist not found at ${sourceDist}`)
-      return
-    }
     throw new Error(
       `Workspace package ${pkg.name} has no dist build at ${sourceDist}. Run its build before packaging.`
     )
   }
 
+  // Replace pnpm's deployed workspace snapshot with the current build output.
   await fs.rm(destDir, { recursive: true, force: true })
   await fs.mkdir(destDir, { recursive: true })
 

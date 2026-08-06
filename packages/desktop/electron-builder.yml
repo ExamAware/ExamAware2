@@ -3,6 +3,7 @@ productName: ExamAware
 directories:
   buildResources: build
   output: out
+afterPack: scripts/verify-packaged-app.mjs
 files:
   - 'dist/**/*'
   - 'node_modules/**/*'
@@ -22,7 +23,6 @@ fileAssociations:
     description: ExamAware 考试档案文件
     mimeType: application/json
     role: Editor
-    icon: build/icon
 asarUnpack:
   - resources/**
 win:
@@ -60,11 +60,11 @@ mac:
   target:
     - target: zip
       arch:
-        - x64
+        # - x64
         - arm64
     - target: dmg
       arch:
-        - x64
+        # - x64
         - arm64
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
