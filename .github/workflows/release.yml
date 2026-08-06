@@ -142,6 +142,8 @@ jobs:
 
       - name: Build plugin SDK
         run: pnpm --filter @dsz-examaware/plugin-sdk build
+      - name: Build control protocol
+        run: pnpm control:protocol:build
 
       - name: Build desktop application
         run: pnpm ${{ matrix.build_script }}
