@@ -110,5 +110,20 @@ describe('ControlSettings', () => {
     expect(
       wrapper.findAll('[theme="danger"]').some((element) => element.text().trim() === '解绑')
     ).toBe(false)
+
+    controlEventListener?.({
+      type: 'state-changed',
+      snapshot: {
+        ...snapshot,
+        managedSettingKeys: [...snapshot.managedSettingKeys]
+      }
+    })
+    await flushPromises()
+
+    expect(wrapper.text()).not.toContain('禁止解绑集控')
+    expect(wrapper.text()).not.toContain('集控中心已启用「禁止解绑」策略')
+    expect(
+      wrapper.findAll('[theme="danger"]').some((element) => element.text().trim() === '解绑')
+    ).toBe(true)
   })
 })

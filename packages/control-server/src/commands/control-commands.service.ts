@@ -11,6 +11,7 @@ import {
   CONTROL_CAPABILITY_NAMES,
   CONTROL_COMMAND_TYPES,
   controlCommandSchema,
+  MANAGED_SETTINGS_REPLACE_CAPABILITY_VERSION,
   PLAYER_STATUS,
   createServerCommandMessage
 } from '@dsz-examaware/control-protocol';
@@ -38,6 +39,10 @@ export interface CommandTargetSelection {
   deviceIds: string[];
   partitionNodeIds: string[];
 }
+
+export type CommandWriteContext = Omit<WriteContext, 'actorUserId'> & {
+  actorUserId: string | null;
+};
 
 export interface ControlCommandView extends ControlCommandRecord {
   targets: CommandTargetRecord[];
@@ -126,7 +131,7 @@ export class ControlCommandsService {
     command: ControlCommand,
     selection: CommandTargetSelection,
     expiresAt: Date,
-    context: WriteContext,
+    context: CommandWriteContext,
     requestedCommandId?: string,
     options: { validateTargetCapabilities?: boolean } = {}
   ): Promise<ControlCommandView> {
@@ -371,10 +376,15 @@ export class ControlCommandsService {
     }
 
     const capabilityName = COMMAND_CAPABILITY_NAMES[command.type];
+    const requiredCommandVersion =
+      command.type === CONTROL_COMMAND_TYPES.settingsApply && command.payload.replace === true
+        ? MANAGED_SETTINGS_REPLACE_CAPABILITY_VERSION
+        : 1;
     const unsupported = records.flatMap((record): TargetCapabilityMismatch[] => {
       const capabilities = record.lastCapabilities!;
       const supportsCommand = capabilities.commands.some(
-        (capability) => capability.name === capabilityName && capability.version >= 1
+        (capability) =>
+          capability.name === capabilityName && capability.version >= requiredCommandVersion
       );
       const unsupportedSettingKeys =
         command.type === CONTROL_COMMAND_TYPES.settingsApply

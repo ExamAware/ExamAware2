@@ -16,6 +16,7 @@
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:migrate:prod": "node dist/database/migrate.js",
     "auth:schema:generate": "pnpm dlx @better-auth/cli@latest generate --config src/auth/auth.ts --output src/database/auth-schema.ts --yes",
     "auth:bootstrap-admin": "node dist/auth/bootstrap-admin.js"
   },

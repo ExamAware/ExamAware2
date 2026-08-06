@@ -197,16 +197,10 @@ describe('DeviceGateway', () => {
     expect(commandsService.deliverPending).toHaveBeenCalledWith(deviceId);
     await vi.waitFor(() => {
       expect(operationsService.applyPolicySettings).toHaveBeenCalledWith(
-        [
-          { key: MANAGED_SETTING_KEYS.playerPreventControlSessionExit, value: false },
-          { key: MANAGED_SETTING_KEYS.controlPreventUnbind, value: false },
-          { key: MANAGED_SETTING_KEYS.controlPreventQuit, value: false },
-          { key: MANAGED_SETTING_KEYS.pluginPreventInstall, value: false },
-          { key: MANAGED_SETTING_KEYS.pluginInstallBlacklist, value: [] },
-          { key: MANAGED_SETTING_KEYS.pluginInstallAllowlist, value: [] }
-        ],
+        [],
         [deviceId],
-        { actorUserId: 'system', requestId: expect.any(String) }
+        { actorUserId: null, requestId: expect.any(String) },
+        { replace: true }
       );
     });
 
@@ -245,16 +239,10 @@ describe('DeviceGateway', () => {
 
     await vi.waitFor(() => {
       expect(operationsService.applyPolicySettings).toHaveBeenCalledWith(
-        [
-          { key: MANAGED_SETTING_KEYS.controlPreventUnbind, value: true },
-          { key: MANAGED_SETTING_KEYS.playerPreventControlSessionExit, value: false },
-          { key: MANAGED_SETTING_KEYS.controlPreventQuit, value: false },
-          { key: MANAGED_SETTING_KEYS.pluginPreventInstall, value: false },
-          { key: MANAGED_SETTING_KEYS.pluginInstallBlacklist, value: [] },
-          { key: MANAGED_SETTING_KEYS.pluginInstallAllowlist, value: [] }
-        ],
+        [{ key: MANAGED_SETTING_KEYS.controlPreventUnbind, value: true }],
         [deviceId],
-        { actorUserId: 'system', requestId: expect.any(String) }
+        { actorUserId: null, requestId: expect.any(String) },
+        { replace: true }
       );
     });
   });
@@ -267,6 +255,9 @@ describe('DeviceGateway', () => {
     const hello = helloMessage();
     hello.capabilities = {
       ...hello.capabilities!,
+      commands: hello.capabilities!.commands.map((capability) =>
+        capability.name === 'managed-settings' ? { ...capability, version: 1 } : capability
+      ),
       managedSettings: hello.capabilities!.managedSettings.filter(
         (capability) => !capability.key.startsWith('plugins.')
       )
@@ -285,7 +276,7 @@ describe('DeviceGateway', () => {
           { key: MANAGED_SETTING_KEYS.controlPreventQuit, value: false }
         ],
         [deviceId],
-        { actorUserId: 'system', requestId: expect.any(String) }
+        { actorUserId: null, requestId: expect.any(String) }
       );
     });
   });

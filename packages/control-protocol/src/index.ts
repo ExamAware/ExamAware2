@@ -60,8 +60,17 @@ export const CONTROL_CAPABILITY_NAMES = {
   managedSettings: 'managed-settings',
   errorReporting: 'error-reporting'
 } as const;
+export const MANAGED_SETTINGS_REPLACE_CAPABILITY_VERSION = 2;
 export const CURRENT_CONTROL_CAPABILITIES = Object.freeze(
-  Object.values(CONTROL_CAPABILITY_NAMES).map((name) => Object.freeze({ name, version: 1 }))
+  Object.values(CONTROL_CAPABILITY_NAMES).map((name) =>
+    Object.freeze({
+      name,
+      version:
+        name === CONTROL_CAPABILITY_NAMES.managedSettings
+          ? MANAGED_SETTINGS_REPLACE_CAPABILITY_VERSION
+          : 1
+    })
+  )
 );
 export const CURRENT_MANAGED_SETTING_CAPABILITIES = Object.freeze(
   Object.values(MANAGED_SETTING_KEYS).map((key) => Object.freeze({ key, schemaVersion: 1 }))
@@ -446,10 +455,18 @@ export const managedSettingSchema = z.discriminatedUnion('key', [
 export const settingsApplyPayloadSchema = z
   .object({
     revision: z.uuid(),
-    settings: z.array(managedSettingSchema).min(1).max(20)
+    settings: z.array(managedSettingSchema).max(20),
+    replace: z.literal(true).optional()
   })
   .strict()
   .superRefine((payload, context) => {
+    if (payload.settings.length === 0 && payload.replace !== true) {
+      context.addIssue({
+        code: 'custom',
+        message: 'An empty managed setting list requires replacement semantics',
+        path: ['settings']
+      });
+    }
     const keys = payload.settings.map((setting) => setting.key);
     if (new Set(keys).size !== keys.length) {
       context.addIssue({

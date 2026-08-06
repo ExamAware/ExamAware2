@@ -104,7 +104,10 @@ const handleControlCommand: ControlCommandHandler = async (command) => {
       controlService.emitDismiss(command.payload)
       return
     case CONTROL_COMMAND_TYPES.settingsApply:
-      controlService.applyManagedSettings(command.payload.settings)
+      controlService.applyManagedSettings(
+        command.payload.settings,
+        command.payload.replace === true
+      )
       return
   }
 }

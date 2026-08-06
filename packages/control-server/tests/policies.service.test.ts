@@ -204,7 +204,9 @@ describe('PoliciesService policy synchronization', () => {
           {
             id: deviceId,
             lastCapabilities: {
-              commands: [...CURRENT_CONTROL_CAPABILITIES],
+              commands: CURRENT_CONTROL_CAPABILITIES.map((capability) =>
+                capability.name === 'managed-settings' ? { ...capability, version: 1 } : capability
+              ),
               managedSettings: CURRENT_MANAGED_SETTING_CAPABILITIES.filter(
                 (capability) => !capability.key.startsWith('plugins.')
               )
@@ -229,5 +231,52 @@ describe('PoliciesService policy synchronization', () => {
       [deviceId],
       context
     );
+  });
+
+  it('pushes an empty replacement snapshot after deleting the last policy', async () => {
+    const deviceId = 'e6503db2-4e90-4c08-b886-aa40433e6c76';
+    const removed = policy('deleted-policy', 100, [
+      { key: MANAGED_SETTING_KEYS.appearanceTheme, value: 'dark' },
+      { key: MANAGED_SETTING_KEYS.controlPreventUnbind, value: true }
+    ]);
+    const targets = { deviceIds: [deviceId], partitionNodeIds: [] };
+    const policiesRepository = {
+      targets: vi.fn().mockResolvedValue(targets),
+      remove: vi.fn().mockResolvedValue(removed),
+      directPolicyIds: vi.fn().mockResolvedValue([]),
+      nodePolicyTargets: vi.fn().mockResolvedValue([]),
+      findByIds: vi.fn().mockResolvedValue([])
+    };
+    const applyPolicySettings = vi.fn().mockResolvedValue(undefined);
+    const service = createService(
+      policiesRepository,
+      { assignmentsForDevices: vi.fn().mockResolvedValue(new Map()) },
+      {
+        databaseService: {
+          transaction: vi.fn(async (work) => work({}))
+        } as unknown as DatabaseService,
+        auditService: { record: vi.fn().mockResolvedValue(undefined) },
+        controlOperationsService: { applyPolicySettings },
+        devicesRepository: {
+          findByIds: vi.fn().mockResolvedValue([
+            {
+              id: deviceId,
+              lastCapabilities: {
+                commands: [...CURRENT_CONTROL_CAPABILITIES],
+                managedSettings: [...CURRENT_MANAGED_SETTING_CAPABILITIES]
+              }
+            }
+          ])
+        }
+      }
+    );
+    const context = {
+      actorUserId: 'admin-user',
+      requestId: '3f7ed739-1168-4370-a671-a26235475362'
+    };
+
+    await service.remove(removed.id, context);
+
+    expect(applyPolicySettings).toHaveBeenCalledWith([], [deviceId], context, { replace: true });
   });
 });

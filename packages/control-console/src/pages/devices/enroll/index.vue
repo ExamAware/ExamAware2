@@ -47,7 +47,7 @@
             <t-alert
               class="enrollment-alert"
               theme="info"
-              message="单台设备建议保持 1 次。批量部署同一机房时可增加使用次数，并在部署完成后立即撤销。"
+              message="单台设备建议保持 1 次。批量部署时可增加使用次数。"
             />
             <div class="enrollment-footer">
               <t-button theme="primary" type="submit" :loading="submitting">生成注册码</t-button>

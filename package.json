@@ -78,7 +78,7 @@
   "license": "GPL-3.0-only",
   "pnpm": {
     "onlyBuiltDependencies": [
-      "@parcel/watcher",
+      "core-js",
       "electron",
       "esbuild",
       "vue-demi"

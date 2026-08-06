@@ -259,7 +259,11 @@ export class ControlService {
     this.emit({ type: 'broadcast-dismiss', payload })
   }
 
-  applyManagedSettings(settings: ManagedSetting[]): void {
+  applyManagedSettings(settings: ManagedSetting[], replace = false): void {
+    if (replace) {
+      this.managedKeys.clear()
+      this.managedValues.clear()
+    }
     for (const setting of settings) {
       const configKey = toDesktopConfigKey(setting.key)
       setConfig(configKey, setting.value)

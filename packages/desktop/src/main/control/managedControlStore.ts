@@ -3,13 +3,14 @@ import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { app } from 'electron'
 import { MANAGED_SETTING_KEYS } from '@dsz-examaware/control-protocol'
-import { getConfig, setConfig } from '../config/configStore'
+import { setConfig } from '../config/configStore'
 import { appLogger } from '../logging/logger'
 
 const MANAGED_FILE_NAME = 'managed-control.json'
 const CONFIG_FILE_NAME = 'config.json'
 const WATCH_DEBOUNCE_MS = 300
 let isSelfWrite = false
+let lastManagedValues: Record<string, unknown> = {}
 
 function managedFilePath(): string {
   return path.join(app.getPath('userData'), MANAGED_FILE_NAME)
@@ -18,16 +19,22 @@ function managedFilePath(): string {
 export async function loadManagedValues(): Promise<Record<string, unknown>> {
   try {
     const parsed = JSON.parse(await readFile(managedFilePath(), 'utf8')) as unknown
-    return isRecord(parsed) ? parsed : {}
+    lastManagedValues = isRecord(parsed) ? { ...parsed } : {}
+    return { ...lastManagedValues }
   } catch (error) {
-    if (isNodeError(error, 'ENOENT')) return {}
-    appLogger.warn('[control] failed to load managed settings', error)
+    if (!isNodeError(error, 'ENOENT')) {
+      appLogger.warn('[control] failed to load managed settings', error)
+    }
+    lastManagedValues = {}
     return {}
   }
 }
 
 export async function saveManagedValues(values: Record<string, unknown>): Promise<void> {
-  if (Object.keys(values).length === 0) return
+  if (Object.keys(values).length === 0) {
+    await clearManagedValues()
+    return
+  }
   const filePath = managedFilePath()
   const temporaryPath = `${filePath}.${process.pid}.tmp`
   isSelfWrite = true
@@ -38,6 +45,7 @@ export async function saveManagedValues(values: Record<string, unknown>): Promis
       mode: 0o600
     })
     await rename(temporaryPath, filePath)
+    lastManagedValues = { ...values }
   } finally {
     isSelfWrite = false
     await rm(temporaryPath, { force: true }).catch(() => {})
@@ -48,6 +56,7 @@ export async function clearManagedValues(): Promise<void> {
   isSelfWrite = true
   try {
     await rm(managedFilePath(), { force: true })
+    lastManagedValues = {}
   } finally {
     isSelfWrite = false
   }
@@ -96,12 +105,8 @@ async function reconcile(changedFile: string, onTamper: (detail: string) => void
         appLogger.warn('[control] failed to inspect managed settings', error)
         return
       }
-      const restored: Record<string, unknown> = {}
-      for (const key of Object.values(MANAGED_SETTING_KEYS)) {
-        const value = getConfig(toDesktopConfigKey(key))
-        if (value !== undefined) restored[key] = value
-      }
-      await saveManagedValues(restored)
+      if (Object.keys(lastManagedValues).length === 0) return
+      await saveManagedValues(lastManagedValues)
       onTamper('managed-control.json 被删除')
     }
     return

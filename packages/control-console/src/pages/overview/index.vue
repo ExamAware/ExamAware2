@@ -217,7 +217,7 @@ const quickActions = computed(() =>
     {
       title: '注册设备',
       description: '通过向导注册考场大屏',
-      icon: 'device-add',
+      icon: 'add',
       path: '/devices/enroll',
       roles: ['admin']
     },

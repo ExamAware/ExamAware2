@@ -1,5 +1,6 @@
 import {
   CONTROL_CAPABILITY_NAMES,
+  MANAGED_SETTINGS_REPLACE_CAPABILITY_VERSION,
   MANAGED_SETTING_KEYS,
   managedSettingSchema,
   type DeviceCapabilities,
@@ -240,23 +241,37 @@ export class PoliciesService {
     const capabilitiesByDevice = new Map(
       records.map((record) => [record.id, record.lastCapabilities] as const)
     );
-    const groups = new Map<string, { settings: ManagedSetting[]; deviceIds: string[] }>();
+    const groups = new Map<
+      string,
+      { settings: ManagedSetting[]; replace: boolean; deviceIds: string[] }
+    >();
     for (const deviceId of [...deviceIds].sort()) {
       const { settings } = await this.effectiveForDevice(deviceId);
-      const effectiveSettings = filterManagedSettingsForCapabilities(
-        withManagedSettingDefaults(settings),
+      const payload = managedSettingsSyncPayloadForCapabilities(
+        settings,
         capabilitiesByDevice.get(deviceId)
       );
-      if (!effectiveSettings.length) continue;
-      const signature = JSON.stringify(effectiveSettings);
-      const group = groups.get(signature) ?? { settings: effectiveSettings, deviceIds: [] };
+      if (!payload) continue;
+      const signature = JSON.stringify(payload);
+      const group = groups.get(signature) ?? { ...payload, deviceIds: [] };
       group.deviceIds.push(deviceId);
       groups.set(signature, group);
     }
 
     await Promise.all(
       [...groups.values()].map((group) =>
-        this.controlOperationsService.applyPolicySettings(group.settings, group.deviceIds, context)
+        group.replace
+          ? this.controlOperationsService.applyPolicySettings(
+              group.settings,
+              group.deviceIds,
+              context,
+              { replace: true }
+            )
+          : this.controlOperationsService.applyPolicySettings(
+              group.settings,
+              group.deviceIds,
+              context
+            )
       )
     );
   }
@@ -338,6 +353,24 @@ export function filterManagedSettingsForCapabilities(
       .map((capability) => capability.key)
   );
   return settings.filter((setting) => supportedKeys.has(setting.key));
+}
+
+export function managedSettingsSyncPayloadForCapabilities(
+  settings: ManagedSetting[],
+  capabilities: DeviceCapabilities | null | undefined
+): { settings: ManagedSetting[]; replace: boolean } | undefined {
+  const commandCapability = capabilities?.commands.find(
+    (capability) => capability.name === CONTROL_CAPABILITY_NAMES.managedSettings
+  );
+  if (!commandCapability || commandCapability.version < 1) return undefined;
+
+  const replace = commandCapability.version >= MANAGED_SETTINGS_REPLACE_CAPABILITY_VERSION;
+  const effectiveSettings = filterManagedSettingsForCapabilities(
+    replace ? settings : withManagedSettingDefaults(settings),
+    capabilities
+  );
+  if (!replace && effectiveSettings.length === 0) return undefined;
+  return { settings: effectiveSettings, replace };
 }
 
 function validateSettings(input: ManagedSetting[]): ManagedSetting[] {

@@ -242,6 +242,26 @@ describe('ControlService', () => {
     })
   })
 
+  it('replaces persisted managed settings and releases controls omitted by the server', async () => {
+    state.loadManagedValues.mockResolvedValue({
+      [MANAGED_SETTING_KEYS.appearanceTheme]: 'dark',
+      [MANAGED_SETTING_KEYS.controlPreventUnbind]: true,
+      [MANAGED_SETTING_KEYS.pluginPreventInstall]: true
+    })
+    const service = new ControlService()
+    await service.initializeManagedState()
+
+    expect(service.isUnbindPrevented()).toBe(true)
+    expect(() => service.assertPluginInstallAllowed('@school/ordinary')).toThrow()
+
+    service.applyManagedSettings([], true)
+
+    expect(service.isUnbindPrevented()).toBe(false)
+    expect(() => service.assertPluginInstallAllowed('@school/ordinary')).not.toThrow()
+    expect(service.isManagedKey(MANAGED_SETTING_KEYS.appearanceTheme)).toBe(false)
+    expect(service.getStatus().managedSettingKeys).toEqual([])
+    expect(state.saveManagedValues).toHaveBeenLastCalledWith({})
+  })
   it('enforces prohibit, blacklist, and allowlist plugin installation policies', () => {
     const service = new ControlService()
 

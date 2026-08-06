@@ -41,9 +41,7 @@ export const controlCommand = pgTable(
     schoolId: text('school_id').default('default').notNull(),
     commandType: text('command_type').notNull(),
     command: jsonb('command').$type<ControlCommand>().notNull(),
-    issuedBy: text('issued_by')
-      .notNull()
-      .references(() => user.id, { onDelete: 'restrict' }),
+    issuedBy: text('issued_by').references(() => user.id, { onDelete: 'restrict' }),
     issuedAt: timestamp('issued_at', { withTimezone: true }).notNull(),
     expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
     cancelledAt: timestamp('cancelled_at', { withTimezone: true })

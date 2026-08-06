@@ -1,0 +1,18 @@
+{{SITE_ADDRESS}} {
+	root * {{INSTALL_DIR}}/console/dist
+	encode gzip
+	@api path /api/*
+	handle @api {
+		reverse_proxy 127.0.0.1:3100
+	}
+	@device path /device/v1/connect*
+	handle @device {
+		reverse_proxy 127.0.0.1:3100
+	}
+	handle {
+		try_files {path} /index.html
+		file_server
+	}
+	header /assets/* Cache-Control "public, max-age=31536000, immutable"
+	header /index.html Cache-Control "no-cache"
+}

@@ -8,7 +8,7 @@ import { auditLog } from './audit.schema.js';
 import type { AuditMetadata } from './audit.schema.js';
 
 export interface AuditEntry {
-  actorUserId: string;
+  actorUserId: string | null;
   action: string;
   resourceType: string;
   resourceId?: string;

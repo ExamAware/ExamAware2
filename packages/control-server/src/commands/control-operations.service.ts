@@ -19,9 +19,12 @@ import type { WriteContext } from '../api/write-context.js';
 import { env } from '../config/env.js';
 import { createExamConfigArtifactBytes } from '../exam-configs/exam-config-artifact.js';
 import { ExamConfigsRepository } from '../exam-configs/exam-configs.repository.js';
-import { ControlCommandsService } from './control-commands.service.js';
+import {
+  ControlCommandsService,
+  type CommandWriteContext,
+  type ControlCommandView
+} from './control-commands.service.js';
 import { CONTROL_COMMAND_ERROR_CODES } from './control-command.constants.js';
-import type { ControlCommandView } from './control-commands.service.js';
 import type {
   ActivateExamDeploymentDto,
   ApplyManagedSettingsDto,
@@ -192,10 +195,15 @@ export class ControlOperationsService {
   applyPolicySettings(
     settings: ApplyManagedSettingsDto['settings'],
     deviceIds: string[],
-    context: WriteContext
+    context: CommandWriteContext,
+    options?: { replace: true }
   ): Promise<ControlCommandView> {
     const revision = randomUUID();
-    const payload = settingsApplyPayloadSchema.safeParse({ revision, settings });
+    const payload = settingsApplyPayloadSchema.safeParse({
+      revision,
+      settings,
+      ...(options?.replace ? { replace: true } : {})
+    });
     if (!payload.success) {
       throw new BadRequestException({
         code: CONTROL_COMMAND_ERROR_CODES.invalidManagedSettings,

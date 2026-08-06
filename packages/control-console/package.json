@@ -19,8 +19,8 @@
     "@dsz-examaware/control-protocol": "workspace:*",
     "@dsz-examaware/core": "workspace:*",
     "echarts": "^6.1.0",
-    "pinia": "^3.0.4",
     "nprogress": "^0.2.0",
+    "pinia": "^3.0.4",
     "pinia-plugin-persistedstate": "^4.7.1",
     "tdesign-icons-vue-next": "^0.4.1",
     "tdesign-vue-next": "^1.17.7",
@@ -28,9 +28,11 @@
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^6.0.3",
     "@types/nprogress": "^0.2.3",
+    "@vitejs/plugin-legacy": "^7.1.0",
+    "@vitejs/plugin-vue": "^6.0.3",
     "less": "^4.5.1",
+    "terser": "^5.16.0",
     "typescript": "~5.9.3",
     "unplugin-auto-import": "^20.3.0",
     "unplugin-vue-components": "^30.0.0",

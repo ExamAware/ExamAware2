@@ -419,6 +419,56 @@ describe('ControlCommandsService target capabilities', () => {
     );
     expect(sendCommand).not.toHaveBeenCalled();
   });
+
+  it('rejects a queued replacement snapshot after the client downgrades to capability v1', async () => {
+    const replacementCommand = createSettingsApplyCommand({
+      revision: crypto.randomUUID(),
+      settings: [],
+      replace: true
+    });
+    const markCapabilityRejected = vi.fn().mockResolvedValue(undefined);
+    const sendCommand = vi.fn();
+    const service = createService(
+      {} as DatabaseService,
+      {
+        pendingForDevice: vi.fn().mockResolvedValue([
+          {
+            ...commandRecord,
+            commandType: replacementCommand.type,
+            command: replacementCommand
+          }
+        ]),
+        markCapabilityRejected
+      } as unknown as ControlCommandsRepository,
+      {
+        findById: vi.fn().mockResolvedValue({
+          ...deviceRecord,
+          lastCapabilities: {
+            commands: deviceRecord.lastCapabilities!.commands.map((capability) =>
+              capability.name === CONTROL_CAPABILITY_NAMES.managedSettings
+                ? { ...capability, version: 1 }
+                : capability
+            ),
+            managedSettings: [...CURRENT_MANAGED_SETTING_CAPABILITIES]
+          }
+        })
+      } as unknown as DevicesRepository,
+      {} as PartitionsRepository,
+      {} as ExamConfigsRepository,
+      { sendCommand } as unknown as DeviceConnectionsService
+    );
+
+    await service.deliverPending(deviceId);
+
+    expect(markCapabilityRejected).toHaveBeenCalledWith(
+      commandId,
+      deviceId,
+      expect.any(Date),
+      CONTROL_COMMAND_ERROR_CODES.targetCapabilitiesUnsupported,
+      'One or more target devices do not support this command'
+    );
+    expect(sendCommand).not.toHaveBeenCalled();
+  });
 });
 
 describe('ControlCommandsService immediate delivery', () => {

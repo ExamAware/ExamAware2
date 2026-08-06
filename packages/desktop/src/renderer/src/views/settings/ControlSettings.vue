@@ -159,6 +159,10 @@ const toDesktopConfigKey = (key: string) =>
 watch(
   managedKeys,
   async (keys) => {
+    const currentKeys = new Set(keys)
+    for (const key of Object.keys(managedValues)) {
+      if (!currentKeys.has(key)) delete managedValues[key]
+    }
     await Promise.all(
       keys.map(async (key) => {
         managedValues[key] = await window.api.config.get(toDesktopConfigKey(key))

@@ -16,7 +16,7 @@ export type CommandTargetStatus = CommandTargetRecord['status'];
 export interface CreateControlCommandRecord {
   id: string;
   command: ControlCommand;
-  issuedBy: string;
+  issuedBy: string | null;
   issuedAt: Date;
   expiresAt: Date;
   deviceIds: string[];

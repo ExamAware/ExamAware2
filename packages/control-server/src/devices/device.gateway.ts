@@ -34,9 +34,8 @@ import { DeviceConnectionsService } from './device-connections.service.js';
 import { DeviceEnrollmentService } from './device-enrollment.service.js';
 import { DevicesRepository } from './devices.repository.js';
 import {
-  filterManagedSettingsForCapabilities,
-  PoliciesService,
-  withManagedSettingDefaults
+  managedSettingsSyncPayloadForCapabilities,
+  PoliciesService
 } from '../policies/policies.service.js';
 
 interface ConnectionSession {
@@ -252,15 +251,16 @@ export class DeviceGateway implements OnGatewayConnection, OnGatewayDisconnect {
     capabilities: DeviceCapabilities | undefined
   ): Promise<void> {
     const { settings } = await this.policiesService.effectiveForDevice(deviceId);
-    const effective = filterManagedSettingsForCapabilities(
-      withManagedSettingDefaults(settings),
-      capabilities
-    );
-    if (!effective.length) return;
-    await this.operationsService.applyPolicySettings(effective, [deviceId], {
-      actorUserId: 'system',
-      requestId: randomUUID()
-    });
+    const payload = managedSettingsSyncPayloadForCapabilities(settings, capabilities);
+    if (!payload) return;
+    const context = { actorUserId: null, requestId: randomUUID() };
+    if (payload.replace) {
+      await this.operationsService.applyPolicySettings(payload.settings, [deviceId], context, {
+        replace: true
+      });
+      return;
+    }
+    await this.operationsService.applyPolicySettings(payload.settings, [deviceId], context);
   }
 
   private async handleCommandResult(

@@ -255,6 +255,10 @@ describe('control protocol schemas', () => {
     });
     expect(current.capabilities?.commands).toEqual(CURRENT_CONTROL_CAPABILITIES);
     expect(current.capabilities?.managedSettings).toEqual(CURRENT_MANAGED_SETTING_CAPABILITIES);
+    expect(
+      current.capabilities?.commands.find((capability) => capability.name === 'managed-settings')
+        ?.version
+    ).toBe(2);
     expect(() =>
       deviceHelloSchema.parse({
         ...hello(),
@@ -283,6 +287,19 @@ describe('control protocol schemas', () => {
         settings: [{ key: MANAGED_SETTING_KEYS.playerPreventControlSessionExit, value: 'true' }]
       })
     ).toThrow();
+  });
+
+  it('accepts an empty replacement snapshot but rejects an empty merge', () => {
+    const revision = '908122a7-7ec1-49d1-aacf-4a99bb3e928d';
+
+    expect(settingsApplyPayloadSchema.parse({ revision, settings: [], replace: true })).toEqual({
+      revision,
+      settings: [],
+      replace: true
+    });
+    expect(() => settingsApplyPayloadSchema.parse({ revision, settings: [] })).toThrow(
+      'An empty managed setting list requires replacement semantics'
+    );
   });
 
   it('validates managed unbind and quit restrictions', () => {

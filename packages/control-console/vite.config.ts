@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath, URL } from 'node:url';
+import legacy from '@vitejs/plugin-legacy';
 import vue from '@vitejs/plugin-vue';
 import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
@@ -14,6 +15,11 @@ export default defineConfig(({ mode }) => {
     base: env.VITE_BASE_URL || '/',
     plugins: [
       vue(),
+      legacy({
+        targets: ['chrome >= 51', 'firefox >= 54', 'safari >= 10', 'edge >= 79'],
+        modernTargets: ['edge >= 79', 'firefox >= 67', 'chrome >= 64', 'safari >= 12'],
+        modernPolyfills: true
+      }),
       AutoImport({
         imports: ['vue', 'vue-router'],
         resolvers: [TDesignResolver({ library: 'vue-next' })]

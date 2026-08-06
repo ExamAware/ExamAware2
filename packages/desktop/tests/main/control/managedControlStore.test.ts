@@ -67,6 +67,19 @@ describe('managedControlStore', () => {
     await expect(loadManagedValues()).resolves.toEqual(values)
   })
 
+  it('removes persisted managed values when the replacement snapshot is empty', async () => {
+    await saveManagedValues({ 'control.preventUnbind': true })
+
+    await saveManagedValues({})
+
+    await expect(loadManagedValues()).resolves.toEqual({})
+    await expect(
+      readFile(path.join(state.directory, 'managed-control.json'), 'utf8')
+    ).rejects.toMatchObject({
+      code: 'ENOENT'
+    })
+  })
+
   it('repairs externally changed managed config values', async () => {
     await saveManagedValues({ 'control.preventUnbind': true })
     await writeFile(
@@ -86,11 +99,9 @@ describe('managedControlStore', () => {
     dispose()
   })
 
-  it('rebuilds a deleted managed file from config values', async () => {
-    await mkdir(state.directory, { recursive: true })
-    state.getConfig.mockImplementation((key: string) =>
-      key === 'control.preventQuit' ? true : undefined
-    )
+  it('rebuilds a deleted managed file from the last authoritative values', async () => {
+    await saveManagedValues({ 'control.preventQuit': true })
+    await rm(path.join(state.directory, 'managed-control.json'))
     const onTamper = vi.fn()
     const dispose = startManagedConfigWatch(onTamper)
 
