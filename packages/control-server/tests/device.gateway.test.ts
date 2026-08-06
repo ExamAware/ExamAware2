@@ -15,7 +15,7 @@ import {
   createDeviceHelloMessage,
   deviceServerMessageSchema
 } from '@dsz-examaware/control-protocol';
-import type { DeviceServerMessage } from '@dsz-examaware/control-protocol';
+import type { DeviceHello, DeviceServerMessage } from '@dsz-examaware/control-protocol';
 import { WebSocket } from 'ws';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Mock } from 'vitest';
@@ -90,9 +90,12 @@ function nextClose(socket: WebSocket): Promise<{ code: number; reason: string }>
   });
 }
 
-async function authenticateSocket(socket: WebSocket): Promise<DeviceServerMessage> {
+async function authenticateSocket(
+  socket: WebSocket,
+  hello: DeviceHello = helloMessage()
+): Promise<DeviceServerMessage> {
   const response = nextMessage(socket);
-  socket.send(JSON.stringify(helloMessage()));
+  socket.send(JSON.stringify(hello));
   return response;
 }
 
@@ -194,7 +197,14 @@ describe('DeviceGateway', () => {
     expect(commandsService.deliverPending).toHaveBeenCalledWith(deviceId);
     await vi.waitFor(() => {
       expect(operationsService.applyPolicySettings).toHaveBeenCalledWith(
-        [{ key: MANAGED_SETTING_KEYS.playerPreventControlSessionExit, value: false }],
+        [
+          { key: MANAGED_SETTING_KEYS.playerPreventControlSessionExit, value: false },
+          { key: MANAGED_SETTING_KEYS.controlPreventUnbind, value: false },
+          { key: MANAGED_SETTING_KEYS.controlPreventQuit, value: false },
+          { key: MANAGED_SETTING_KEYS.pluginPreventInstall, value: false },
+          { key: MANAGED_SETTING_KEYS.pluginInstallBlacklist, value: [] },
+          { key: MANAGED_SETTING_KEYS.pluginInstallAllowlist, value: [] }
+        ],
         [deviceId],
         { actorUserId: 'system', requestId: expect.any(String) }
       );
@@ -237,7 +247,42 @@ describe('DeviceGateway', () => {
       expect(operationsService.applyPolicySettings).toHaveBeenCalledWith(
         [
           { key: MANAGED_SETTING_KEYS.controlPreventUnbind, value: true },
-          { key: MANAGED_SETTING_KEYS.playerPreventControlSessionExit, value: false }
+          { key: MANAGED_SETTING_KEYS.playerPreventControlSessionExit, value: false },
+          { key: MANAGED_SETTING_KEYS.controlPreventQuit, value: false },
+          { key: MANAGED_SETTING_KEYS.pluginPreventInstall, value: false },
+          { key: MANAGED_SETTING_KEYS.pluginInstallBlacklist, value: [] },
+          { key: MANAGED_SETTING_KEYS.pluginInstallAllowlist, value: [] }
+        ],
+        [deviceId],
+        { actorUserId: 'system', requestId: expect.any(String) }
+      );
+    });
+  });
+
+  it('filters newer managed settings before pushing to an older client', async () => {
+    policiesService.effectiveForDevice.mockResolvedValue({
+      policies: [],
+      settings: [{ key: MANAGED_SETTING_KEYS.controlPreventUnbind, value: true }]
+    });
+    const hello = helloMessage();
+    hello.capabilities = {
+      ...hello.capabilities!,
+      managedSettings: hello.capabilities!.managedSettings.filter(
+        (capability) => !capability.key.startsWith('plugins.')
+      )
+    };
+    const socket = await openSocket();
+
+    await expect(authenticateSocket(socket, hello)).resolves.toEqual(
+      expect.objectContaining({ type: DEVICE_SERVER_MESSAGE_TYPES.helloAccepted })
+    );
+
+    await vi.waitFor(() => {
+      expect(operationsService.applyPolicySettings).toHaveBeenCalledWith(
+        [
+          { key: MANAGED_SETTING_KEYS.controlPreventUnbind, value: true },
+          { key: MANAGED_SETTING_KEYS.playerPreventControlSessionExit, value: false },
+          { key: MANAGED_SETTING_KEYS.controlPreventQuit, value: false }
         ],
         [deviceId],
         { actorUserId: 'system', requestId: expect.any(String) }

@@ -38,6 +38,9 @@ export const MANAGED_SETTING_KEYS = {
   playerPreventControlSessionExit: 'player.preventControlSessionExit',
   controlPreventUnbind: 'control.preventUnbind',
   controlPreventQuit: 'control.preventQuit',
+  pluginPreventInstall: 'plugins.preventInstall',
+  pluginInstallBlacklist: 'plugins.installBlacklist',
+  pluginInstallAllowlist: 'plugins.installAllowlist',
   timeSyncNtpServer: 'timeSync.ntpServer',
   timeSyncAutoSync: 'timeSync.autoSync',
   timeSyncIntervalMinutes: 'timeSync.syncIntervalMinutes'
@@ -360,6 +363,13 @@ export const proctorCallRequestSchema = z
   })
   .strict();
 
+const pluginPackageListSchema = z
+  .array(z.string().trim().min(1).max(214))
+  .max(100)
+  .refine((names) => new Set(names).size === names.length, {
+    message: 'Plugin package names must be unique'
+  });
+
 export const managedSettingSchema = z.discriminatedUnion('key', [
   z
     .object({
@@ -402,6 +412,21 @@ export const managedSettingSchema = z.discriminatedUnion('key', [
     .strict(),
   z
     .object({ key: z.literal(MANAGED_SETTING_KEYS.controlPreventQuit), value: z.boolean() })
+    .strict(),
+  z
+    .object({ key: z.literal(MANAGED_SETTING_KEYS.pluginPreventInstall), value: z.boolean() })
+    .strict(),
+  z
+    .object({
+      key: z.literal(MANAGED_SETTING_KEYS.pluginInstallBlacklist),
+      value: pluginPackageListSchema
+    })
+    .strict(),
+  z
+    .object({
+      key: z.literal(MANAGED_SETTING_KEYS.pluginInstallAllowlist),
+      value: pluginPackageListSchema
+    })
     .strict(),
   z
     .object({

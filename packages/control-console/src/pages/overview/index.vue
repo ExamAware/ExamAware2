@@ -146,7 +146,11 @@ import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import MetricTile from '@/components/metric-tile/index.vue';
 import PageHeader from '@/components/page-header/index.vue';
-import { devicesApi } from '@/api/control/devices';
+import {
+  applyDeviceConnectionStatus,
+  devicesApi,
+  type DeviceConnectionStatusEvent
+} from '@/api/control/devices';
 import { deviceErrorsApi } from '@/api/control/device-errors';
 import { examConfigsApi } from '@/api/control/exam-configs';
 import { operationsApi } from '@/api/control/operations';
@@ -164,6 +168,7 @@ const commandCount = ref(0);
 const errorCount = ref(0);
 const deviceChartRef = ref<HTMLElement>();
 let deviceChart: echarts.ECharts | undefined;
+let disposeConnectionEvents: (() => void) | undefined;
 
 const onlineDeviceCount = computed(
   () => devices.value.filter((item) => item.connectionStatus === 'online').length
@@ -263,6 +268,9 @@ function renderChart() {
     ]
   });
 }
+function handleConnectionStatus(event: DeviceConnectionStatusEvent) {
+  if (applyDeviceConnectionStatus(devices.value, event)) renderChart();
+}
 
 async function loadDashboard() {
   loading.value = true;
@@ -286,10 +294,12 @@ async function loadDashboard() {
 
 const resizeChart = () => deviceChart?.resize();
 onMounted(() => {
+  disposeConnectionEvents = devicesApi.subscribeConnectionEvents(handleConnectionStatus);
   void loadDashboard();
   window.addEventListener('resize', resizeChart);
 });
 onUnmounted(() => {
+  disposeConnectionEvents?.();
   window.removeEventListener('resize', resizeChart);
   deviceChart?.dispose();
 });
@@ -306,8 +316,15 @@ onUnmounted(() => {
 }
 
 .quick-action-icon {
-  width: 40px;
-  height: 40px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+:deep(.quick-action-list .t-list-item__meta-avatar) {
   display: flex;
   align-items: center;
   justify-content: center;

@@ -2,6 +2,7 @@ import { apiRequest } from '../http';
 import type {
   CreateEnrollmentCodeInput,
   CreatedEnrollmentCode,
+  DeviceConnectionStatus,
   DeviceView,
   EnrollmentCodeView,
   PageResponse,
@@ -10,6 +11,22 @@ import type {
 
 const DEVICES_PATH = '/api/v1/devices';
 const ENROLLMENT_CODES_PATH = '/api/v1/device-enrollment-codes';
+const DEVICE_CONNECTION_EVENTS_PATH = `${DEVICES_PATH}/connection-events`;
+
+export interface DeviceConnectionStatusEvent {
+  deviceId: string;
+  connectionStatus: Extract<DeviceConnectionStatus, 'online' | 'offline'>;
+}
+
+export function applyDeviceConnectionStatus(
+  devices: DeviceView[],
+  event: DeviceConnectionStatusEvent
+): boolean {
+  const device = devices.find((item) => item.id === event.deviceId);
+  if (!device || device.lifecycleStatus !== 'active') return false;
+  device.connectionStatus = event.connectionStatus;
+  return true;
+}
 
 export const devicesApi = {
   list(page = 1, pageSize = 20, partitionId?: string) {
@@ -62,5 +79,24 @@ export const devicesApi = {
       method: 'PUT',
       body: JSON.stringify({ nodeIds })
     });
+  },
+  subscribeConnectionEvents(listener: (event: DeviceConnectionStatusEvent) => void) {
+    const eventSource = new EventSource(DEVICE_CONNECTION_EVENTS_PATH, { withCredentials: true });
+    eventSource.addEventListener('device-connection', (event) => {
+      try {
+        const value = JSON.parse(
+          (event as MessageEvent<string>).data
+        ) as Partial<DeviceConnectionStatusEvent>;
+        if (
+          typeof value.deviceId === 'string' &&
+          (value.connectionStatus === 'online' || value.connectionStatus === 'offline')
+        ) {
+          listener(value as DeviceConnectionStatusEvent);
+        }
+      } catch {
+        // Ignore malformed events; the next REST load restores the authoritative status.
+      }
+    });
+    return () => eventSource.close();
   }
 };

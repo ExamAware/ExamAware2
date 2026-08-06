@@ -53,6 +53,27 @@ describe('device connection status', () => {
       'revoked'
     );
   });
+
+  it('reports a recently seen device offline when its live connection is gone', async () => {
+    const record = { ...baseDevice, lastSeenAt: new Date() };
+    const devicesRepository = {
+      findById: vi.fn().mockResolvedValue(record)
+    } as unknown as DevicesRepository;
+    const connectionsService = {
+      isOnline: vi.fn().mockReturnValue(false)
+    } as unknown as DeviceConnectionsService;
+    const service = new DevicesService(
+      {} as DatabaseService,
+      devicesRepository,
+      emptyPartitionsRepository(),
+      {} as AuditService,
+      connectionsService
+    );
+
+    await expect(service.get(record.id)).resolves.toEqual(
+      expect.objectContaining({ connectionStatus: DEVICE_CONNECTION_STATUS.offline })
+    );
+  });
 });
 
 describe('device target resolution', () => {

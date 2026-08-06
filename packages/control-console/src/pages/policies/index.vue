@@ -96,70 +96,94 @@
     width="760px"
     :footer="false"
   >
-    <t-form :data="form" layout="vertical" @submit="savePolicy">
-      <t-row :gutter="[16, 0]"
-        ><t-col :xs="12" :sm="8"
-          ><t-form-item
-            label="策略名称"
-            name="name"
-            :rules="[{ required: true, message: '请输入名称' }]"
-            ><t-input v-model="form.name" /></t-form-item></t-col
-        ><t-col :xs="12" :sm="4"
-          ><t-form-item label="同层优先级"
-            ><t-input-number
-              v-model="form.priority"
-              :min="-100000"
-              :max="100000" /></t-form-item></t-col
-      ></t-row>
-      <t-form-item label="说明"
-        ><t-textarea v-model="form.description" :maxlength="1000"
-      /></t-form-item>
-      <t-form-item label="状态"
-        ><t-switch v-model="form.enabled" :label="['启用', '停用']"
-      /></t-form-item>
-      <t-divider>受管设置</t-divider>
-      <t-space direction="vertical" style="width: 100%">
-        <t-row
-          v-for="(setting, index) in form.settings"
-          :key="index"
-          :gutter="[12, 12]"
-          align="middle"
-        >
-          <t-col :xs="12" :sm="5"
-            ><t-select
-              v-model="setting.key"
-              :options="settingOptions"
-              @change="resetSettingValue(setting)"
-          /></t-col>
-          <t-col :xs="10" :sm="5">
-            <t-switch v-if="definition(setting.key)?.type === 'boolean'" v-model="setting.value" />
-            <t-input-number
-              v-else-if="definition(setting.key)?.type === 'number'"
-              v-model="setting.value"
-              :min="definition(setting.key)?.min"
-              :max="definition(setting.key)?.max"
-            />
-            <t-select
-              v-else-if="definition(setting.key)?.options"
-              v-model="setting.value"
-              :options="definition(setting.key)?.options"
-            />
-            <t-input v-else v-model="setting.value" />
-          </t-col>
-          <t-col :xs="2" :sm="2"
-            ><t-button theme="danger" variant="text" @click="form.settings.splice(index, 1)"
-              >移除</t-button
-            ></t-col
-          >
-        </t-row>
-        <t-button variant="dashed" block @click="addSetting">添加设置项</t-button>
-      </t-space>
+    <t-form class="policy-editor-form" :data="form" layout="vertical" @submit="savePolicy">
       <t-form-item
-        ><t-space
-          ><t-button type="submit" :loading="saving">保存策略</t-button
-          ><t-button variant="outline" @click="editorVisible = false">取消</t-button></t-space
-        ></t-form-item
+        label="策略名称"
+        name="name"
+        :rules="[{ required: true, message: '请输入名称' }]"
       >
+        <t-input v-model="form.name" placeholder="输入便于识别的策略名称" />
+      </t-form-item>
+      <t-form-item label="同层优先级" help="数值越高，同一分配层级内越优先生效">
+        <t-input-number v-model="form.priority" :min="-100000" :max="100000" />
+      </t-form-item>
+      <t-form-item label="说明">
+        <t-textarea
+          v-model="form.description"
+          :maxlength="1000"
+          :autosize="{ minRows: 2, maxRows: 5 }"
+          placeholder="可选：说明策略用途和适用范围"
+        />
+      </t-form-item>
+      <t-form-item label="状态">
+        <t-switch v-model="form.enabled" :label="['启用', '停用']" />
+      </t-form-item>
+
+      <section class="managed-settings-section">
+        <div class="managed-settings-section__heading">
+          <div>
+            <strong>受管设置</strong>
+            <p>逐项选择客户端设置并配置对应值。</p>
+          </div>
+          <t-tag variant="light">{{ form.settings.length }} 项</t-tag>
+        </div>
+
+        <div class="managed-setting-list">
+          <section
+            v-for="(setting, index) in form.settings"
+            :key="index"
+            class="managed-setting-item"
+          >
+            <div class="managed-setting-item__heading">
+              <strong>设置项 {{ index + 1 }}</strong>
+              <t-button
+                theme="danger"
+                variant="text"
+                size="small"
+                @click="form.settings.splice(index, 1)"
+                >移除</t-button
+              >
+            </div>
+            <t-form-item label="设置项目">
+              <t-select
+                v-model="setting.key"
+                :options="settingOptions"
+                @change="changeSettingKey(setting, $event)"
+              />
+            </t-form-item>
+            <t-form-item label="设置值">
+              <t-switch
+                v-if="definition(setting.key)?.type === 'boolean'"
+                v-model="setting.value"
+              />
+              <t-input-number
+                v-else-if="definition(setting.key)?.type === 'number'"
+                v-model="setting.value"
+                :min="definition(setting.key)?.min"
+                :max="definition(setting.key)?.max"
+              />
+              <t-select
+                v-else-if="definition(setting.key)?.options"
+                v-model="setting.value"
+                :options="definition(setting.key)?.options"
+              />
+              <t-textarea
+                v-else-if="definition(setting.key)?.type === 'string-list'"
+                v-model="setting.value"
+                :placeholder="definition(setting.key)?.placeholder"
+                :autosize="{ minRows: 3, maxRows: 6 }"
+              />
+              <t-input v-else v-model="setting.value" />
+            </t-form-item>
+          </section>
+        </div>
+        <t-button variant="dashed" block @click="addSetting">添加设置项</t-button>
+      </section>
+
+      <div class="policy-editor-footer">
+        <t-button theme="primary" type="submit" :loading="saving">保存策略</t-button>
+        <t-button variant="outline" @click="editorVisible = false">取消</t-button>
+      </div>
     </t-form>
   </t-dialog>
 
@@ -185,7 +209,8 @@
           multiple
           filterable
           clearable
-          value-mode="parentFirst"
+          check-strictly
+          value-mode="all"
         />
       </t-form-item>
       <t-form-item><t-button type="submit" :loading="saving">保存分配</t-button></t-form-item>
@@ -194,7 +219,12 @@
 </template>
 
 <script setup lang="ts">
-import { MANAGED_SETTING_KEYS, type ManagedSetting } from '@dsz-examaware/control-protocol';
+import {
+  MANAGED_SETTING_KEYS,
+  PLAYER_UI_DENSITY_VALUES,
+  managedSettingSchema,
+  type ManagedSetting
+} from '@dsz-examaware/control-protocol';
 import type { PrimaryTableCol, SelectOption, SubmitContext } from 'tdesign-vue-next';
 import { MessagePlugin } from 'tdesign-vue-next';
 import { computed, onMounted, reactive, ref } from 'vue';
@@ -218,10 +248,17 @@ import {
 type SettingDraft = { key: string; value: string | number | boolean };
 type SettingDefinition = {
   label: string;
-  type: 'string' | 'number' | 'boolean';
+  type: 'string' | 'number' | 'boolean' | 'string-list';
   min?: number;
   max?: number;
   options?: Array<{ label: string; value: string | number }>;
+  placeholder?: string;
+};
+type PlayerUiDensity = (typeof PLAYER_UI_DENSITY_VALUES)[number];
+const PLAYER_UI_DENSITY_LABELS: Record<PlayerUiDensity, string> = {
+  comfortable: '宽松',
+  cozy: '标准',
+  compact: '紧凑'
 };
 const SETTING_DEFINITIONS: Record<string, SettingDefinition> = {
   [MANAGED_SETTING_KEYS.appearanceTheme]: {
@@ -242,11 +279,9 @@ const SETTING_DEFINITIONS: Record<string, SettingDefinition> = {
   [MANAGED_SETTING_KEYS.playerUiDensity]: {
     label: '播放器密度',
     type: 'string',
-    options: [
-      { label: '紧凑', value: 'compact' },
-      { label: '标准', value: 'standard' },
-      { label: '宽松', value: 'comfortable' }
-    ]
+    options: [...PLAYER_UI_DENSITY_VALUES]
+      .reverse()
+      .map((value) => ({ label: PLAYER_UI_DENSITY_LABELS[value], value }))
   },
   [MANAGED_SETTING_KEYS.playerLargeClockEnabled]: { label: '启用大时钟', type: 'boolean' },
   [MANAGED_SETTING_KEYS.playerLargeClockScale]: {
@@ -262,6 +297,20 @@ const SETTING_DEFINITIONS: Record<string, SettingDefinition> = {
   },
   [MANAGED_SETTING_KEYS.controlPreventUnbind]: { type: 'boolean', label: '禁止解绑集控' },
   [MANAGED_SETTING_KEYS.controlPreventQuit]: { type: 'boolean', label: '禁止退出应用' },
+  [MANAGED_SETTING_KEYS.pluginPreventInstall]: {
+    label: '禁止安装插件',
+    type: 'boolean'
+  },
+  [MANAGED_SETTING_KEYS.pluginInstallBlacklist]: {
+    label: '禁止安装黑名单插件',
+    type: 'string-list',
+    placeholder: '每行一个插件包名，例如 @school/blocked-plugin'
+  },
+  [MANAGED_SETTING_KEYS.pluginInstallAllowlist]: {
+    label: '仅允许安装特定插件',
+    type: 'string-list',
+    placeholder: '每行一个允许安装的插件包名，例如 @school/allowed-plugin'
+  },
   [MANAGED_SETTING_KEYS.timeSyncNtpServer]: { label: 'NTP 服务器', type: 'string' },
   [MANAGED_SETTING_KEYS.timeSyncAutoSync]: { label: '自动时间同步', type: 'boolean' },
   [MANAGED_SETTING_KEYS.timeSyncIntervalMinutes]: {
@@ -327,6 +376,7 @@ function settingLabel(key: string) {
   return definition(key)?.label ?? key;
 }
 function formatValue(value: ManagedSetting['value']) {
+  if (Array.isArray(value)) return value.join('、');
   return typeof value === 'boolean' ? (value ? '是' : '否') : String(value);
 }
 function sourcePolicy(key: ManagedSetting['key']) {
@@ -334,6 +384,12 @@ function sourcePolicy(key: ManagedSetting['key']) {
     policy.settings.some((setting) => setting.key === key)
   );
 }
+function changeSettingKey(setting: SettingDraft, value: unknown) {
+  if (typeof value !== 'string') return;
+  setting.key = value;
+  resetSettingValue(setting);
+}
+
 function resetSettingValue(setting: SettingDraft) {
   const item = definition(setting.key);
   setting.value =
@@ -358,6 +414,21 @@ function openCreate() {
   addSetting();
   editorVisible.value = true;
 }
+function parsePluginNameList(value: SettingDraft['value']): string[] {
+  return String(value)
+    .split(/[\r\n,]+/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function toManagedSetting(setting: SettingDraft): ManagedSetting {
+  const value =
+    definition(setting.key)?.type === 'string-list'
+      ? parsePluginNameList(setting.value)
+      : setting.value;
+  return { key: setting.key, value } as ManagedSetting;
+}
+
 function openEdit(policy: DevicePolicyView) {
   editingId.value = policy.id;
   Object.assign(form, {
@@ -365,7 +436,10 @@ function openEdit(policy: DevicePolicyView) {
     description: policy.description,
     priority: policy.priority,
     enabled: policy.enabled,
-    settings: policy.settings.map((item) => ({ ...item }))
+    settings: policy.settings.map((item) => ({
+      ...item,
+      value: Array.isArray(item.value) ? item.value.join('\n') : item.value
+    }))
   });
   editorVisible.value = true;
 }
@@ -401,6 +475,14 @@ async function savePolicy(context: SubmitContext) {
     await MessagePlugin.warning('同一策略不能重复设置相同项目');
     return;
   }
+  const parsedSettings = managedSettingSchema
+    .array()
+    .max(20)
+    .safeParse(form.settings.map(toManagedSetting));
+  if (!parsedSettings.success) {
+    await MessagePlugin.warning('策略设置值不符合受管设置要求');
+    return;
+  }
   saving.value = true;
   try {
     const input = {
@@ -408,7 +490,7 @@ async function savePolicy(context: SubmitContext) {
       description: form.description,
       priority: form.priority,
       enabled: form.enabled,
-      settings: form.settings as ManagedSetting[]
+      settings: parsedSettings.data
     };
     if (editingId.value) await policiesApi.update(editingId.value, input);
     else await policiesApi.create(input);
@@ -453,3 +535,65 @@ async function loadEffective() {
 }
 onMounted(() => void loadAll());
 </script>
+
+<style scoped lang="less">
+.policy-editor-form {
+  max-height: min(72vh, 760px);
+  padding-right: var(--td-comp-paddingLR-s);
+  overflow-y: auto;
+}
+
+.managed-settings-section {
+  margin-top: var(--td-comp-margin-l);
+  padding-top: var(--td-comp-paddingTB-l);
+  border-top: 1px solid var(--td-border-level-1-color);
+
+  &__heading,
+  .managed-setting-item__heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--td-comp-margin-m);
+  }
+
+  &__heading {
+    margin-bottom: var(--td-comp-margin-l);
+
+    p {
+      margin: var(--td-comp-margin-xs) 0 0;
+      color: var(--td-text-color-secondary);
+    }
+  }
+}
+
+.managed-setting-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--td-comp-margin-l);
+  margin-bottom: var(--td-comp-margin-l);
+}
+
+.managed-setting-item {
+  padding: var(--td-comp-paddingTB-l) var(--td-comp-paddingLR-l) 0;
+  border: 1px solid var(--td-border-level-1-color);
+  border-radius: var(--td-radius-medium);
+  background: var(--td-bg-color-secondarycontainer);
+
+  &__heading {
+    margin-bottom: var(--td-comp-margin-m);
+  }
+}
+
+.policy-editor-footer {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--td-comp-margin-m);
+  margin-top: var(--td-comp-margin-xl);
+  padding: var(--td-comp-paddingTB-l) 0;
+  border-top: 1px solid var(--td-border-level-1-color);
+  background: var(--td-bg-color-container);
+}
+</style>

@@ -251,12 +251,18 @@ export class DevicesService {
   }
 
   private toView(record: DeviceRecord, partitions: DevicePartitionAssignment[]): DeviceView {
-    const connectionStatus =
-      record.lifecycleStatus === DEVICE_LIFECYCLE_STATUS.revoked
-        ? DEVICE_CONNECTION_STATUS.revoked
-        : this.connectionsService?.isOnline(record.id)
-          ? DEVICE_CONNECTION_STATUS.online
-          : deriveDeviceConnectionStatus(record);
+    let connectionStatus: DeviceConnectionStatus;
+    if (record.lifecycleStatus === DEVICE_LIFECYCLE_STATUS.revoked) {
+      connectionStatus = DEVICE_CONNECTION_STATUS.revoked;
+    } else if (this.connectionsService) {
+      connectionStatus = this.connectionsService.isOnline(record.id)
+        ? DEVICE_CONNECTION_STATUS.online
+        : record.lastSeenAt
+          ? DEVICE_CONNECTION_STATUS.offline
+          : DEVICE_CONNECTION_STATUS.neverConnected;
+    } else {
+      connectionStatus = deriveDeviceConnectionStatus(record);
+    }
     return { ...record, connectionStatus, partitions };
   }
 }

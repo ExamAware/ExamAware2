@@ -2,7 +2,6 @@
   <t-aside :class="sideNavClass">
     <t-menu
       class="side-nav-menu"
-      theme="dark"
       :value="active"
       :collapsed="isCompact"
       :expanded="expanded"

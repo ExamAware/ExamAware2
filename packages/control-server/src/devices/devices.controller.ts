@@ -10,7 +10,8 @@ import {
   Patch,
   Post,
   Put,
-  Query
+  Query,
+  Sse
 } from '@nestjs/common';
 import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Roles, Session } from '@thallesp/nestjs-better-auth';
@@ -21,13 +22,18 @@ import { ListDevicesQueryDto } from './dto/list-devices.dto.js';
 import { SetDevicePartitionsDto } from './dto/set-device-partitions.dto.js';
 import { ResolveDeviceTargetsDto } from './dto/resolve-device-targets.dto.js';
 import { UpdateDeviceDto } from './dto/update-device.dto.js';
+import { DeviceConnectionsService } from './device-connections.service.js';
 import { DevicesService } from './devices.service.js';
 
 @ApiTags('devices')
 @ApiCookieAuth('better-auth.session_token')
 @Controller({ path: 'devices', version: API_VERSION })
 export class DevicesController {
-  constructor(@Inject(DevicesService) private readonly devicesService: DevicesService) {}
+  constructor(
+    @Inject(DevicesService) private readonly devicesService: DevicesService,
+    @Inject(DeviceConnectionsService)
+    private readonly deviceConnectionsService: DeviceConnectionsService
+  ) {}
 
   @Get()
   @Roles(['admin', 'operator', 'viewer'])
@@ -42,6 +48,13 @@ export class DevicesController {
   @ApiOperation({ summary: 'Resolve direct devices and partition trees to a device snapshot' })
   resolveTargets(@Body() input: ResolveDeviceTargetsDto) {
     return this.devicesService.resolveTargets(input.deviceIds, input.partitionNodeIds);
+  }
+
+  @Sse('connection-events')
+  @Roles(['admin', 'operator', 'viewer'])
+  @ApiOperation({ summary: 'Stream device connection status changes' })
+  connectionEvents() {
+    return this.deviceConnectionsService.events();
   }
 
   @Get(':id')

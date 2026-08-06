@@ -1,6 +1,8 @@
 import {
+  CONTROL_CAPABILITY_NAMES,
   MANAGED_SETTING_KEYS,
   managedSettingSchema,
+  type DeviceCapabilities,
   type ManagedSetting
 } from '@dsz-examaware/control-protocol';
 import {
@@ -14,6 +16,7 @@ import { AuditService } from '../audit/audit.service.js';
 import { ControlOperationsService } from '../commands/control-operations.service.js';
 import { DatabaseService } from '../database/database.service.js';
 import { PartitionsRepository } from '../partitions/partitions.repository.js';
+import { DevicesRepository } from '../devices/devices.repository.js';
 import { PoliciesRepository } from './policies.repository.js';
 import type { DevicePolicyRecord } from './policies.repository.js';
 
@@ -31,6 +34,7 @@ export class PoliciesService {
     private readonly databaseService: DatabaseService,
     private readonly policiesRepository: PoliciesRepository,
     private readonly partitionsRepository: PartitionsRepository,
+    private readonly devicesRepository: DevicesRepository,
     private readonly auditService: AuditService,
     private readonly controlOperationsService: ControlOperationsService
   ) {}
@@ -232,17 +236,18 @@ export class PoliciesService {
       }
     }
 
+    const records = await this.devicesRepository.findByIds([...deviceIds]);
+    const capabilitiesByDevice = new Map(
+      records.map((record) => [record.id, record.lastCapabilities] as const)
+    );
     const groups = new Map<string, { settings: ManagedSetting[]; deviceIds: string[] }>();
     for (const deviceId of [...deviceIds].sort()) {
       const { settings } = await this.effectiveForDevice(deviceId);
-      const effectiveSettings: ManagedSetting[] = settings.some(
-        (setting) => setting.key === MANAGED_SETTING_KEYS.playerPreventControlSessionExit
-      )
-        ? settings
-        : [
-            ...settings,
-            { key: MANAGED_SETTING_KEYS.playerPreventControlSessionExit, value: false }
-          ];
+      const effectiveSettings = filterManagedSettingsForCapabilities(
+        withManagedSettingDefaults(settings),
+        capabilitiesByDevice.get(deviceId)
+      );
+      if (!effectiveSettings.length) continue;
       const signature = JSON.stringify(effectiveSettings);
       const group = groups.get(signature) ?? { settings: effectiveSettings, deviceIds: [] };
       group.deviceIds.push(deviceId);
@@ -296,6 +301,43 @@ function compareEffectivePolicies(left: EffectivePolicyView, right: EffectivePol
   if (left.priority !== right.priority) return right.priority - left.priority;
   const updated = right.updatedAt.getTime() - left.updatedAt.getTime();
   return updated || left.id.localeCompare(right.id);
+}
+
+const MANAGED_SETTING_DEFAULTS = [
+  { key: MANAGED_SETTING_KEYS.playerPreventControlSessionExit, value: false },
+  { key: MANAGED_SETTING_KEYS.controlPreventUnbind, value: false },
+  { key: MANAGED_SETTING_KEYS.controlPreventQuit, value: false },
+  { key: MANAGED_SETTING_KEYS.pluginPreventInstall, value: false },
+  { key: MANAGED_SETTING_KEYS.pluginInstallBlacklist, value: [] },
+  { key: MANAGED_SETTING_KEYS.pluginInstallAllowlist, value: [] }
+] satisfies ManagedSetting[];
+
+export function withManagedSettingDefaults(settings: ManagedSetting[]): ManagedSetting[] {
+  const definedKeys = new Set(settings.map((setting) => setting.key));
+  return [
+    ...settings,
+    ...MANAGED_SETTING_DEFAULTS.filter((setting) => !definedKeys.has(setting.key))
+  ];
+}
+
+export function filterManagedSettingsForCapabilities(
+  settings: ManagedSetting[],
+  capabilities: DeviceCapabilities | null | undefined
+): ManagedSetting[] {
+  if (
+    !capabilities?.commands.some(
+      (capability) =>
+        capability.name === CONTROL_CAPABILITY_NAMES.managedSettings && capability.version >= 1
+    )
+  ) {
+    return [];
+  }
+  const supportedKeys = new Set(
+    capabilities.managedSettings
+      .filter((capability) => capability.schemaVersion >= 1)
+      .map((capability) => capability.key)
+  );
+  return settings.filter((setting) => supportedKeys.has(setting.key));
 }
 
 function validateSettings(input: ManagedSetting[]): ManagedSetting[] {

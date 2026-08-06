@@ -10,23 +10,17 @@
     </PageHeader>
 
     <t-row class="exam-create-workspace" :gutter="[16, 16]" align="stretch">
-      <t-col :xs="12" :lg="3">
+      <t-col class="exam-create-col" :xs="12" :lg="3">
         <t-card class="exam-create-steps" title="创建流程" :bordered="false">
           <t-steps layout="vertical" :current="currentStep">
             <t-step-item title="考试档案" content="上传并校验 .ea2" />
             <t-step-item title="分配范围" content="选择设备和设备组" />
             <t-step-item title="确认发起" content="核对后创建考试" />
           </t-steps>
-          <t-divider />
-          <t-alert
-            theme="info"
-            title="安全提示"
-            message="档案会在服务端再次校验；准备命令只缓存考试，不会自动开始放映。"
-          />
         </t-card>
       </t-col>
 
-      <t-col :xs="12" :lg="9">
+      <t-col class="exam-create-col" :xs="12" :lg="9">
         <t-card class="exam-create-panel" :bordered="false">
           <template #title>
             <div class="exam-create-panel__heading">
@@ -36,42 +30,39 @@
           </template>
 
           <t-form v-if="currentStep === 0" :data="form" layout="vertical" @submit="nextFromFile">
-            <t-row :gutter="[16, 0]">
-              <t-col :xs="12" :md="7">
-                <t-form-item
-                  label="考试名称"
-                  name="name"
-                  :rules="[{ required: true, message: '请输入考试名称' }]"
-                >
-                  <t-input v-model="form.name" placeholder="默认使用档案中的考试名称" />
-                </t-form-item>
-              </t-col>
-              <t-col :xs="12" :md="5">
-                <t-form-item label="ExamAware 档案" name="files">
-                  <t-upload
-                    v-model="files"
-                    accept=".ea2,application/json"
-                    :auto-upload="false"
-                    :max="1"
-                    :size-limit="{ size: 10, unit: 'MB' }"
-                    :before-upload="beforeUpload"
-                    @change="readEa2File"
-                  >
-                    <t-button variant="outline">
-                      <template #icon><t-icon name="upload" /></template>
-                      选择 .ea2 文件
-                    </t-button>
-                  </t-upload>
-                </t-form-item>
-              </t-col>
-            </t-row>
+            <t-form-item
+              label="考试名称"
+              name="name"
+              :rules="[{ required: true, message: '请输入考试名称' }]"
+            >
+              <t-input v-model="form.name" placeholder="默认使用档案中的考试名称" />
+            </t-form-item>
+            <t-form-item label="ExamAware 档案" name="files">
+              <t-upload
+                v-model="files"
+                accept=".ea2,application/json"
+                :auto-upload="false"
+                :max="1"
+                :size-limit="{ size: 10, unit: 'MB' }"
+                :before-upload="beforeUpload"
+                @change="readEa2File"
+              >
+                <t-button variant="outline">
+                  <template #icon><t-icon name="upload" /></template>
+                  选择 .ea2 文件
+                </t-button>
+              </t-upload>
+            </t-form-item>
             <t-alert
               v-if="fileMessage"
+              class="exam-create-feedback"
               :theme="examConfig ? 'success' : 'error'"
               :message="fileMessage"
             />
             <div class="exam-create-footer">
-              <t-button type="submit" :disabled="!examConfig">下一步：分配范围</t-button>
+              <t-button theme="primary" type="submit" :disabled="!examConfig"
+                >下一步：分配范围</t-button
+              >
             </div>
           </t-form>
 
@@ -104,7 +95,9 @@
             <div class="exam-create-footer">
               <t-space>
                 <t-button variant="outline" @click="currentStep = 0">上一步</t-button>
-                <t-button type="submit" :disabled="targetResolving">下一步：确认发起</t-button>
+                <t-button theme="primary" type="submit" :disabled="targetResolving"
+                  >下一步：确认发起</t-button
+                >
               </t-space>
             </div>
           </t-form>
@@ -130,7 +123,9 @@
             <div class="exam-create-footer">
               <t-space>
                 <t-button variant="outline" @click="currentStep = 1">上一步</t-button>
-                <t-button :loading="submitting" @click="createExam">确认创建</t-button>
+                <t-button theme="primary" :loading="submitting" @click="createExam"
+                  >确认创建</t-button
+                >
               </t-space>
             </div>
           </div>
@@ -284,12 +279,20 @@ onMounted(() => void loadTargets());
 </script>
 
 <style scoped lang="less">
+.exam-create-col {
+  display: flex;
+}
+
 .exam-create-steps {
   position: sticky;
   top: var(--td-comp-margin-l);
+  width: 100%;
+  height: 100%;
 }
 
 .exam-create-panel {
+  width: 100%;
+  height: 100%;
   min-height: 560px;
 
   &__heading {
@@ -302,6 +305,10 @@ onMounted(() => void loadTargets());
       font: var(--td-font-body-small);
     }
   }
+}
+
+.exam-create-feedback {
+  margin-top: var(--td-comp-margin-l);
 }
 
 .exam-create-footer {

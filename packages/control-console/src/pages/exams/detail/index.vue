@@ -15,22 +15,16 @@
             <t-button v-if="canWrite" variant="outline" @click="editVisible = true"
               >编辑信息</t-button
             >
-            <t-button v-if="canWrite" variant="outline" @click="versionVisible = true"
+            <t-button v-if="canChangeDeployment" variant="outline" @click="versionVisible = true"
               >上传新版本</t-button
             >
-            <t-button v-if="canWrite" :loading="operating" @click="prepareExam">准备考试</t-button>
-            <t-button
-              v-if="canWrite && deployment"
-              theme="success"
-              :loading="operating"
-              @click="activateExam"
+            <t-button v-if="canPrepare" theme="primary" :loading="operating" @click="prepareExam"
+              >准备考试</t-button
+            >
+            <t-button v-if="canActivate" theme="success" :loading="operating" @click="activateExam"
               >开始放映</t-button
             >
-            <t-popconfirm
-              v-if="canWrite && deployment"
-              content="确认停止本次考试放映？"
-              @confirm="stopExam"
-            >
+            <t-popconfirm v-if="canStop" content="确认停止本次考试放映？" @confirm="stopExam">
               <t-button theme="danger" variant="outline">停止</t-button>
             </t-popconfirm>
           </t-space>
@@ -66,7 +60,9 @@
           <t-card class="exam-summary-card" title="部署进度" :bordered="false">
             <t-empty v-if="!deployment" description="尚未向设备下发">
               <template #action>
-                <t-button v-if="canWrite" variant="outline" @click="prepareExam">准备考试</t-button>
+                <t-button v-if="canPrepare" theme="primary" variant="outline" @click="prepareExam"
+                  >准备考试</t-button
+                >
               </template>
             </t-empty>
             <div v-else class="deployment-summary">
@@ -121,7 +117,7 @@
                   <strong>目标考场大屏</strong>
                   <p class="console-muted">查看设备连接状态与本次部署结果。</p>
                 </div>
-                <t-button v-if="canWrite" variant="outline" @click="editVisible = true"
+                <t-button v-if="canChangeDeployment" variant="outline" @click="editVisible = true"
                   >调整目标范围</t-button
                 >
               </div>
@@ -242,7 +238,10 @@
                     当前使用 v{{ exam.latestVersion }}，历史版本只读保留。
                   </p>
                 </div>
-                <t-button v-if="canWrite" variant="outline" @click="versionVisible = true"
+                <t-button
+                  v-if="canChangeDeployment"
+                  variant="outline"
+                  @click="versionVisible = true"
                   >上传新版本</t-button
                 >
               </div>
@@ -277,7 +276,7 @@
       >
         <t-input v-model="editForm.name" />
       </t-form-item>
-      <t-form-item label="目标考场大屏或设备组">
+      <t-form-item v-if="canChangeDeployment" label="目标考场大屏或设备组">
         <t-cascader
           v-model="editTargetValues"
           :options="targetOptions"
@@ -289,6 +288,11 @@
           placeholder="选择单台考场大屏或任意层级设备组"
         />
       </t-form-item>
+      <t-alert
+        v-else
+        theme="info"
+        message="考试正在准备或放映时只能修改名称；停止放映后才能调整目标范围。"
+      />
       <t-form-item
         ><t-space
           ><t-button type="submit" :loading="saving">保存</t-button
@@ -336,7 +340,11 @@ import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import DeviceFilterPanel from '@/components/device-filter-panel/index.vue';
 import PageHeader from '@/components/page-header/index.vue';
-import { devicesApi } from '@/api/control/devices';
+import {
+  applyDeviceConnectionStatus,
+  devicesApi,
+  type DeviceConnectionStatusEvent
+} from '@/api/control/devices';
 import { examConfigsApi } from '@/api/control/exam-configs';
 import { operationsApi } from '@/api/control/operations';
 import { partitionsApi } from '@/api/control/partitions';
@@ -375,6 +383,7 @@ let deploymentTimer: ReturnType<typeof setInterval> | undefined;
 let examStatusTimer: ReturnType<typeof setInterval> | undefined;
 let examStatusRefreshInFlight = false;
 let deploymentRefreshInFlight = false;
+let disposeConnectionEvents: (() => void) | undefined;
 function startScheduleClock() {
   scheduleTimer = setInterval(() => {
     scheduleNow.value = Date.now();
@@ -399,12 +408,26 @@ const broadcastForm = reactive({
   severity: BROADCAST_SEVERITY.info,
   expiresInSeconds: 300
 });
-const deployment = computed(() =>
-  commands.value.find(
+const deployment = computed(() => {
+  if (!exam.value || !['preparing', 'ready', 'active'].includes(exam.value.status))
+    return undefined;
+  return commands.value.find(
     (item) =>
       item.command.type === 'exam-config.prepare' &&
       item.command.payload.examConfigId === exam.value?.id
-  )
+  );
+});
+const canChangeDeployment = computed(
+  () => canWrite.value && !['preparing', 'active'].includes(exam.value?.status ?? 'draft')
+);
+const canPrepare = computed(
+  () => canWrite.value && ['draft', 'completed'].includes(exam.value?.status ?? '')
+);
+const canActivate = computed(
+  () => canWrite.value && exam.value?.status === 'ready' && Boolean(deployment.value)
+);
+const canStop = computed(
+  () => canWrite.value && exam.value?.status === 'active' && Boolean(deployment.value)
 );
 const assignedDevices = computed(() => resolvedAssignedDevices.value);
 const filteredAssignedDevices = computed(() =>
@@ -573,6 +596,11 @@ async function resolveAssignedDevices() {
   );
 }
 
+function handleConnectionStatus(event: DeviceConnectionStatusEvent) {
+  applyDeviceConnectionStatus(devices.value, event);
+  applyDeviceConnectionStatus(resolvedAssignedDevices.value, event);
+}
+
 function targetResult(deviceId: string): CommandTargetView | undefined {
   return deployment.value?.targets.find((item) => item.deviceId === deviceId);
 }
@@ -607,6 +635,7 @@ async function load() {
   }
 }
 onUnmounted(() => {
+  disposeConnectionEvents?.();
   clearInterval(scheduleTimer);
   clearInterval(examStatusTimer);
   stopDeploymentPolling();
@@ -617,8 +646,12 @@ async function saveExam(context: SubmitContext) {
   try {
     exam.value = await examConfigsApi.update(exam.value.id, {
       name: editForm.name,
-      assignedDeviceIds: editForm.deviceIds,
-      assignedPartitionNodeIds: editForm.partitionNodeIds
+      ...(canChangeDeployment.value
+        ? {
+            assignedDeviceIds: editForm.deviceIds,
+            assignedPartitionNodeIds: editForm.partitionNodeIds
+          }
+        : {})
     });
     await resolveAssignedDevices();
     editVisible.value = false;
@@ -695,7 +728,7 @@ async function prepareExam() {
   }
 }
 async function activateExam() {
-  if (!deployment.value) return;
+  if (!canActivate.value || !deployment.value) return;
   operating.value = true;
   try {
     await operationsApi.activateExam(deployment.value.id);
@@ -708,7 +741,7 @@ async function activateExam() {
   }
 }
 async function stopExam() {
-  if (!deployment.value) return;
+  if (!canStop.value || !deployment.value) return;
   operating.value = true;
   try {
     await operationsApi.stopExam(deployment.value.id, 300, '控制台停止考试');
@@ -748,6 +781,7 @@ async function sendBroadcast(context: SubmitContext) {
 }
 
 onMounted(() => {
+  disposeConnectionEvents = devicesApi.subscribeConnectionEvents(handleConnectionStatus);
   startScheduleClock();
   examStatusTimer = setInterval(() => void refreshExamStatus(), 2_000);
   void load();

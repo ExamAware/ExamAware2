@@ -289,6 +289,28 @@ export class ControlService {
     return this.managedValues.get(MANAGED_SETTING_KEYS.controlPreventQuit) === true
   }
 
+  assertPluginInstallAllowed(pluginName?: string): void {
+    if (this.managedValues.get(MANAGED_SETTING_KEYS.pluginPreventInstall) === true) {
+      throw new Error('集控策略禁止安装插件')
+    }
+    if (!pluginName) return
+
+    const normalizedName = pluginName.trim().toLowerCase()
+    const blacklist = this.managedValues.get(MANAGED_SETTING_KEYS.pluginInstallBlacklist)
+    if (pluginNameListIncludes(blacklist, normalizedName)) {
+      throw new Error(`插件 ${pluginName} 已被集控策略列入安装黑名单`)
+    }
+
+    const allowlist = this.managedValues.get(MANAGED_SETTING_KEYS.pluginInstallAllowlist)
+    if (
+      Array.isArray(allowlist) &&
+      allowlist.length > 0 &&
+      !pluginNameListIncludes(allowlist, normalizedName)
+    ) {
+      throw new Error(`集控策略仅允许安装指定插件，${pluginName} 不在允许列表中`)
+    }
+  }
+
   reportManagedTamper(detail: string): void {
     if (!this.agent?.getRegistration()) return
     void this.agent
@@ -324,6 +346,13 @@ export class ControlService {
     }
     return this.apiClient
   }
+}
+
+function pluginNameListIncludes(value: unknown, normalizedName: string): boolean {
+  return (
+    Array.isArray(value) &&
+    value.some((item) => typeof item === 'string' && item.trim().toLowerCase() === normalizedName)
+  )
 }
 
 function toDesktopConfigKey(key: string): string {

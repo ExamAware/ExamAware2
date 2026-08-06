@@ -13,7 +13,7 @@
     </PageHeader>
 
     <t-row class="partition-workspace" :gutter="[16, 16]" align="stretch">
-      <t-col :xs="12" :lg="4">
+      <t-col class="partition-col" :xs="12" :lg="4">
         <t-card class="partition-sidebar" title="设备分组" :bordered="false">
           <div class="dimension-toolbar">
             <t-select
@@ -128,7 +128,7 @@
         </t-card>
       </t-col>
 
-      <t-col :xs="12" :lg="8">
+      <t-col class="partition-col" :xs="12" :lg="8">
         <t-card
           class="device-table-card"
           :title="activeNode ? `${activeNode.name}中的考场大屏` : '分组内考场大屏'"
@@ -345,11 +345,15 @@ import type {
   TreeNodeValue
 } from 'tdesign-vue-next';
 import { MessagePlugin } from 'tdesign-vue-next';
-import { computed, onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 import DeviceFilterPanel from '@/components/device-filter-panel/index.vue';
 import DeviceOperationButtons from '@/components/device-operation-buttons/index.vue';
 import PageHeader from '@/components/page-header/index.vue';
-import { devicesApi } from '@/api/control/devices';
+import {
+  applyDeviceConnectionStatus,
+  devicesApi,
+  type DeviceConnectionStatusEvent
+} from '@/api/control/devices';
 import { partitionsApi } from '@/api/control/partitions';
 import type {
   DeviceConnectionStatus,
@@ -391,6 +395,7 @@ const rotatedCredential = ref<RotatedDeviceCredential>();
 const deviceActionVisible = ref(false);
 const confirmingDeviceAction = ref(false);
 const pendingDeviceAction = ref<PendingDeviceAction>();
+let disposeConnectionEvents: (() => void) | undefined;
 const activeNodeValues = ref<TreeNodeValue[]>([]);
 const loading = ref(false);
 const detailLoading = ref(false);
@@ -815,14 +820,55 @@ function formatDateTime(value: string | null) {
   return value ? new Date(value).toLocaleString('zh-CN') : '从未连接';
 }
 
-onMounted(() => void loadBase());
+function handleConnectionStatus(event: DeviceConnectionStatusEvent) {
+  applyDeviceConnectionStatus(devices.value, event);
+}
+
+onMounted(() => {
+  disposeConnectionEvents = devicesApi.subscribeConnectionEvents(handleConnectionStatus);
+  void loadBase();
+});
+onUnmounted(() => disposeConnectionEvents?.());
 </script>
 
 <style scoped>
+.partition-workspace {
+  height: calc(100vh - 265px);
+  min-height: 620px;
+  overflow: hidden;
+}
+
+.partition-col {
+  display: flex;
+  min-height: 0;
+}
+
+.partition-sidebar,
+.device-table-card {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 .partition-sidebar {
   position: sticky;
   top: 0;
-  min-height: 620px;
+}
+
+:deep(.partition-sidebar .t-card__body) {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+}
+:deep(.device-table-card .t-card__body) {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .dimension-toolbar,
@@ -843,12 +889,15 @@ onMounted(() => void loadBase());
 }
 
 .tree-loading {
-  display: block;
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
 }
 
 .partition-tree-scroll {
-  max-height: calc(100vh - 330px);
-  min-height: 360px;
+  min-height: 0;
+  flex: 1;
   overflow: auto;
 }
 
@@ -862,10 +911,30 @@ onMounted(() => void loadBase());
   opacity: 1;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 1199px) {
+  .partition-workspace {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .partition-col {
+    display: block;
+  }
+
+  .partition-sidebar,
+  .device-table-card {
+    height: auto;
+    overflow: visible;
+  }
+
   .partition-sidebar {
     position: static;
-    min-height: auto;
+  }
+
+  :deep(.partition-sidebar .t-card__body),
+  :deep(.device-table-card .t-card__body) {
+    overflow: visible;
   }
 
   .partition-tree-scroll {

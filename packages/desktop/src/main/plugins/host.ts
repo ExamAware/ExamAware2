@@ -636,6 +636,7 @@ export class PluginHost extends EventEmitter {
     ipc.handle(ipcChannels.plugins.installRegistry, async (_event, payload) => {
       const pkg = payload?.pkg?.trim()
       if (!pkg) throw new Error('缺少包名')
+      this.assertPluginInstallAllowed(pkg)
       return this.registryInstaller.installFromRegistry(pkg, {
         versionRange: payload?.versionRange,
         registry: payload?.registry,
@@ -665,6 +666,10 @@ export class PluginHost extends EventEmitter {
     })
   }
 
+  private assertPluginInstallAllowed(pluginName?: string) {
+    this.options.assertPluginInstallAllowed?.(pluginName)
+  }
+
   private getUserPluginsDir() {
     return this.options.pluginDirectories?.[0]
   }
@@ -677,10 +682,12 @@ export class PluginHost extends EventEmitter {
   }
 
   async installFromDirectory(srcDir: string) {
+    this.assertPluginInstallAllowed()
     const dir = await this.ensureWritableDir()
     const normalized = path.resolve(srcDir)
     const manifest = await loadManifestFromPackage(normalized)
     if (!manifest) throw new Error('该目录不是有效的 ExamAware 插件')
+    this.assertPluginInstallAllowed(manifest.name)
     this.ensureDependenciesSatisfied(manifest)
 
     const nameCandidate = manifest.name ? String(manifest.name).split('/').pop() : undefined
@@ -695,6 +702,7 @@ export class PluginHost extends EventEmitter {
   }
 
   async installPackage(filePath: string) {
+    this.assertPluginInstallAllowed()
     const dir = await this.ensureWritableDir()
     const pkgName = path.basename(filePath, path.extname(filePath))
     const targetDir = path.join(dir, pkgName)
@@ -705,13 +713,16 @@ export class PluginHost extends EventEmitter {
     const zip = new AdmZip(filePath)
     zip.extractAllTo(targetDir, true)
 
-    const manifest = await loadManifestFromPackage(targetDir)
-    if (!manifest) {
+    try {
+      const manifest = await loadManifestFromPackage(targetDir)
+      if (!manifest) throw new Error('插件包不包含有效的 ExamAware 插件')
+      this.assertPluginInstallAllowed(manifest.name)
+      this.ensureDependenciesSatisfied(manifest)
+      return targetDir
+    } catch (error) {
       await fsp.rm(targetDir, { recursive: true, force: true })
-      throw new Error('插件包不包含有效的 ExamAware 插件')
+      throw error
     }
-    this.ensureDependenciesSatisfied(manifest)
-    return targetDir
   }
 
   private resolveEnabled(manifest: ResolvedPluginManifest) {

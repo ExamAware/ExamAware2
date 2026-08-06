@@ -3,23 +3,15 @@
     <div class="result-slot-container">
       <t-button class="result-button" @click="router.push('/')">回到首页</t-button>
       <div class="recommend-container">
-        <div>TDesign Starter 推荐以下主流浏览器</div>
+        <div>推荐使用以下主流浏览器，点击图标可跳转下载</div>
         <div class="recommend-browser">
-          <div>
+          <div @click="router.push('https://www.google.cn/chrome/')">
             <img
               class="browser-icon"
               src="https://tdesign.gtimg.com/starter/result-page/chorme.png"
               alt="Chrome"
             />
             <div>Chrome</div>
-          </div>
-          <div>
-            <img
-              class="browser-icon"
-              src="https://tdesign.gtimg.com/starter/result-page/qq-browser.png"
-              alt="QQ Browser"
-            />
-            <div>QQ Browser</div>
           </div>
         </div>
       </div>

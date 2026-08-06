@@ -300,6 +300,29 @@ describe('control protocol schemas', () => {
     }
   });
 
+  it('validates managed plugin installation policies', () => {
+    const revision = '908122a7-7ec1-49d1-aacf-4a99bb3e928d';
+    const settings = [
+      { key: MANAGED_SETTING_KEYS.pluginPreventInstall, value: true },
+      { key: MANAGED_SETTING_KEYS.pluginInstallBlacklist, value: ['@school/blocked-plugin'] },
+      { key: MANAGED_SETTING_KEYS.pluginInstallAllowlist, value: ['@school/allowed-plugin'] }
+    ];
+
+    expect(settingsApplyPayloadSchema.parse({ revision, settings }).settings).toEqual(settings);
+    expect(() =>
+      settingsApplyPayloadSchema.parse({
+        revision,
+        settings: [{ key: MANAGED_SETTING_KEYS.pluginInstallBlacklist, value: ['same', 'same'] }]
+      })
+    ).toThrow('Plugin package names must be unique');
+    expect(() =>
+      settingsApplyPayloadSchema.parse({
+        revision,
+        settings: [{ key: MANAGED_SETTING_KEYS.pluginInstallAllowlist, value: 'plugin' }]
+      })
+    ).toThrow();
+  });
+
   it('advertises fixed JSON codec, message size and close-code semantics', () => {
     expect(
       helloAcceptedMessageSchema.parse({

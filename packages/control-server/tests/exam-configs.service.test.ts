@@ -120,6 +120,90 @@ describe('ExamConfigsService', () => {
       })
     );
   });
+
+  it('returns a prepared exam to draft when deployment targets change', async () => {
+    const current = {
+      id: crypto.randomUUID(),
+      name: 'Prepared exam',
+      status: 'ready',
+      assignedDeviceIds: ['e6503db2-4e90-4c08-b886-aa40433e6c76'],
+      assignedPartitionNodeIds: [],
+      latestVersion: 1,
+      deletedAt: null
+    } as ExamConfigRecord;
+    const updated = {
+      ...current,
+      status: 'draft' as const,
+      assignedPartitionNodeIds: ['8ecf6b4d-6902-499c-8218-25be0a491495']
+    };
+    const update = vi.fn().mockResolvedValue(updated);
+    const context = createService({
+      lockById: vi.fn().mockResolvedValue(current),
+      update,
+      findById: vi.fn().mockResolvedValue(updated),
+      findVersion: vi
+        .fn()
+        .mockResolvedValue({ id: crypto.randomUUID() } as ExamConfigVersionRecord),
+      listVersions: vi.fn().mockResolvedValue([])
+    });
+
+    const result = await context.service.update(
+      current.id,
+      { assignedPartitionNodeIds: updated.assignedPartitionNodeIds },
+      { actorUserId, requestId }
+    );
+
+    expect(update).toHaveBeenCalledWith(
+      context.transaction,
+      current.id,
+      expect.objectContaining({
+        assignedPartitionNodeIds: updated.assignedPartitionNodeIds,
+        status: 'draft'
+      })
+    );
+    expect(result.status).toBe('draft');
+  });
+
+  it('requires preparation again after a new exam version is created', async () => {
+    const current = {
+      id: crypto.randomUUID(),
+      name: 'Prepared exam',
+      status: 'ready',
+      latestVersion: 1,
+      deletedAt: null
+    } as ExamConfigRecord;
+    const version = {
+      id: crypto.randomUUID(),
+      examConfigId: current.id,
+      version: 2,
+      contentHash: 'a'.repeat(64)
+    } as ExamConfigVersionRecord;
+    const update = vi.fn().mockResolvedValue({ ...current, status: 'draft' });
+    const context = createService({
+      lockById: vi.fn().mockResolvedValue(current),
+      addVersion: vi.fn().mockResolvedValue(version),
+      update
+    });
+
+    await context.service.createVersion(
+      current.id,
+      {
+        examName: 'Prepared exam',
+        message: '',
+        examInfos: [
+          {
+            name: 'Session',
+            start: '2026-08-04 08:00',
+            end: '2026-08-04 09:00',
+            alertTime: 15
+          }
+        ]
+      },
+      { actorUserId, requestId }
+    );
+
+    expect(update).toHaveBeenCalledWith(context.transaction, current.id, { status: 'draft' });
+  });
   it('allows a prepared but inactive exam to be deleted', async () => {
     const current = {
       id: crypto.randomUUID(),

@@ -1,8 +1,13 @@
-import { MANAGED_SETTING_KEYS } from '@dsz-examaware/control-protocol';
+import {
+  CURRENT_CONTROL_CAPABILITIES,
+  CURRENT_MANAGED_SETTING_CAPABILITIES,
+  MANAGED_SETTING_KEYS
+} from '@dsz-examaware/control-protocol';
 import { describe, expect, it, vi } from 'vitest';
 import type { AuditService } from '../src/audit/audit.service.js';
 import type { ControlOperationsService } from '../src/commands/control-operations.service.js';
 import type { DatabaseService } from '../src/database/database.service.js';
+import type { DevicesRepository } from '../src/devices/devices.repository.js';
 import type { PartitionsRepository } from '../src/partitions/partitions.repository.js';
 import type {
   DevicePolicyRecord,
@@ -39,12 +44,14 @@ function createService(
     databaseService?: Partial<DatabaseService>;
     auditService?: Partial<AuditService>;
     controlOperationsService?: Partial<ControlOperationsService>;
+    devicesRepository?: Partial<DevicesRepository>;
   } = {}
 ) {
   return new PoliciesService(
     (options.databaseService ?? {}) as DatabaseService,
     policiesRepository as PoliciesRepository,
     partitionsRepository as PartitionsRepository,
+    (options.devicesRepository ?? {}) as DevicesRepository,
     (options.auditService ?? {}) as AuditService,
     (options.controlOperationsService ?? {}) as ControlOperationsService
   );
@@ -133,11 +140,47 @@ describe('PoliciesService effective settings', () => {
   });
 });
 
+describe('PoliciesService policy validation', () => {
+  it('accepts the managed unbind restriction from the shared registry', async () => {
+    const settings = [{ key: MANAGED_SETTING_KEYS.controlPreventUnbind, value: true }] as const;
+    const created = policy('unbind-policy', 100, [...settings]);
+    const policiesRepository = {
+      create: vi.fn().mockResolvedValue(created)
+    };
+    const service = createService(
+      policiesRepository,
+      {},
+      {
+        databaseService: {
+          transaction: vi.fn(async (work) => work({}))
+        } as unknown as DatabaseService,
+        auditService: { record: vi.fn().mockResolvedValue(undefined) }
+      }
+    );
+
+    await expect(
+      service.create(
+        {
+          name: created.name,
+          description: created.description,
+          priority: created.priority,
+          enabled: created.enabled,
+          settings: [...settings]
+        },
+        {
+          actorUserId: 'admin-user',
+          requestId: '3f7ed739-1168-4370-a671-a26235475362'
+        }
+      )
+    ).resolves.toMatchObject({ settings });
+  });
+});
+
 describe('PoliciesService policy synchronization', () => {
-  it('pushes the updated effective theme to targeted devices immediately', async () => {
+  it('pushes the unbind restriction while omitting settings unsupported by an older client', async () => {
     const deviceId = 'e6503db2-4e90-4c08-b886-aa40433e6c76';
-    const updated = policy('theme-policy', 100, [
-      { key: MANAGED_SETTING_KEYS.appearanceTheme, value: 'dark' }
+    const updated = policy('unbind-policy', 100, [
+      { key: MANAGED_SETTING_KEYS.controlPreventUnbind, value: true }
     ]);
     const policiesRepository = {
       update: vi.fn().mockResolvedValue(updated),
@@ -155,7 +198,20 @@ describe('PoliciesService policy synchronization', () => {
         transaction: vi.fn(async (work) => work({}))
       } as unknown as DatabaseService,
       auditService: { record: vi.fn().mockResolvedValue(undefined) },
-      controlOperationsService: { applyPolicySettings }
+      controlOperationsService: { applyPolicySettings },
+      devicesRepository: {
+        findByIds: vi.fn().mockResolvedValue([
+          {
+            id: deviceId,
+            lastCapabilities: {
+              commands: [...CURRENT_CONTROL_CAPABILITIES],
+              managedSettings: CURRENT_MANAGED_SETTING_CAPABILITIES.filter(
+                (capability) => !capability.key.startsWith('plugins.')
+              )
+            }
+          }
+        ])
+      }
     });
     const context = {
       actorUserId: 'admin-user',
@@ -167,7 +223,8 @@ describe('PoliciesService policy synchronization', () => {
     expect(applyPolicySettings).toHaveBeenCalledWith(
       [
         ...updated.settings,
-        { key: MANAGED_SETTING_KEYS.playerPreventControlSessionExit, value: false }
+        { key: MANAGED_SETTING_KEYS.playerPreventControlSessionExit, value: false },
+        { key: MANAGED_SETTING_KEYS.controlPreventQuit, value: false }
       ],
       [deviceId],
       context

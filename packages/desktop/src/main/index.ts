@@ -296,6 +296,8 @@ app.whenReady().then(async () => {
       ctx: _mainCtx,
       pluginDirectories,
       preferences: preferenceStore,
+      assertPluginInstallAllowed: (pluginName) =>
+        controlService.assertPluginInstallAllowed(pluginName),
       logger: {
         info: (...args: any[]) => appLogger.info(fmt('[PluginHost]', ...args)),
         warn: (...args: any[]) => appLogger.warn(fmt('[PluginHost]', ...args)),

@@ -105,12 +105,19 @@ export class ExamConfigsService {
           message: 'Exam configuration not found'
         });
       }
+      if (config.status === 'active' || config.status === 'preparing') {
+        throw new BadRequestException({
+          code: 'exam_in_progress',
+          message: 'Stop the active exam before uploading a new version'
+        });
+      }
       const version = await this.examConfigsRepository.addVersion(
         transaction,
         config,
         context.actorUserId,
         validatedVersion
       );
+      await this.examConfigsRepository.update(transaction, id, { status: 'draft' });
       await this.auditService.record(transaction, {
         actorUserId: context.actorUserId,
         action: 'exam-config.version-created',
@@ -147,15 +154,31 @@ export class ExamConfigsService {
       });
     }
     await this.databaseService.transaction(async (transaction) => {
+      const current = await this.examConfigsRepository.lockById(transaction, id);
+      if (!current || current.deletedAt) throw this.notFound();
+      const assignedDeviceIds =
+        patch.assignedDeviceIds === undefined
+          ? current.assignedDeviceIds
+          : [...new Set(patch.assignedDeviceIds)];
+      const assignedPartitionNodeIds =
+        patch.assignedPartitionNodeIds === undefined
+          ? current.assignedPartitionNodeIds
+          : [...new Set(patch.assignedPartitionNodeIds)];
+      const targetsChanged =
+        !sameIds(assignedDeviceIds, current.assignedDeviceIds) ||
+        !sameIds(assignedPartitionNodeIds, current.assignedPartitionNodeIds);
+      if (targetsChanged && ['preparing', 'active'].includes(current.status)) {
+        throw new BadRequestException({
+          code: 'exam_in_progress',
+          message: 'Stop the active exam before changing deployment targets'
+        });
+      }
       const updated = await this.examConfigsRepository.update(transaction, id, {
         ...patch,
         ...(patch.name ? { name: patch.name.trim() } : {}),
-        ...(patch.assignedDeviceIds
-          ? { assignedDeviceIds: [...new Set(patch.assignedDeviceIds)] }
-          : {}),
-        ...(patch.assignedPartitionNodeIds
-          ? { assignedPartitionNodeIds: [...new Set(patch.assignedPartitionNodeIds)] }
-          : {})
+        ...(patch.assignedDeviceIds !== undefined ? { assignedDeviceIds } : {}),
+        ...(patch.assignedPartitionNodeIds !== undefined ? { assignedPartitionNodeIds } : {}),
+        ...(targetsChanged ? { status: 'draft' } : {})
       });
       if (!updated) throw this.notFound();
       await this.auditService.record(transaction, {
@@ -235,4 +258,8 @@ export class ExamConfigsService {
     const contentHash = createExamConfigArtifactBytes(normalized).sha256;
     return { content: normalized, contentHash, validationIssues: result.issues };
   }
+}
+
+function sameIds(left: string[], right: string[]): boolean {
+  return left.length === right.length && left.every((id) => right.includes(id));
 }

@@ -84,7 +84,11 @@ function createService(options: {
 }) {
   return new ControlOperationsService(
     options.commands as ControlCommandsService,
-    { setStatus: vi.fn(), ...options.examConfigs } as ExamConfigsRepository
+    {
+      findById: vi.fn().mockResolvedValue({ id: examConfigId, status: 'ready' }),
+      setStatus: vi.fn(),
+      ...options.examConfigs
+    } as ExamConfigsRepository
   );
 }
 
@@ -228,6 +232,27 @@ describe('ControlOperationsService', () => {
     await expect(
       service.activateExam(deploymentId, { expiresInSeconds: 300 }, context)
     ).rejects.toBeInstanceOf(BadRequestException);
+    expect(issue).not.toHaveBeenCalled();
+  });
+
+  it('rejects reactivation after a deployment has been stopped', async () => {
+    const issue = vi.fn();
+    const service = createService({
+      commands: {
+        get: vi.fn().mockResolvedValue(prepareView()),
+        successfulDeviceIds: vi.fn().mockResolvedValue([firstDeviceId]),
+        issue
+      },
+      examConfigs: {
+        findById: vi.fn().mockResolvedValue({ id: examConfigId, status: 'completed' })
+      }
+    });
+
+    await expect(
+      service.activateExam(deploymentId, { expiresInSeconds: 300 }, context)
+    ).rejects.toMatchObject({
+      response: { message: 'Exam must be prepared again before activation' }
+    });
     expect(issue).not.toHaveBeenCalled();
   });
 

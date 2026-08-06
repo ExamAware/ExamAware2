@@ -156,6 +156,7 @@ const finishWizard = () => window.api.windows.closeCurrent()
 
 .bind-control-wizard h2 {
   margin: 0 0 28px;
+  color: var(--td-text-color-primary);
 }
 
 .wizard-content {

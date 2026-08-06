@@ -17,8 +17,12 @@ const snapshot: ControlStatusSnapshot = {
     code: 'protocol_version_unsupported',
     message: '集控服务端协议版本与客户端不兼容'
   },
-  managedSettingKeys: ['player.uiScale', 'control.preventUnbind', 'control.preventQuit']
+  managedSettingKeys: ['player.uiScale', 'control.preventQuit']
 }
+
+let controlEventListener:
+  | ((event: { type: 'state-changed'; snapshot: ControlStatusSnapshot }) => void)
+  | undefined
 
 const PassThrough = defineComponent({
   inheritAttrs: false,
@@ -43,7 +47,10 @@ describe('ControlSettings', () => {
           enroll: vi.fn(),
           clearEnrollment: vi.fn(),
           callProctor: vi.fn(),
-          onEvent: vi.fn().mockReturnValue(() => {})
+          onEvent: vi.fn().mockImplementation((listener) => {
+            controlEventListener = listener
+            return () => {}
+          })
         },
         config: {
           get: vi
@@ -84,8 +91,24 @@ describe('ControlSettings', () => {
     )
     expect(wrapper.text()).toContain('界面缩放')
     expect(wrapper.text()).toContain('由集控中心管理，禁止编辑')
-    expect(wrapper.text()).toContain('禁止解绑集控')
     expect(wrapper.text()).toContain('禁止退出应用')
+    expect(
+      wrapper.findAll('[theme="danger"]').some((element) => element.text().trim() === '解绑')
+    ).toBe(true)
+
+    controlEventListener?.({
+      type: 'state-changed',
+      snapshot: {
+        ...snapshot,
+        managedSettingKeys: [...snapshot.managedSettingKeys, 'control.preventUnbind']
+      }
+    })
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('禁止解绑集控')
     expect(wrapper.text()).toContain('集控中心已启用「禁止解绑」策略')
+    expect(
+      wrapper.findAll('[theme="danger"]').some((element) => element.text().trim() === '解绑')
+    ).toBe(false)
   })
 })

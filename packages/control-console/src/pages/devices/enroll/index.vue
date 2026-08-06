@@ -20,53 +20,37 @@
           <t-divider />
 
           <t-form v-if="step === 0" :data="form" layout="vertical" @submit="createCode">
-            <t-row :gutter="[16, 0]">
-              <t-col :xs="12" :md="7">
-                <t-form-item label="设备名称">
-                  <t-input
-                    v-model="form.displayName"
-                    placeholder="例如：A301-考场大屏；留空时由客户端上报"
-                  />
-                </t-form-item>
-              </t-col>
-              <t-col :xs="12" :md="5">
-                <t-form-item label="预分配设备组">
-                  <t-cascader
-                    :value="form.partitionNodeIds"
-                    :options="nodeOptions"
-                    :popup-props="WIDE_CASCADER_POPUP_PROPS"
-                    multiple
-                    filterable
-                    clearable
-                    value-mode="parentFirst"
-                    @change="handlePartitionChange"
-                  />
-                </t-form-item>
-              </t-col>
-            </t-row>
-            <t-row :gutter="[16, 0]">
-              <t-col :xs="12" :sm="6">
-                <t-form-item label="有效时间">
-                  <t-input-number
-                    v-model="form.expiresInMinutes"
-                    :min="1"
-                    :max="10080"
-                    suffix="分钟"
-                  />
-                </t-form-item>
-              </t-col>
-              <t-col :xs="12" :sm="6">
-                <t-form-item label="允许使用次数">
-                  <t-input-number v-model="form.maxUses" :min="1" :max="100" />
-                </t-form-item>
-              </t-col>
-            </t-row>
+            <t-form-item label="设备名称">
+              <t-input
+                v-model="form.displayName"
+                placeholder="例如：A301-考场大屏；留空时由客户端上报"
+              />
+            </t-form-item>
+            <t-form-item label="预分配设备组">
+              <t-cascader
+                :value="form.partitionNodeIds"
+                :options="nodeOptions"
+                :popup-props="WIDE_CASCADER_POPUP_PROPS"
+                multiple
+                filterable
+                clearable
+                value-mode="parentFirst"
+                @change="handlePartitionChange"
+              />
+            </t-form-item>
+            <t-form-item label="有效时间">
+              <t-input-number v-model="form.expiresInMinutes" :min="1" :max="10080" suffix="分钟" />
+            </t-form-item>
+            <t-form-item label="允许使用次数">
+              <t-input-number v-model="form.maxUses" :min="1" :max="100" />
+            </t-form-item>
             <t-alert
+              class="enrollment-alert"
               theme="info"
               message="单台设备建议保持 1 次。批量部署同一机房时可增加使用次数，并在部署完成后立即撤销。"
             />
             <div class="enrollment-footer">
-              <t-button type="submit" :loading="submitting">生成注册码</t-button>
+              <t-button theme="primary" type="submit" :loading="submitting">生成注册码</t-button>
             </div>
           </t-form>
 
@@ -80,7 +64,7 @@
             />
             <t-space>
               <t-button variant="outline" @click="copyCode">复制注册码</t-button>
-              <t-button @click="step = 2">我已在客户端输入</t-button>
+              <t-button theme="primary" @click="step = 2">我已在客户端输入</t-button>
             </t-space>
           </div>
 
@@ -94,7 +78,7 @@
                 }}
               </p>
               <t-space>
-                <t-button @click="router.push('/devices/list')">查看设备</t-button>
+                <t-button theme="primary" @click="router.push('/devices/list')">查看设备</t-button>
                 <t-button variant="outline" @click="restart">继续注册</t-button>
               </t-space>
             </template>
@@ -102,7 +86,7 @@
               <t-loading size="large" text="等待客户端完成注册" />
               <p>页面每 5 秒自动检查新设备，也可以手动刷新。</p>
               <t-space>
-                <t-button variant="outline" @click="checkDevices">立即检查</t-button>
+                <t-button theme="primary" @click="checkDevices">立即检查</t-button>
                 <t-button theme="danger" variant="text" @click="revokeCode">撤销注册码</t-button>
               </t-space>
             </template>
@@ -297,8 +281,12 @@ onUnmounted(() => {
   overflow: auto;
 }
 
+.enrollment-alert {
+  margin-top: var(--td-comp-margin-m);
+}
+
 .enrollment-footer {
-  margin-top: var(--td-comp-margin-xxl);
+  margin-top: var(--td-comp-margin-xl);
   padding-top: var(--td-comp-paddingTB-l);
   display: flex;
   justify-content: flex-end;

@@ -92,6 +92,13 @@ export class ControlOperationsService {
     context: WriteContext
   ): Promise<ControlCommandView> {
     const prepare = await this.requirePrepareCommand(deploymentId);
+    const exam = await this.examConfigsRepository.findById(prepare.command.payload.examConfigId);
+    if (!exam || exam.status !== 'ready') {
+      throw new BadRequestException({
+        code: CONTROL_COMMAND_ERROR_CODES.noReadyDevices,
+        message: 'Exam must be prepared again before activation'
+      });
+    }
     const deviceIds = await this.commandsService.successfulDeviceIds(deploymentId);
     if (deviceIds.length === 0) {
       throw new BadRequestException({

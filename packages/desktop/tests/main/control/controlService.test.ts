@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   CONTROL_PROTOCOL_VERSION,
   EXAM_CONFIG_ARTIFACT_MEDIA_TYPE,
+  MANAGED_SETTING_KEYS,
   type DeviceStateSnapshot
 } from '@dsz-examaware/control-protocol'
 import type { ExamConfig } from '@dsz-examaware/core'
@@ -239,5 +240,35 @@ describe('ControlService', () => {
       'control.preventQuit': true,
       'control.preventUnbind': true
     })
+  })
+
+  it('enforces prohibit, blacklist, and allowlist plugin installation policies', () => {
+    const service = new ControlService()
+
+    expect(() => service.assertPluginInstallAllowed('@school/ordinary')).not.toThrow()
+
+    service.applyManagedSettings([{ key: MANAGED_SETTING_KEYS.pluginPreventInstall, value: true }])
+    expect(() => service.assertPluginInstallAllowed('@school/ordinary')).toThrow(
+      '集控策略禁止安装插件'
+    )
+    expect(() => service.assertPluginInstallAllowed()).toThrow('集控策略禁止安装插件')
+
+    service.applyManagedSettings([
+      { key: MANAGED_SETTING_KEYS.pluginPreventInstall, value: false },
+      { key: MANAGED_SETTING_KEYS.pluginInstallBlacklist, value: ['@school/blocked'] }
+    ])
+    expect(() => service.assertPluginInstallAllowed('@school/blocked')).toThrow('安装黑名单')
+    expect(() => service.assertPluginInstallAllowed('@school/ordinary')).not.toThrow()
+
+    service.applyManagedSettings([
+      { key: MANAGED_SETTING_KEYS.pluginInstallAllowlist, value: ['@school/allowed'] }
+    ])
+    expect(() => service.assertPluginInstallAllowed('@school/allowed')).not.toThrow()
+    expect(() => service.assertPluginInstallAllowed('@school/ordinary')).toThrow(
+      '仅允许安装指定插件'
+    )
+    expect(() => service.assertPluginInstallAllowed()).not.toThrow()
+    service.applyManagedSettings([{ key: MANAGED_SETTING_KEYS.pluginInstallAllowlist, value: [] }])
+    expect(() => service.assertPluginInstallAllowed('@school/ordinary')).not.toThrow()
   })
 })

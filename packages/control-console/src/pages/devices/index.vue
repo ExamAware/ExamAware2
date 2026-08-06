@@ -181,13 +181,17 @@
 <script setup lang="ts">
 import type { CascaderProps, PrimaryTableCol, SubmitContext, TagProps } from 'tdesign-vue-next';
 import { MessagePlugin } from 'tdesign-vue-next';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import DeviceFilterPanel from '@/components/device-filter-panel/index.vue';
 import DeviceOperationButtons from '@/components/device-operation-buttons/index.vue';
 import MetricTile from '@/components/metric-tile/index.vue';
 import PageHeader from '@/components/page-header/index.vue';
-import { devicesApi } from '@/api/control/devices';
+import {
+  applyDeviceConnectionStatus,
+  devicesApi,
+  type DeviceConnectionStatusEvent
+} from '@/api/control/devices';
 import { partitionsApi } from '@/api/control/partitions';
 import type {
   DeviceConnectionStatus,
@@ -234,6 +238,7 @@ const rotatedCredential = ref<RotatedDeviceCredential>();
 const deviceActionVisible = ref(false);
 const confirmingDeviceAction = ref(false);
 const pendingDeviceAction = ref<PendingDeviceAction>();
+let disposeConnectionEvents: (() => void) | undefined;
 const nodeOptions = computed(() => buildPartitionCascaderOptions(dimensions.value));
 const deviceActionDialog = computed(() => {
   if (pendingDeviceAction.value?.type === 'delete') {
@@ -367,6 +372,9 @@ async function loadDevices() {
     loading.value = false;
   }
 }
+function handleConnectionStatus(event: DeviceConnectionStatusEvent) {
+  applyDeviceConnectionStatus(devices.value, event);
+}
 async function loadDimensions() {
   const list = await partitionsApi.listDimensions();
   dimensions.value = await Promise.all(list.map((item) => partitionsApi.getDimension(item.id)));
@@ -451,7 +459,11 @@ watch(
   },
   { deep: true }
 );
-onMounted(() => void Promise.all([loadDevices(), loadDimensions()]));
+onMounted(() => {
+  disposeConnectionEvents = devicesApi.subscribeConnectionEvents(handleConnectionStatus);
+  void Promise.all([loadDevices(), loadDimensions()]);
+});
+onUnmounted(() => disposeConnectionEvents?.());
 </script>
 
 <style scoped lang="less">

@@ -1,7 +1,23 @@
 <template>
   <main class="login-page">
+    <div class="login-page__background" aria-hidden="true">
+      <DotField
+        :dot-radius="1.8"
+        :dot-spacing="18"
+        :cursor-radius="320"
+        :cursor-force="0.1"
+        bulge-only
+        :bulge-strength="52"
+        :glow-radius="180"
+        :sparkle="false"
+        :wave-amplitude="0"
+        :gradient-from="dotColor"
+        :gradient-to="dotColor"
+        glow-color="rgba(0, 82, 217, 0.14)"
+      />
+    </div>
     <section class="login-page__intro">
-      <div>
+      <div class="login-page__intro-content">
         <span class="login-page__eyebrow">ExamAware 2 集控</span>
         <h1>每间考场，都尽在掌握。</h1>
         <p>欢迎使用ExamAware集控服务。</p>
@@ -28,9 +44,10 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ApiError } from '@/api/http';
+import DotField from '@/components/dot-field/index.vue';
 import { useSessionStore } from '@/store';
 
 const route = useRoute();
@@ -39,6 +56,15 @@ const session = useSessionStore();
 const submitting = ref(false);
 const errorMessage = ref('');
 const form = reactive({ username: '', password: '' });
+
+const dotColor = ref('#0052d9');
+
+onMounted(() => {
+  const brandColor = getComputedStyle(document.documentElement)
+    .getPropertyValue('--td-brand-color')
+    .trim();
+  if (brandColor) dotColor.value = brandColor;
+});
 
 async function submit() {
   errorMessage.value = '';
@@ -58,17 +84,38 @@ async function submit() {
 <style scoped lang="less">
 .login-page {
   min-height: 100vh;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   display: grid;
   grid-template-columns: minmax(360px, 1.2fr) minmax(420px, 0.8fr);
-  background: var(--td-bg-color-page);
+  background: #fbfcfe;
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--td-brand-color) 4%, white),
+    color-mix(in srgb, var(--td-brand-color) 1%, white)
+  );
+
+  &__background {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.62;
+  }
 
   &__intro {
+    position: relative;
+    z-index: 1;
     padding: 10vw;
     display: flex;
     align-items: center;
-    color: var(--td-text-color-anti);
-    background:
-      linear-gradient(145deg, rgba(0, 82, 217, 96%), rgba(0, 42, 124, 92%)), var(--td-brand-color);
+    color: var(--td-text-color-primary);
+
+    &-content {
+      position: relative;
+      z-index: 1;
+    }
 
     h1 {
       max-width: 720px;
@@ -79,17 +126,21 @@ async function submit() {
 
     p {
       max-width: 620px;
-      color: var(--td-font-white-2);
+      color: var(--td-text-color-secondary);
       font: var(--td-font-body-large);
     }
   }
 
   &__eyebrow {
+    color: var(--td-brand-color);
+    font-weight: 600;
     letter-spacing: 0.12em;
     text-transform: uppercase;
   }
 
   &__panel {
+    position: relative;
+    z-index: 1;
     padding: var(--td-comp-paddingTB-xxl);
     display: grid;
     place-items: center;
@@ -98,6 +149,7 @@ async function submit() {
 
 .login-card {
   width: min(420px, calc(100vw - 48px));
+  box-shadow: 0 12px 32px rgba(0, 32, 80, 10%);
 
   h2 {
     margin-bottom: var(--td-comp-margin-xs);

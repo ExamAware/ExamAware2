@@ -125,6 +125,9 @@ const settingLabels: Record<string, string> = {
   'player.preventControlSessionExit': '禁止主动退出集控放映',
   'control.preventUnbind': '禁止解绑集控',
   'control.preventQuit': '禁止退出应用',
+  'plugins.preventInstall': '禁止安装插件',
+  'plugins.installBlacklist': '插件安装黑名单',
+  'plugins.installAllowlist': '插件安装允许列表',
   'timeSync.ntpServer': 'NTP 服务器',
   'timeSync.autoSync': '自动校时',
   'timeSync.syncIntervalMinutes': '校时间隔'
@@ -136,6 +139,7 @@ const booleanKeys = new Set([
   'player.preventControlSessionExit',
   'control.preventUnbind',
   'control.preventQuit',
+  'plugins.preventInstall',
   'timeSync.autoSync'
 ])
 const numberKeys = new Set([
