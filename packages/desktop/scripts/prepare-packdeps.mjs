@@ -13,6 +13,7 @@ function createHuskyStub() {
   const bin = join(dir, 'husky')
   writeFileSync(bin, '#!/usr/bin/env node\nprocess.exit(0)\n')
   chmodSync(bin, 0o755)
+  writeFileSync(join(dir, 'husky.cmd'), '@echo off\r\nexit /b 0\r\n')
   return dir
 }
 
