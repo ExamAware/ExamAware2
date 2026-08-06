@@ -1,4 +1,5 @@
 import { createApp } from 'vue';
+import 'tdesign-vue-next/es/style/index.css';
 import '@/style/index.less';
 import { store } from './store';
 import router from './router';
