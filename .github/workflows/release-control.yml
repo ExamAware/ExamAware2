@@ -33,13 +33,27 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Validate release version
+      - name: Validate tag, manifests, and main ancestry
         run: |
-          case "$VERSION" in
-            control-v*) ;;
-            *) echo "Version must match control-vX.Y.Z" >&2; exit 1 ;;
-          esac
+          [[ "$VERSION" =~ ^control-v[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
+            echo "Version must match control-vX.Y.Z" >&2
+            exit 1
+          }
+          node -e '
+            const manifests = process.argv.slice(1).map((path) => [path, require(`./${path}`).version]);
+            const expected = process.env.VERSION.replace(/^control-v/, "");
+            for (const [path, version] of manifests) {
+              if (version !== expected) throw new Error(`${path}: expected ${expected}, got ${version}`);
+            }
+          ' packages/control-server/package.json packages/control-protocol/package.json packages/control-console/package.json
+          git fetch --no-tags origin main
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main || {
+            echo "Release commit must already be merged into source main" >&2
+            exit 1
+          }
 
       - name: Verify cross-repository release token
         env:
@@ -63,11 +77,19 @@ jobs:
 
       - name: Force git to use HTTPS for GitHub
         run: 'git config --global url."https://github.com/".insteadOf git@github.com:'
+
       - name: Make pnpm non-interactive
         run: pnpm config set yes true
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Installer and release contract gate
+        run: |
+          bash -n deploy/install.sh deploy/backup.sh deploy/scripts/prestart.sh deploy/tests/install.test.sh
+          bash deploy/tests/install.test.sh
+          pnpm exec vitest run packages/core/tests/githubWorkflows.test.ts packages/core/tests/controlRelease.test.ts
+          pnpm --filter @dsz-examaware/control-server test -- health.test.ts
 
       - name: Build control center
         run: |
@@ -75,6 +97,25 @@ jobs:
           pnpm control:protocol:build
           pnpm --filter @dsz-examaware/control-server build
           pnpm --filter @dsz-examaware/control-console build
+
+      - name: Production CSS artifact gate
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync, statSync } from 'node:fs';
+          import { resolve } from 'node:path';
+          const dist = resolve('packages/control-console/dist');
+          const html = readFileSync(resolve(dist, 'index.html'), 'utf8');
+          const references = [...html.matchAll(/(?:src|href)=["']([^"']+)["']/g)].map((match) => match[1]);
+          const assets = references.filter((reference) => !/^(?:https?:|data:)/.test(reference));
+          if (assets.length === 0) throw new Error('dist/index.html has no local assets');
+          for (const reference of assets) {
+            const path = resolve(dist, reference.replace(/^\//, ''));
+            if (statSync(path).size === 0) throw new Error(`empty asset: ${reference}`);
+          }
+          const entryCss = assets.filter((reference) => reference.endsWith('.css')).map((reference) => readFileSync(resolve(dist, reference.replace(/^\//, '')), 'utf8')).join('\n');
+          if (!entryCss.includes('--td-brand-color')) throw new Error('entry CSS lacks --td-brand-color');
+          if (!entryCss.includes('.t-button')) throw new Error('entry CSS lacks .t-button');
+          NODE
 
       - name: Assemble production server workspace
         run: |
@@ -103,6 +144,62 @@ jobs:
           cp deploy/docker/console/Dockerfile out/console-image/
           cp deploy/Caddyfile.docker out/console-image/Caddyfile
           cp -a packages/control-console/dist/. out/console-image/dist/
+
+      - name: Install Chromium for production smoke
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Caddy and Chromium production gate
+        run: |
+          docker build -t examaware-control-console:css-smoke out/console-image
+          container="$(docker run -d -e SITE_ADDRESS=:80 -p 127.0.0.1:18080:80 examaware-control-console:css-smoke)"
+          trap 'docker rm -f "$container" >/dev/null 2>&1 || true' EXIT
+          ready=0
+          for _ in {1..30}; do
+            if curl -fsS http://127.0.0.1:18080/ >/dev/null; then ready=1; break; fi
+            sleep 1
+          done
+          if [[ "$ready" != "1" ]]; then docker logs "$container"; exit 1; fi
+          CONTROL_CONSOLE_BASE_URL=http://127.0.0.1:18080 pnpm --filter @dsz-examaware/control-console test:e2e:production
+
+      - name: Assemble and validate release archives
+        run: |
+          mkdir -p out/full/deploy out/full/scripts out/full/systemd out/full/server out/full/console/dist out/docker
+          cp deploy/install.sh deploy/backup.sh out/full/
+          cp deploy/compose.yml deploy/Caddyfile.docker deploy/Caddyfile.native deploy/.env.example out/full/deploy/
+          cp deploy/scripts/prestart.sh out/full/scripts/
+          cp deploy/systemd/examaware-control-server.service out/full/systemd/
+          cp -a out/staging/. out/full/server/
+          cp -a packages/control-console/dist/. out/full/console/dist/
+          printf '%s\n' "$VERSION" > out/full/VERSION
+          chmod 755 out/full/install.sh out/full/backup.sh out/full/scripts/prestart.sh
+
+          cp deploy/install.sh deploy/backup.sh deploy/compose.yml deploy/Caddyfile.docker deploy/.env.example out/docker/
+          chmod 755 out/docker/install.sh out/docker/backup.sh
+
+          full_archive="examaware-control-${VERSION}.tar.gz"
+          docker_archive="examaware-control-docker-${VERSION}.tar.gz"
+          tar czf "$full_archive" -C out/full .
+          tar czf "$docker_archive" -C out/docker .
+          sha256sum deploy/install.sh "$full_archive" "$docker_archive" > SHA256SUMS
+          sha256sum -c SHA256SUMS
+
+          test -x out/full/install.sh
+          test -x out/full/backup.sh
+          test -x out/full/scripts/prestart.sh
+          test -x out/docker/install.sh
+          test -x out/docker/backup.sh
+          test -s out/full/VERSION
+          test "$(cat out/full/VERSION)" = "$VERSION"
+          test -s out/full/console/dist/index.html
+          test -f out/full/deploy/compose.yml
+          test -f out/docker/compose.yml
+          tar tzf "$full_archive" >/tmp/full-members
+          tar tzf "$docker_archive" >/tmp/docker-members
+          grep -Fx './VERSION' /tmp/full-members
+          grep -Fx './deploy/compose.yml' /tmp/full-members
+          grep -Fx './compose.yml' /tmp/docker-members
+          grep -Fx './install.sh' /tmp/docker-members
+          grep -Fx './backup.sh' /tmp/docker-members
 
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v3
@@ -137,24 +234,6 @@ jobs:
             ghcr.io/examaware/control-console:${{ env.VERSION }}
             ghcr.io/examaware/control-console:latest
 
-      - name: Assemble release archives
-        run: |
-          mkdir -p out/full/deploy out/full/scripts out/full/systemd out/full/server out/full/console/dist out/docker
-          cp deploy/install.sh deploy/backup.sh out/full/
-          cp deploy/compose.yml deploy/Caddyfile.docker deploy/Caddyfile.native deploy/.env.example out/full/deploy/
-          cp deploy/scripts/prestart.sh out/full/scripts/
-          cp deploy/systemd/examaware-control-server.service out/full/systemd/
-          cp -a out/staging/. out/full/server/
-          cp -a packages/control-console/dist/. out/full/console/dist/
-          printf '%s\n' "$VERSION" > out/full/VERSION
-          chmod 755 out/full/install.sh out/full/backup.sh out/full/scripts/prestart.sh
-
-          cp deploy/install.sh deploy/backup.sh deploy/compose.yml deploy/Caddyfile.docker deploy/.env.example out/docker/
-          chmod 755 out/docker/install.sh out/docker/backup.sh
-
-          tar czf "examaware-control-${VERSION}.tar.gz" -C out/full .
-          tar czf "examaware-control-docker-${VERSION}.tar.gz" -C out/docker .
-
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:
@@ -167,3 +246,4 @@ jobs:
             examaware-control-${{ env.VERSION }}.tar.gz
             examaware-control-docker-${{ env.VERSION }}.tar.gz
             deploy/install.sh
+            SHA256SUMS

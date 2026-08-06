@@ -1,6 +1,6 @@
 {
   "name": "@dsz-examaware/control-console",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "type": "module",
   "description": "ExamAware school control console",
@@ -13,7 +13,8 @@
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "type-check": "vue-tsc --noEmit",
-    "lint": "eslint src --ext .ts,.vue"
+    "lint": "eslint src --ext .ts,.vue",
+    "test:e2e:production": "playwright test -c playwright.config.ts"
   },
   "dependencies": {
     "@dsz-examaware/control-protocol": "workspace:*",
@@ -28,6 +29,7 @@
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@types/nprogress": "^0.2.3",
     "@vitejs/plugin-legacy": "^7.1.0",
     "@vitejs/plugin-vue": "^6.0.3",
