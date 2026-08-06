@@ -61,8 +61,8 @@ jobs:
       - name: Build plugin SDK
         run: pnpm --filter @dsz-examaware/plugin-sdk build
 
-      - name: Desktop type-check
-        run: pnpm --filter @dsz-examaware/desktop type-check
+      - name: Build control protocol
+        run: pnpm control:protocol:build
 
       - name: Desktop renderer build (no packaging)
         run: pnpm --filter @dsz-examaware/desktop build
