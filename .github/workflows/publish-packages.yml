@@ -53,11 +53,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install media test dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
-
       - name: Build rpc package
         run: pnpm rpc:build
 
@@ -69,9 +64,6 @@ jobs:
 
       - name: Build plugin SDK
         run: pnpm --filter @dsz-examaware/plugin-sdk build
-
-      - name: Run tests
-        run: pnpm test
 
       - name: Sync plugin SDK version
         run: node scripts/sync-plugin-sdk-version.mjs

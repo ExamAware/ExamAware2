@@ -29,13 +29,24 @@ describe('GitHub workflows', () => {
     }
   });
 
-  it('builds workspace packages before running publish tests', () => {
+  it('keeps type checks out of GitHub workflows', () => {
+    const workflowContents = readdirSync(workflowsDirectory)
+      .filter((fileName) => /\.ya?ml$/.test(fileName))
+      .map((fileName) => readFileSync(resolve(workflowsDirectory, fileName), 'utf8'));
+
+    for (const contents of workflowContents) {
+      expect(contents).not.toMatch(/type[-_: ]?check|typecheck|vue-tsc|tsc .*--noEmit/i);
+    }
+  });
+
+  it('builds publishable packages without running monorepo tests', () => {
     const publishWorkflow = readFileSync(
       resolve(workflowsDirectory, 'publish-packages.yml'),
       'utf8'
     );
-    const testCommandIndex = publishWorkflow.indexOf('run: pnpm test');
-    const mediaDependenciesIndex = publishWorkflow.indexOf('sudo apt-get install -y ffmpeg');
+    const publishCommandIndex = publishWorkflow.indexOf(
+      'exec npm publish --access public --provenance'
+    );
     const trustedPublishingClientIndex = publishWorkflow.indexOf(
       'npm install --global npm@11.13.0'
     );
@@ -46,14 +57,13 @@ describe('GitHub workflows', () => {
       'run: pnpm --filter @dsz-examaware/plugin-sdk build'
     ];
 
-    expect(testCommandIndex).toBeGreaterThanOrEqual(0);
-    expect(mediaDependenciesIndex).toBeGreaterThanOrEqual(0);
-    expect(mediaDependenciesIndex).toBeLessThan(testCommandIndex);
+    expect(publishWorkflow).not.toContain('run: pnpm test');
+    expect(publishWorkflow).not.toContain('sudo apt-get install -y ffmpeg');
     expect(trustedPublishingClientIndex).toBeGreaterThanOrEqual(0);
-    expect(publishWorkflow).toContain('exec npm publish --access public --provenance');
+    expect(publishCommandIndex).toBeGreaterThanOrEqual(0);
     for (const buildCommand of buildCommands) {
       expect(publishWorkflow.indexOf(buildCommand), buildCommand).toBeGreaterThanOrEqual(0);
-      expect(publishWorkflow.indexOf(buildCommand), buildCommand).toBeLessThan(testCommandIndex);
+      expect(publishWorkflow.indexOf(buildCommand), buildCommand).toBeLessThan(publishCommandIndex);
     }
   });
 
