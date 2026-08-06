@@ -369,6 +369,9 @@ importers:
       '@electron-toolkit/tsconfig':
         specifier: ^2.0.0
         version: 2.0.0(@types/node@25.0.3)
+      '@electron/asar':
+        specifier: ^3.4.1
+        version: 3.4.1
       '@imengyu/vue3-context-menu':
         specifier: ^1.5.2
         version: 1.5.2
@@ -10629,7 +10632,7 @@ snapshots:
 
   '@electron/universal@2.0.1':
     dependencies:
-      '@electron/asar': 3.2.18
+      '@electron/asar': 3.4.1
       '@malept/cross-spawn-promise': 2.0.0
       debug: 4.4.3
       dir-compare: 4.2.0
