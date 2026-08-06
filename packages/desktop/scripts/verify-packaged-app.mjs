@@ -2,16 +2,26 @@ import { access } from 'node:fs/promises'
 import path from 'node:path'
 import { extractFile, listPackage } from '@electron/asar'
 
-function createArchiveReader(archivePath) {
-  const files = new Set(listPackage(archivePath).map((entry) => entry.replace(/^[/\\]+/, '')))
+export function normalizeArchiveEntryPath(entry) {
+  return entry.replaceAll('\\', '/').replace(/^\/+/, '')
+}
+
+function createArchiveReader(archivePath, archiveApi) {
+  const entryPaths = new Map(
+    archiveApi
+      .listPackage(archivePath)
+      .map((entry) => [normalizeArchiveEntryPath(entry), entry.replace(/^[/\\]+/, '')])
+  )
 
   function hasManifest(packageDir) {
-    return files.has(path.posix.join(packageDir, 'package.json'))
+    return entryPaths.has(path.posix.join(packageDir, 'package.json'))
   }
 
   function readManifest(packageDir) {
     const manifestPath = path.posix.join(packageDir, 'package.json')
-    return JSON.parse(extractFile(archivePath, manifestPath).toString('utf8'))
+    const archiveEntryPath = entryPaths.get(manifestPath)
+    if (!archiveEntryPath) throw new Error(`Manifest is missing from archive: ${manifestPath}`)
+    return JSON.parse(archiveApi.extractFile(archivePath, archiveEntryPath).toString('utf8'))
   }
 
   function findPackageDir(name, fromDir) {
@@ -30,8 +40,11 @@ function createArchiveReader(archivePath) {
   return { findPackageDir, readManifest }
 }
 
-export function verifyArchiveDependencyClosure(archivePath) {
-  const archive = createArchiveReader(archivePath)
+export function verifyArchiveDependencyClosure(
+  archivePath,
+  archiveApi = { extractFile, listPackage }
+) {
+  const archive = createArchiveReader(archivePath, archiveApi)
   const rootManifest = archive.readManifest('')
   const queue = Object.keys(rootManifest.dependencies || {}).map((name) => ({
     name,
