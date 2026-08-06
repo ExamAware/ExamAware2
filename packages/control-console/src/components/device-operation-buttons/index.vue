@@ -8,13 +8,13 @@
         variant="text"
         @click="emit('assign', device)"
       >
-        <t-icon name="folder-setting" />
+        <ConsoleIcon name="folder-setting" />
       </t-button>
     </t-tooltip>
     <t-dropdown v-if="isAdmin" :options="options" trigger="click" @click="handleAction">
       <t-tooltip content="更多设备操作">
         <t-button aria-label="更多设备操作" theme="default" shape="square" variant="text">
-          <t-icon name="ellipsis" />
+          <ConsoleIcon name="ellipsis" />
         </t-button>
       </t-tooltip>
     </t-dropdown>

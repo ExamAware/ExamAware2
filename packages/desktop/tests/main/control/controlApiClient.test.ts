@@ -68,23 +68,23 @@ describe('ControlApiClient', () => {
       Response.json({
         deviceId,
         credential,
-        websocketUrl: 'ws://127.0.0.1:3100/device/v1/connect',
+        websocketUrl: 'ws://192.168.10.20:3100/device/v1/connect',
         protocolVersion: CONTROL_PROTOCOL_VERSION
       })
     )
     const client = new ControlApiClient(fetchImpl as typeof fetch)
 
     await expect(
-      client.enroll('http://127.0.0.1:3100', 'EA2-0123456789abcdef', {
+      client.enroll('http://192.168.10.20:3100', 'EA2-0123456789abcdef', {
         displayName: 'Room 101',
         platform: 'darwin',
         architecture: 'arm64',
         appVersion: '1.4.4',
         protocolVersion: CONTROL_PROTOCOL_VERSION
       })
-    ).resolves.toMatchObject({ deviceId, credential, serverUrl: 'http://127.0.0.1:3100/' })
+    ).resolves.toMatchObject({ deviceId, credential, serverUrl: 'http://192.168.10.20:3100/' })
     expect(fetchImpl).toHaveBeenCalledWith(
-      new URL('http://127.0.0.1:3100/api/v1/device-enrollments'),
+      new URL('http://192.168.10.20:3100/api/v1/device-enrollments'),
       expect.objectContaining({ method: 'POST', redirect: 'error' })
     )
   })
@@ -175,21 +175,24 @@ describe('ControlApiClient', () => {
     )
   })
 
-  it('rejects plaintext remote servers before sending credentials', async () => {
-    const fetchImpl = vi.fn()
-    const client = new ControlApiClient(fetchImpl as typeof fetch)
+  it.each(['http://control.example.edu', 'http://localhost:3100', 'http://8.8.8.8:3100'])(
+    'rejects plaintext domain or public server %s before sending credentials',
+    async (serverUrl) => {
+      const fetchImpl = vi.fn()
+      const client = new ControlApiClient(fetchImpl as typeof fetch)
 
-    await expect(
-      client.enroll('http://control.example.edu', 'EA2-0123456789abcdef', {
-        displayName: 'Room 101',
-        platform: 'win32',
-        architecture: 'x64',
-        appVersion: '1.4.4',
-        protocolVersion: CONTROL_PROTOCOL_VERSION
-      })
-    ).rejects.toMatchObject({ code: 'insecure_server_url' })
-    expect(fetchImpl).not.toHaveBeenCalled()
-  })
+      await expect(
+        client.enroll(serverUrl, 'EA2-0123456789abcdef', {
+          displayName: 'Room 101',
+          platform: 'win32',
+          architecture: 'x64',
+          appVersion: '1.4.4',
+          protocolVersion: CONTROL_PROTOCOL_VERSION
+        })
+      ).rejects.toMatchObject({ code: 'insecure_server_url' })
+      expect(fetchImpl).not.toHaveBeenCalled()
+    }
+  )
 
   it('preserves stable Problem Details codes from the server', async () => {
     const fetchImpl = vi.fn().mockResolvedValue(

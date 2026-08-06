@@ -7,11 +7,11 @@
       <template #actions>
         <t-space>
           <t-button variant="outline" :loading="loading" @click="loadDevices">
-            <template #icon><t-icon name="refresh" /></template>
+            <template #icon><ConsoleIcon name="refresh" /></template>
             刷新
           </t-button>
           <t-button v-if="canWrite" @click="router.push('/devices/enroll')">
-            <template #icon><t-icon name="device-add" /></template>
+            <template #icon><ConsoleIcon name="device-add" /></template>
             注册设备
           </t-button>
         </t-space>

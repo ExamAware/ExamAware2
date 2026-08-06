@@ -28,29 +28,29 @@
             }"
           >
             <template v-if="!routeItem.isHome">{{ routeItem.title }}</template>
-            <t-icon v-else name="home" />
+            <ConsoleIcon v-else name="home" />
             <template #dropdown>
               <t-dropdown-menu>
                 <t-dropdown-item @click="refreshCurrent(routeItem.path)">
-                  <t-icon name="refresh" />
+                  <ConsoleIcon name="refresh" />
                   重新加载
                 </t-dropdown-item>
                 <t-dropdown-item v-if="index > 1" @click="closeLeft(routeItem.path)">
-                  <t-icon name="arrow-left" />
+                  <ConsoleIcon name="arrow-left" />
                   关闭左侧
                 </t-dropdown-item>
                 <t-dropdown-item
                   v-if="index < tabsRouterStore.tabs.length - 1"
                   @click="closeRight(routeItem.path)"
                 >
-                  <t-icon name="arrow-right" />
+                  <ConsoleIcon name="arrow-right" />
                   关闭右侧
                 </t-dropdown-item>
                 <t-dropdown-item
                   v-if="tabsRouterStore.tabs.length > 2"
                   @click="closeOthers(routeItem.path)"
                 >
-                  <t-icon name="close-circle" />
+                  <ConsoleIcon name="close-circle" />
                   关闭其他
                 </t-dropdown-item>
               </t-dropdown-menu>

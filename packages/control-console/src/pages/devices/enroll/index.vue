@@ -55,7 +55,7 @@
           </t-form>
 
           <div v-else-if="step === 1" class="enrollment-code-stage">
-            <t-avatar size="64px"><t-icon name="device-add" /></t-avatar>
+            <t-avatar size="64px"><ConsoleIcon name="device-add" /></t-avatar>
             <p>请在 ExamAware 客户端的“学校集控”页面输入以下代码</p>
             <t-input class="enrollment-code" :value="created?.code" readonly />
             <t-alert
@@ -70,7 +70,7 @@
 
           <div v-else class="enrollment-wait-stage">
             <template v-if="matchedDevice">
-              <t-avatar size="64px"><t-icon name="check" /></t-avatar>
+              <t-avatar size="64px"><ConsoleIcon name="check" /></t-avatar>
               <h3>设备注册成功</h3>
               <p>
                 {{ matchedDevice.displayName }} 已加入集控，当前状态：{{

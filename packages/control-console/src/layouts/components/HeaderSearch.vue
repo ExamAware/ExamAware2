@@ -12,7 +12,7 @@
         @enter="openFirst"
       >
         <template #prefix-icon>
-          <t-icon class="icon" name="search" size="16" />
+          <ConsoleIcon class="icon" name="search" size="16" />
         </template>
       </t-input>
       <template #content>
@@ -23,7 +23,7 @@
             type="button"
             @mousedown.prevent="navigate(item.path)"
           >
-            <t-icon :name="item.icon || 'app'" />
+            <ConsoleIcon :name="item.icon || 'app'" />
             <span>{{ item.title }}</span>
             <small>{{ item.path }}</small>
           </button>

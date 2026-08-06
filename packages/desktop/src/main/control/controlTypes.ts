@@ -1,3 +1,5 @@
+import { isIP } from 'node:net'
+
 import type { EnrollDeviceResponse } from '@dsz-examaware/control-protocol'
 
 export interface ControlRegistration extends EnrollDeviceResponse {
@@ -44,10 +46,13 @@ export function normalizeControlServerUrl(input: string): string {
   if (url.username || url.password) {
     throw new ControlAgentError('invalid_server_url', '集控服务器地址不得包含内嵌凭据')
   }
-  if (url.protocol !== 'https:' && !(url.protocol === 'http:' && isLoopbackHost(url.hostname))) {
+  if (
+    url.protocol !== 'https:' &&
+    !(url.protocol === 'http:' && isPrivateOrLocalIpAddress(url.hostname))
+  ) {
     throw new ControlAgentError(
       'insecure_server_url',
-      '集控服务器必须使用 HTTPS；仅本机开发环境允许 HTTP',
+      '集控服务器域名或公网 IP 必须使用 HTTPS；本机或内网 IP 允许 HTTP',
       { protocol: url.protocol, hostname: url.hostname }
     )
   }
@@ -73,22 +78,34 @@ export function validateControlWebSocketUrl(input: string): string {
   if (url.username || url.password) {
     throw new ControlAgentError('invalid_websocket_url', '集控 WebSocket 地址不得包含内嵌凭据')
   }
-  if (url.protocol !== 'wss:' && !(url.protocol === 'ws:' && isLoopbackHost(url.hostname))) {
+  if (
+    url.protocol !== 'wss:' &&
+    !(url.protocol === 'ws:' && isPrivateOrLocalIpAddress(url.hostname))
+  ) {
     throw new ControlAgentError(
       'insecure_websocket_url',
-      '集控连接必须使用 WSS；仅本机开发环境允许 WS',
+      '集控连接的域名或公网 IP 必须使用 WSS；本机或内网 IP 允许 WS',
       { protocol: url.protocol, hostname: url.hostname }
     )
   }
   return url.toString()
 }
 
-function isLoopbackHost(hostname: string) {
-  const normalized = hostname.toLowerCase().replace(/^\[|\]$/g, '')
+function isPrivateOrLocalIpAddress(hostname: string) {
+  const address = hostname.toLowerCase().replace(/^\[|\]$/g, '')
+  const family = isIP(address)
+  if (family === 0) return false
+  if (family === 6) {
+    if (address === '::1' || address === '::') return true
+    const firstSegment = Number.parseInt(address.split(':', 1)[0], 16)
+    return (firstSegment & 0xfe00) === 0xfc00 || (firstSegment & 0xffc0) === 0xfe80
+  }
+  const parts = address.split('.').map(Number)
   return (
-    normalized === 'localhost' ||
-    normalized.endsWith('.localhost') ||
-    normalized === '127.0.0.1' ||
-    normalized === '::1'
+    parts[0] === 10 ||
+    parts[0] === 127 ||
+    (parts[0] === 169 && parts[1] === 254) ||
+    (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) ||
+    (parts[0] === 192 && parts[1] === 168)
   )
 }

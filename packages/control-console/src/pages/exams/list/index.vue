@@ -7,11 +7,11 @@
       <template #actions>
         <t-space>
           <t-button variant="outline" :loading="loading" @click="loadExams">
-            <template #icon><t-icon name="refresh" /></template>
+            <template #icon><ConsoleIcon name="refresh" /></template>
             刷新
           </t-button>
           <t-button v-if="canWrite" @click="router.push('/exams/create')">
-            <template #icon><t-icon name="add" /></template>
+            <template #icon><ConsoleIcon name="add" /></template>
             发起考试
           </t-button>
         </t-space>
@@ -28,7 +28,7 @@
         </t-tabs>
         <div class="console-toolbar__filters">
           <t-input v-model="search" clearable placeholder="搜索考试名称">
-            <template #prefix-icon><t-icon name="search" /></template>
+            <template #prefix-icon><ConsoleIcon name="search" /></template>
           </t-input>
           <span class="console-muted">当前页 {{ filteredExams.length }} 条</span>
         </div>

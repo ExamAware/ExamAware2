@@ -59,7 +59,7 @@
     </template>
     <t-badge :count="pendingCalls.length" :offset="[4, 4]">
       <t-button aria-label="查看巡考呼叫" theme="default" shape="square" variant="text">
-        <t-icon name="mail" />
+        <ConsoleIcon name="mail" />
       </t-button>
     </t-badge>
   </t-popup>

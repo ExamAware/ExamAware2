@@ -6,7 +6,7 @@
     >
       <template #actions>
         <t-button v-if="isAdmin" @click="openDimensionCreate">
-          <template #icon><t-icon name="add" /></template>
+          <template #icon><ConsoleIcon name="add" /></template>
           新建分类方式
         </t-button>
       </template>
@@ -25,7 +25,7 @@
             <template v-if="isAdmin">
               <t-tooltip content="新建分类方式">
                 <t-button shape="square" @click="openDimensionCreate"
-                  ><t-icon name="add"
+                  ><ConsoleIcon name="add"
                 /></t-button>
               </t-tooltip>
               <t-tooltip content="编辑分类方式名称">
@@ -35,7 +35,7 @@
                   :disabled="!selectedDimension"
                   @click="openDimensionEdit"
                 >
-                  <t-icon name="edit" />
+                  <ConsoleIcon name="edit" />
                 </t-button>
               </t-tooltip>
               <t-tooltip content="删除分类方式">
@@ -46,7 +46,7 @@
                   :disabled="!selectedDimension"
                   @click="openDeleteDimension"
                 >
-                  <t-icon name="delete" />
+                  <ConsoleIcon name="delete" />
                 </t-button>
               </t-tooltip>
             </template>
@@ -68,7 +68,7 @@
               :disabled="!selectedDimension"
               @click="openNodeCreate()"
             >
-              <template #icon><t-icon name="add" /></template>
+              <template #icon><ConsoleIcon name="add" /></template>
               新增顶级分组
             </t-button>
           </div>
@@ -96,7 +96,7 @@
                         variant="text"
                         @click.stop="openNodeCreate(String(node.value))"
                       >
-                        <t-icon name="add" />
+                        <ConsoleIcon name="add" />
                       </t-button>
                     </t-tooltip>
                     <t-tooltip content="编辑分组信息">
@@ -106,7 +106,7 @@
                         variant="text"
                         @click.stop="openNodeEdit(String(node.value))"
                       >
-                        <t-icon name="edit" />
+                        <ConsoleIcon name="edit" />
                       </t-button>
                     </t-tooltip>
                     <t-tooltip content="删除分组">
@@ -117,7 +117,7 @@
                         variant="text"
                         @click.stop="openDeleteNode(String(node.value))"
                       >
-                        <t-icon name="delete" />
+                        <ConsoleIcon name="delete" />
                       </t-button>
                     </t-tooltip>
                   </t-space>
