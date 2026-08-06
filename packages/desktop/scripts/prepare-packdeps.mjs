@@ -3,8 +3,9 @@ import { rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { extname, join, resolve, delimiter } from 'node:path'
 import { spawn } from 'node:child_process'
+import { resolveDesktopRoot } from './prepare-packdeps-path.mjs'
 
-const cwd = resolve(new URL('.', import.meta.url).pathname, '..')
+const cwd = resolveDesktopRoot(import.meta.url)
 const huskyStubDir = createHuskyStub()
 
 function createHuskyStub() {
@@ -12,6 +13,7 @@ function createHuskyStub() {
   const bin = join(dir, 'husky')
   writeFileSync(bin, '#!/usr/bin/env node\nprocess.exit(0)\n')
   chmodSync(bin, 0o755)
+  writeFileSync(join(dir, 'husky.cmd'), '@echo off\r\nexit /b 0\r\n')
   return dir
 }
 
@@ -67,6 +69,15 @@ async function run(cmd, args, options = {}) {
   if (cmd === 'pnpm') {
     const { path: resolved, pnpmHome, tried } = findPnpmExecutable(args)
     console.error('[prepare-packdeps] resolved pnpm', { resolved, pnpmHome, tried })
+    if (process.platform === 'win32') {
+      attempts.push({
+        spawnCmd: 'pnpm',
+        spawnArgs: args,
+        shell: process.env.ComSpec || true,
+        pnpmHome
+      })
+    }
+
     if (resolved) {
       const ext = extname(resolved).toLowerCase()
       if (ext === '.js' || ext === '.cjs' || ext === '.mjs') {
@@ -95,7 +106,7 @@ async function run(cmd, args, options = {}) {
       }
     }
 
-    // Fallbacks: PATH-resolved pnpm executables (never through cmd.exe)
+    // Fallbacks for PATH-resolved pnpm executables.
     attempts.push({ spawnCmd: 'pnpm.exe', spawnArgs: args, shell: false, pnpmHome })
     attempts.push({ spawnCmd: 'pnpm.cmd', spawnArgs: args, shell: false, pnpmHome })
     attempts.push({
