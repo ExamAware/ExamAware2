@@ -3,8 +3,9 @@ import { rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { extname, join, resolve, delimiter } from 'node:path'
 import { spawn } from 'node:child_process'
+import { resolveDesktopRoot } from './prepare-packdeps-path.mjs'
 
-const cwd = resolve(new URL('.', import.meta.url).pathname, '..')
+const cwd = resolveDesktopRoot(import.meta.url)
 const huskyStubDir = createHuskyStub()
 
 function createHuskyStub() {
