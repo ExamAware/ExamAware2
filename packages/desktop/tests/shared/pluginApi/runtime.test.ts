@@ -27,6 +27,17 @@ describe('plugin API runtime', () => {
     expect(() => permissions.require(PluginPermissions.Files.Read)).toThrow(/files\.read/)
   })
 
+  it('treats socket permissions as opt-in capabilities', () => {
+    const permissions = createPermissionApi('network-plugin', [
+      PluginPermissions.Network.WebSocket,
+      PluginPermissions.Network.Tcp
+    ])
+
+    expect(permissions.has(PluginPermissions.Network.WebSocket)).toBe(true)
+    expect(permissions.has(PluginPermissions.Network.Tcp)).toBe(true)
+    expect(() => permissions.require(PluginPermissions.Network.Udp)).toThrow(/network\.udp/)
+  })
+
   it('creates dependencies first and releases module resources in reverse order', async () => {
     const calls: string[] = []
     const dependencyToken = definePluginApiModuleToken<{ dependency: { value: number } }>(

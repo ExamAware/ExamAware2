@@ -15,6 +15,8 @@ import type {
 } from '../types/desktop'
 import type { HttpApiConfig } from '../types/httpApi'
 import type {
+  PluginInstallApproval,
+  PluginInstallPermissionRequest,
   PluginInstallResult,
   PluginListItem,
   PluginStatePayload,
@@ -128,6 +130,14 @@ export interface DesktopBridge {
     services(): Promise<ServiceProviderRecord[]>
     service<T = unknown>(name: string, owner?: string): Promise<T | undefined>
     getConfig<T = Record<string, any>>(name: string): Promise<T | undefined>
+    inspectPackage(filePath: string): Promise<PluginInstallPermissionRequest>
+    inspectDirectory(directory: string): Promise<PluginInstallPermissionRequest>
+    inspectRegistry(request: RegistryInstallRequest): Promise<PluginInstallPermissionRequest>
+    installPackage(filePath: string, approval?: PluginInstallApproval): Promise<PluginInstallResult>
+    installDirectory(
+      directory: string,
+      approval?: PluginInstallApproval
+    ): Promise<PluginInstallResult>
     setConfig<T = Record<string, any>>(name: string, config: T): Promise<T | undefined>
     patchConfig<T = Record<string, any>>(name: string, partial: Partial<T>): Promise<T | undefined>
     onState(listener: (payload: PluginStatePayload) => void): () => void
@@ -137,8 +147,6 @@ export interface DesktopBridge {
     fetchSourceIndex(payload?: PluginSourceFetchRequest): Promise<PluginSourceFetchResult>
     installFromRegistry(payload: RegistryInstallRequest): Promise<RegistryInstallResult>
     fetchRegistryReadme(payload: RegistryReadmeRequest): Promise<RegistryReadmeResult>
-    installPackage(filePath: string): Promise<PluginInstallResult>
-    installDirectory(directory: string): Promise<PluginInstallResult>
     onRegistryProgress(listener: (progress: RegistryInstallProgress) => void): () => void
     rpc(pluginName: string): PluginRpcTransport
   }

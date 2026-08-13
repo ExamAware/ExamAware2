@@ -1,86 +1,61 @@
 <template>
   <div class="bind-control-wizard">
-    <h2>绑定学校集控</h2>
-    <t-steps v-model:current="currentStep" layout="horizontal" readonly>
-      <t-step-item title="服务器地址" />
-      <t-step-item title="绑定码" />
-      <t-step-item title="完成绑定" />
-    </t-steps>
+    <component :is="bindingView.component" v-if="bindingView" class="plugin-binding-view" />
+    <template v-else>
+      <window-frame title="绑定学校集控" />
+      <div class="wizard-content">
+        <t-steps v-model:current="currentStep" readonly>
+          <t-step-item title="服务器" />
+          <t-step-item title="绑定码" />
+          <t-step-item title="完成" />
+        </t-steps>
 
-    <div class="wizard-content">
-      <section v-if="currentStep === 0">
-        <h3>连接集控服务器</h3>
-        <p class="step-description">填写集控服务端地址，如 http://127.0.0.1:3100</p>
-        <t-form ref="serverForm" :data="form" :rules="serverRules" label-align="top">
+        <t-form v-if="currentStep === 0" ref="serverForm" :data="form" :rules="serverRules">
           <t-form-item label="服务器地址" name="serverUrl">
             <t-input v-model="form.serverUrl" placeholder="https://control.example.edu" autofocus />
           </t-form-item>
-        </t-form>
-        <div class="wizard-actions">
-          <t-button theme="primary" @click="goToEnrollmentCode">下一步</t-button>
-        </div>
-      </section>
-
-      <section v-else-if="currentStep === 1">
-        <h3>输入设备绑定码</h3>
-        <p class="step-description">在集控控制台的设备注册页面生成 EA2- 开头的绑定码</p>
-        <t-form ref="codeForm" :data="form" :rules="codeRules" label-align="top">
-          <t-form-item label="绑定码" name="enrollmentCode">
-            <t-input
-              v-model="form.enrollmentCode"
-              placeholder="EA2-..."
-              autocomplete="off"
-              autofocus
-            />
-          </t-form-item>
-        </t-form>
-        <div class="wizard-actions">
-          <t-button variant="outline" @click="currentStep = 0">上一步</t-button>
-          <t-button theme="primary" @click="submitBinding">绑定</t-button>
-        </div>
-      </section>
-
-      <section v-else>
-        <t-loading :loading="submitting" text="正在绑定学校集控…" show-overlay>
-          <div v-if="submitting" class="result-placeholder"></div>
-          <div v-else-if="result" class="binding-result">
-            <t-alert theme="success" title="绑定成功" message="设备凭据已安全保存到本机。" />
-            <div class="binding-result-details">
-              <div>
-                <span>连接状态</span>
-                <ControlStatusTag :state="result.state" />
-              </div>
-              <div>
-                <span>设备 ID</span>
-                <code>{{ result.deviceId ?? '等待服务器分配' }}</code>
-              </div>
-            </div>
-            <t-space>
-              <t-button theme="primary" @click="finishWizard">完成</t-button>
-              <t-button variant="outline" @click="resetWizard">重新绑定</t-button>
-            </t-space>
+          <div class="wizard-actions">
+            <t-button theme="primary" @click="goToEnrollmentCode">下一步</t-button>
           </div>
-          <template v-else>
-            <t-alert theme="error" title="绑定失败" :message="errorMessage" />
-            <div class="wizard-actions">
-              <t-button variant="outline" @click="currentStep = 0">返回修改</t-button>
-              <t-button theme="primary" @click="submitBinding">重试</t-button>
-            </div>
+        </t-form>
+
+        <t-form v-else-if="currentStep === 1" ref="codeForm" :data="form" :rules="codeRules">
+          <t-form-item label="设备绑定码" name="enrollmentCode">
+            <t-input v-model="form.enrollmentCode" placeholder="EA2-XXXX-XXXX" autofocus />
+          </t-form-item>
+          <div class="wizard-actions">
+            <t-button variant="outline" @click="currentStep = 0">上一步</t-button>
+            <t-button theme="primary" :loading="submitting" @click="submitBinding">绑定</t-button>
+          </div>
+        </t-form>
+
+        <div v-else class="result-panel">
+          <t-loading v-if="submitting" text="正在连接集控服务器" />
+          <t-alert v-else-if="errorMessage" theme="error" :message="errorMessage" />
+          <template v-else-if="result">
+            <control-status-tag :state="result.state" />
+            <p>设备已完成绑定。</p>
           </template>
-        </t-loading>
-      </section>
-    </div>
+          <div class="wizard-actions">
+            <t-button v-if="errorMessage" variant="outline" @click="resetWizard">重试</t-button>
+            <t-button v-else-if="result" theme="primary" @click="finishWizard">完成</t-button>
+          </div>
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import type { FormRule } from 'tdesign-vue-next'
 import type { ControlStatusSnapshot } from '@dsz-examaware/plugin-sdk'
 import ControlStatusTag from '@renderer/components/ControlStatusTag.vue'
 import { useControlAgent } from '@renderer/composables/useControlAgent'
+import { controlBindingContributions } from '@renderer/runtime/pluginApi/contributions'
 
 const control = useControlAgent()
+const bindingView = computed(() => controlBindingContributions.items.value[0])
 const currentStep = ref(0)
 const submitting = ref(false)
 const result = ref<ControlStatusSnapshot | null>(null)
@@ -148,6 +123,9 @@ const finishWizard = () => window.api.windows.closeCurrent()
 </script>
 
 <style scoped>
+.plugin-binding-view {
+  min-height: 100vh;
+}
 .bind-control-wizard {
   box-sizing: border-box;
   min-height: 100vh;

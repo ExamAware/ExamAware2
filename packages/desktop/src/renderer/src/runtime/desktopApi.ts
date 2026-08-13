@@ -17,6 +17,7 @@ import {
 import { useControlAgent } from '../composables/useControlAgent'
 import { createDesktopPluginHost } from './desktopPluginHost'
 import type {
+  PluginInstallApproval,
   PluginListItem,
   RegistryInstallOptions,
   RegistryInstallProgress,
@@ -79,9 +80,19 @@ export interface PluginRegistry {
   reload(name: string): Promise<void>
   uninstall(name: string): Promise<void>
   getReadme(name: string): Promise<string | undefined>
-  installPackage(filePath: string): Promise<{ installedPath: string; list: PluginListItem[] }>
-  installDir(dirPath: string): Promise<{ installedPath: string; list: PluginListItem[] }>
-  installFromRegistry(pkg: string, options?: RegistryInstallOptions): Promise<RegistryInstallResult>
+  installPackage(
+    filePath: string,
+    approval?: PluginInstallApproval
+  ): Promise<{ installedPath: string; list: PluginListItem[] }>
+  installDir(
+    dirPath: string,
+    approval?: PluginInstallApproval
+  ): Promise<{ installedPath: string; list: PluginListItem[] }>
+  installFromRegistry(
+    pkg: string,
+    options?: RegistryInstallOptions,
+    approval?: PluginInstallApproval
+  ): Promise<RegistryInstallResult>
   fetchRegistryReadme(
     pkg: string,
     options?: { version?: string; registry?: string }
@@ -184,10 +195,15 @@ export function initDesktopApi(ctx: AppContext, app?: App): DesktopAPI {
       reload: (name: string) => pluginHost.reload(name),
       uninstall: (name: string) => pluginHost.uninstall(name),
       getReadme: (name: string) => pluginHost.getReadme(name),
-      installPackage: (filePath: string) => pluginHost.installPackage(filePath),
-      installDir: (dirPath: string) => pluginHost.installDir(dirPath),
-      installFromRegistry: (pkg: string, options?: RegistryInstallOptions) =>
-        pluginHost.installFromRegistry(pkg, options),
+      installPackage: (filePath: string, approval?: PluginInstallApproval) =>
+        pluginHost.installPackage(filePath, approval),
+      installDir: (dirPath: string, approval?: PluginInstallApproval) =>
+        pluginHost.installDir(dirPath, approval),
+      installFromRegistry: (
+        pkg: string,
+        options?: RegistryInstallOptions,
+        approval?: PluginInstallApproval
+      ) => pluginHost.installFromRegistry(pkg, options, approval),
       fetchRegistryReadme: (pkg: string, options?: { version?: string; registry?: string }) =>
         pluginHost.fetchRegistryReadme(pkg, options),
       fetchSourceIndex: (payload?: PluginSourceFetchRequest) =>
@@ -290,7 +306,19 @@ function createControlApi(): ControlApi {
     },
     bind: control.bind,
     unbind: control.unbind,
-    callProctor: async () => control.callProctor()
+    callProctor: async (input) => window.api.control.callProctor(input),
+    registerProvider() {
+      throw new Error('集控提供者只能在 main 插件入口注册')
+    },
+    async useBuiltinProvider() {
+      throw new Error('内置集控提供者只能由 main 插件入口恢复')
+    },
+    async applyManagedSettings() {
+      throw new Error('集控策略必须由 main 插件入口设置')
+    },
+    async clearManagedSettings() {
+      throw new Error('集控策略必须由 main 插件入口清除')
+    }
   }
 }
 

@@ -28,6 +28,8 @@ import type {
 import type { HttpApiConfig } from '../types/httpApi'
 import type {
   PluginConfigPayload,
+  PluginInstallPermissionRequest,
+  PluginInstallRequest,
   PluginInstallResult,
   PluginListItem,
   PluginStatePayload,
@@ -66,6 +68,7 @@ export interface WindowOpenResult {
 
 export interface NetworkResponseWire {
   status: number
+  url: string
   headers: Record<string, string>
   body: Uint8Array
 }
@@ -177,11 +180,21 @@ export const ipcChannels = {
     registryReadme: invokeEndpoint<[request: RegistryReadmeRequest], RegistryReadmeResult>(
       'plugin:registry-readme'
     ),
-    installPackage: invokeEndpoint<[filePath: string], PluginInstallResult>(
+    inspectRegistry: invokeEndpoint<
+      [request: RegistryInstallRequest],
+      PluginInstallPermissionRequest
+    >('plugin:inspect-registry'),
+    inspectPackage: invokeEndpoint<[filePath: string], PluginInstallPermissionRequest>(
+      'plugin:inspect-package'
+    ),
+    inspectDirectory: invokeEndpoint<[directory: string], PluginInstallPermissionRequest>(
+      'plugin:inspect-directory'
+    ),
+    installPackage: invokeEndpoint<[request: PluginInstallRequest], PluginInstallResult>(
       'plugin:install-package'
     ),
-    installDirectory: invokeEndpoint<[directory: string], PluginInstallResult>(
-      'plugin:install-dir'
+    installDirectory: invokeEndpoint<[request: PluginInstallRequest], PluginInstallResult>(
+      'plugin:install-directory'
     ),
     stateChanged: eventEndpoint<[payload: PluginStatePayload]>('plugin:state'),
     configChanged: eventEndpoint<[payload: PluginConfigPayload]>('plugin:config'),

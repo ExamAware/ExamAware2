@@ -6,8 +6,13 @@ import { promises as fsp } from 'fs'
 import path from 'path'
 import { URLSearchParams } from 'url'
 import semver from 'semver'
+import AdmZip from 'adm-zip'
 import { JsonRpcClient, JsonRpcServer, createRpcProxy } from '@dsz-examaware/rpc'
-import { PluginApiError } from '@dsz-examaware/plugin-sdk'
+import {
+  PluginApiError,
+  isSensitivePluginPermission,
+  type PluginPermission
+} from '@dsz-examaware/plugin-sdk'
 import { ipcChannels, pluginRpcChannels } from '../../shared/ipc/channels'
 import { dynamicEventEndpoint, dynamicInvokeEndpoint } from '../../shared/ipc/contract'
 import { sendIpcEvent } from '../../shared/ipc/sender'
@@ -16,14 +21,16 @@ import { ServiceRegistry } from '../../shared/services/registry'
 import { appLogger } from '../logging/logger'
 import { PluginRegistryInstaller } from './registryInstaller'
 import { PluginSourceFetcher } from './sourceFetcher'
-import type { RegistryInstallProgress } from './types'
 import type {
   PluginHostOptions,
-  PluginListItem,
+  PluginInstallApproval,
+  PluginInstallPermissionRequest,
   PluginLogger,
+  PluginListItem,
   PluginRecord,
   PluginRuntimeContext,
   PluginSourceFetchRequest,
+  RegistryInstallProgress,
   ResolvedPluginManifest,
   ServiceProviderRecord,
   ServiceProvideOptions,
@@ -351,7 +358,11 @@ export class PluginHost extends EventEmitter {
               runtime: legacyContext,
               listPlugins: () => this.list(),
               setEnabled: (name, enabled) => this.setEnabled(name, enabled),
-              reload: (name) => this.reloadPlugin(name)
+              reload: (name) => this.reloadPlugin(name),
+              uninstall: (name) => this.uninstallPlugin(name),
+              installFromDirectory: (directory) => this.installDirectoryForApi(directory),
+              installPackage: (file) => this.installPackageForApi(file),
+              installFromRegistry: (name, options) => this.installRegistryForApi(name, options)
             })
           : legacyContext
       const cleanup = await factory(runtimeContext, this.getConfig(record.name))
@@ -641,6 +652,7 @@ export class PluginHost extends EventEmitter {
         versionRange: payload?.versionRange,
         registry: payload?.registry,
         requestId: payload?.requestId,
+        approval: payload?.approval,
         onProgress: (progress) => this.broadcastRegistryProgress(progress)
       })
     })
@@ -652,14 +664,23 @@ export class PluginHost extends EventEmitter {
         registry: payload?.registry
       })
     })
-    ipc.handle(ipcChannels.plugins.installPackage, async (_event, filePath) => {
-      const target = await this.installPackage(filePath)
+    ipc.handle(ipcChannels.plugins.inspectPackage, async (_event, filePath) =>
+      this.inspectPackage(filePath)
+    )
+    ipc.handle(ipcChannels.plugins.inspectRegistry, async (_event, request) =>
+      this.registryInstaller.inspectFromRegistry(request.pkg, request)
+    )
+    ipc.handle(ipcChannels.plugins.inspectDirectory, async (_event, directory) =>
+      this.inspectDirectory(directory)
+    )
+    ipc.handle(ipcChannels.plugins.installPackage, async (_event, request) => {
+      const target = await this.installPackage(request.path, request.approval)
       await this.scan()
       await this.loadAll()
       return { installedPath: target, list: this.list() }
     })
-    ipc.handle(ipcChannels.plugins.installDirectory, async (_event, dirPath) => {
-      const target = await this.installFromDirectory(dirPath)
+    ipc.handle(ipcChannels.plugins.installDirectory, async (_event, request) => {
+      const target = await this.installFromDirectory(request.path, request.approval)
       await this.scan()
       await this.loadAll()
       return { installedPath: target, list: this.list() }
@@ -681,35 +702,32 @@ export class PluginHost extends EventEmitter {
     return dir
   }
 
-  async installFromDirectory(srcDir: string) {
+  async installFromDirectory(srcDir: string, approval?: PluginInstallApproval) {
     this.assertPluginInstallAllowed()
     const dir = await this.ensureWritableDir()
     const normalized = path.resolve(srcDir)
     const manifest = await loadManifestFromPackage(normalized)
     if (!manifest) throw new Error('该目录不是有效的 ExamAware 插件')
     this.assertPluginInstallAllowed(manifest.name)
+    this.assertSensitivePermissionsApproved(manifest, approval)
     this.ensureDependenciesSatisfied(manifest)
 
     const nameCandidate = manifest.name ? String(manifest.name).split('/').pop() : undefined
     const name = nameCandidate && nameCandidate.length ? nameCandidate : `plugin-${Date.now()}`
     const targetDir = path.join(dir, name)
-    if (targetDir === normalized) {
-      return targetDir
-    }
+    if (targetDir === normalized) return targetDir
     await fsp.rm(targetDir, { recursive: true, force: true })
     await fsp.cp(normalized, targetDir, { recursive: true })
     return targetDir
   }
 
-  async installPackage(filePath: string) {
+  async installPackage(filePath: string, approval?: PluginInstallApproval) {
     this.assertPluginInstallAllowed()
     const dir = await this.ensureWritableDir()
     const pkgName = path.basename(filePath, path.extname(filePath))
     const targetDir = path.join(dir, pkgName)
     await fsp.rm(targetDir, { recursive: true, force: true })
 
-    // lazy import to avoid startup cost
-    const AdmZip = (await import('adm-zip')).default
     const zip = new AdmZip(filePath)
     zip.extractAllTo(targetDir, true)
 
@@ -717,12 +735,98 @@ export class PluginHost extends EventEmitter {
       const manifest = await loadManifestFromPackage(targetDir)
       if (!manifest) throw new Error('插件包不包含有效的 ExamAware 插件')
       this.assertPluginInstallAllowed(manifest.name)
+      this.assertSensitivePermissionsApproved(manifest, approval)
       this.ensureDependenciesSatisfied(manifest)
       return targetDir
     } catch (error) {
       await fsp.rm(targetDir, { recursive: true, force: true })
       throw error
     }
+  }
+
+  async inspectDirectory(directory: string): Promise<PluginInstallPermissionRequest> {
+    const manifest = await loadManifestFromPackage(path.resolve(directory))
+    if (!manifest) throw new Error('该目录不是有效的 ExamAware 插件')
+    return this.toInstallPermissionRequest(manifest)
+  }
+
+  async inspectPackage(filePath: string): Promise<PluginInstallPermissionRequest> {
+    const temporary = await fsp.mkdtemp(path.join(app.getPath('temp'), 'examaware-plugin-inspect-'))
+    try {
+      new AdmZip(filePath).extractAllTo(temporary, true)
+      const manifest = await loadManifestFromPackage(temporary)
+      if (!manifest) throw new Error('插件包不包含有效的 ExamAware 插件')
+      return this.toInstallPermissionRequest(manifest)
+    } finally {
+      await fsp.rm(temporary, { recursive: true, force: true })
+    }
+  }
+
+  assertSensitivePermissionsApproved(
+    manifest: ResolvedPluginManifest,
+    approval?: PluginInstallApproval
+  ): void {
+    const sensitivePermissions = manifest.permissions.filter(isSensitivePluginPermission)
+    if (!sensitivePermissions.length) return
+    const approved = new Set<PluginPermission>(approval?.sensitivePermissions ?? [])
+    const validIdentity = approval?.name === manifest.name && approval.version === manifest.version
+    if (!validIdentity || sensitivePermissions.some((permission) => !approved.has(permission))) {
+      throw new Error(`插件 ${manifest.name} 请求高权限，安装前必须由用户确认`)
+    }
+  }
+
+  private toInstallPermissionRequest(
+    manifest: ResolvedPluginManifest
+  ): PluginInstallPermissionRequest {
+    return {
+      name: manifest.name,
+      displayName: manifest.displayName,
+      version: manifest.version,
+      permissions: [...manifest.permissions],
+      sensitivePermissions: manifest.permissions.filter(isSensitivePluginPermission)
+    }
+  }
+
+  private async installDirectoryForApi(directory: string): Promise<PluginListItem> {
+    const inspection = await this.inspectDirectory(directory)
+    if (inspection.sensitivePermissions.length) {
+      throw new Error('插件 API 不得静默安装请求高权限的插件')
+    }
+    const target = await this.installFromDirectory(directory)
+    await this.scan()
+    await this.loadAll()
+    return this.requireInstalledPlugin(target)
+  }
+
+  private async installPackageForApi(file: string): Promise<PluginListItem> {
+    const inspection = await this.inspectPackage(file)
+    if (inspection.sensitivePermissions.length) {
+      throw new Error('插件 API 不得静默安装请求高权限的插件')
+    }
+    const target = await this.installPackage(file)
+    await this.scan()
+    await this.loadAll()
+    return this.requireInstalledPlugin(target)
+  }
+
+  private async installRegistryForApi(
+    name: string,
+    options?: { versionRange?: string; registry?: string }
+  ): Promise<PluginListItem> {
+    this.assertPluginInstallAllowed(name)
+    const result = await this.registryInstaller.installFromRegistry(name, options)
+    const installed = this.list().find((item) => item.name === result.name)
+    if (!installed) throw new Error(`插件 ${result.name} 安装后未被宿主发现`)
+    return installed
+  }
+
+  private requireInstalledPlugin(target: string): PluginListItem {
+    const normalized = path.resolve(target)
+    const installed = Array.from(this.records.values()).find(
+      (record) => path.resolve(record.manifest.rootDir) === normalized
+    )
+    if (!installed) throw new Error('插件安装后未被宿主发现')
+    return this.list().find((item) => item.name === installed.name)!
   }
 
   private resolveEnabled(manifest: ResolvedPluginManifest) {

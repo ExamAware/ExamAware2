@@ -201,6 +201,7 @@
       </div>
     </t-drawer>
   </div>
+  <PluginPermissionDialog ref="permissionDialog" />
 </template>
 
 <script setup lang="ts">
@@ -211,6 +212,7 @@ import MarkdownIt from 'markdown-it'
 import markdownItKatex from 'markdown-it-katex'
 import hljs from 'highlight.js'
 import { useDesktopApi } from '@renderer/runtime/desktopApi'
+import PluginPermissionDialog from '@renderer/components/PluginPermissionDialog.vue'
 import { useSettingRef } from '@renderer/composables/useSetting'
 import type {
   PluginIndexItem,
@@ -233,6 +235,7 @@ const detailTarget = ref<PluginIndexItem | null>(null)
 const detailReadmeHtml = ref('<p class="muted">选择插件以查看 README</p>')
 const detailReadmeError = ref<string | null>(null)
 const installing = ref(false)
+const permissionDialog = ref<InstanceType<typeof PluginPermissionDialog> | null>(null)
 const registryProgress = manager.registryProgress
 const fallbackIcon =
   'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="%238a8f98"><rect width="64" height="64" rx="12" fill="%23f5f6f7"/><path d="M20 32h24M32 20v24" stroke-width="4" stroke-linecap="round"/></svg>'
@@ -451,12 +454,16 @@ async function installPlugin(plugin: PluginIndexItem) {
 async function installWithVersion(plugin: PluginIndexItem, version: PluginIndexVersionEntry) {
   installing.value = true
   try {
-    await manager.installFromRegistry(plugin.package, {
+    const options = {
       versionRange: version.version,
       registry: version.dist?.registry || activeRegistry.value,
       requestId: `store-${plugin.package}-${version.version}`
-    })
-    MessagePlugin.success('安装请求已提交，正在后台处理')
+    }
+    const inspection = await window.api.plugins.inspectRegistry({ pkg: plugin.package, ...options })
+    const approval = await permissionDialog.value?.requestApproval(inspection)
+    if (inspection.sensitivePermissions.length && !approval) return
+    await manager.installFromRegistry(plugin.package, options, approval ?? undefined)
+    MessagePlugin.success('插件已安装')
   } catch (error) {
     MessagePlugin.error((error as Error).message || '安装失败')
   } finally {

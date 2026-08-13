@@ -3,6 +3,7 @@ import {
   PluginApiError,
   PluginPermissions,
   type AppApi,
+  type AppSettingsApi,
   type CastApi,
   type ControlApi,
   type CommandsApi,
@@ -15,6 +16,8 @@ import {
   type HttpControlApi,
   type LoggingApi,
   type NetworkApi,
+  type NetworkHttpClient,
+  type NetworkRequestOptions,
   type NetworkResponse,
   type NotificationsApi,
   type PlayerApi,
@@ -46,7 +49,11 @@ import {
   createPermissionApi,
   createPluginApiValueModule
 } from '../../../../shared/pluginApi/runtime'
-import { playerToolbarContributions, pluginMenuContributions } from './contributions'
+import {
+  controlBindingContributions,
+  playerToolbarContributions,
+  pluginMenuContributions
+} from './contributions'
 
 type CommandRecord = {
   owner: string
@@ -88,6 +95,39 @@ export async function createRendererPluginContext(
     quit: () => {
       permissions.require(PluginPermissions.App.Quit)
       window.api.app.quit()
+    }
+  }
+
+  const appSettingsApi: AppSettingsApi = {
+    all: async () => {
+      permissions.require(PluginPermissions.App.SettingsRead)
+      return window.api.config.all()
+    },
+    get: async (key, defaultValue) => {
+      permissions.require(PluginPermissions.App.SettingsRead)
+      return window.api.config.get(key, defaultValue)
+    },
+    set: async (key, value) => {
+      permissions.require(PluginPermissions.App.SettingsWrite)
+      const changed = await window.api.config.set(key, value)
+      if (!changed) {
+        throw new PluginApiError('permission-denied', 'app-settings', '该设置由集控提供者管理')
+      }
+    },
+    patch: async (settings) => {
+      permissions.require(PluginPermissions.App.SettingsWrite)
+      const changed = await window.api.config.patch(settings)
+      if (!changed) {
+        throw new PluginApiError(
+          'permission-denied',
+          'app-settings',
+          '设置包含由集控提供者管理的字段'
+        )
+      }
+    },
+    onChanged: (listener) => {
+      permissions.require(PluginPermissions.App.SettingsRead)
+      return own({ dispose: window.api.config.onChanged(listener) })
     }
   }
 
@@ -332,14 +372,44 @@ export async function createRendererPluginContext(
     }
   }
 
+  const executeNetworkRequest = async (
+    url: string,
+    options: NetworkRequestOptions = {}
+  ): Promise<NetworkResponse> => {
+    permissions.require(PluginPermissions.Network.Http)
+    if (options.allowLocalNetwork) permissions.require(PluginPermissions.Network.Local)
+    return mapNetworkResponse(await window.api.network.request(url, options))
+  }
+  const createHttpClient = (defaults: NetworkRequestOptions = {}): NetworkHttpClient => ({
+    request: (url, options) => executeNetworkRequest(url, mergeNetworkOptions(defaults, options)),
+    get: (url, options) =>
+      executeNetworkRequest(url, { ...mergeNetworkOptions(defaults, options), method: 'GET' }),
+    delete: (url, options) =>
+      executeNetworkRequest(url, { ...mergeNetworkOptions(defaults, options), method: 'DELETE' }),
+    post: (url, body, options) =>
+      executeNetworkRequest(url, {
+        ...mergeNetworkOptions(defaults, options),
+        method: 'POST',
+        json: body
+      }),
+    put: (url, body, options) =>
+      executeNetworkRequest(url, {
+        ...mergeNetworkOptions(defaults, options),
+        method: 'PUT',
+        json: body
+      }),
+    patch: (url, body, options) =>
+      executeNetworkRequest(url, {
+        ...mergeNetworkOptions(defaults, options),
+        method: 'PATCH',
+        json: body
+      })
+  })
   const networkApi: NetworkApi = {
-    request: async (url, options = {}) => {
-      permissions.require(PluginPermissions.Network.Http)
-      if (options.allowLocalNetwork) permissions.require(PluginPermissions.Network.Local)
-      return mapNetworkResponse(await window.api.network.request(url, options))
-    },
-    getText: async (url, options) => (await networkApi.request(url, options)).text(),
-    getJson: async (url, options) => (await networkApi.request(url, options)).json()
+    ...createHttpClient(),
+    getText: async (url, options) => (await executeNetworkRequest(url, options)).text(),
+    getJson: async (url, options) => (await executeNetworkRequest(url, options)).json(),
+    createClient: createHttpClient
   }
 
   const httpApi: HttpControlApi = {
@@ -402,6 +472,31 @@ export async function createRendererPluginContext(
     reload: async (name) => {
       permissions.require(PluginPermissions.Plugins.Manage)
       await window.api.plugins.reload(name)
+    },
+    uninstall: async (name) => {
+      permissions.require(PluginPermissions.Plugins.Manage)
+      await window.api.plugins.uninstall(name)
+    },
+    installFromDirectory: async (directory) => {
+      permissions.require(PluginPermissions.Plugins.Install)
+      const result = await window.api.plugins.installDirectory(directory)
+      const installed = result.list.find((item) => item.name === plugin.name)
+      if (!installed) throw new PluginApiError('not-found', 'plugins', '安装后未发现插件')
+      return mapPluginInfo(installed)
+    },
+    installPackage: async (file) => {
+      permissions.require(PluginPermissions.Plugins.Install)
+      const result = await window.api.plugins.installPackage(file)
+      const installed = result.list.find((item) => item.name === plugin.name)
+      if (!installed) throw new PluginApiError('not-found', 'plugins', '安装后未发现插件')
+      return mapPluginInfo(installed)
+    },
+    installFromRegistry: async (name, options) => {
+      permissions.require(PluginPermissions.Plugins.Install)
+      const result = await window.api.plugins.installFromRegistry({ pkg: name, ...options })
+      const installed = (await window.api.plugins.list()).find((item) => item.name === result.name)
+      if (!installed) throw new PluginApiError('not-found', 'plugins', '安装后未发现插件')
+      return mapPluginInfo(installed)
     }
   }
 
@@ -483,6 +578,26 @@ export async function createRendererPluginContext(
     callProctor: (input) => {
       permissions.require(PluginPermissions.Control.Manage)
       return window.api.control.callProctor(input)
+    },
+    registerProvider: () => {
+      permissions.require(PluginPermissions.Control.Replace)
+      throw new PluginApiError('invalid-argument', 'control', '集控提供者必须在 main 插件入口注册')
+    },
+    useBuiltinProvider: async () => {
+      permissions.require(PluginPermissions.Control.Replace)
+      throw new PluginApiError(
+        'invalid-argument',
+        'control',
+        '内置集控提供者必须由 main 插件入口恢复'
+      )
+    },
+    applyManagedSettings: async () => {
+      permissions.require(PluginPermissions.Control.Policy)
+      throw new PluginApiError('invalid-argument', 'control', '集控策略必须由 main 插件入口设置')
+    },
+    clearManagedSettings: async () => {
+      permissions.require(PluginPermissions.Control.Policy)
+      throw new PluginApiError('invalid-argument', 'control', '集控策略必须由 main 插件入口清除')
     }
   }
 
@@ -492,6 +607,7 @@ export async function createRendererPluginContext(
     createPluginApiValueModule('core.player', 'renderer', 'player', playerApi),
     createPluginApiValueModule('core.exams', 'renderer', 'exams', examsApi),
     createPluginApiValueModule('core.files', 'renderer', 'files', filesApi),
+    createPluginApiValueModule('core.app-settings', 'renderer', 'appSettings', appSettingsApi),
     createPluginApiValueModule('core.settings', 'renderer', 'settings', settingsApi),
     createPluginApiValueModule('core.windows', 'renderer', 'windows', windowsApi),
     createPluginApiValueModule('core.dialogs', 'renderer', 'dialogs', dialogsApi),
@@ -685,6 +801,17 @@ function createUiApi(
         })
       }
     },
+    control: {
+      registerBindingView: (view) => {
+        permissions.require(PluginPermissions.Control.Replace)
+        return own({
+          dispose: controlBindingContributions.register({
+            ...view,
+            id: contributionId(view.id)
+          })
+        })
+      }
+    },
     menus: {
       register: (item) => {
         requireContribution()
@@ -737,12 +864,15 @@ function mapTimeInfo(info: Awaited<ReturnType<Window['api']['timeSync']['getInfo
 
 function mapNetworkResponse(response: {
   status: number
+  url: string
   headers: Record<string, string>
   body: Uint8Array
 }): NetworkResponse {
   const body = new Uint8Array(response.body)
   return {
     status: response.status,
+    ok: response.status >= 200 && response.status < 300,
+    url: response.url,
     headers: response.headers,
     body,
     text: () => new TextDecoder().decode(body),
@@ -766,6 +896,7 @@ export function getCurrentPluginWindowKind(hash = window.location.hash): PluginW
   if (route.startsWith('/editor')) return 'editor'
   if (route.startsWith('/playerview')) return 'player'
   if (route.startsWith('/settings')) return 'settings'
+  if (route.startsWith('/bind-control')) return 'control-bind'
   if (route.startsWith('/cast')) return 'cast'
   if (route.startsWith('/logs')) return 'logs'
   if (route.startsWith('/plugin-store')) return 'plugin-store'
@@ -787,5 +918,17 @@ function describeCurrentPluginWindow(id?: number) {
     id,
     kind: getCurrentPluginWindowKind(),
     route: window.location.hash.replace(/^#/, '') || '/'
+  }
+}
+
+function mergeNetworkOptions(
+  defaults: NetworkRequestOptions,
+  overrides: NetworkRequestOptions = {}
+): NetworkRequestOptions {
+  return {
+    ...defaults,
+    ...overrides,
+    headers: { ...defaults.headers, ...overrides.headers },
+    query: { ...defaults.query, ...overrides.query }
   }
 }

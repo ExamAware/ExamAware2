@@ -26,6 +26,20 @@ export interface PluginListItem {
   error?: PluginError
 }
 
+export interface PluginInstallPermissionRequest {
+  name: string
+  displayName?: string
+  version: string
+  permissions: PluginPermission[]
+  sensitivePermissions: PluginPermission[]
+}
+
+export interface PluginInstallApproval {
+  name: string
+  version: string
+  sensitivePermissions: PluginPermission[]
+}
+
 export type RegistryInstallStep =
   | 'resolving'
   | 'downloading'
@@ -52,6 +66,7 @@ export interface RegistryInstallOptions {
 
 export interface RegistryInstallRequest extends RegistryInstallOptions {
   pkg: string
+  approval?: PluginInstallApproval
 }
 
 export interface RegistryInstallResult {
@@ -90,6 +105,11 @@ export interface PluginConfigPayload {
 export interface PluginInstallResult {
   installedPath: string
   list: PluginListItem[]
+}
+
+export interface PluginInstallRequest {
+  path: string
+  approval?: PluginInstallApproval
 }
 
 export type { ServiceProviderRecord } from '../services/registry'

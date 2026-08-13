@@ -9,6 +9,8 @@ import { pipeline } from 'stream/promises'
 import semver from 'semver'
 import type { PluginHost } from './host'
 import type {
+  PluginInstallApproval,
+  PluginInstallPermissionRequest,
   PluginLogger,
   RegistryInstallOptions as BaseInstallOptions,
   RegistryInstallProgress,
@@ -24,6 +26,7 @@ const INSTALL_METADATA_ACCEPT = 'application/vnd.npm.install-v1+json'
 
 interface RegistryInstallOptions extends BaseInstallOptions {
   signal?: AbortSignal
+  approval?: PluginInstallApproval
   onProgress?: (progress: RegistryInstallProgress) => void
 }
 
@@ -139,6 +142,24 @@ export class PluginRegistryInstaller {
     this.downloadManager = options.downloadManager
   }
 
+  async inspectFromRegistry(
+    pkg: string,
+    options: { versionRange?: string; registry?: string } = {}
+  ): Promise<PluginInstallPermissionRequest> {
+    const registry = normalizeRegistry(options.registry ?? this.defaultRegistry)
+    const meta = await this.client.fetchPackageMetadata(pkg, registry)
+    const version = this.client.resolveVersion(meta, options.versionRange)
+    const versionMeta = this.client.getVersion(meta, version)
+    const { path: tarballPath } = await this.ensureTarball(versionMeta, { registry })
+    await this.verifyTarball(tarballPath, versionMeta.dist)
+    const extracted = await this.extractTarball(tarballPath)
+    try {
+      return this.host.inspectDirectory(extracted)
+    } finally {
+      await fsp.rm(extracted, { recursive: true, force: true })
+    }
+  }
+
   async installFromRegistry(
     pkg: string,
     options: RegistryInstallOptions = {}
@@ -179,7 +200,7 @@ export class PluginRegistryInstaller {
         throw new Error('Downloaded package is not a valid ExamAware plugin')
       }
       emit({ step: 'installing', package: manifest.name, registry, version: manifest.version })
-      installedPath = await this.host.installFromDirectory(extracted)
+      installedPath = await this.host.installFromDirectory(extracted, options.approval)
       emit({ step: 'reloading', package: manifest.name, registry, version: manifest.version })
       await this.host.scan()
       await this.host.loadAll()

@@ -160,6 +160,23 @@ describe('ControlAgentService', () => {
     expect(sockets).toHaveLength(2)
   })
 
+  it('suspends and resumes without losing subscriptions or enrollment', async () => {
+    const { service, sockets } = createService()
+    const listener = vi.fn()
+    service.onChanged(listener)
+
+    await service.start()
+    expect(sockets).toHaveLength(1)
+    service.suspend()
+    expect(service.getSnapshot().state).toBe('stopped')
+    expect(sockets[0].readyState).toBe(3)
+
+    await service.resume()
+    expect(sockets).toHaveLength(2)
+    expect(service.getSnapshot().state).toBe('connecting')
+    expect(listener).toHaveBeenCalledWith(expect.objectContaining({ state: 'connecting' }))
+  })
+
   it('reports a state change immediately while online', async () => {
     const { service, sockets } = createService()
     expect(service.reportState()).toBe(false)

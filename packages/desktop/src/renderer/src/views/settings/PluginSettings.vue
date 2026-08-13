@@ -267,6 +267,7 @@
       </div>
     </t-drawer>
   </div>
+  <PluginPermissionDialog ref="permissionDialog" />
 </template>
 
 <script setup lang="ts">
@@ -290,6 +291,8 @@ import type {
   RegistryInstallProgress,
   ServiceProviderRecord
 } from '../../../../shared/types/plugins'
+import PluginPermissionDialog from '@renderer/components/PluginPermissionDialog.vue'
+import type { PluginInstallPermissionRequest } from '../../../../shared/types/plugins'
 import 'katex/dist/katex.min.css'
 
 const desktopApi = useDesktopApi()
@@ -303,6 +306,7 @@ const registryPackage = ref('')
 const registryVersionRange = ref('')
 const registryRegistry = ref('')
 const currentProgress = computed(() => registryProgress.value)
+const permissionDialog = ref<InstanceType<typeof PluginPermissionDialog> | null>(null)
 const progressPercent = computed(() => {
   const pct = registryProgress.value?.percent
   if (pct === undefined || pct === null) return undefined
@@ -431,19 +435,26 @@ async function handleReload(plugin: PluginListItem) {
   }
 }
 
+async function confirmInstallPermissions(inspection: PluginInstallPermissionRequest) {
+  return permissionDialog.value?.requestApproval(inspection) ?? null
+}
+
 function handleInstallExtracted() {
   window.api?.files
     .open({ properties: ['openDirectory', 'openFile'] })
     .then(async (dirPath) => {
       if (!dirPath) return
       try {
-        const result = await manager.installDir(dirPath)
+        const inspection = await window.api.plugins.inspectDirectory(dirPath)
+        const approval = await confirmInstallPermissions(inspection)
+        if (inspection.sensitivePermissions.length && !approval) return
+        const result = await manager.installDir(dirPath, approval ?? undefined)
         MessagePlugin.success(`已安装至 ${result.installedPath}`)
       } catch (error) {
         MessagePlugin.error((error as Error).message)
       }
     })
-    .catch((err) => MessagePlugin.error((err as Error).message))
+    .catch((error) => MessagePlugin.error((error as Error).message))
 }
 
 function handleInstallPackage() {
@@ -462,13 +473,16 @@ function handleInstallPackage() {
         return
       }
       try {
-        const result = await manager.installPackage(filePath)
+        const inspection = await window.api.plugins.inspectPackage(filePath)
+        const approval = await confirmInstallPermissions(inspection)
+        if (inspection.sensitivePermissions.length && !approval) return
+        const result = await manager.installPackage(filePath, approval ?? undefined)
         MessagePlugin.success(`已安装插件包：${result.installedPath}`)
       } catch (error) {
         MessagePlugin.error((error as Error).message)
       }
     })
-    .catch((err) => MessagePlugin.error((err as Error).message))
+    .catch((error) => MessagePlugin.error((error as Error).message))
 }
 
 async function confirmUninstall(plugin: PluginListItem) {

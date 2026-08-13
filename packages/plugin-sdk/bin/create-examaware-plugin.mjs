@@ -222,7 +222,7 @@ function postProcessTemplate(destination, options) {
     pkg.examaware.settings = pkg.examaware.settings || {};
     pkg.examaware.settings.namespace = namespace;
     if (pkg.examaware.services?.provide?.length) {
-      pkg.examaware.services.provide = [`${namespace}.hello.message`];
+      pkg.examaware.services.provide = [`${namespace}.hello-message`];
     }
     pkg.dependencies = pkg.dependencies || {};
     pkg.dependencies['@dsz-examaware/plugin-sdk'] = sdkVersion;
@@ -238,6 +238,13 @@ function postProcessTemplate(destination, options) {
     );
     const replacedNamespace = replaced.replace(/__PLUGIN_NAMESPACE__/g, namespace);
     writeFileSync(rendererMain, replacedNamespace, 'utf8');
+  }
+
+  const sharedContracts = join(destination, 'src/shared/contracts.ts');
+  if (existsSync(sharedContracts)) {
+    const content = readFileSync(sharedContracts, 'utf8');
+    const replaced = content.replace(/__PLUGIN_NAMESPACE__/g, namespace);
+    writeFileSync(sharedContracts, replaced, 'utf8');
   }
 
   const readmePath = join(destination, 'README.md');

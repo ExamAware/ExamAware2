@@ -7,7 +7,9 @@ export const PluginPermissions = {
   },
   Control: {
     Read: 'control.read',
-    Manage: 'control.manage'
+    Manage: 'control.manage',
+    Replace: 'control.replace',
+    Policy: 'control.policy'
   },
   Files: {
     Dialog: 'files.dialog',
@@ -21,6 +23,8 @@ export const PluginPermissions = {
   },
   App: {
     Configure: 'app.configure',
+    SettingsRead: 'app.settings.read',
+    SettingsWrite: 'app.settings.write',
     Quit: 'app.quit'
   },
   Ui: {
@@ -29,6 +33,10 @@ export const PluginPermissions = {
   },
   Network: {
     Http: 'network.http',
+    WebSocket: 'network.websocket',
+    Tcp: 'network.tcp',
+    Udp: 'network.udp',
+    Listen: 'network.listen',
     Local: 'network.local'
   },
   Http: {
@@ -56,7 +64,8 @@ export const PluginPermissions = {
   },
   Plugins: {
     Read: 'plugins.read',
-    Manage: 'plugins.manage'
+    Manage: 'plugins.manage',
+    Install: 'plugins.install'
   },
   Services: {
     Provide: 'services.provide',
@@ -75,6 +84,26 @@ export const PluginPermissions = {
 type DeepValue<T> = T extends string ? T : T extends object ? DeepValue<T[keyof T]> : never;
 
 export type PluginPermission = DeepValue<typeof PluginPermissions>;
+
+export const sensitivePluginPermissions = [
+  PluginPermissions.Control.Manage,
+  PluginPermissions.Control.Replace,
+  PluginPermissions.Control.Policy,
+  PluginPermissions.App.SettingsWrite,
+  PluginPermissions.App.Quit,
+  PluginPermissions.Network.WebSocket,
+  PluginPermissions.Network.Tcp,
+  PluginPermissions.Network.Udp,
+  PluginPermissions.Network.Listen,
+  PluginPermissions.Plugins.Manage,
+  PluginPermissions.Plugins.Install
+] as const satisfies readonly PluginPermission[];
+
+export function isSensitivePluginPermission(
+  permission: PluginPermission
+): permission is (typeof sensitivePluginPermissions)[number] {
+  return (sensitivePluginPermissions as readonly PluginPermission[]).includes(permission);
+}
 
 export const defaultPluginPermissions = [
   PluginPermissions.Control.Read,

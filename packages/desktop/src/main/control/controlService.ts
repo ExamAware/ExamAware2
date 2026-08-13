@@ -10,7 +10,11 @@ import {
   type PlaybackStopCommand
 } from '@dsz-examaware/control-protocol'
 import { validateExamConfigDetailed, type ExamConfig } from '@dsz-examaware/core'
-import type { ControlStatusSnapshot } from '@dsz-examaware/plugin-sdk'
+import type {
+  ControlProvider,
+  ControlStatusSnapshot,
+  ManagedSettingInput
+} from '@dsz-examaware/plugin-sdk'
 import { setConfig } from '../config/configStore'
 import { playerSessionService } from '../player/playerSessionService'
 import { applyTimeConfig } from '../timeSync/timeService'
@@ -40,13 +44,15 @@ export class ControlService {
   private readonly preparedDeployments = new Map<string, PreparedDeployment>()
   private readonly controlSessionByDeployment = new Map<string, string>()
   private readonly managedKeys = new Set<string>()
-  private readonly managedValues = new Map<ManagedSetting['key'], ManagedSetting['value']>()
+  private readonly managedValues = new Map<string, unknown>()
   private playerState?: DevicePlayerState
   private agent?: ControlAgentService
   private apiClient?: ControlApiClient
   private disposeAgentListener?: () => void
   private managedStateInitialized = false
   private disposeManagedConfigWatch?: () => void
+  private disposeProviderListener?: () => void
+  private provider?: { pluginName: string; value: ControlProvider }
 
   constructor() {
     playerSessionService.onChanged((event) => {
@@ -97,32 +103,112 @@ export class ControlService {
     this.disposeManagedConfigWatch = startManagedConfigWatch((detail) =>
       this.reportManagedTamper(detail)
     )
-    this.emitStatusChanged()
+    void this.emitStatusChanged()
   }
 
-  getStatus(): ControlStatusSnapshot {
+  async getStatus(): Promise<ControlStatusSnapshot> {
+    if (this.provider) {
+      const snapshot = await this.provider.value.getStatus()
+      return this.withProviderMetadata(snapshot, 'plugin', this.provider.pluginName)
+    }
+    return this.getBuiltinStatus()
+  }
+
+  getBuiltinStatus(): ControlStatusSnapshot {
     if (!this.agent) {
-      return { state: 'stopped', managedSettingKeys: [...this.managedKeys] }
+      return { state: 'stopped', provider: 'builtin', managedSettingKeys: [...this.managedKeys] }
     }
     const snapshot = this.agent.getSnapshot()
     return {
-      state: snapshot.state,
-      displayName: snapshot.displayName,
-      deviceId: snapshot.deviceId,
-      serverUrl: snapshot.serverUrl,
-      connectedAt: snapshot.connectedAt,
-      lastError: snapshot.lastError,
+      ...snapshot,
+      provider: 'builtin',
       managedSettingKeys: [...this.managedKeys]
     }
   }
 
   onEvent(listener: (event: ControlAgentEvent) => void): () => void {
     this.listeners.add(listener)
-    listener({ type: 'state-changed', snapshot: this.getStatus() })
+    void this.emitStatusChanged()
     return () => this.listeners.delete(listener)
   }
 
   async bind(input: {
+    serverUrl: string
+    enrollmentCode: string
+    displayName?: string
+  }): Promise<ControlStatusSnapshot> {
+    if (this.provider) {
+      const snapshot = await this.provider.value.bind(input)
+      await this.emitStatusChanged(snapshot)
+      return this.withProviderMetadata(snapshot, 'plugin', this.provider.pluginName)
+    }
+    return this.bindBuiltin(input)
+  }
+
+  async unbind(): Promise<ControlStatusSnapshot> {
+    if (this.provider) {
+      const snapshot = await this.provider.value.unbind()
+      await this.emitStatusChanged(snapshot)
+      return this.withProviderMetadata(snapshot, 'plugin', this.provider.pluginName)
+    }
+    return this.unbindBuiltin()
+  }
+
+  async callProctor(
+    input: { occurredAt: string } = { occurredAt: new Date().toISOString() }
+  ): Promise<void> {
+    if (this.provider) {
+      await this.provider.value.callProctor(input)
+      return
+    }
+    await this.requireAgent().callProctor(input)
+  }
+
+  registerProvider(pluginName: string, provider: ControlProvider): () => void {
+    if (this.provider) {
+      throw new ControlAgentError(
+        'control_provider_conflict',
+        `集控提供者已由插件 ${this.provider.pluginName} 接管`
+      )
+    }
+    this.provider = { pluginName, value: provider }
+    this.agent?.suspend()
+    const providerListener = provider.onStatusChanged?.((snapshot) => {
+      void this.emitStatusChanged(snapshot)
+    })
+    this.disposeProviderListener = providerListener
+      ? () =>
+          void Promise.resolve(
+            typeof providerListener === 'function' ? providerListener() : providerListener.dispose()
+          )
+      : undefined
+    void this.emitStatusChanged()
+    return () => {
+      if (this.provider?.pluginName !== pluginName || this.provider.value !== provider) return
+      this.disposeProviderListener?.()
+      this.disposeProviderListener = undefined
+      this.provider = undefined
+      void this.agent?.resume()
+      void this.emitStatusChanged()
+    }
+  }
+
+  useBuiltinProvider(pluginName: string): void {
+    if (!this.provider) return
+    if (this.provider.pluginName !== pluginName) {
+      throw new ControlAgentError(
+        'control_provider_not_owned',
+        `当前集控提供者属于插件 ${this.provider.pluginName}`
+      )
+    }
+    this.disposeProviderListener?.()
+    this.disposeProviderListener = undefined
+    this.provider = undefined
+    void this.agent?.resume()
+    void this.emitStatusChanged()
+  }
+
+  private async bindBuiltin(input: {
     serverUrl: string
     enrollmentCode: string
     displayName?: string
@@ -133,10 +219,10 @@ export class ControlService {
     await this.requireAgent().enroll(input.serverUrl, input.enrollmentCode, input.displayName)
     const registration = this.agent?.getRegistration()
     if (registration) void writeEnrollmentMarker(registration)
-    return this.getStatus()
+    return this.getBuiltinStatus()
   }
 
-  async unbind(): Promise<ControlStatusSnapshot> {
+  private async unbindBuiltin(): Promise<ControlStatusSnapshot> {
     if (this.isUnbindPrevented()) {
       throw new ControlAgentError('unbind_blocked_by_policy', '集控策略禁止解绑本设备')
     }
@@ -146,13 +232,9 @@ export class ControlService {
     this.managedValues.clear()
     this.playerState = undefined
     void clearManagedValues()
-    this.emitStatusChanged()
+    void this.emitStatusChanged()
     void clearEnrollmentMarker()
-    return this.getStatus()
-  }
-
-  async callProctor(): Promise<void> {
-    await this.requireAgent().callProctor({ occurredAt: new Date().toISOString() })
+    return this.getBuiltinStatus()
   }
 
   getRegistration(): ControlRegistration | undefined {
@@ -259,7 +341,7 @@ export class ControlService {
     this.emit({ type: 'broadcast-dismiss', payload })
   }
 
-  applyManagedSettings(settings: ManagedSetting[], replace = false): void {
+  applyManagedSettings(settings: readonly ManagedSettingInput[], replace = false): void {
     if (replace) {
       this.managedKeys.clear()
       this.managedValues.clear()
@@ -274,7 +356,17 @@ export class ControlService {
       this.managedValues.set(setting.key, setting.value)
     }
     void saveManagedValues(Object.fromEntries(this.managedValues))
-    this.emitStatusChanged()
+    void this.emitStatusChanged()
+  }
+
+  clearManagedSettings(keys?: readonly string[]): void {
+    const targets = keys?.length ? keys : [...this.managedKeys]
+    for (const key of targets) {
+      this.managedKeys.delete(key)
+      this.managedValues.delete(key)
+    }
+    void saveManagedValues(Object.fromEntries(this.managedValues))
+    void this.emitStatusChanged()
   }
 
   isManagedKey(key: string): boolean {
@@ -333,8 +425,26 @@ export class ControlService {
     for (const listener of this.listeners) listener(event)
   }
 
-  private emitStatusChanged(): void {
-    this.emit({ type: 'state-changed', snapshot: this.getStatus() })
+  private async emitStatusChanged(
+    snapshot?: Omit<ControlStatusSnapshot, 'provider' | 'providerPlugin'>
+  ): Promise<void> {
+    const resolved = snapshot
+      ? this.withProviderMetadata(snapshot, 'plugin', this.provider?.pluginName)
+      : await this.getStatus()
+    this.emit({ type: 'state-changed', snapshot: resolved })
+  }
+
+  private withProviderMetadata(
+    snapshot: Omit<ControlStatusSnapshot, 'provider' | 'providerPlugin'>,
+    provider: ControlStatusSnapshot['provider'],
+    providerPlugin?: string
+  ): ControlStatusSnapshot {
+    return {
+      ...snapshot,
+      provider,
+      ...(providerPlugin ? { providerPlugin } : {}),
+      managedSettingKeys: [...this.managedKeys]
+    }
   }
 
   private requireAgent(): ControlAgentService {

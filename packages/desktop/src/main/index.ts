@@ -335,6 +335,8 @@ app.whenReady().then(async () => {
     const deeplinkService: DeepLinkService = {
       scheme: 'examaware',
       registerHandler: (name, handler) => deepLinkManager.registerHandler(name, handler),
+      registerRoute: (name, route, handler) => deepLinkManager.registerRoute(name, route, handler),
+      use: (middleware) => deepLinkManager.use(middleware),
       dispatch: (url: string) => deepLinkManager.dispatch(url)
     }
     pluginHost.provideService('deeplink', deeplinkService, {

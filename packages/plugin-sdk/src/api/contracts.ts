@@ -4,7 +4,7 @@ import type {
   ExamConfigValidationResult
 } from '@dsz-examaware/core';
 import type { RpcClientProxy, RpcServiceToken } from '@dsz-examaware/rpc';
-import type { Disposable } from './disposable';
+import type { Disposable, DisposableLike, PluginAwaitable } from './disposable';
 import type { CommandHandler, CommandToken, EventToken, PluginServiceToken } from './tokens';
 
 export interface PluginAppInfo {
@@ -21,6 +21,14 @@ export interface AppApi {
   quit(): void;
 }
 
+export interface AppSettingsApi {
+  all(): Promise<Readonly<Record<string, unknown>>>;
+  get<T = unknown>(key: string, defaultValue?: T): Promise<T>;
+  set(key: string, value: unknown): Promise<void>;
+  patch(settings: Readonly<Record<string, unknown>>): Promise<void>;
+  onChanged(listener: (settings: Readonly<Record<string, unknown>>) => void): Disposable;
+}
+
 export type ControlStatusState =
   | 'stopped'
   | 'unenrolled'
@@ -34,12 +42,33 @@ export type ControlStatusState =
 
 export interface ControlStatusSnapshot {
   state: ControlStatusState;
+  provider: 'builtin' | 'plugin';
+  providerPlugin?: string;
   deviceId?: string;
   serverUrl?: string;
   connectedAt?: string;
   displayName?: string;
   lastError?: { code: string; message: string };
   managedSettingKeys: string[];
+}
+
+export interface ControlProvider {
+  getStatus(): PluginAwaitable<Omit<ControlStatusSnapshot, 'provider' | 'providerPlugin'>>;
+  onStatusChanged?(
+    listener: (snapshot: Omit<ControlStatusSnapshot, 'provider' | 'providerPlugin'>) => void
+  ): DisposableLike;
+  bind(input: {
+    serverUrl: string;
+    enrollmentCode: string;
+    displayName?: string;
+  }): PluginAwaitable<Omit<ControlStatusSnapshot, 'provider' | 'providerPlugin'>>;
+  unbind(): PluginAwaitable<Omit<ControlStatusSnapshot, 'provider' | 'providerPlugin'>>;
+  callProctor(input: { occurredAt: string }): PluginAwaitable<void>;
+}
+
+export interface ManagedSettingInput {
+  key: string;
+  value: unknown;
 }
 
 export interface ControlApi {
@@ -52,6 +81,13 @@ export interface ControlApi {
   }): Promise<ControlStatusSnapshot>;
   unbind(): Promise<ControlStatusSnapshot>;
   callProctor(input: { occurredAt: string }): Promise<void>;
+  registerProvider(provider: ControlProvider): Disposable;
+  useBuiltinProvider(): Promise<void>;
+  applyManagedSettings(
+    settings: readonly ManagedSettingInput[],
+    options?: { replace?: boolean }
+  ): Promise<void>;
+  clearManagedSettings(keys?: readonly string[]): Promise<void>;
 }
 
 export type PlayerSource =
@@ -304,10 +340,15 @@ export interface CastApi {
   send(peerId: string, source: PlayerSource): Promise<void>;
 }
 
+export type NetworkQueryValue = string | number | boolean | null | undefined;
+
 export interface NetworkRequestOptions {
+  baseUrl?: string;
   method?: string;
   headers?: Readonly<Record<string, string>>;
+  query?: Readonly<Record<string, NetworkQueryValue | readonly NetworkQueryValue[]>>;
   body?: string | Uint8Array;
+  json?: unknown;
   timeoutMs?: number;
   maxBytes?: number;
   allowLocalNetwork?: boolean;
@@ -315,16 +356,96 @@ export interface NetworkRequestOptions {
 
 export interface NetworkResponse {
   status: number;
+  ok: boolean;
+  url: string;
   headers: Readonly<Record<string, string>>;
   body: Uint8Array;
   text(): string;
   json<T = unknown>(): T;
 }
 
-export interface NetworkApi {
-  request(url: string, options?: NetworkRequestOptions): Promise<NetworkResponse>;
+export interface NetworkHttpClient {
+  request(path: string, options?: NetworkRequestOptions): Promise<NetworkResponse>;
+  get(path: string, options?: NetworkRequestOptions): Promise<NetworkResponse>;
+  delete(path: string, options?: NetworkRequestOptions): Promise<NetworkResponse>;
+  post(path: string, body?: unknown, options?: NetworkRequestOptions): Promise<NetworkResponse>;
+  put(path: string, body?: unknown, options?: NetworkRequestOptions): Promise<NetworkResponse>;
+  patch(path: string, body?: unknown, options?: NetworkRequestOptions): Promise<NetworkResponse>;
+}
+
+export interface NetworkApi extends NetworkHttpClient {
   getText(url: string, options?: NetworkRequestOptions): Promise<string>;
   getJson<T = unknown>(url: string, options?: NetworkRequestOptions): Promise<T>;
+  createClient(defaults?: NetworkRequestOptions): NetworkHttpClient;
+}
+
+export type NetworkSocketState = 'connecting' | 'open' | 'closing' | 'closed' | 'error';
+
+export interface WebSocketConnectOptions {
+  headers?: Readonly<Record<string, string>>;
+  protocols?: string | readonly string[];
+  timeoutMs?: number;
+  maxMessageBytes?: number;
+  allowLocalNetwork?: boolean;
+}
+
+export interface WebSocketHandle extends Disposable {
+  readonly state: NetworkSocketState;
+  send(data: string | Uint8Array): Promise<void>;
+  close(code?: number, reason?: string): Promise<void>;
+  onMessage(listener: (data: string | Uint8Array) => void): Disposable;
+  onStateChanged(listener: (state: NetworkSocketState, error?: string) => void): Disposable;
+}
+
+export interface TcpConnectOptions {
+  host: string;
+  port: number;
+  tls?: boolean;
+  serverName?: string;
+  timeoutMs?: number;
+  allowLocalNetwork?: boolean;
+}
+
+export interface TcpSocketHandle extends Disposable {
+  readonly state: NetworkSocketState;
+  write(data: string | Uint8Array): Promise<void>;
+  end(data?: string | Uint8Array): Promise<void>;
+  onData(listener: (data: Uint8Array) => void): Disposable;
+  onStateChanged(listener: (state: NetworkSocketState, error?: string) => void): Disposable;
+}
+
+export interface UdpSocketAddress {
+  address: string;
+  port: number;
+  family: 'IPv4' | 'IPv6';
+}
+
+export interface UdpSocketOptions {
+  family?: 'udp4' | 'udp6';
+  localAddress?: string;
+  localPort?: number;
+  allowLocalNetwork?: boolean;
+}
+
+export interface UdpMessage {
+  data: Uint8Array;
+  address: string;
+  port: number;
+  family: 'IPv4' | 'IPv6';
+}
+
+export interface UdpSocketHandle extends Disposable {
+  readonly localAddress?: UdpSocketAddress;
+  send(data: string | Uint8Array, port: number, host: string): Promise<void>;
+  close(): Promise<void>;
+  onMessage(listener: (message: UdpMessage) => void): Disposable;
+  onError(listener: (message: string) => void): Disposable;
+}
+
+export interface SocketNetworkApi {
+  connectWebSocket(url: string, options?: WebSocketConnectOptions): Promise<WebSocketHandle>;
+  connectTcp(options: TcpConnectOptions): Promise<TcpSocketHandle>;
+  createUdpSocket(options?: UdpSocketOptions): Promise<UdpSocketHandle>;
 }
 
 export interface HttpRouteRequest {
@@ -365,8 +486,26 @@ export interface DeepLinkPayload {
   scheme: string;
   host: string;
   pathname: string;
+  search: string;
   query: Readonly<Record<string, string>>;
 }
+
+export type DeepLinkRouteMatcher = string | RegExp | ((payload: DeepLinkPayload) => boolean);
+
+export interface DeepLinkRouteOptions {
+  host?: string;
+  path?: DeepLinkRouteMatcher;
+}
+
+export interface DeepLinkMiddlewareContext {
+  payload: DeepLinkPayload;
+  handled: boolean;
+}
+
+export type DeepLinkMiddleware = (
+  context: DeepLinkMiddlewareContext,
+  next: () => Promise<void>
+) => void | Promise<void>;
 
 export interface DeepLinkClientApi {
   dispatch(url: string): Promise<void>;
@@ -378,6 +517,15 @@ export interface DeepLinksApi extends DeepLinkClientApi {
     path: string,
     handler: (payload: DeepLinkPayload) => boolean | Promise<boolean>
   ): Disposable;
+  register(
+    route: DeepLinkRouteOptions,
+    handler: (payload: DeepLinkPayload) => boolean | Promise<boolean>
+  ): Disposable;
+  registerHost(
+    host: string,
+    handler: (payload: DeepLinkPayload) => boolean | Promise<boolean>
+  ): Disposable;
+  use(middleware: DeepLinkMiddleware): Disposable;
 }
 
 export interface PluginV2Logger {
@@ -407,6 +555,13 @@ export interface PluginsApi {
   enable(name: string): Promise<void>;
   disable(name: string): Promise<void>;
   reload(name: string): Promise<void>;
+  uninstall(name: string): Promise<void>;
+  installFromDirectory(path: string): Promise<PluginInfo>;
+  installPackage(path: string): Promise<PluginInfo>;
+  installFromRegistry(
+    name: string,
+    options?: { versionRange?: string; registry?: string }
+  ): Promise<PluginInfo>;
 }
 
 export interface ServicesApi {
@@ -469,6 +624,11 @@ export interface PlayerToolbarContribution {
   action(): void | Promise<void>;
 }
 
+export interface ControlBindingContribution {
+  id: string;
+  component: PluginViewComponent;
+}
+
 export interface UiApi {
   home: { register(item: HomeContribution): Disposable };
   pages: { register(page: PageContribution): Disposable };
@@ -479,6 +639,7 @@ export interface UiApi {
     clearView(id?: string): void;
   };
   player: { registerToolbarItem(item: PlayerToolbarContribution): Disposable };
+  control: { registerBindingView(view: ControlBindingContribution): Disposable };
   menus: {
     register(item: {
       id: string;
@@ -491,6 +652,7 @@ export interface UiApi {
 
 export interface ExamAwareCommonApi<TSettings extends object = Record<string, unknown>> {
   app: AppApi;
+  appSettings: AppSettingsApi;
   player: PlayerApi;
   exams: ExamsApi;
   files: FilesApi;
@@ -514,6 +676,7 @@ export interface ExamAwareCommonApi<TSettings extends object = Record<string, un
 export interface ExamAwareMainApi<
   TSettings extends object = Record<string, unknown>
 > extends ExamAwareCommonApi<TSettings> {
+  network: NetworkApi & SocketNetworkApi;
   http: HttpApi;
   deepLinks: DeepLinksApi;
 }

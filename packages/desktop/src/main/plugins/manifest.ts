@@ -166,6 +166,7 @@ const PLUGIN_WINDOW_KINDS = new Set<PluginWindowKind>([
   'cast',
   'logs',
   'plugin-store',
+  'control-bind',
   'tray',
   'plugin'
 ])
