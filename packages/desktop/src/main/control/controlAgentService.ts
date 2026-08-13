@@ -218,6 +218,36 @@ export class ControlAgentService {
     )
   }
 
+  suspend(): void {
+    if (!this.started) return
+    this.started = false
+    this.clearTimers()
+    this.closeSocket(CONTROL_WEBSOCKET_CLOSE_CODES.normal, 'built-in control provider suspended')
+    this.updateSnapshot('stopped')
+  }
+
+  async resume(): Promise<void> {
+    if (this.started) return
+    this.started = true
+    if (!this.registration) {
+      try {
+        this.registration = await this.options.credentialStore.load()
+      } catch (error) {
+        const controlError = ControlAgentError.from(error, 'credential_load_failed')
+        this.updateSnapshot('unenrolled', controlError)
+        this.options.logger.error('[control] failed to load device credential', controlError)
+        return
+      }
+    }
+    if (!this.registration) {
+      this.updateSnapshot('unenrolled')
+      return
+    }
+    this.startCredentialWatcher()
+    this.reconnectAttempt = 0
+    this.connect(false)
+  }
+
   async clearEnrollment(): Promise<void> {
     this.disposeCredentialWatcher?.()
     this.disposeCredentialWatcher = undefined

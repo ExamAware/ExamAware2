@@ -113,8 +113,13 @@ const api: DesktopBridge = {
     fetchSourceIndex: (payload) => ipc.invoke(ipcChannels.plugins.fetchSource, payload),
     installFromRegistry: (payload) => ipc.invoke(ipcChannels.plugins.installRegistry, payload),
     fetchRegistryReadme: (payload) => ipc.invoke(ipcChannels.plugins.registryReadme, payload),
-    installPackage: (filePath) => ipc.invoke(ipcChannels.plugins.installPackage, filePath),
-    installDirectory: (directory) => ipc.invoke(ipcChannels.plugins.installDirectory, directory),
+    inspectPackage: (filePath) => ipc.invoke(ipcChannels.plugins.inspectPackage, filePath),
+    inspectDirectory: (directory) => ipc.invoke(ipcChannels.plugins.inspectDirectory, directory),
+    inspectRegistry: (request) => ipc.invoke(ipcChannels.plugins.inspectRegistry, request),
+    installPackage: (filePath, approval) =>
+      ipc.invoke(ipcChannels.plugins.installPackage, { path: filePath, approval }),
+    installDirectory: (directory, approval) =>
+      ipc.invoke(ipcChannels.plugins.installDirectory, { path: directory, approval }),
     onRegistryProgress: (listener) => ipc.on(ipcChannels.plugins.registryProgress, listener),
     rpc: (pluginName) => {
       const channels = pluginRpcChannels(pluginName)

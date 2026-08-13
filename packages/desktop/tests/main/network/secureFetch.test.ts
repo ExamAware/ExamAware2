@@ -81,3 +81,32 @@ describe('secureFetch', () => {
     await expect(request).rejects.toMatchObject({ code: 'cancelled', domain: 'network' })
   })
 })
+
+describe('secureFetch request ergonomics', () => {
+  it('combines base URL, query parameters, and a JSON request body', async () => {
+    const fetchMock = vi.mocked(fetch).mockResolvedValue(
+      new Response(JSON.stringify({ ok: true }), {
+        status: 201,
+        headers: { 'content-type': 'application/json' }
+      })
+    )
+
+    const response = await secureFetch('devices', {
+      baseUrl: 'https://example.com/api/',
+      method: 'POST',
+      query: { room: 12, tag: ['a', 'b'], ignored: undefined },
+      json: { online: true }
+    })
+
+    expect(response.status).toBe(201)
+    expect(fetchMock).toHaveBeenCalledWith(
+      new URL('https://example.com/api/devices?room=12&tag=a&tag=b'),
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ online: true }),
+        headers: expect.objectContaining({ 'content-type': 'application/json' })
+      })
+    )
+    fetchMock.mockRestore()
+  })
+})

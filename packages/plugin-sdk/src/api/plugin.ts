@@ -11,6 +11,7 @@ export type PluginWindowKind =
   | 'cast'
   | 'logs'
   | 'plugin-store'
+  | 'control-bind'
   | 'tray'
   | 'plugin';
 

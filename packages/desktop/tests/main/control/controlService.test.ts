@@ -185,7 +185,7 @@ describe('ControlService', () => {
     expect(state.applyTimeConfig).toHaveBeenCalledWith({ autoSync: false })
     expect(service.isManagedKey('player.uiScale')).toBe(true)
     expect(service.isManagedKey('time.autoSync')).toBe(true)
-    expect(service.getStatus().managedSettingKeys).toEqual([
+    expect(service.getBuiltinStatus().managedSettingKeys).toEqual([
       'appearance.theme',
       'player.uiScale',
       'timeSync.autoSync'
@@ -259,8 +259,41 @@ describe('ControlService', () => {
     expect(service.isUnbindPrevented()).toBe(false)
     expect(() => service.assertPluginInstallAllowed('@school/ordinary')).not.toThrow()
     expect(service.isManagedKey(MANAGED_SETTING_KEYS.appearanceTheme)).toBe(false)
-    expect(service.getStatus().managedSettingKeys).toEqual([])
+    expect(service.getBuiltinStatus().managedSettingKeys).toEqual([])
     expect(state.saveManagedValues).toHaveBeenLastCalledWith({})
+  })
+
+  it('routes public control operations through a plugin provider and resumes built-in control', async () => {
+    const service = new ControlService()
+    const agent = {
+      getSnapshot: vi.fn().mockReturnValue({ state: 'online' }),
+      getRegistration: vi.fn(),
+      onChanged: vi.fn().mockReturnValue(() => {}),
+      suspend: vi.fn(),
+      resume: vi.fn().mockResolvedValue(undefined)
+    }
+    service.attach(agent as never, { downloadArtifact: vi.fn() } as never)
+    const provider = {
+      getStatus: vi.fn(() => ({ state: 'online' as const, managedSettingKeys: [] })),
+      bind: vi.fn(() => ({ state: 'online' as const, managedSettingKeys: [] })),
+      unbind: vi.fn(() => ({ state: 'unenrolled' as const, managedSettingKeys: [] })),
+      callProctor: vi.fn()
+    }
+
+    const dispose = service.registerProvider('custom-control', provider)
+    expect(agent.suspend).toHaveBeenCalledOnce()
+
+    await expect(service.getStatus()).resolves.toMatchObject({
+      state: 'online',
+      provider: 'plugin',
+      providerPlugin: 'custom-control'
+    })
+    await service.callProctor({ occurredAt: '2026-08-13T00:00:00.000Z' })
+    expect(provider.callProctor).toHaveBeenCalledWith({ occurredAt: '2026-08-13T00:00:00.000Z' })
+
+    dispose()
+    expect(agent.resume).toHaveBeenCalledOnce()
+    expect(service.getBuiltinStatus().provider).toBe('builtin')
   })
   it('enforces prohibit, blacklist, and allowlist plugin installation policies', () => {
     const service = new ControlService()

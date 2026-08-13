@@ -7,6 +7,7 @@ export function registerNetworkHandlers(ipc: IpcRegistrar) {
     const response = await secureFetch(url, options)
     return {
       status: response.status,
+      url: response.url,
       headers: response.headers,
       body: response.body
     }

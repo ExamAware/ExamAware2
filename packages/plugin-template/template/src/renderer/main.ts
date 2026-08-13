@@ -20,7 +20,7 @@ export default defineRendererPlugin<DemoSettings>({
     });
 
     await ctx.api.ui.settings.registerPage({
-      id: 'demo',
+      id: 'examaware-plugin-template-settings',
       label: 'Plugin Settings',
       icon: 'extension',
       order: 50,

@@ -43,7 +43,11 @@ function ensureSubscribed() {
 async function refresh(): Promise<ControlStatusSnapshot> {
   ensureSubscribed()
   if (!window.api?.control) {
-    const unavailable = snapshot.value ?? { state: 'stopped', managedSettingKeys: [] }
+    const unavailable = snapshot.value ?? {
+      state: 'stopped',
+      provider: 'builtin',
+      managedSettingKeys: []
+    }
     snapshot.value = unavailable
     return unavailable
   }

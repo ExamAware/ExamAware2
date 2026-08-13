@@ -1,4 +1,5 @@
-import { DeepLink } from './deepLinkDecorators'
+import { DeepLinkHost, UseDeepLinkMiddleware } from './deepLinkDecorators'
+import type { DeepLinkMiddlewareContext } from './deepLinkManager'
 import type { DeepLinkPayload } from '../../shared/types/deepLink'
 import type { BrowserWindow } from 'electron'
 import { createEditorWindow } from '../windows/editorWindow'
@@ -15,16 +16,16 @@ export interface DeepLinkControllerDeps {
 export class AppDeepLinkController {
   constructor(private deps: DeepLinkControllerDeps) {}
 
-  @DeepLink('core:focus-and-broadcast')
-  focusAndBroadcast(payload: DeepLinkPayload) {
+  @UseDeepLinkMiddleware()
+  async focusAndBroadcast(context: DeepLinkMiddlewareContext, next: () => Promise<void>) {
     this.deps.focusMainWindow()
-    this.deps.broadcast(payload)
-    return true
+    this.deps.broadcast(context.payload)
+    context.handled = true
+    await next()
   }
 
-  @DeepLink('core:settings')
+  @DeepLinkHost('settings', 'core:settings')
   openSettings(payload: DeepLinkPayload) {
-    if (payload.host !== 'settings') return false
     const page =
       payload.query.page || payload.query.tab || payload.pathname.replace('/', '') || undefined
     try {
@@ -36,9 +37,8 @@ export class AppDeepLinkController {
     return true
   }
 
-  @DeepLink('core:editor')
+  @DeepLinkHost('editor', 'core:editor')
   async openEditor(payload: DeepLinkPayload) {
-    if (payload.host !== 'editor') return false
     const file = payload.query.file
     const data = payload.query.data
     let target: string | undefined
@@ -61,9 +61,8 @@ export class AppDeepLinkController {
     }
   }
 
-  @DeepLink('core:player')
+  @DeepLinkHost('player', 'core:player')
   async openPlayer(payload: DeepLinkPayload) {
-    if (payload.host !== 'player') return false
     const file = payload.query.file
     const data = payload.query.data
     let target: string | undefined

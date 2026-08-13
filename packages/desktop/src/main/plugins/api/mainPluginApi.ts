@@ -8,9 +8,11 @@ import {
   definePluginApiModule,
   definePluginApiModuleToken,
   type AppApi,
+  type AppSettingsApi,
   type CastApi,
   type ControlApi,
   type CommandsApi,
+  type DeepLinkRouteOptions,
   type DeepLinksApi,
   type DialogsApi,
   type EventsApi,
@@ -21,7 +23,10 @@ import {
   type LoggingApi,
   type MainPluginContext,
   type NetworkApi,
+  type NetworkHttpClient,
+  type NetworkRequestOptions,
   type NetworkResponse,
+  type SocketNetworkApi,
   type NotificationsApi,
   type PlayerApi,
   type PlayerSession,
@@ -44,7 +49,19 @@ import {
   createPluginApiValueModule
 } from '../../../shared/pluginApi/runtime'
 import { secureFetch } from '../../network/secureFetch'
+import {
+  connectPluginTcp,
+  connectPluginWebSocket,
+  createPluginUdpSocket
+} from '../../network/pluginSockets'
 import { controlService } from '../../control/controlService'
+import {
+  getAllConfig,
+  getConfig,
+  onConfigChanged,
+  patchConfig,
+  setConfig
+} from '../../config/configStore'
 import { playerSessionService } from '../../player/playerSessionService'
 import { assertControlSessionClosable } from '../../player/controlSessionGuard'
 import { createMainWindow } from '../../windows/mainWindow'
@@ -151,6 +168,13 @@ interface MainApiEnvironment {
   listPlugins(): PluginListItem[]
   setEnabled(name: string, enabled: boolean): Promise<void>
   reload(name: string): Promise<void>
+  uninstall(name: string): Promise<void>
+  installFromDirectory(path: string): Promise<PluginListItem>
+  installPackage(path: string): Promise<PluginListItem>
+  installFromRegistry(
+    name: string,
+    options?: { versionRange?: string; registry?: string }
+  ): Promise<PluginListItem>
 }
 
 const commandHandlers = new Map<
@@ -166,6 +190,41 @@ export async function createMainPluginContext(
   const scope = new AsyncDisposableScope()
   const permissions = createPermissionApi(manifest.name, manifest.permissions)
 
+  const appSettingsApi: AppSettingsApi = {
+    all: async () => {
+      permissions.require(PluginPermissions.App.SettingsRead)
+      return getAllConfig()
+    },
+    get: async (key, defaultValue) => {
+      permissions.require(PluginPermissions.App.SettingsRead)
+      return getConfig(key, defaultValue)
+    },
+    set: async (key, value) => {
+      permissions.require(PluginPermissions.App.SettingsWrite)
+      if (controlService.isManagedKey(key)) {
+        throw new PluginApiError('permission-denied', 'app-settings', '该设置由集控提供者管理')
+      }
+      setConfig(key, value)
+      if (key.startsWith('time.')) applyTimeConfig({ [key.slice(5)]: value })
+    },
+    patch: async (settings) => {
+      permissions.require(PluginPermissions.App.SettingsWrite)
+      const managed = collectConfigKeys(settings).find((key) => controlService.isManagedKey(key))
+      if (managed) {
+        throw new PluginApiError(
+          'permission-denied',
+          'app-settings',
+          `设置 ${managed} 由集控提供者管理`
+        )
+      }
+      patchConfig(settings)
+      applyAppSettingsTimePatch(settings)
+    },
+    onChanged: (listener) => {
+      permissions.require(PluginPermissions.App.SettingsRead)
+      return own(scope, { dispose: onConfigChanged(listener) })
+    }
+  }
   const filesApi: FilesApi = {
     open: async (options = {}) => {
       permissions.require(PluginPermissions.Files.Dialog)
@@ -422,29 +481,79 @@ export async function createMainPluginContext(
       const prepared = await playerSessionService.prepare(
         source,
         {},
-        {
-          allowLocalNetwork: permissions.has(PluginPermissions.Network.Local)
-        }
+        { allowLocalNetwork: permissions.has(PluginPermissions.Network.Local) }
       )
       await castService.castToPeer(peerId, prepared.json)
     }
   }
 
+  const executeNetworkRequest = async (
+    url: string,
+    options: NetworkRequestOptions = {}
+  ): Promise<NetworkResponse> => {
+    permissions.require(PluginPermissions.Network.Http)
+    if (options.allowLocalNetwork) permissions.require(PluginPermissions.Network.Local)
+    return mapNetworkResponse(
+      await secureFetch(url, {
+        ...options,
+        allowLocalNetwork: options.allowLocalNetwork === true
+      })
+    )
+  }
+  const createHttpClient = (defaults: NetworkRequestOptions = {}): NetworkHttpClient => ({
+    request: (url, options) => executeNetworkRequest(url, mergeNetworkOptions(defaults, options)),
+    get: (url, options) =>
+      executeNetworkRequest(url, { ...mergeNetworkOptions(defaults, options), method: 'GET' }),
+    delete: (url, options) =>
+      executeNetworkRequest(url, { ...mergeNetworkOptions(defaults, options), method: 'DELETE' }),
+    post: (url, body, options) =>
+      executeNetworkRequest(url, {
+        ...mergeNetworkOptions(defaults, options),
+        method: 'POST',
+        json: body
+      }),
+    put: (url, body, options) =>
+      executeNetworkRequest(url, {
+        ...mergeNetworkOptions(defaults, options),
+        method: 'PUT',
+        json: body
+      }),
+    patch: (url, body, options) =>
+      executeNetworkRequest(url, {
+        ...mergeNetworkOptions(defaults, options),
+        method: 'PATCH',
+        json: body
+      })
+  })
   const networkApi: NetworkApi = {
-    request: async (url, options = {}) => {
-      permissions.require(PluginPermissions.Network.Http)
-      if (options.allowLocalNetwork) permissions.require(PluginPermissions.Network.Local)
-      return mapNetworkResponse(
-        await secureFetch(url, {
-          ...options,
-          allowLocalNetwork: options.allowLocalNetwork === true
-        })
-      )
+    ...createHttpClient(),
+    getText: async (url, options) => (await executeNetworkRequest(url, options)).text(),
+    getJson: async (url, options) => (await executeNetworkRequest(url, options)).json(),
+    createClient: createHttpClient
+  }
+  const socketNetworkApi: SocketNetworkApi = {
+    connectWebSocket: async (url, options) => {
+      permissions.require(PluginPermissions.Network.WebSocket)
+      if (options?.allowLocalNetwork) permissions.require(PluginPermissions.Network.Local)
+      return own(scope, await connectPluginWebSocket(url, options))
     },
-    getText: async (url, options) =>
-      new TextDecoder().decode((await networkApi.request(url, options)).body),
-    getJson: async (url, options) =>
-      JSON.parse(new TextDecoder().decode((await networkApi.request(url, options)).body))
+    connectTcp: async (options) => {
+      permissions.require(PluginPermissions.Network.Tcp)
+      if (options.allowLocalNetwork) permissions.require(PluginPermissions.Network.Local)
+      return own(scope, await connectPluginTcp(options))
+    },
+    createUdpSocket: async (options) => {
+      permissions.require(PluginPermissions.Network.Udp)
+      if (options?.localAddress !== undefined || options?.localPort !== undefined) {
+        permissions.require(PluginPermissions.Network.Listen)
+      }
+      if (options?.allowLocalNetwork) permissions.require(PluginPermissions.Network.Local)
+      return own(scope, await createPluginUdpSocket(options))
+    }
+  }
+  const mainNetworkApi: NetworkApi & SocketNetworkApi = {
+    ...networkApi,
+    ...socketNetworkApi
   }
 
   const httpApi: HttpApi = {
@@ -488,12 +597,45 @@ export async function createMainPluginContext(
     }
   }
 
+  let deepLinkRegistrationSequence = 0
+  const nextDeepLinkRegistrationName = (kind: string) =>
+    `${manifest.name}:${kind}:${++deepLinkRegistrationSequence}`
   const deepLinksApi: DeepLinksApi = {
-    register: (route, handler) => {
+    register: ((
+      route: string | DeepLinkRouteOptions,
+      handler: Parameters<DeepLinksApi['register']>[1]
+    ) => {
       permissions.require(PluginPermissions.DeepLinks.Register)
-      const dispose = deepLinkManager.registerHandler(`${manifest.name}:${route}`, (payload) =>
-        handler({ ...payload, query: { ...payload.query } })
+      const options = typeof route === 'string' ? legacyDeepLinkRoute(route) : route
+      const dispose = deepLinkManager.registerRoute(
+        nextDeepLinkRegistrationName('route'),
+        options,
+        (payload) => handler(cloneDeepLinkPayload(payload))
       )
+      return own(scope, { dispose })
+    }) as DeepLinksApi['register'],
+    registerHost: (host, handler) => {
+      permissions.require(PluginPermissions.DeepLinks.Register)
+      const dispose = deepLinkManager.registerRoute(
+        nextDeepLinkRegistrationName('host'),
+        { host },
+        (payload) => handler(cloneDeepLinkPayload(payload))
+      )
+      return own(scope, { dispose })
+    },
+    use: (middleware) => {
+      permissions.require(PluginPermissions.DeepLinks.Register)
+      const dispose = deepLinkManager.use(async (context, next) => {
+        const pluginContext = {
+          payload: cloneDeepLinkPayload(context.payload),
+          handled: context.handled
+        }
+        await middleware(pluginContext, async () => {
+          await next()
+          pluginContext.handled = context.handled
+        })
+        context.handled = pluginContext.handled
+      })
       return own(scope, { dispose })
     },
     dispatch: async (url) => {
@@ -503,9 +645,9 @@ export async function createMainPluginContext(
     onOpened: (listener) => {
       permissions.require(PluginPermissions.Events.Subscribe)
       const dispose = deepLinkManager.registerHandler(
-        `${manifest.name}:listener:${Date.now()}`,
+        nextDeepLinkRegistrationName('listener'),
         (payload) => {
-          listener({ ...payload, query: { ...payload.query } })
+          listener(cloneDeepLinkPayload(payload))
           return false
         }
       )
@@ -545,6 +687,22 @@ export async function createMainPluginContext(
     reload: async (name) => {
       permissions.require(PluginPermissions.Plugins.Manage)
       await environment.reload(name)
+    },
+    uninstall: async (name) => {
+      permissions.require(PluginPermissions.Plugins.Manage)
+      await environment.uninstall(name)
+    },
+    installFromDirectory: async (directory) => {
+      permissions.require(PluginPermissions.Plugins.Install)
+      return mapPluginInfo(await environment.installFromDirectory(directory))
+    },
+    installPackage: async (file) => {
+      permissions.require(PluginPermissions.Plugins.Install)
+      return mapPluginInfo(await environment.installPackage(file))
+    },
+    installFromRegistry: async (name, options) => {
+      permissions.require(PluginPermissions.Plugins.Install)
+      return mapPluginInfo(await environment.installFromRegistry(name, options))
     }
   }
 
@@ -600,9 +758,25 @@ export async function createMainPluginContext(
       permissions.require(PluginPermissions.Control.Manage)
       return controlService.unbind()
     },
-    callProctor: async () => {
+    callProctor: async (input) => {
       permissions.require(PluginPermissions.Control.Manage)
-      await controlService.callProctor()
+      await controlService.callProctor(input)
+    },
+    registerProvider: (provider) => {
+      permissions.require(PluginPermissions.Control.Replace)
+      return own(scope, { dispose: controlService.registerProvider(manifest.name, provider) })
+    },
+    useBuiltinProvider: async () => {
+      permissions.require(PluginPermissions.Control.Replace)
+      controlService.useBuiltinProvider(manifest.name)
+    },
+    applyManagedSettings: async (settings, options) => {
+      permissions.require(PluginPermissions.Control.Policy)
+      controlService.applyManagedSettings(settings, options?.replace === true)
+    },
+    clearManagedSettings: async (keys) => {
+      permissions.require(PluginPermissions.Control.Policy)
+      controlService.clearManagedSettings(keys)
     }
   }
 
@@ -612,6 +786,7 @@ export async function createMainPluginContext(
     examsModule,
     createPluginApiValueModule('core.player', 'main', 'player', playerApi),
     createPluginApiValueModule('core.files', 'main', 'files', filesApi),
+    createPluginApiValueModule('core.app-settings', 'main', 'appSettings', appSettingsApi),
     createPluginApiValueModule('core.settings', 'main', 'settings', settingsApi),
     createPluginApiValueModule('core.windows', 'main', 'windows', windowsApi),
     createPluginApiValueModule('core.dialogs', 'main', 'dialogs', dialogsApi),
@@ -620,7 +795,7 @@ export async function createMainPluginContext(
     createPluginApiValueModule('core.notifications', 'main', 'notifications', notificationsApi),
     createPluginApiValueModule('core.time', 'main', 'time', timeApi),
     createPluginApiValueModule('core.cast', 'main', 'cast', castApi),
-    createPluginApiValueModule('core.network', 'main', 'network', networkApi),
+    createPluginApiValueModule('core.network', 'main', 'network', mainNetworkApi),
     createPluginApiValueModule('core.http', 'main', 'http', httpApi),
     createPluginApiValueModule('core.deep-links', 'main', 'deepLinks', deepLinksApi),
     createPluginApiValueModule('core.logging', 'main', 'logging', loggingApi),
@@ -650,6 +825,27 @@ export async function createMainPluginContext(
     scope,
     initialSettings: runtime.settings.all(),
     api
+  }
+}
+
+function collectConfigKeys(value: unknown, prefix = ''): string[] {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return prefix ? [prefix] : []
+  const keys: string[] = []
+  for (const [key, child] of Object.entries(value)) {
+    const path = prefix ? `${prefix}.${key}` : key
+    if (child && typeof child === 'object' && !Array.isArray(child)) {
+      keys.push(...collectConfigKeys(child, path))
+    } else {
+      keys.push(path)
+    }
+  }
+  return keys
+}
+
+function applyAppSettingsTimePatch(settings: Readonly<Record<string, unknown>>): void {
+  const time = settings.time
+  if (time && typeof time === 'object' && !Array.isArray(time)) {
+    applyTimeConfig(time as Record<string, unknown>)
   }
 }
 
@@ -750,6 +946,8 @@ function mapTimeInfo(info: ReturnType<typeof getTimeSyncInfo>) {
 function mapNetworkResponse(result: Awaited<ReturnType<typeof secureFetch>>): NetworkResponse {
   return {
     status: result.status,
+    ok: result.status >= 200 && result.status < 300,
+    url: result.url,
     headers: result.headers,
     body: result.body,
     text: () => new TextDecoder().decode(result.body),
@@ -768,6 +966,35 @@ function mapPluginInfo(item: PluginListItem, manifest?: ResolvedPluginManifest):
   }
 }
 
+function legacyDeepLinkRoute(route: string): DeepLinkRouteOptions {
+  const normalized = route.trim()
+  if (!normalized || normalized === '/') return {}
+  const segments = normalized.replace(/^\/+/, '').split('/')
+  const host = segments.shift()
+  return {
+    host,
+    path: segments.length ? `/${segments.join('/')}` : '/'
+  }
+}
+
+function cloneDeepLinkPayload<T extends { query: Readonly<Record<string, string>> }>(
+  payload: T
+): T {
+  return { ...payload, query: { ...payload.query } }
+}
+
 function fsWatch(path: string, listener: () => void) {
   return watchFile(path, listener)
+}
+
+function mergeNetworkOptions(
+  defaults: NetworkRequestOptions,
+  overrides: NetworkRequestOptions = {}
+): NetworkRequestOptions {
+  return {
+    ...defaults,
+    ...overrides,
+    headers: { ...defaults.headers, ...overrides.headers },
+    query: { ...defaults.query, ...overrides.query }
+  }
 }

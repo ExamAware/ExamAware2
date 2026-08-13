@@ -1,5 +1,6 @@
 import { ref, shallowRef, type Ref } from 'vue'
 import type {
+  PluginInstallApproval,
   PluginListItem,
   RegistryInstallOptions,
   RegistryInstallProgress,
@@ -16,11 +17,11 @@ import type {
   PluginRuntimeContext,
   RendererPluginContext
 } from '@dsz-examaware/plugin-sdk'
+import { JsonRpcClient, JsonRpcServer, createRpcProxy } from '@dsz-examaware/rpc'
 import type { AppContext } from '../app/types'
 import { DisposerGroup } from './disposable'
 import type { DesktopAPI } from './desktopApi'
 import { createEauiApi } from './eaui'
-import { JsonRpcClient, JsonRpcServer, createRpcProxy } from '@dsz-examaware/rpc'
 import {
   createRendererPluginContext,
   getCurrentPluginWindowKind
@@ -100,9 +101,19 @@ export interface RendererPluginHost {
     pkg: string,
     options?: { version?: string; registry?: string }
   ): Promise<RegistryReadmeResult>
-  installPackage(filePath: string): Promise<{ installedPath: string; list: PluginListItem[] }>
-  installDir(dirPath: string): Promise<{ installedPath: string; list: PluginListItem[] }>
-  installFromRegistry(pkg: string, options?: RegistryInstallOptions): Promise<RegistryInstallResult>
+  installPackage(
+    filePath: string,
+    approval?: PluginInstallApproval
+  ): Promise<{ installedPath: string; list: PluginListItem[] }>
+  installDir(
+    dirPath: string,
+    approval?: PluginInstallApproval
+  ): Promise<{ installedPath: string; list: PluginListItem[] }>
+  installFromRegistry(
+    pkg: string,
+    options?: RegistryInstallOptions,
+    approval?: PluginInstallApproval
+  ): Promise<RegistryInstallResult>
   fetchSourceIndex(payload?: PluginSourceFetchRequest): Promise<PluginSourceFetchResult>
   getConfig<T = Record<string, any>>(name: string): Promise<T | undefined>
   setConfig<T = Record<string, any>>(name: string, config: T): Promise<T | undefined>
@@ -333,25 +344,28 @@ export function createDesktopPluginHost(ctx: AppContext): RendererPluginHost {
     })
   }
 
-  const installPackage = async (filePath: string) => {
+  const installPackage = async (filePath: string, approval?: PluginInstallApproval) => {
     if (typeof bridge.installPackage !== 'function') {
       throw new Error('当前版本不支持安装插件包')
     }
-    const result = await bridge.installPackage(filePath)
+    const result = await bridge.installPackage(filePath, approval)
     await refresh()
     return result
   }
-
-  const installDir = async (dirPath: string) => {
+  const installDir = async (dirPath: string, approval?: PluginInstallApproval) => {
     if (typeof bridge.installDirectory !== 'function') {
-      throw new Error('当前版本不支持安装解压插件')
+      throw new Error('当前版本不支持安装解压目录')
     }
-    const result = await bridge.installDirectory(dirPath)
+    const result = await bridge.installDirectory(dirPath, approval)
     await refresh()
     return result
   }
 
-  const installFromRegistry = async (pkg: string, options?: RegistryInstallOptions) => {
+  const installFromRegistry = async (
+    pkg: string,
+    options?: RegistryInstallOptions,
+    approval?: PluginInstallApproval
+  ) => {
     if (typeof bridge.installFromRegistry !== 'function') {
       throw new Error('当前版本不支持从注册表安装插件')
     }
@@ -359,7 +373,8 @@ export function createDesktopPluginHost(ctx: AppContext): RendererPluginHost {
       pkg,
       versionRange: options?.versionRange,
       registry: options?.registry,
-      requestId: options?.requestId
+      requestId: options?.requestId,
+      approval
     })
     registryProgress.value = null
     await refresh()

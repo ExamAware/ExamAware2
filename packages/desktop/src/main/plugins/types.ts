@@ -13,6 +13,8 @@ import type {
 export type { PluginLogger, PluginRuntimeContext, PluginSettingsAPI, ServiceAPI } from './hosting'
 export type {
   PluginError,
+  PluginInstallApproval,
+  PluginInstallPermissionRequest,
   PluginInstallResult,
   PluginListItem,
   PluginStatus,

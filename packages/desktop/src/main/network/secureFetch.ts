@@ -7,9 +7,22 @@ const DEFAULT_MAX_BYTES = 2 * 1024 * 1024
 const MAX_REDIRECTS = 5
 
 export interface SecureFetchOptions {
+  baseUrl?: string
   method?: string
   headers?: Readonly<Record<string, string>>
+  query?: Readonly<
+    Record<
+      string,
+      | string
+      | number
+      | boolean
+      | null
+      | undefined
+      | readonly (string | number | boolean | null | undefined)[]
+    >
+  >
   body?: string | Uint8Array
+  json?: unknown
   timeoutMs?: number
   maxBytes?: number
   allowLocalNetwork?: boolean
@@ -27,7 +40,8 @@ export async function secureFetch(
   input: string,
   options: SecureFetchOptions = {}
 ): Promise<SecureFetchResult> {
-  let current = parseHttpUrl(input)
+  let current = parseHttpUrl(options.baseUrl ? new URL(input, options.baseUrl).toString() : input)
+  appendQuery(current, options.query)
   const timeoutMs = normalizePositiveInteger(options.timeoutMs, DEFAULT_TIMEOUT_MS, 300_000)
   const maxBytes = normalizePositiveInteger(options.maxBytes, DEFAULT_MAX_BYTES, 10 * 1024 * 1024)
   const controller = new AbortController()
@@ -40,13 +54,22 @@ export async function secureFetch(
       await assertNetworkTargetAllowed(current, options.allowLocalNetwork === true)
       let response: Response
       try {
+        const headers = { ...options.headers }
+        const jsonBody = options.json === undefined ? undefined : JSON.stringify(options.json)
+        if (
+          jsonBody !== undefined &&
+          !Object.keys(headers).some((key) => key.toLowerCase() === 'content-type')
+        ) {
+          headers['content-type'] = 'application/json'
+        }
         response = await fetch(current, {
           method: options.method ?? 'GET',
-          headers: options.headers,
+          headers,
           body:
-            typeof options.body === 'string' || options.body === undefined
+            jsonBody ??
+            (typeof options.body === 'string' || options.body === undefined
               ? options.body
-              : new Uint8Array(options.body).buffer,
+              : new Uint8Array(options.body).buffer),
           redirect: 'manual',
           signal: controller.signal
         })
@@ -130,16 +153,18 @@ function parseHttpUrl(input: string) {
 }
 
 async function assertNetworkTargetAllowed(url: URL, allowLocalNetwork: boolean) {
+  await assertNetworkHostAllowed(url.hostname, allowLocalNetwork)
+}
+
+async function assertNetworkHostAllowed(input: string, allowLocalNetwork: boolean) {
   if (allowLocalNetwork) return
-  const host = url.hostname.toLowerCase().replace(/^\[|\]$/g, '')
+  const host = input.toLowerCase().replace(/^\[|\]$/g, '')
   if (host === 'localhost' || host.endsWith('.localhost') || isPrivateAddress(host)) {
     throw new PluginApiError(
       'permission-denied',
       'network',
       '访问本机或局域网地址需要 network.local 权限',
-      {
-        host
-      }
+      { host }
     )
   }
 
@@ -154,10 +179,7 @@ async function assertNetworkTargetAllowed(url: URL, allowLocalNetwork: boolean) 
       'permission-denied',
       'network',
       '访问本机或局域网地址需要 network.local 权限',
-      {
-        host,
-        addresses: addresses.map(({ address }) => address)
-      }
+      { host, addresses: addresses.map(({ address }) => address) }
     )
   }
 }
@@ -220,4 +242,22 @@ function normalizePositiveInteger(value: number | undefined, fallback: number, m
     throw new PluginApiError('invalid-argument', 'network', '限制值必须是正数', { value })
   }
   return Math.min(Math.floor(value), maximum)
+}
+
+function appendQuery(url: URL, query: SecureFetchOptions['query']): void {
+  if (!query) return
+  for (const [key, raw] of Object.entries(query)) {
+    const values = Array.isArray(raw) ? raw : [raw]
+    for (const value of values) {
+      if (value === undefined || value === null) continue
+      url.searchParams.append(key, String(value))
+    }
+  }
+}
+
+export async function assertPluginNetworkTargetAllowed(
+  host: string,
+  allowLocalNetwork: boolean
+): Promise<void> {
+  await assertNetworkHostAllowed(host, allowLocalNetwork)
 }

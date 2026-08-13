@@ -33,7 +33,7 @@ describe('plugin manifest V2', () => {
       apiVersion: 2,
       targets: { main: 'dist/main.mjs', renderer: 'dist/renderer.js' },
       permissions: [PluginPermissions.Player.Start, PluginPermissions.Player.Start],
-      activation: { rendererWindows: ['main', 'plugin', 'main'] },
+      activation: { rendererWindows: ['main', 'plugin', 'control-bind', 'main'] },
       services: { provide: ['clock', 'clock'], inject: ['settings'] },
       settings: { schema: 'schema/settings.json' }
     })
@@ -43,11 +43,30 @@ describe('plugin manifest V2', () => {
     expect(manifest).toMatchObject({
       apiVersion: 2,
       permissions: [PluginPermissions.Player.Start],
-      activation: { rendererWindows: ['main', 'plugin'] },
+      activation: { rendererWindows: ['main', 'plugin', 'control-bind'] },
       services: { provide: ['clock'], inject: ['settings'] }
     })
     expect(manifest?.targets.main?.file).toBe(join(directory, 'dist/main.mjs'))
     expect(manifest?.settings.schema).toBe(join(directory, 'schema/settings.json'))
+  })
+
+  it('recognizes control, application, and socket permissions', async () => {
+    const expectedPermissions = [
+      PluginPermissions.Control.Replace,
+      PluginPermissions.Control.Policy,
+      PluginPermissions.App.SettingsRead,
+      PluginPermissions.App.SettingsWrite,
+      PluginPermissions.Network.WebSocket,
+      PluginPermissions.Network.Tcp,
+      PluginPermissions.Network.Udp,
+      PluginPermissions.Network.Listen,
+      PluginPermissions.Plugins.Install
+    ]
+    await writePackage({ apiVersion: 2, permissions: expectedPermissions })
+
+    const manifest = await loadManifestFromPackage(directory)
+
+    expect(manifest?.permissions).toEqual(expectedPermissions)
   })
 
   it('defaults V2 renderer activation to the main window', async () => {
