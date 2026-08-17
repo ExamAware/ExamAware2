@@ -27,7 +27,7 @@
     "control:protocol:build": "pnpm --filter @dsz-examaware/control-protocol build",
     "control:console:build": "pnpm --filter @dsz-examaware/control-console build",
     "control:console:dev": "pnpm --filter @dsz-examaware/control-console dev",
-    "control:build": "pnpm core:build && pnpm control:protocol:build && pnpm --filter @dsz-examaware/control-server build && pnpm control:console:build",
+    "control:build": "pnpm core:build && pnpm player:build && pnpm control:protocol:build && pnpm --filter @dsz-examaware/control-server build && pnpm control:console:build",
     "control:dev": "pnpm core:build && pnpm control:protocol:build && pnpm --filter @dsz-examaware/control-server dev",
     "control:db:up": "docker compose up -d --wait control-postgres",
     "control:db:down": "docker compose down",

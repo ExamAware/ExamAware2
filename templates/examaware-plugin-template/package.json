@@ -1,6 +1,6 @@
 {
   "name": "@dsz-examaware/plugin-demo",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": false,
   "type": "module",
   "main": "./dist/main/index.cjs",
@@ -21,6 +21,9 @@
     "apiVersion": 2,
     "displayName": "ExamAware Demo Plugin",
     "description": "A starter plugin showing main + renderer wiring with a settings page.",
+    "engines": {
+      "sdk": ">=1.0.0 <2.0.0"
+    },
     "targets": {
       "main": "./dist/main/index.cjs",
       "renderer": "./dist/renderer/index.mjs"
@@ -48,7 +51,7 @@
   },
   "dependencies": {
     "vue": "^3.5.26",
-    "@dsz-examaware/plugin-sdk": "^1.5.0"
+    "@dsz-examaware/plugin-sdk": "^1.5.2"
   },
   "devDependencies": {
     "@types/node": "^20.19.27",

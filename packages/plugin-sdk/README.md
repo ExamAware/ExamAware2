@@ -18,6 +18,10 @@ pnpm pack
 {
   "examaware": {
     "apiVersion": 2,
+    "engines": {
+      "desktop": ">=1.5.0",
+      "sdk": ">=1.0.0 <2.0.0"
+    },
     "targets": {
       "main": "./dist/main/index.cjs",
       "renderer": "./dist/renderer/index.mjs"
@@ -31,6 +35,13 @@ pnpm pack
 ```
 
 V2 manifest 采用严格校验。未知权限、未知窗口类型、不支持的 API 版本和越出插件目录的入口路径都会在加载时直接报错。
+
+版本兼容采用范围而不是与客户端版本一一对应：
+
+- 客户端声明其接受的插件 SDK 范围；当前 1.x 客户端接受 `>=1.0.0 <2.0.0`。
+- 插件可用 `examaware.engines.desktop` 声明可运行的客户端版本范围，用 `examaware.engines.sdk` 声明可接受的宿主 SDK 范围。
+- `dependencies["@dsz-examaware/plugin-sdk"]` 表示插件构建时使用的 SDK。旧插件写死的 `1.4.4` 会被视为最低 SDK 版本，因此可在提供 1.5.x SDK 的客户端中运行，而不是要求版本完全相等。
+- 为兼容历史清单，`examaware.engines.sdk` 中的裸版本也按“该版本至下一个主版本”解释；需要严格锁定时应显式写 `=1.4.4`。
 
 ## 生命周期
 

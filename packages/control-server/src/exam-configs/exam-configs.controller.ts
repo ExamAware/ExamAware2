@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   HttpCode,
   Inject,
   Param,
@@ -16,7 +17,7 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { ApiBody, ApiConsumes, ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Roles, Session } from '@thallesp/nestjs-better-auth';
+import { AllowAnonymous, Roles, Session } from '@thallesp/nestjs-better-auth';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { API_VERSION } from '../api/application.js';
 import { PageQueryDto } from '../api/pagination.dto.js';
@@ -25,6 +26,7 @@ import type { AuthenticatedSession } from '../auth/auth.types.js';
 import {
   CreateExamConfigDto,
   CreateExamConfigVersionDto,
+  CreatePublicExamLinkDto,
   ImportExamConfigDto,
   UpdateExamConfigDto
 } from './dto/exam-config.dto.js';
@@ -44,6 +46,14 @@ export class ExamConfigsController {
   constructor(
     @Inject(ExamConfigsService) private readonly examConfigsService: ExamConfigsService
   ) {}
+
+  @Get('public-links/:token')
+  @AllowAnonymous()
+  @Header('Cache-Control', 'no-store')
+  @ApiOperation({ summary: 'Read an immutable exam configuration with a signed public link' })
+  readPublicLink(@Param('token') token: string) {
+    return this.examConfigsService.readPublicLink(token);
+  }
 
   @Get()
   @Roles(['admin', 'operator', 'viewer'])
@@ -67,6 +77,13 @@ export class ExamConfigsController {
     @Param('version', ParseIntPipe) version: number
   ) {
     return this.examConfigsService.getVersion(id, version);
+  }
+
+  @Post(':id/public-link')
+  @Roles(['admin', 'operator'])
+  @ApiOperation({ summary: 'Create a time-limited public exam playback link' })
+  createPublicLink(@Param('id', ParseUUIDPipe) id: string, @Body() input: CreatePublicExamLinkDto) {
+    return this.examConfigsService.createPublicLink(id, input.version, input.expiresInSeconds);
   }
 
   @Post()

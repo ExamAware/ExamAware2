@@ -11,6 +11,12 @@ export const allRoutes: RouteRecordRaw[] = [
     meta: { anonymous: true, title: '浏览器不兼容' }
   },
   {
+    path: '/player',
+    name: 'PublicExamPlayer',
+    component: () => import('@/pages/player/index.vue'),
+    meta: { anonymous: true, skipAuthentication: true, title: '在线放映' }
+  },
+  {
     path: '/login',
     name: 'login',
     component: () => import('@/pages/login/index.vue'),

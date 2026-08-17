@@ -2,7 +2,7 @@
 
 ExamAware 集控中心由控制台、控制服务和 PostgreSQL 组成。服务器只需要发布包、Docker Engine 和 Docker Compose v2；无需克隆源码仓库。
 
-当前发布版本：`control-v0.1.2`。
+当前发布版本：`control-v0.1.3`。
 
 ## 系统要求
 
@@ -146,7 +146,7 @@ bash /tmp/examaware-control-install.sh
 也可指定本版本：
 
 ```bash
-bash /tmp/examaware-control-install.sh control-v0.1.2
+bash /tmp/examaware-control-install.sh control-v0.1.3
 ```
 
 为兼容上一版归档布局，原命令仍可完成一次传统更新并落盘新脚本：

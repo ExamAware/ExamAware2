@@ -108,7 +108,7 @@ export async function loadManifestFromPackage(
 
   const engines = {
     desktop: meta.engines?.desktop ?? pkg.engines?.examawareDesktop ?? pkg.engines?.examaware,
-    sdk: meta.engines?.sdk ?? sdkVersionFromDeps
+    sdk: meta.engines?.sdk
   }
 
   const resolved: ResolvedPluginManifest = {
@@ -126,7 +126,7 @@ export async function loadManifestFromPackage(
       renderer: toEntry(packageDir, targets.renderer)
     },
     engines,
-    sdkVersion: meta.engines?.sdk ?? sdkVersionFromDeps,
+    sdkDependency: sdkVersionFromDeps,
     dependencies,
     services: {
       provide: provides,

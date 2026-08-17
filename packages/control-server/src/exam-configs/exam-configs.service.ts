@@ -6,6 +6,12 @@ import {
   NotFoundException,
   UnprocessableEntityException
 } from '@nestjs/common';
+import { env } from '../config/env.js';
+import {
+  createPublicExamLink,
+  verifyPublicExamLink,
+  type PublicExamLinkResult
+} from './public-exam-link.js';
 import type { Page } from '../api/pagination.dto.js';
 import { AuditService } from '../audit/audit.service.js';
 import { DatabaseService } from '../database/database.service.js';
@@ -60,6 +66,38 @@ export class ExamConfigsService {
       });
     }
     return record;
+  }
+
+  async createPublicLink(
+    id: string,
+    version: number | undefined,
+    expiresInSeconds: number
+  ): Promise<PublicExamLinkResult> {
+    const config = await this.requireConfig(id);
+    const selectedVersion = version ?? config.latestVersion;
+    await this.getVersion(id, selectedVersion);
+    return createPublicExamLink(
+      { examConfigId: id, version: selectedVersion, expiresInSeconds },
+      env.betterAuthSecret
+    );
+  }
+
+  async readPublicLink(token: string) {
+    const payload = verifyPublicExamLink(token, env.betterAuthSecret);
+    if (!payload) {
+      throw new NotFoundException({
+        code: 'public_exam_link_invalid',
+        message: 'The public exam link is invalid or expired'
+      });
+    }
+    await this.requireConfig(payload.examConfigId);
+    const record = await this.getVersion(payload.examConfigId, payload.version);
+    return {
+      examConfigId: payload.examConfigId,
+      version: payload.version,
+      expiresAt: payload.expiresAt,
+      content: record.content
+    };
   }
 
   async create(

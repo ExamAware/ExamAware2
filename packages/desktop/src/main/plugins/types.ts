@@ -91,7 +91,7 @@ export interface ResolvedPluginManifest {
     desktop?: string
     sdk?: string
   }
-  sdkVersion?: string
+  sdkDependency?: string
   dependencies: string[]
   services: {
     provide: string[]

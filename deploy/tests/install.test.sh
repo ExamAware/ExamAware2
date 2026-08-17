@@ -307,7 +307,7 @@ prepare_pull_fixture() {
   mkdir -p "$CANDIDATE_DIR"
   cp "$ROOT/deploy/compose.yml" "$CANDIDATE_DIR/compose.yml"
   cp "$ROOT/deploy/compose.yml" "$CANDIDATE_DIR/compose.runtime.yml"
-  MODE='docker'; VERSION='control-v0.1.2'; DOMAIN=''; INSTALLER_STATE_VERSION='1'
+  MODE='docker'; VERSION='control-v0.1.3'; DOMAIN=''; INSTALLER_STATE_VERSION='1'
   POSTGRES_USER='examaware'; POSTGRES_PASSWORD='db-secret'; POSTGRES_DB='examaware_control'; DATABASE_URL=''
   BETTER_AUTH_URL='http://192.0.2.8:8219'; BETTER_AUTH_SECRET='auth-secret'; DEVICE_CREDENTIAL_PEPPER='pepper'
   CONTROL_ADMIN_USERNAME='admin'; CONTROL_ADMIN_NAME='Admin'; CONTROL_ADMIN_PASSWORD='administrator-secret'

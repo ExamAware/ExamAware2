@@ -16,6 +16,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { validateExamConfigDetailed } from '@dsz-examaware/core';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -29,13 +30,13 @@ const onFileChange = async (e: Event) => {
   if (!file) return;
   try {
     const text = await file.text();
-    const json = JSON.parse(text);
-    if (!json.examName || !Array.isArray(json.examInfos)) {
-      throw new Error('档案结构无效');
+    const raw = JSON.parse(text) as unknown;
+    const validation = validateExamConfigDetailed(raw, { overlap: 'error', sort: true });
+    if (!validation.valid || !validation.config) {
+      throw new Error(validation.errors.map((item) => item.message).join('；') || '档案结构无效');
     }
-    // 将配置存入 sessionStorage，便于无全局状态下在路由间传递
-    sessionStorage.setItem('examaware:config', JSON.stringify(json));
-    router.push('/player');
+    sessionStorage.setItem('examaware:config', JSON.stringify(validation.config));
+    await router.push('/player');
   } catch (err) {
     alert(`档案解析失败: ${(err as Error).message}`);
   } finally {
