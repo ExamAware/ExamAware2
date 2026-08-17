@@ -68,6 +68,9 @@ importers:
       '@dsz-examaware/core':
         specifier: workspace:*
         version: link:../core
+      '@dsz-examaware/player':
+        specifier: workspace:*
+        version: link:../player
       echarts:
         specifier: ^6.1.0
         version: 6.1.0

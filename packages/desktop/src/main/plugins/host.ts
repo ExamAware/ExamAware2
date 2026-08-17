@@ -1,11 +1,12 @@
 import { EventEmitter } from 'events'
 import { app, BrowserWindow, ipcMain } from 'electron'
+import packageJson from '@app/package.json'
 import Module from 'module'
 import fs from 'fs'
 import { promises as fsp } from 'fs'
 import path from 'path'
 import { URLSearchParams } from 'url'
-import semver from 'semver'
+
 import AdmZip from 'adm-zip'
 import { JsonRpcClient, JsonRpcServer, createRpcProxy } from '@dsz-examaware/rpc'
 import {
@@ -43,8 +44,17 @@ import { DownloadManager } from '../runtime/downloadManager'
 import { IpcRegistrar } from '../ipc/ipcRegistrar'
 import { createMainPluginContext } from './api/mainPluginApi'
 import { controlService } from '../control/controlService'
+import { collectPluginCompatibilityIssues } from './compatibility'
 
 type AnyRecord = Record<string, any>
+
+type DesktopPackageMetadata = {
+  examaware?: {
+    pluginSdk?: string
+  }
+}
+
+const SUPPORTED_PLUGIN_SDK_RANGE = (packageJson as DesktopPackageMetadata).examaware?.pluginSdk
 
 const BLOCKED_KEYS = new Set(['__proto__', 'prototype', 'constructor'])
 
@@ -123,10 +133,6 @@ function loadHostSdkVersion() {
     appLogger.warn('[PluginHost] unable to resolve host plugin-sdk version', error as Error)
     return undefined
   }
-}
-
-function coerceVersion(input?: string | null) {
-  return semver.coerce(input ?? undefined)?.version
 }
 
 interface InternalPluginRecord extends PluginRecord {
@@ -304,13 +310,6 @@ export class PluginHost extends EventEmitter {
     }
     if (record.status === 'active') return
 
-    const mainEntry = record.manifest.targets.main
-    if (!mainEntry) {
-      record.status = 'active'
-      this.logger.info(`[PluginHost] Plugin ${record.name} has no main entry, marked active`)
-      return
-    }
-
     try {
       this.ensureCompatibility(record.manifest)
     } catch (error) {
@@ -321,12 +320,21 @@ export class PluginHost extends EventEmitter {
         details: {
           hostVersion: this.hostVersion,
           hostSdkVersion: this.hostSdkVersion,
+          supportedPluginSdk: SUPPORTED_PLUGIN_SDK_RANGE,
           requiredDesktop: record.manifest.engines?.desktop,
-          pluginSdk: record.manifest.sdkVersion ?? record.manifest.engines?.sdk
+          requiredHostSdk: record.manifest.engines?.sdk,
+          pluginSdk: record.manifest.sdkDependency
         }
       }
       this.logger.warn(`[PluginHost] Plugin ${record.name} is incompatible`, error)
       this.notifyStateChange()
+      return
+    }
+
+    const mainEntry = record.manifest.targets.main
+    if (!mainEntry) {
+      record.status = 'active'
+      this.logger.info(`[PluginHost] Plugin ${record.name} has no main entry, marked active`)
       return
     }
 
@@ -469,32 +477,14 @@ export class PluginHost extends EventEmitter {
   }
 
   private ensureCompatibility(manifest: ResolvedPluginManifest) {
-    const issues: string[] = []
-    const hostVersion = coerceVersion(this.hostVersion)
-    const hostSdk = coerceVersion(this.hostSdkVersion)
-
-    const desktopRange = manifest.engines?.desktop
-    if (desktopRange && hostVersion) {
-      const normalized = semver.validRange(desktopRange, { includePrerelease: true })
-      if (normalized && !semver.satisfies(hostVersion, normalized, { includePrerelease: true })) {
-        issues.push(`宿主版本 ${hostVersion} 不满足插件要求 ${normalized}`)
-      }
-    }
-
-    const sdkRange = manifest.engines?.sdk ?? manifest.sdkVersion
-    if (sdkRange && hostSdk) {
-      const normalized = semver.validRange(sdkRange, { includePrerelease: true })
-      if (normalized) {
-        if (!semver.satisfies(hostSdk, normalized, { includePrerelease: true })) {
-          issues.push(`宿主 SDK ${hostSdk} 不满足插件要求 ${normalized}`)
-        }
-      } else {
-        const pluginSdk = coerceVersion(sdkRange)
-        if (pluginSdk && semver.major(pluginSdk) !== semver.major(hostSdk)) {
-          issues.push(`插件 SDK ${pluginSdk} 与宿主 SDK ${hostSdk} 主版本不兼容`)
-        }
-      }
-    }
+    const issues = collectPluginCompatibilityIssues({
+      hostVersion: this.hostVersion,
+      hostSdkVersion: this.hostSdkVersion,
+      supportedPluginSdkRange: SUPPORTED_PLUGIN_SDK_RANGE,
+      pluginDesktopRange: manifest.engines?.desktop,
+      pluginHostSdkRange: manifest.engines?.sdk,
+      pluginSdkDependency: manifest.sdkDependency
+    })
 
     if (issues.length) {
       throw new Error(issues.join('; '))

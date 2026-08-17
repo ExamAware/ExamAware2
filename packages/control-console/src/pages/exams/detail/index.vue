@@ -15,6 +15,9 @@
             <t-button v-if="canWrite" variant="outline" @click="editVisible = true"
               >编辑信息</t-button
             >
+            <t-button v-if="canWrite" variant="outline" @click="openPublicLinkDialog"
+              >生成在线放映链接</t-button
+            >
             <t-button v-if="canChangeDeployment" variant="outline" @click="versionVisible = true"
               >上传新版本</t-button
             >
@@ -325,6 +328,37 @@
       >
     </t-space>
   </t-dialog>
+
+  <t-dialog v-model:visible="publicLinkVisible" header="在线放映链接" width="720px" :footer="false">
+    <t-space direction="vertical" size="large" style="width: 100%">
+      <t-alert
+        theme="info"
+        message="链接持有者无需登录即可打开本站在线放映页面。链接默认 1 小时后失效。"
+      />
+      <t-form-item label="有效期">
+        <t-input-number
+          v-model="publicLinkExpiresInSeconds"
+          :min="60"
+          :max="604800"
+          suffix="秒"
+          :disabled="Boolean(publicLink)"
+        />
+      </t-form-item>
+      <t-input v-if="publicLink" :value="publicLink.url" readonly />
+      <p v-if="publicLink" class="console-muted">
+        失效时间：{{ formatDateTime(publicLink.expiresAt) }} · 当前配置版本：v{{
+          publicLink.version
+        }}
+      </p>
+      <t-space>
+        <t-button :loading="publicLinkLoading" @click="generatePublicLink">
+          {{ publicLink ? '重新生成' : '生成链接' }}
+        </t-button>
+        <t-button v-if="publicLink" variant="outline" @click="copyPublicLink">复制链接</t-button>
+        <t-button v-if="publicLink" variant="outline" @click="openPublicLink">打开链接</t-button>
+      </t-space>
+    </t-space>
+  </t-dialog>
 </template>
 
 <script setup lang="ts">
@@ -355,7 +389,8 @@ import type {
   ExamConfigDetail,
   ExamConfigVersion,
   ExamStatus,
-  PartitionDimensionDetail
+  PartitionDimensionDetail,
+  PublicExamLinkResponse
 } from '@/api/control/types';
 import { ApiError } from '@/api/http';
 import { useSessionStore } from '@/store';
@@ -394,6 +429,10 @@ const saving = ref(false);
 const broadcasting = ref(false);
 const editVisible = ref(false);
 const versionVisible = ref(false);
+const publicLinkVisible = ref(false);
+const publicLinkLoading = ref(false);
+const publicLinkExpiresInSeconds = ref(3600);
+const publicLink = ref<(PublicExamLinkResponse & { url: string }) | null>(null);
 const versionFiles = ref<UploadFile[]>([]);
 const newVersion = ref<ExamConfig>();
 const versionMessage = ref('');
@@ -518,8 +557,48 @@ function statusTheme(status: ExamStatus): TagProps['theme'] {
     archived: 'default'
   }[status] as TagProps['theme'];
 }
-function formatDateTime(value: string) {
+function formatDateTime(value: string | number) {
   return new Date(value).toLocaleString('zh-CN');
+}
+
+function openPublicLinkDialog() {
+  publicLink.value = null;
+  publicLinkExpiresInSeconds.value = 3600;
+  publicLinkVisible.value = true;
+}
+
+async function generatePublicLink() {
+  if (!exam.value) return;
+  publicLinkLoading.value = true;
+  try {
+    const response = await examConfigsApi.createPublicLink(
+      exam.value.id,
+      exam.value.latestVersion,
+      publicLinkExpiresInSeconds.value
+    );
+    const url = new URL('player', new URL(import.meta.env.BASE_URL, window.location.origin));
+    url.searchParams.set('token', response.token);
+    publicLink.value = { ...response, url: url.toString() };
+    await MessagePlugin.success('在线放映链接已生成');
+  } catch (error) {
+    await MessagePlugin.error(error instanceof ApiError ? error.message : '在线放映链接生成失败');
+  } finally {
+    publicLinkLoading.value = false;
+  }
+}
+
+async function copyPublicLink() {
+  if (!publicLink.value) return;
+  try {
+    await navigator.clipboard.writeText(publicLink.value.url);
+    await MessagePlugin.success('链接已复制');
+  } catch {
+    await MessagePlugin.error('复制失败，请手动复制链接');
+  }
+}
+
+function openPublicLink() {
+  if (publicLink.value) window.open(publicLink.value.url, '_blank', 'noopener,noreferrer');
 }
 function formatScheduleTime(value: string) {
   return new Date(value).toLocaleString('zh-CN', {

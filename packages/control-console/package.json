@@ -1,6 +1,6 @@
 {
   "name": "@dsz-examaware/control-console",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": true,
   "type": "module",
   "description": "ExamAware school control console",
@@ -19,6 +19,7 @@
   "dependencies": {
     "@dsz-examaware/control-protocol": "workspace:*",
     "@dsz-examaware/core": "workspace:*",
+    "@dsz-examaware/player": "workspace:*",
     "echarts": "^6.1.0",
     "nprogress": "^0.2.0",
     "pinia": "^3.0.4",

@@ -144,6 +144,13 @@ export interface ExamConfigDetail extends ExamConfigSummary {
   versions: ExamConfigVersion[];
 }
 
+export interface PublicExamLinkResponse {
+  token: string;
+  examConfigId: string;
+  version: number;
+  expiresAt: number;
+}
+
 export type CommandTargetStatus =
   | 'pending'
   | 'delivered'

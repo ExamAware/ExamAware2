@@ -4,12 +4,30 @@ import {
   ArrayMaxSize,
   ArrayUnique,
   IsArray,
+  IsInt,
   IsObject,
   IsOptional,
   IsString,
   IsUUID,
-  Length
+  Length,
+  Max,
+  Min
 } from 'class-validator';
+
+export class CreatePublicExamLinkDto {
+  @ApiProperty({ minimum: 60, maximum: 604800, default: 3600 })
+  @IsOptional()
+  @IsInt()
+  @Min(60)
+  @Max(604800)
+  expiresInSeconds = 3600;
+
+  @ApiProperty({ minimum: 1, required: false })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  version?: number;
+}
 
 export class CreateExamConfigDto {
   @ApiProperty({ minLength: 1, maxLength: 200 })

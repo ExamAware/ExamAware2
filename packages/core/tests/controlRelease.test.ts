@@ -36,14 +36,14 @@ function runInstallerLibrary(script: string, environment: NodeJS.ProcessEnv = {}
 }
 
 describe('control release contract', () => {
-  it('keeps all control package and documentation versions at 0.1.2', () => {
+  it('keeps all control package and documentation versions at 0.1.3', () => {
     const versions = controlManifestPaths.map(
       (path) => JSON.parse(readFileSync(resolve(repositoryRoot, path), 'utf8')).version
     );
 
-    expect(versions).toEqual(['0.1.2', '0.1.2', '0.1.2']);
-    expect(environmentExample).toContain('CONTROL_VERSION=control-v0.1.2');
-    expect(deploymentGuide).toContain('当前发布版本：`control-v0.1.2`');
+    expect(versions).toEqual(['0.1.3', '0.1.3', '0.1.3']);
+    expect(environmentExample).toContain('CONTROL_VERSION=control-v0.1.3');
+    expect(deploymentGuide).toContain('当前发布版本：`control-v0.1.3`');
     expect(deploymentGuide).not.toContain('control-v0.2.0');
   });
 

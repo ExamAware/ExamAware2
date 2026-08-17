@@ -1,6 +1,12 @@
 import type { ExamConfig } from '@dsz-examaware/core';
 import { apiRequest } from '../http';
-import type { ExamConfigDetail, ExamConfigSummary, ExamConfigVersion, PageResponse } from './types';
+import type {
+  ExamConfigDetail,
+  ExamConfigSummary,
+  ExamConfigVersion,
+  PageResponse,
+  PublicExamLinkResponse
+} from './types';
 
 const EXAM_CONFIGS_PATH = '/api/v1/exam-configs';
 
@@ -11,6 +17,15 @@ export const examConfigsApi = {
   },
   get(id: string) {
     return apiRequest<ExamConfigDetail>(`${EXAM_CONFIGS_PATH}/${encodeURIComponent(id)}`);
+  },
+  createPublicLink(id: string, version?: number, expiresInSeconds = 3600) {
+    return apiRequest<PublicExamLinkResponse>(
+      `${EXAM_CONFIGS_PATH}/${encodeURIComponent(id)}/public-link`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ version, expiresInSeconds })
+      }
+    );
   },
   create(name: string, content: ExamConfig) {
     return apiRequest<ExamConfigDetail>(EXAM_CONFIGS_PATH, {

@@ -11,10 +11,10 @@ vi.mock('../../../src/main/logging/logger', () => ({
 
 let directory: string
 
-async function writePackage(examaware: unknown) {
+async function writePackage(examaware: unknown, extra: Record<string, unknown> = {}) {
   await writeFile(
     join(directory, 'package.json'),
-    JSON.stringify({ name: 'test-plugin', version: '1.0.0', examaware }),
+    JSON.stringify({ name: 'test-plugin', version: '1.0.0', examaware, ...extra }),
     'utf8'
   )
 }
@@ -107,5 +107,17 @@ describe('plugin manifest V2', () => {
 
     expect(manifest?.permissions).toEqual([PluginPermissions.Files.Read])
     expect(manifest?.activation.rendererWindows).toContain('player')
+  })
+
+  it('keeps the build SDK dependency separate from the accepted host SDK range', async () => {
+    await writePackage(
+      { apiVersion: 2, engines: { sdk: '>=1.4.0 <2.0.0' } },
+      { dependencies: { '@dsz-examaware/plugin-sdk': '1.4.4' } }
+    )
+
+    const manifest = await loadManifestFromPackage(directory)
+
+    expect(manifest?.engines?.sdk).toBe('>=1.4.0 <2.0.0')
+    expect(manifest?.sdkDependency).toBe('1.4.4')
   })
 })

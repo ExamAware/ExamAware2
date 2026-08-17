@@ -10,6 +10,7 @@ router.beforeEach(async (to) => {
   NProgress.start();
   if (to.name === 'browser-incompatible') return true;
   if (!isBrowserSupported()) return { name: 'browser-incompatible' };
+  if (to.meta.skipAuthentication) return true;
   const session = useSessionStore();
 
   if (!session.initialized) {
