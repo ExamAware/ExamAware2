@@ -71,6 +71,18 @@ export const homeButtonsModule: AppModule = {
     }
 
     add({
+      id: 'quick-start',
+      label: '快速开始',
+      icon: 'add-circle',
+      hint: '按科目与作息快速生成考试配置',
+      theme: 'primary',
+      order: 0,
+      action: () => {
+        window.api.windows.openQuickStart()
+      }
+    })
+
+    add({
       id: 'editor',
       label: '编辑器',
       icon: 'edit',

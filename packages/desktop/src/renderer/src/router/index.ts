@@ -47,6 +47,12 @@ const router = createRouter({
       component: () => import('@renderer/views/SettingsShell.vue')
     },
     {
+      path: '/quick-start',
+      name: 'quick-start',
+      component: () => import('@renderer/views/quick-start/QuickStartView.vue'),
+      meta: { title: '快速开始' }
+    },
+    {
       path: '/bind-control',
       name: 'bind-control',
       component: () => import('@renderer/views/BindControlWizard.vue'),

@@ -20,6 +20,7 @@ import { pagesModule } from './app/modules/pages'
 import { routerRegistrarModule } from './app/modules/routerRegistrar'
 import { homeButtonsModule } from './app/modules/homeButtons'
 import { settingsModule } from './app/modules/settings'
+import { getTimeSyncInfo } from './utils/timeUtils'
 
 async function bootstrap() {
   const platform = window.api.windows.platform
@@ -42,6 +43,7 @@ async function bootstrap() {
   })
 
   app.app.mount('#app')
+  void getTimeSyncInfo()
 
   try {
     const windowId = await window.api.windows.currentId()

@@ -9,6 +9,7 @@ import { createEditorWindow } from '../../windows/editorWindow'
 import { createLogsWindow } from '../../windows/logsWindow'
 import { playerSessionService } from '../../player/playerSessionService'
 import { createPluginStoreWindow } from '../../windows/pluginStoreWindow'
+import { createQuickStartWindow } from '../../windows/quickStartWindow'
 import { createSettingsWindow } from '../../windows/settingsWindow'
 import { windowManager } from '../../windows/windowManager'
 import type { IpcRegistrar } from '../ipcRegistrar'
@@ -24,6 +25,7 @@ export function registerWindowHandlers(ipc: IpcRegistrar) {
   ipc.on(ipcChannels.windows.openLogs, () => createLogsWindow())
   ipc.on(ipcChannels.windows.openSettings, (_event, page) => createSettingsWindow(page))
   ipc.on(ipcChannels.windows.openBindControl, () => createBindControlWindow())
+  ipc.on(ipcChannels.windows.openQuickStart, () => createQuickStartWindow())
   ipc.on(ipcChannels.windows.openPluginStore, () => createPluginStoreWindow())
 
   ipc.handle(

@@ -177,6 +177,7 @@ const api: DesktopBridge = {
     openLogs: () => ipc.send(ipcChannels.windows.openLogs),
     openSettings: (page) => ipc.send(ipcChannels.windows.openSettings, page),
     openBindControl: () => ipc.send(ipcChannels.windows.openBindControl),
+    openQuickStart: () => ipc.send(ipcChannels.windows.openQuickStart),
     onSettingsNavigate: (listener) => ipc.on(ipcChannels.windows.settingsNavigate, listener),
     openPluginStore: () => ipc.send(ipcChannels.windows.openPluginStore),
     minimize: () => ipc.send(ipcChannels.windows.minimize),
