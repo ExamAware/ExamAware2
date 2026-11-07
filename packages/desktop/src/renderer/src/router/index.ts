@@ -50,7 +50,7 @@ const router = createRouter({
       path: '/bind-control',
       name: 'bind-control',
       component: () => import('@renderer/views/BindControlWizard.vue'),
-      meta: { hideTitlebar: true }
+      meta: { title: '绑定学校集控' }
     },
     {
       path: '/plugin-store',

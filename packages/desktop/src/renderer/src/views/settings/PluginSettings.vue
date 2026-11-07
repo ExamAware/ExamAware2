@@ -266,8 +266,8 @@
         </div>
       </div>
     </t-drawer>
+    <PluginPermissionDialog ref="permissionDialog" />
   </div>
-  <PluginPermissionDialog ref="permissionDialog" />
 </template>
 
 <script setup lang="ts">
