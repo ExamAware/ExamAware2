@@ -1,6 +1,6 @@
 {
   "name": "@dsz-examaware/plugin-sdk",
-  "version": "1.5.2",
+  "version": "1.6.0",
   "description": "ExamAware plugin SDK",
   "repository": {
     "type": "git",
