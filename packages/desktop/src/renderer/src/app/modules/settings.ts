@@ -82,6 +82,13 @@ export const settingsModule: AppModule = {
         component: () => import('@renderer/views/settings/AppearanceSettings.vue')
       },
       {
+        id: 'subjects',
+        label: '学科',
+        icon: 'book',
+        order: 1.5,
+        component: () => import('@renderer/views/settings/SubjectSettings.vue')
+      },
+      {
         id: 'control',
         label: '学校集控',
         icon: 'control-platform',
