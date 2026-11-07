@@ -12,6 +12,7 @@ export type PluginWindowKind =
   | 'logs'
   | 'plugin-store'
   | 'control-bind'
+  | 'quick-start'
   | 'tray'
   | 'plugin';
 

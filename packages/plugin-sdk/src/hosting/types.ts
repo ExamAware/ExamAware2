@@ -137,7 +137,11 @@ export interface PluginRpcApi {
   notify(token: string, method: string, ...args: any[]): void;
 }
 
-// 插件运行时上下文，插件的核心接口
+/**
+ * Legacy plugin runtime context.
+ * @deprecated Plugin API v1 is deprecated and unmaintained; it will be removed. Use
+ * `defineMainPlugin` / `defineRendererPlugin` (API v2) instead.
+ */
 export interface PluginRuntimeContext {
   app: 'main' | 'renderer'; // 运行在主进程还是渲染进程
   logger: PluginLogger; // 日志器

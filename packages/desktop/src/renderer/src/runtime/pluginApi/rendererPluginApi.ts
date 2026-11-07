@@ -52,7 +52,12 @@ import {
 import {
   controlBindingContributions,
   playerToolbarContributions,
-  pluginMenuContributions
+  pluginMenuContributions,
+  quickStartActionContributions,
+  quickStartPanelContributions,
+  quickStartSchedulePresetContributions,
+  quickStartSubjectContributions,
+  quickStartWordContributions
 } from './contributions'
 
 type CommandRecord = {
@@ -812,6 +817,70 @@ function createUiApi(
         })
       }
     },
+    quickStart: {
+      registerSubject: (subject) => {
+        requireContribution()
+        return own({
+          dispose: quickStartSubjectContributions.register({
+            ...subject,
+            id: contributionId(subject.id)
+          })
+        })
+      },
+      registerSchedulePreset: (preset) => {
+        requireContribution()
+        return own({
+          dispose: quickStartSchedulePresetContributions.register({
+            ...preset,
+            id: contributionId(preset.id)
+          })
+        })
+      },
+      registerWords: (words) => {
+        requireContribution()
+        const label = String(words.label ?? '').trim()
+        const normalized = Array.from(
+          new Set(
+            (Array.isArray(words.words) ? words.words : [])
+              .map((word) => (typeof word === 'string' ? word.trim() : ''))
+              .filter(Boolean)
+          )
+        ).slice(0, 50)
+        if (!label || !normalized.length) {
+          throw new PluginApiError(
+            'invalid-argument',
+            'ui.quickStart',
+            'registerWords 需要提供非空 label 与至少一个词条'
+          )
+        }
+        return own({
+          dispose: quickStartWordContributions.register({
+            ...words,
+            id: contributionId(words.id),
+            label,
+            words: normalized
+          })
+        })
+      },
+      registerAction: (action) => {
+        requireContribution()
+        return own({
+          dispose: quickStartActionContributions.register({
+            ...action,
+            id: contributionId(action.id)
+          })
+        })
+      },
+      registerPanel: (panel) => {
+        requireContribution()
+        return own({
+          dispose: quickStartPanelContributions.register({
+            ...panel,
+            id: contributionId(panel.id)
+          })
+        })
+      }
+    },
     menus: {
       register: (item) => {
         requireContribution()
@@ -894,6 +963,7 @@ function mapPluginInfo(plugin: PluginListItem): PluginInfo {
 export function getCurrentPluginWindowKind(hash = window.location.hash): PluginWindowKind {
   const route = hash.replace(/^#/, '').split('?')[0]
   if (route.startsWith('/editor')) return 'editor'
+  if (route.startsWith('/quick-start')) return 'quick-start'
   if (route.startsWith('/playerview')) return 'player'
   if (route.startsWith('/settings')) return 'settings'
   if (route.startsWith('/bind-control')) return 'control-bind'

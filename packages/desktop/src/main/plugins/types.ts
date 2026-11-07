@@ -42,6 +42,7 @@ export interface PluginEntryPoint {
  * ExamAware plugin manifest configuration (in package.json examaware field)
  */
 export interface ExamAwarePluginManifest {
+  /** 1 = legacy（已废弃，不再维护，将移除）；2 = 当前版本 */
   apiVersion?: 1 | 2
   displayName?: string
   description?: string
@@ -78,6 +79,7 @@ export interface ResolvedPluginManifest {
   version: string
   displayName?: string
   description?: string
+  /** 1 = legacy（已废弃，不再维护）；2 = 当前版本 */
   apiVersion: 1 | 2
   permissions: PluginPermission[]
   activation: {

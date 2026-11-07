@@ -146,6 +146,42 @@ export default defineRendererPlugin<DemoSettings>({
 - `ctx.api.ui.settings.registerPage()` 需要 `ui.contribute` 权限，返回资源在卸载时自动清理。
 - `ctx.window.kind` / `ctx.window.route` 可用于同一 renderer 入口里的窗口分流。
 
+## 快速开始扩展
+
+插件需在 manifest 中声明 `activation.rendererWindows: ["quick-start"]` 才会在快速开始窗口激活；下列接口均要求 `ui.contribute` 权限：
+
+```ts
+ctx.api.ui.quickStart.registerSubject({ id: 'physics', name: '物理', duration: 75 });
+ctx.api.ui.quickStart.registerSchedulePreset({
+  id: 'morning',
+  name: '上午场',
+  examsPerDay: 4,
+  firstExamTime: '08:00',
+  gapMinutes: 30
+});
+ctx.api.ui.quickStart.registerWords({
+  id: 'school-terms',
+  label: '学校',
+  words: ['一中', '二中', '实验中学']
+});
+ctx.api.ui.quickStart.registerAction({
+  id: 'export',
+  label: '导出配置',
+  icon: 'download',
+  run: (config) => {
+    ctx.logger.info(`快速开始完成：${config.examName}`);
+  }
+});
+ctx.api.ui.quickStart.registerPanel({
+  id: 'notice',
+  step: 'schedule',
+  title: '插件提示',
+  component: () => import('./components/QuickStartNotice.vue')
+});
+```
+
+`registerPanel` 的 `step` 可选 `basic`、`subjects`、`schedule`、`complete`，组件会收到 `config`（当前生成结果，可能为 `null`）与 `step` 两个 props。
+
 ## 设置页组件
 
 ```vue

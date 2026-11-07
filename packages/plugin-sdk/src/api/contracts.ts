@@ -629,6 +629,49 @@ export interface ControlBindingContribution {
   component: PluginViewComponent;
 }
 
+export type QuickStartStepKey = 'basic' | 'subjects' | 'schedule' | 'complete';
+
+export interface QuickStartSubjectContribution {
+  id: string;
+  name: string;
+  duration?: number;
+  enabled?: boolean;
+  order?: number;
+}
+
+export interface QuickStartSchedulePresetContribution {
+  id: string;
+  name: string;
+  examsPerDay: number;
+  firstExamTime: string;
+  gapMinutes: number;
+  order?: number;
+}
+
+export interface QuickStartWordsContribution {
+  id: string;
+  label: string;
+  words: string[];
+  order?: number;
+}
+
+export interface QuickStartActionContribution {
+  id: string;
+  label: string;
+  icon?: string;
+  theme?: 'default' | 'primary' | 'success' | 'warning' | 'danger';
+  order?: number;
+  run(config: ExamConfig): void | Promise<void>;
+}
+
+export interface QuickStartPanelContribution {
+  id: string;
+  step: QuickStartStepKey;
+  title?: string;
+  order?: number;
+  component: PluginViewComponent;
+}
+
 export interface UiApi {
   home: { register(item: HomeContribution): Disposable };
   pages: { register(page: PageContribution): Disposable };
@@ -640,6 +683,13 @@ export interface UiApi {
   };
   player: { registerToolbarItem(item: PlayerToolbarContribution): Disposable };
   control: { registerBindingView(view: ControlBindingContribution): Disposable };
+  quickStart: {
+    registerSubject(subject: QuickStartSubjectContribution): Disposable;
+    registerSchedulePreset(preset: QuickStartSchedulePresetContribution): Disposable;
+    registerWords(words: QuickStartWordsContribution): Disposable;
+    registerAction(action: QuickStartActionContribution): Disposable;
+    registerPanel(panel: QuickStartPanelContribution): Disposable;
+  };
   menus: {
     register(item: {
       id: string;

@@ -1,7 +1,12 @@
 import { shallowRef, type ShallowRef } from 'vue'
 import type {
   ControlBindingContribution,
-  PlayerToolbarContribution
+  PlayerToolbarContribution,
+  QuickStartActionContribution,
+  QuickStartPanelContribution,
+  QuickStartSchedulePresetContribution,
+  QuickStartSubjectContribution,
+  QuickStartWordsContribution
 } from '@dsz-examaware/plugin-sdk'
 
 export interface PluginMenuContribution {
@@ -42,3 +47,11 @@ class ContributionRegistry<T extends { id: string; order?: number }> {
 export const playerToolbarContributions = new ContributionRegistry<PlayerToolbarContribution>()
 export const controlBindingContributions = new ContributionRegistry<ControlBindingContribution>()
 export const pluginMenuContributions = new ContributionRegistry<PluginMenuContribution>()
+export const quickStartSubjectContributions =
+  new ContributionRegistry<QuickStartSubjectContribution>()
+export const quickStartSchedulePresetContributions =
+  new ContributionRegistry<QuickStartSchedulePresetContribution>()
+export const quickStartWordContributions = new ContributionRegistry<QuickStartWordsContribution>()
+export const quickStartActionContributions =
+  new ContributionRegistry<QuickStartActionContribution>()
+export const quickStartPanelContributions = new ContributionRegistry<QuickStartPanelContribution>()

@@ -133,6 +133,12 @@
           <template #name="{ row }">
             <div class="plugin-name-col">
               <span class="plugin-name">{{ row.displayName || row.name }}</span>
+              <t-tooltip
+                v-if="row.apiVersion !== 2"
+                content="插件 API V1 已废弃且不再维护，请迁移到 API V2"
+              >
+                <t-tag size="small" theme="warning" variant="light">API V1 已弃用</t-tag>
+              </t-tooltip>
             </div>
           </template>
 
