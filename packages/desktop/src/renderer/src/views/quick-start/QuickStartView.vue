@@ -367,7 +367,7 @@
             <template #icon><EditIcon /></template>
             打开编辑器
           </t-button>
-          <t-tooltip content="立即启动放映窗口，不生成文件">
+          <t-tooltip content="立即启动放映窗口，而不生成文件">
             <t-button
               size="large"
               theme="success"
