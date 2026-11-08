@@ -1,0 +1,601 @@
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/fonts/Ubuntu-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../assets/fonts/Ubuntu-Bold.ttf') format('truetype');
+}
+
+.exam-clock-theme {
+  --text-primary: #fff;
+  --text-muted: rgb(255 255 255 / 75%);
+  --text-faint: rgb(255 255 255 / 50%);
+  --text-dark: #000;
+  --panel-dark: rgb(0 0 0 / 50%);
+  --panel-glass: rgb(255 255 255 / 10%);
+  --panel-glass-hover: rgb(255 255 255 / 20%);
+  --panel-light: rgb(255 255 255 / 75%);
+  --soft-shadow: 0.2em 0.2em 1em rgb(0 0 0 / 20%);
+  --accent-gradient: linear-gradient(120deg, #f84, #f66);
+
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: #333;
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+  color: var(--text-primary);
+  font:
+    2.7vw/1.2 Ubuntu,
+    Arial,
+    sans-serif;
+}
+
+.exam-clock-theme,
+.exam-clock-theme * {
+  box-sizing: border-box;
+}
+
+.exam-clock-theme * {
+  margin: 0;
+  padding: 0;
+}
+
+.exam-clock-theme a {
+  cursor: pointer;
+  border-radius: 0.2em;
+  color: inherit;
+  text-decoration: none;
+}
+
+.exam-clock-theme a:hover {
+  background: var(--accent-gradient);
+  box-shadow: 0.2em 0.2em 0.5em rgb(0 0 0 / 20%);
+  color: var(--text-primary) !important;
+}
+
+.exam-clock-theme ::selection {
+  background: rgb(255 255 255 / 10%);
+  text-shadow:
+    #f84 -0.05em -0.01em 0.1em,
+    #f66 0.05em 0.01em 0.1em;
+}
+
+.exam-clock-theme #main {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 100%;
+  background: var(--panel-dark);
+  font-size: 1em;
+}
+
+.exam-clock-theme #main > * {
+  margin: 0.5em 1em;
+}
+
+.exam-clock-theme .space-between {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.exam-clock-theme .space {
+  margin: 0 -0.2em;
+}
+
+.exam-clock-theme .space > * {
+  margin: 0 0.2em;
+}
+
+.exam-clock-theme .dim {
+  opacity: 0.75;
+  font-size: 0.75em;
+}
+
+.exam-clock-theme .sub {
+  color: var(--text-muted);
+  font-size: 0.6em;
+}
+
+.exam-clock-theme.filtered {
+  filter: grayscale(1);
+}
+
+.exam-clock-theme .hilit {
+  animation: exam-clock-hilit 60s infinite alternate;
+}
+
+.exam-clock-theme nav {
+  color: var(--text-primary);
+}
+
+.exam-clock-theme nav h2 {
+  font-size: 1.5em;
+  line-height: 1.2;
+}
+
+.exam-clock-theme .bar {
+  height: 0.2em;
+  min-height: 6px;
+  margin: 0.5em auto;
+}
+
+.exam-clock-theme #bar {
+  height: 100%;
+  background: linear-gradient(to right, transparent, #fff);
+  transition: linear 2s;
+}
+
+.exam-clock-theme .card {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 100vw;
+  margin: 0.5em -1em;
+}
+
+.exam-clock-theme .card > * {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  margin: 0.2em;
+  border-radius: 0.5em;
+  padding: 0.2em 0.75em;
+  background: var(--panel-glass);
+  box-shadow: var(--soft-shadow);
+  text-align: center;
+  text-shadow: 0.1em 0.1em 0.2em rgb(0 0 0 / 20%);
+  transition: 0.2s;
+}
+
+.exam-clock-theme .card > *:hover {
+  background: var(--panel-glass-hover);
+  backdrop-filter: blur(0);
+}
+
+.exam-clock-theme #clock {
+  font-size: 5em;
+}
+
+.exam-clock-theme #subject,
+.exam-clock-theme #timer {
+  width: 100%;
+  font-size: 3em;
+}
+
+.exam-clock-theme #duration,
+.exam-clock-theme #activity {
+  color: var(--text-muted);
+  font-size: 1.5em;
+}
+
+.exam-clock-theme .fa-solid,
+.exam-clock-theme .fa-regular,
+.exam-clock-theme .fa-brands,
+.exam-clock-theme .fa-width {
+  min-width: 1.2em;
+  text-align: center;
+}
+
+.exam-clock-theme [data-sub] {
+  display: inline-block;
+  padding: 0.1em;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.exam-clock-theme [data-sub]::after {
+  display: block;
+  margin-top: 0.2em;
+  content: attr(data-sub);
+  font:
+    normal normal 0.5em Ubuntu,
+    'Genshin65W',
+    sans-serif;
+}
+
+.exam-clock-theme [data-title],
+.exam-clock-theme .dropdown {
+  display: inline-block;
+  position: relative;
+}
+
+.exam-clock-theme [data-title]::after,
+.exam-clock-theme .dropdown > :last-child {
+  display: none;
+  position: absolute;
+  z-index: 1;
+  cursor: auto;
+}
+
+.exam-clock-theme [data-title]::after {
+  right: 0;
+  bottom: 1em;
+  width: 12em;
+  padding: 0.1em;
+  content: attr(data-title);
+}
+
+.exam-clock-theme [data-title]:hover::after,
+.exam-clock-theme .dropdown:hover > :last-child {
+  display: block;
+  animation: exam-clock-fade 0.2s;
+}
+
+.exam-clock-theme .dropdown > a {
+  display: inline-block;
+}
+
+.exam-clock-theme .room-number-button {
+  display: inline-block;
+  padding: 0.05em 0.15em;
+  color: var(--text-primary);
+  font-size: 2.2em;
+  font-weight: 700;
+  line-height: 1;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.exam-clock-theme .toolbar-action.disabled,
+.exam-clock-theme [data-sub].disabled {
+  pointer-events: none;
+  opacity: 0.45;
+}
+
+.exam-clock-theme .exam-type-dropdown {
+  min-width: 5.5em;
+}
+
+.exam-clock-theme #exam-type-list {
+  min-width: 100%;
+  white-space: nowrap;
+}
+
+.exam-clock-theme .gallery-menu {
+  right: -4em;
+  min-width: 13em;
+  max-height: 20em;
+  overflow: auto;
+}
+
+.exam-clock-theme .more-menu {
+  right: -2em;
+  min-width: 10em;
+  max-height: 20em;
+  overflow: auto;
+}
+
+.exam-clock-theme .btn,
+.exam-clock-theme .dropdown > :last-child {
+  border-radius: 0.2em;
+  background: var(--panel-light);
+  box-shadow: 0.2em 0.2em 1em rgb(0 0 0 / 20%);
+  color: var(--text-dark);
+  backdrop-filter: blur(0.5em);
+}
+
+.exam-clock-theme a.btn,
+.exam-clock-theme .dropdown > :last-child > * {
+  display: block;
+  padding: 0.2em;
+}
+
+.exam-clock-theme .dropdown > :last-child a,
+.exam-clock-theme .dropdown > :last-child .menu-row {
+  padding: 0.3em 0.5em;
+}
+
+.exam-clock-theme .dropdown > :last-child a:hover {
+  color: var(--text-primary) !important;
+}
+
+.exam-clock-theme .shieldlist > * {
+  display: inline-block;
+  margin: 0.1em;
+  border-radius: 1em;
+  background: var(--panel-dark);
+  padding: 0.1em 0.2em;
+  color: var(--text-primary);
+  font-size: 0.6em;
+  outline: 0.1em solid rgb(255 255 255 / 20%);
+}
+
+.exam-clock-theme .menu-active {
+  color: #fff !important;
+  outline: 0.1em solid rgb(255 255 255 / 50%);
+}
+
+.exam-clock-theme .background-credit {
+  padding: 0.3em 0.5em;
+  color: var(--text-dark);
+  font-size: 0.6em;
+  opacity: 0.8;
+}
+
+.exam-clock-theme .theme-credit {
+  color: var(--text-muted);
+  font-size: 0.55em;
+  padding: 0.3em 0.5em;
+}
+
+.exam-clock-theme footer {
+  color: var(--text-faint);
+  font-size: 0.3em;
+}
+
+.exam-clock-theme footer a {
+  color: inherit;
+}
+
+.exam-clock-theme .notify {
+  top: 0;
+  z-index: 1;
+}
+
+.exam-clock-theme #message-toast {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0.2em auto;
+  border-radius: 0.2em;
+  padding: 0.2em;
+  background: var(--panel-glass);
+  font-size: 0.5em;
+  box-shadow: var(--soft-shadow);
+  text-shadow: 0.1em 0.1em 0.2em rgb(0 0 0 / 20%);
+}
+
+.exam-clock-theme #message-toast a {
+  cursor: pointer;
+}
+
+.exam-clock-theme .menu-section {
+  display: block;
+  padding: 0.15em 0.4em 0;
+  color: var(--text-dark);
+  font-size: 0.6em;
+  opacity: 0.7;
+}
+
+.exam-clock-theme .fullscreen-button {
+  cursor: pointer;
+}
+
+@keyframes exam-clock-hilit {
+  50% {
+    color: #fff;
+    text-shadow: 0 0 0.1em #fff;
+  }
+}
+
+@keyframes exam-clock-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (aspect-ratio <= 8/7) {
+  .exam-clock-theme {
+    font-size: 5vw;
+  }
+
+  .exam-clock-theme nav.space-between,
+  .exam-clock-theme .card {
+    flex-direction: column;
+    margin: auto;
+  }
+}
+
+/* #region Cover / loading */
+.exam-clock-theme #cover-launch {
+  display: flex;
+  position: fixed;
+  flex-direction: column-reverse;
+  z-index: 3;
+  animation: exam-clock-white-splash 2.5s forwards;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  pointer-events: none;
+}
+
+.exam-clock-theme .cover-logo {
+  width: min(18vw, 8em);
+  max-width: 180px;
+  opacity: 0;
+  animation: exam-clock-logo-in 2s ease-out 0.25s forwards;
+}
+
+.exam-clock-theme #cover-screen {
+  display: flex;
+  position: fixed;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 2;
+  transition: opacity 0.2s;
+  inset: 0;
+  background-color: #000;
+  background-position: center;
+  background-size: cover;
+}
+
+.exam-clock-theme #cover-screen.cover-fade-out {
+  opacity: 0;
+}
+
+.exam-clock-theme #cover-screen > * {
+  margin: 0.5em 1em;
+}
+
+.exam-clock-theme #cover-mask {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  margin: 0;
+  background: rgb(0 0 0 / 50%);
+  backdrop-filter: blur(0.2em);
+}
+
+.exam-clock-theme .cover-main {
+  display: flex;
+  justify-content: center;
+}
+
+.exam-clock-theme .cover-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.exam-clock-theme .cover-title-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0.5em;
+  min-width: 36vw;
+  background: #222;
+  padding: 0.1em 0.3em;
+}
+
+.exam-clock-theme .cover-meta > * {
+  margin: 1em 0;
+}
+
+.exam-clock-theme #cover-date-badge {
+  height: calc(100% + 0.6em);
+  background: #fff;
+  color: #222;
+}
+
+.exam-clock-theme #cover-date-badge > .reskew {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 3em;
+  height: 100%;
+}
+
+.exam-clock-theme .cover-date-day {
+  font-size: 1.5em;
+}
+
+.exam-clock-theme .cover-date-month {
+  font-size: 0.6em;
+}
+
+.exam-clock-theme .cover-image-frame {
+  position: relative;
+  margin: auto 0;
+  width: 40vw;
+  height: 30vw;
+  overflow: hidden;
+  box-shadow: 0 0 2em rgb(0 0 0 / 50%);
+}
+
+.exam-clock-theme #cover-image {
+  position: fixed;
+  inset: 0 -5vw;
+  background-color: rgb(255 255 255 / 60%);
+  background-position: center;
+  background-size: cover;
+}
+
+.exam-clock-theme .skew {
+  transform: skew(-15deg);
+}
+
+.exam-clock-theme .reskew > * {
+  margin: 0 0.5em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.exam-clock-theme .cover-main .reskew {
+  transform: skew(15deg);
+}
+
+.exam-clock-theme #cover-author,
+.exam-clock-theme .cover-meta,
+.exam-clock-theme #cover-screen > :last-child {
+  font-size: 0.6em;
+}
+
+.exam-clock-theme #cover-screen .loading-bar {
+  position: relative;
+  overflow: hidden;
+  padding: 0 0.5em;
+}
+
+.exam-clock-theme #cover-screen .loading-bar::after {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 200%;
+  height: 100%;
+  animation: exam-clock-loading-bar 1.5s ease-in-out infinite;
+  background: #fff;
+  content: '';
+  mix-blend-mode: exclusion;
+  backdrop-filter: brightness(0.6) contrast(3);
+}
+
+@keyframes exam-clock-logo-in {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    transform: scale(0.92);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: scale(1);
+  }
+}
+
+@keyframes exam-clock-white-splash {
+  0%,
+  82% {
+    opacity: 1;
+  }
+
+  100% {
+    display: none;
+    opacity: 0;
+  }
+}
+
+@keyframes exam-clock-loading-bar {
+  0% {
+    left: -200%;
+  }
+
+  100% {
+    left: 200%;
+  }
+}
+/* #endregion */

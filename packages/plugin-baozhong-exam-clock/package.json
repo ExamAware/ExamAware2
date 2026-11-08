@@ -1,0 +1,71 @@
+{
+  "name": "examaware-plugin-baozhong-exam-clock",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "main": "./dist/main/index.cjs",
+  "module": "./dist/renderer/index.mjs",
+  "types": "./dist/main/index.d.ts",
+  "scripts": {
+    "dev": "run-p dev:renderer dev:main",
+    "dev:renderer": "vite build --watch --mode development --config vite.config.ts",
+    "dev:main": "vite build --watch --mode development --config vite.main.config.ts",
+    "build": "pnpm run build:renderer && pnpm run build:main && pnpm run build:types",
+    "build:renderer": "vite build --config vite.config.ts",
+    "build:main": "vite build --config vite.main.config.ts",
+    "build:types": "vue-tsc --declaration --emitDeclarationOnly --outDir dist",
+    "pack": "pnpm run build && pack-examaware-plugin",
+    "lint": "vue-tsc --noEmit"
+  },
+  "examaware": {
+    "apiVersion": 2,
+    "displayName": "宝中考试时钟主题",
+    "description": "移植宝中考试时钟 ExamClock 的播放器主题，支持内置背景和自定义背景。",
+    "engines": {
+      "sdk": ">=1.6.0 <2.0.0"
+    },
+    "targets": {
+      "main": "./dist/main/index.cjs",
+      "renderer": "./dist/renderer/index.mjs"
+    },
+    "permissions": [
+      "ui.contribute",
+      "player.contribute"
+    ],
+    "activation": {
+      "rendererWindows": [
+        "player",
+        "settings"
+      ]
+    },
+    "services": {
+      "provide": [],
+      "inject": []
+    },
+    "settings": {
+      "namespace": "examaware-plugin-baozhong-exam-clock",
+      "schema": "./schema.json"
+    }
+  },
+  "dependencies": {
+    "@dsz-examaware/plugin-sdk": "workspace:*",
+    "vue": "^3.5.26",
+    "tdesign-vue-next": "^1.17.7"
+  },
+  "devDependencies": {
+    "@dsz-examaware/player": "workspace:*",
+    "@types/node": "^25.0.3",
+    "@vitejs/plugin-vue": "^6.0.3",
+    "npm-run-all2": "^8.0.4",
+    "run-p": "0.0.0",
+    "typescript": "~5.9.3",
+    "vite": "^7.3.0",
+    "vue-tsc": "^3.2.1"
+  },
+  "license": "GPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ExamAware/ExamAware2",
+    "directory": "packages/plugin-baozhong-exam-clock"
+  }
+}
