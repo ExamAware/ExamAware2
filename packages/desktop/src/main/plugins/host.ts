@@ -343,6 +343,11 @@ export class PluginHost extends EventEmitter {
 
     record.status = 'loading'
     try {
+      if (record.manifest.apiVersion !== 2) {
+        this.logger.warn(
+          `Plugin ${record.name} uses deprecated API v1; v1 is unmaintained and will be removed. Migrate to API v2.`
+        )
+      }
       const mod = await this.loader.importModule(mainEntry)
       const factory = this.loader.resolveFactory(mod)
       const legacyContext = this.createRuntimeContext(record)

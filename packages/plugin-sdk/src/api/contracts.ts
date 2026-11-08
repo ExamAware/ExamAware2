@@ -624,8 +624,79 @@ export interface PlayerToolbarContribution {
   action(): void | Promise<void>;
 }
 
+export interface PlayerThemeChromeContribution {
+  /** 主题自行渲染操作栏，壳层不再渲染默认操作栏 */
+  actionBar?: boolean;
+  /** 主题自行渲染彩色全屏提醒 */
+  colorfulAlert?: boolean;
+  /** 主题自行渲染普通全屏公告 */
+  notice?: boolean;
+}
+
+export interface PlayerThemeContribution {
+  id: string;
+  name: string;
+  description?: string;
+  author?: string;
+  version?: string;
+  order?: number;
+  /**
+   * 可选壳层接管声明。开启后对应默认组件不再渲染，主题必须自行渲染；
+   * 可复用 context.components 中的标准实现。
+   */
+  chrome?: PlayerThemeChromeContribution;
+  /**
+   * 全屏播放器主题组件。推荐使用 `() => import('./Theme.vue')`；
+   * 组件会收到 `context`（播放器数据、动作与旧版具名插槽）。
+   */
+  component: PluginViewComponent;
+}
+
 export interface ControlBindingContribution {
   id: string;
+  component: PluginViewComponent;
+}
+
+export type QuickStartStepKey = 'basic' | 'subjects' | 'schedule' | 'complete';
+
+export interface QuickStartSubjectContribution {
+  id: string;
+  name: string;
+  duration?: number;
+  enabled?: boolean;
+  order?: number;
+}
+
+export interface QuickStartSchedulePresetContribution {
+  id: string;
+  name: string;
+  examsPerDay: number;
+  firstExamTime: string;
+  gapMinutes: number;
+  order?: number;
+}
+
+export interface QuickStartWordsContribution {
+  id: string;
+  label: string;
+  words: string[];
+  order?: number;
+}
+
+export interface QuickStartActionContribution {
+  id: string;
+  label: string;
+  icon?: string;
+  theme?: 'default' | 'primary' | 'success' | 'warning' | 'danger';
+  order?: number;
+  run(config: ExamConfig): void | Promise<void>;
+}
+
+export interface QuickStartPanelContribution {
+  id: string;
+  step: QuickStartStepKey;
+  title?: string;
+  order?: number;
   component: PluginViewComponent;
 }
 
@@ -638,8 +709,18 @@ export interface UiApi {
     presentView(view: EditorPanelContribution & { allowClose?: boolean }): Disposable;
     clearView(id?: string): void;
   };
-  player: { registerToolbarItem(item: PlayerToolbarContribution): Disposable };
+  player: {
+    registerToolbarItem(item: PlayerToolbarContribution): Disposable;
+    registerTheme(theme: PlayerThemeContribution): Disposable;
+  };
   control: { registerBindingView(view: ControlBindingContribution): Disposable };
+  quickStart: {
+    registerSubject(subject: QuickStartSubjectContribution): Disposable;
+    registerSchedulePreset(preset: QuickStartSchedulePresetContribution): Disposable;
+    registerWords(words: QuickStartWordsContribution): Disposable;
+    registerAction(action: QuickStartActionContribution): Disposable;
+    registerPanel(panel: QuickStartPanelContribution): Disposable;
+  };
   menus: {
     register(item: {
       id: string;

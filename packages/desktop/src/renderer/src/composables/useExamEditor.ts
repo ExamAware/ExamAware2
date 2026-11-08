@@ -3,6 +3,7 @@ import type { ExamConfig } from '@renderer/core/configTypes'
 import { ExamConfigManager } from '@renderer/core/configManager'
 import { FileOperationManager } from '@renderer/core/fileOperations'
 import { RecentFileManager } from '@renderer/core/recentFileManager'
+import { QUICK_START_DRAFT_KEY, takeQuickStartDraft } from '@renderer/core/quickStartDraft'
 import { MessageService } from '@renderer/core/messageService'
 import { logService } from '@renderer/core/logService'
 import { requestUnsavedChangesDecision } from '@renderer/core/unsavedChangesDialog'
@@ -599,6 +600,35 @@ export function useExamEditor() {
     }
   }
 
+  // 以“新建项目”的方式载入快速开始生成的配置。
+  const applyQuickStartDraft = (source: 'startup' | 'storage'): boolean => {
+    const draft = takeQuickStartDraft()
+    if (!draft) return false
+    if (source === 'storage' && isFileModified.value) {
+      const confirmed = window.confirm(
+        '编辑器中有未保存的修改。载入快速开始生成的配置将替换当前内容，是否继续？'
+      )
+      if (!confirmed) return false
+    }
+    if (!configManager.loadFromJson(JSON.stringify(draft))) {
+      MessageService.error('快速开始配置载入失败')
+      return false
+    }
+    currentExamIndex.value = null
+    currentFilePath.value = null
+    isNewFile.value = true
+    isFileModified.value = true
+    windowTitle.value = 'ExamAware Editor - 快速开始'
+    historyStore.init(examConfig, '快速开始')
+    MessageService.success('已根据快速开始生成考试配置')
+    return true
+  }
+
+  const handleQuickStartStorage = (event: StorageEvent) => {
+    if (event.key !== QUICK_START_DRAFT_KEY || !event.newValue) return
+    applyQuickStartDraft('storage')
+  }
+
   // 生命周期
   // 生命周期
   onMounted(() => {
@@ -617,6 +647,8 @@ export function useExamEditor() {
     historyStore.init(examConfig, '初始状态')
     // 移除自动加载功能，改为手动恢复
     // configManager.loadFromLocalStorage()
+    window.addEventListener('storage', handleQuickStartStorage)
+    applyQuickStartDraft('startup')
 
     // 初始化键盘快捷键
     keyboardManager.clear()
@@ -729,6 +761,7 @@ export function useExamEditor() {
     keyboardManager.stopListening()
     removeOpenFileListener?.()
     removeOpenFileListener = undefined
+    window.removeEventListener('storage', handleQuickStartStorage)
     // 清理监听
     // 注意：此处无法直接移除在 onMounted 中声明的本地函数，
     // 因此建议使用相同引用移除（若需要更严格，可将处理器提升到外层变量）。

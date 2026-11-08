@@ -12,6 +12,19 @@
     <div class="settings-body" :style="settingsBodyStyle">
       <t-space direction="vertical" :size="16" style="width: 100%">
         <div class="settings-group">
+          <div class="settings-label">播放器主题</div>
+          <div class="settings-control theme-options">
+            <t-select v-model="themeModel" placeholder="选择播放器主题" style="width: 100%">
+              <t-option
+                v-for="theme in themes"
+                :key="theme.id"
+                :value="theme.id"
+                :label="theme.name"
+              />
+            </t-select>
+          </div>
+        </div>
+        <div class="settings-group">
           <div class="settings-label">界面缩放</div>
           <div class="settings-control">
             <div class="slider-row">
@@ -118,10 +131,13 @@ import {
   Space as TSpace,
   RadioGroup as TRadioGroup,
   Radio as TRadio,
+  Select as TSelect,
+  Option as TOption,
   Button as TButton,
   Switch as TSwitch
 } from 'tdesign-vue-next';
 import type { UIDensity, DensityOption } from '../types/toolbar';
+import type { PlayerThemeOption } from '../types/theme';
 
 type DevReminderPreset = 'start' | 'warning' | 'end';
 
@@ -135,11 +151,15 @@ const props = withDefaults(
     largeClockScale: number;
     examInfoLargeFont: boolean;
     formatScale: (value: number | string) => string;
+    themes?: readonly PlayerThemeOption[];
+    themeId?: string;
     isDevMode?: boolean;
   }>(),
   {
     isDevMode: false,
-    examInfoLargeFont: false
+    examInfoLargeFont: false,
+    themes: () => [],
+    themeId: 'default'
   }
 );
 
@@ -150,6 +170,7 @@ const emit = defineEmits<{
   (e: 'update:largeClockEnabled', value: boolean): void;
   (e: 'update:largeClockScale', value: number): void;
   (e: 'update:examInfoLargeFont', value: boolean): void;
+  (e: 'update:themeId', value: string): void;
   (e: 'confirm'): void;
   (e: 'close'): void;
   (e: 'devReminderTest', preset: DevReminderPreset): void;
@@ -181,6 +202,11 @@ const largeClockScaleModel = computed({
 const examInfoLargeFontModel = computed({
   get: () => props.examInfoLargeFont,
   set: (value: boolean) => emit('update:examInfoLargeFont', value)
+});
+
+const themeModel = computed({
+  get: () => props.themeId,
+  set: (value: string) => emit('update:themeId', value)
 });
 
 const handleVisibleChange = (value: boolean) => {
@@ -294,6 +320,10 @@ const triggerDevReminderHide = () => {
 .density-option-description {
   font-size: calc(var(--ui-scale, 1) * 12px);
   color: var(--td-text-color-secondary, rgba(255, 255, 255, 0.65));
+}
+
+.theme-options :deep(.t-select) {
+  width: 100%;
 }
 
 .density-options :deep(.t-radio-button-group) {

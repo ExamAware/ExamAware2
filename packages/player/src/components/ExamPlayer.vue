@@ -1,48 +1,20 @@
 <template>
   <div class="exam-container" ref="rootRef">
-    <!-- 背景渐变椭圆 -->
-    <div class="background-ellipse"></div>
-
-    <!-- 主要内容（可插拔卡片区域） -->
-    <div class="content-wrapper">
-      <!-- 左侧列（默认布局） -->
-      <div class="left-column">
-        <slot name="left:logo">
-          <div class="logo-container"><span class="logo-text">DSZ ExamAware 知试</span></div>
-        </slot>
-
-        <slot name="left:title">
-          <div class="title-section">
-            <h1 ref="mainTitleRef" class="main-title">
-              {{ playerExamConfig?.examName || '考试' }}
-            </h1>
-            <p ref="subtitleRef" class="subtitle">
-              {{ playerExamConfig?.message || '请遵守考场纪律' }}
-            </p>
-          </div>
-        </slot>
-
-        <div class="card-item"><component :is="resolvedCards.clock" /></div>
-        <div class="card-item">
-          <component :is="resolvedCards.examInfo" />
-        </div>
-      </div>
-
-      <!-- 右侧列（默认布局） -->
-      <div class="right-column">
-        <div class="card-item"><component :is="resolvedCards.room" /></div>
-        <div class="card-item"><component :is="resolvedCards.list" /></div>
-      </div>
+    <!-- 主题负责完整页面布局；播放器只提供统一数据、动作与功能层 -->
+    <div class="player-theme-host">
+      <component :is="activeTheme.component" :context="themeContext" />
     </div>
 
     <!-- 底部按钮栏 -->
     <ActionButtonBar
-      v-if="showActionBar"
+      v-if="showActionBar && shellRendersActionBar"
       :initial-scale="props.uiScale"
       :initial-density="densityState"
       :initial-large-clock-enabled="largeClockState"
       :initial-large-clock-scale="largeClockScaleState"
       :initial-exam-info-large-font="examInfoLargeFontState"
+      :themes="availableThemes"
+      :theme-id="resolvedThemeId"
       :extra-tools="toolbarTools"
       :allow-exit="allowExit"
       :show-call-proctor="showCallProctor"
@@ -50,6 +22,7 @@
       @exit="emit('exit')"
       @scale-change="emit('scaleChange', $event)"
       @density-change="handleDensityChange"
+      @theme-change="handleThemeChange"
       @large-clock-toggle="handleLargeClockToggle"
       @clock-scale-change="handleLargeClockScaleChange"
       @exam-info-large-font-toggle="handleExamInfoLargeFontToggle"
@@ -58,32 +31,21 @@
       @call-proctor="emit('callProctor')"
     />
 
-    <!-- 彩色提醒：用于考试开始/即将结束/考试结束，淡入动画 -->
-    <transition name="fade-soft">
-      <div
-        v-if="colorfulVisible"
-        class="overlay colorful-overlay"
-        :class="{ 'hdr-highlight': colorfulHdrActive }"
-        :style="colorfulOverlayStyle"
-      >
-        <div class="colorful-copy">
-          <div class="colorful-title">{{ colorfulTitle }}</div>
-          <div v-if="colorfulMessage" class="colorful-message">{{ colorfulMessage }}</div>
-        </div>
-      </div>
-    </transition>
-
-    <!-- 普通提醒：全屏高斯模糊遮罩 + Markdown 内容 + 关闭按钮（含倒计时） -->
-    <transition name="fade-soft">
-      <div v-if="currentNotice" class="overlay notice-overlay">
-        <div class="notice-message">
-          <div class="notice-content" v-html="renderedMarkdown"></div>
-          <t-button theme="default" variant="outline" size="large" @click="handleCloseNotice">
-            关闭（{{ currentNotice?.remainingSec }}s）
-          </t-button>
-        </div>
-      </div>
-    </transition>
+    <!-- 默认壳层提醒；主题可通过 chrome 标记接管 -->
+    <ColorfulAlertOverlay
+      v-if="shellRendersColorfulAlert"
+      :visible="colorfulVisible"
+      :title="colorfulTitle"
+      :message="colorfulMessage"
+      :overlay-style="colorfulOverlayStyle"
+      :hdr-highlight="colorfulHdrActive"
+    />
+    <NoticeOverlay
+      v-if="shellRendersNotice"
+      :notice="currentNotice"
+      :html="renderedMarkdown"
+      @close="handleCloseNotice"
+    />
 
     <!-- 考场号设置弹窗（TDesign Dialog） -->
     <t-dialog
@@ -110,7 +72,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted, watch, watchEffect, provide } from 'vue';
+import {
+  computed,
+  defineComponent,
+  h,
+  ref,
+  onMounted,
+  onUnmounted,
+  watch,
+  watchEffect,
+  provide,
+  useSlots,
+  type PropType,
+  type VNode
+} from 'vue';
 // 为避免 SFC 类型解析跨包问题，这里使用本地最小类型定义
 type ExamConfig = {
   examName: string;
@@ -119,6 +94,22 @@ type ExamConfig = {
 };
 import { useExamPlayer, type TimeProvider } from '../useExamPlayer';
 import type { PlayerConfig, PlayerEventHandlers } from '../types';
+import { builtinPlayerThemes } from '../themes';
+import {
+  DEFAULT_PLAYER_THEME_ID,
+  normalizePlayerThemes,
+  playerThemeContextKey,
+  resolvePlayerTheme,
+  type PlayerThemeAlertState,
+  type PlayerThemeChromeContext,
+  type PlayerThemeColorfulAlert,
+  type PlayerThemeComponents,
+  type PlayerThemeContext,
+  type PlayerThemeDefinition,
+  type PlayerThemeNotice,
+  type PlayerThemeSelection,
+  type PlayerThemeSlots
+} from '../types/theme';
 import 'simple-keyboard/build/css/index.css';
 import BaseCard from './BaseCard.vue';
 import InfoCardWithIcon from './InfoCardWithIcon.vue';
@@ -130,6 +121,8 @@ import ExamInfoCard from './cards/ExamInfoCard.vue';
 import ExamRoomCard from './cards/ExamRoomCard.vue';
 import CurrentListCard from './cards/CurrentListCard.vue';
 import ActionButtonBar from './ActionButtonBar.vue';
+import ColorfulAlertOverlay from './overlays/ColorfulAlertOverlay.vue';
+import NoticeOverlay from './overlays/NoticeOverlay.vue';
 import { providePlayerToolbar } from '../composables/usePlayerToolbar';
 import {
   ReminderEventGate,
@@ -137,7 +130,7 @@ import {
   type ReminderEventKind
 } from '../core/reminderEventGate';
 // 本地引入 TDesign 组件，确保不依赖宿主全局注册
-import { Dialog as TDialog, Input as TInput, Button as TButton } from 'tdesign-vue-next';
+import { Dialog as TDialog, Input as TInput } from 'tdesign-vue-next';
 import { useReminderService, ReminderUtils } from '../utils/reminderService';
 
 // 轻量 Markdown 渲染器：使用浏览器原生实现，避免引入重依赖
@@ -211,6 +204,10 @@ interface Props {
     room: any;
     list: any;
   }>;
+  /** 可用的完整页面主题；内置默认主题始终可用 */
+  themes?: readonly PlayerThemeDefinition[];
+  /** 当前主题 ID；插件主题 ID 由宿主命名空间化 */
+  themeId?: string;
 }
 
 // Events 定义
@@ -226,6 +223,8 @@ interface Emits {
   (e: 'largeClockScaleChange', scale: number): void;
   (e: 'examInfoLargeFontToggle', enabled: boolean): void;
   (e: 'densityChange', density: UIDensity): void;
+  (e: 'update:themeId', themeId: string): void;
+  (e: 'themeChange', themeId: string): void;
   (e: 'callProctor'): void;
   (e: 'examStart', exam: any): void;
   (e: 'examEnd', exam: any): void;
@@ -255,10 +254,53 @@ const props = withDefaults(defineProps<Props>(), {
   allowEditRoomNumber: true,
   eventHandlers: () => ({}),
   cards: () => ({}),
+  themes: () => [],
+  themeId: DEFAULT_PLAYER_THEME_ID,
   uiDensity: 'comfortable'
 });
 
 const emit = defineEmits<Emits>();
+
+// 旧版具名插槽仍通过主题 slots 转发；在壳层模板中显式声明以保证类型完整。
+defineSlots<{
+  'left:logo'?: () => VNode[];
+  'left:title'?: () => VNode[];
+  extra?: () => VNode[];
+}>();
+
+// 内置主题始终存在；外部主题只补充，不能覆盖默认实现。
+const availableThemes = computed(() =>
+  normalizePlayerThemes([...builtinPlayerThemes, ...props.themes])
+);
+
+const localThemeId = ref(props.themeId);
+const activeTheme = computed(() => resolvePlayerTheme(availableThemes.value, localThemeId.value));
+const resolvedThemeId = computed(() => activeTheme.value.id);
+const shellRendersActionBar = computed(() => !activeTheme.value.chrome?.actionBar);
+const shellRendersColorfulAlert = computed(() => !activeTheme.value.chrome?.colorfulAlert);
+const shellRendersNotice = computed(() => !activeTheme.value.chrome?.notice);
+
+watch(
+  () => props.themeId,
+  (value) => {
+    if (value) localThemeId.value = value;
+  }
+);
+
+const handleThemeChange = (themeId: string) => {
+  if (!themeId || themeId === localThemeId.value) return;
+  if (!availableThemes.value.some((theme) => theme.id === themeId)) return;
+  localThemeId.value = themeId;
+  emit('update:themeId', themeId);
+  emit('themeChange', themeId);
+};
+
+const slots = useSlots();
+const themeSlots = computed<PlayerThemeSlots>(() => ({
+  logo: slots['left:logo'] ? () => slots['left:logo']?.() : undefined,
+  title: slots['left:title'] ? () => slots['left:title']?.() : undefined
+}));
+
 const reminder = useReminderService();
 
 const reminderEventGate = new ReminderEventGate();
@@ -281,12 +323,6 @@ const resetReminderEvents = () => {
   lastStatusRef.value = null;
   lastExamKeyRef.value = null;
 };
-
-// 显式注册局部组件（<t-dialog> / <t-input>）
-// 在 <script setup> 中，import 即可自动可用，但为兼容性，保留命名引用
-const TDialogComp = TDialog;
-const TInputComp = TInput;
-const TButtonComp = TButton;
 
 // 合并事件处理器
 const mergedEventHandlers: PlayerEventHandlers = {
@@ -464,6 +500,7 @@ const {
   currentExamTimeRange,
   remainingTime,
   formattedCurrentTime,
+  currentTime,
   switchToExam,
   updateConfig
 } = examPlayer;
@@ -852,73 +889,14 @@ const handleAutoScaleResize = () => {
   animateToAutoScale(targetScale);
 };
 
-// 标题大小调整
-const mainTitleRef = ref<HTMLElement>();
-const subtitleRef = ref<HTMLElement>();
-
-const adjustTitleSize = () => {
-  if (!mainTitleRef.value || !subtitleRef.value) return;
-
-  const container = mainTitleRef.value.parentElement;
-  if (!container) return;
-
-  // 等待DOM更新完成再计算（避免布局抖动）
-  setTimeout(() => {
-    const containerWidth = container.clientWidth;
-
-    // 从一个较大的初始字体开始，逐步减小直到单行完全显示
-    let fontSize = 50; // px，初始值
-    mainTitleRef.value!.style.fontSize = `${fontSize}px`;
-
-    // 强制重新计算布局
-    void mainTitleRef.value!.offsetHeight;
-
-    let scrollWidth = mainTitleRef.value!.scrollWidth;
-
-    // 逐步减小字体直到文字宽度不超过容器宽度
-    while (scrollWidth > containerWidth && fontSize > 12) {
-      fontSize -= 0.5; // 小步长保证精度
-      mainTitleRef.value!.style.fontSize = `${fontSize}px`;
-      void mainTitleRef.value!.offsetHeight;
-      scrollWidth = mainTitleRef.value!.scrollWidth;
-    }
-
-    // 让标题留一点安全边距
-    fontSize = Math.max(12, fontSize - 5);
-    mainTitleRef.value!.style.fontSize = `${fontSize}px`;
-
-    // 副标题与主标题保持比例（约40%）
-    const subtitleFontSize = fontSize * 0.4;
-    subtitleRef.value!.style.fontSize = `${subtitleFontSize}px`;
-  }, 10);
-};
-
 onMounted(() => {
-  adjustTitleSize();
-  window.addEventListener('resize', adjustTitleSize);
-
   // 初始化 UI 自动缩放
   currentAutoScale = calculateAutoScale();
   setAutoRootScale(currentAutoScale);
   window.addEventListener('resize', handleAutoScaleResize);
-
-  // 监听UI缩放变化
-  const observer = new MutationObserver(() => {
-    adjustTitleSize();
-  });
-  observer.observe(document.documentElement, {
-    attributes: true,
-    attributeFilter: ['style']
-  });
-
-  // 清理函数在组件卸载时执行
-  window.addEventListener('beforeunload', () => {
-    observer.disconnect();
-  });
 });
 
 onUnmounted(() => {
-  window.removeEventListener('resize', adjustTitleSize);
   window.removeEventListener('resize', handleAutoScaleResize);
 
   // 清理自动缩放动画
@@ -926,16 +904,6 @@ onUnmounted(() => {
     cancelAnimationFrame(autoScaleAnimationId);
   }
 });
-
-// 当标题/副标题内容变化时，重新计算自适应字号
-watch(
-  () => playerExamConfig?.value?.examName,
-  () => adjustTitleSize()
-);
-watch(
-  () => playerExamConfig?.value?.message,
-  () => adjustTitleSize()
-);
 
 // 同步外部传入 roomNumber 的变化
 watch(
@@ -974,11 +942,167 @@ const resolvedCards = computed(() => ({
   room: props.cards?.room ?? ExamRoomCard,
   list: props.cards?.list ?? CurrentListCard
 }));
+
+const themeColorfulAlert = computed<PlayerThemeColorfulAlert | null>(() => {
+  if (!colorfulVisible.value) return null;
+  const baseColor = reminder._colorfulReminder.value?.themeBaseColor || '#ff3b30';
+  const forceWhiteText = Boolean(reminder._colorfulReminder.value?.forceWhiteText);
+  return {
+    title: colorfulTitle.value,
+    message: colorfulMessage.value,
+    baseColor,
+    textColor: forceWhiteText ? '#ffffff' : ReminderUtils.getContrastingTextColor(baseColor),
+    forceWhiteText,
+    hdrHighlight: colorfulHdrActive.value,
+    overlayStyle: colorfulOverlayStyle.value
+  };
+});
+
+const themeNotice = computed<PlayerThemeNotice | null>(() => {
+  const notice = currentNotice.value;
+  if (!notice) return null;
+  return {
+    id: notice.id,
+    markdown: notice.markdown,
+    html: renderedMarkdown.value,
+    remainingSec: notice.remainingSec,
+    timeoutMs: notice.timeoutMs
+  };
+});
+
+const ThemeActionBar = defineComponent({
+  name: 'PlayerThemeActionBar',
+  props: {
+    variant: {
+      type: String as PropType<'fixed' | 'inline'>,
+      default: 'fixed'
+    }
+  },
+  setup(wrapperProps) {
+    return () => {
+      if (!props.showActionBar) return null;
+      return h(ActionButtonBar, {
+        initialScale: props.uiScale,
+        initialDensity: densityState.value,
+        initialLargeClockEnabled: largeClockState.value,
+        initialLargeClockScale: largeClockScaleState.value,
+        initialExamInfoLargeFont: examInfoLargeFontState.value,
+        themes: availableThemes.value,
+        themeId: resolvedThemeId.value,
+        extraTools: toolbarTools.value,
+        allowExit: props.allowExit,
+        showCallProctor: props.showCallProctor,
+        callProctorLoading: props.callProctorLoading,
+        variant: wrapperProps.variant,
+        onExit: () => emit('exit'),
+        onScaleChange: (scale: number) => emit('scaleChange', scale),
+        onDensityChange: handleDensityChange,
+        onThemeChange: handleThemeChange,
+        onLargeClockToggle: handleLargeClockToggle,
+        onClockScaleChange: handleLargeClockScaleChange,
+        onExamInfoLargeFontToggle: handleExamInfoLargeFontToggle,
+        onDevReminderTest: handleDevReminderTest,
+        onDevReminderHide: handleDevReminderHide,
+        onCallProctor: () => emit('callProctor')
+      });
+    };
+  }
+});
+
+const ThemeColorfulAlert = defineComponent({
+  name: 'PlayerThemeColorfulAlert',
+  setup: () => () =>
+    h(ColorfulAlertOverlay, {
+      visible: colorfulVisible.value,
+      title: colorfulTitle.value,
+      message: colorfulMessage.value,
+      overlayStyle: colorfulOverlayStyle.value,
+      hdrHighlight: colorfulHdrActive.value
+    })
+});
+
+const ThemeNotice = defineComponent({
+  name: 'PlayerThemeNotice',
+  setup: () => () =>
+    h(NoticeOverlay, {
+      notice: currentNotice.value,
+      html: renderedMarkdown.value,
+      onClose: handleCloseNotice
+    })
+});
+
+const themeComponents = {
+  actionBar: ThemeActionBar,
+  colorfulAlert: ThemeColorfulAlert,
+  notice: ThemeNotice
+} satisfies PlayerThemeComponents;
+
+const themeAlerts = {
+  colorful: themeColorfulAlert,
+  notice: themeNotice,
+  closeNotice: handleCloseNotice,
+  hideColorful: reminder.hideColorfulAlert
+} satisfies PlayerThemeAlertState;
+
+const themeChrome = {
+  showActionBar: computed(() => props.showActionBar),
+  allowExit: computed(() => props.allowExit),
+  showCallProctor: computed(() => props.showCallProctor),
+  callProctorLoading: computed(() => props.callProctorLoading),
+  toolbarItems: toolbarTools
+} satisfies PlayerThemeChromeContext;
+
+const themeSelection = {
+  options: computed(() =>
+    availableThemes.value.map(({ id, name, description }) => ({ id, name, description }))
+  ),
+  currentId: resolvedThemeId,
+  set: handleThemeChange
+} satisfies PlayerThemeSelection;
+
+const themeContext = computed(
+  () =>
+    ({
+      state,
+      examConfig: playerExamConfig,
+      currentExam,
+      sortedExamInfos,
+      formattedExamInfos,
+      examStatus,
+      currentExamName,
+      currentExamTimeRange,
+      remainingTime,
+      currentTime,
+      formattedCurrentTime,
+      displayedRemainingTime,
+      displayFormattedExamInfos,
+      roomNumber: effectiveRoomNumber,
+      timeSyncStatus: computed(() => props.timeSyncStatus),
+      density: densityState,
+      largeClockEnabled: computed(() => largeClockState.value),
+      largeClockScale: largeClockScaleState,
+      examInfoLargeFont: computed(() => examInfoLargeFontState.value),
+      cards: resolvedCards.value,
+      slots: themeSlots.value,
+      alerts: themeAlerts,
+      chrome: themeChrome,
+      components: themeComponents,
+      theme: themeSelection,
+      actions: {
+        switchToExam,
+        openRoomNumberDialog: handleRoomNumberClick,
+        exit: () => emit('exit'),
+        callProctor: () => emit('callProctor')
+      }
+    }) satisfies PlayerThemeContext
+);
+provide(playerThemeContextKey, themeContext);
 </script>
 
 <style scoped>
-* {
-  font-family: 'MiSans';
+.player-theme-host {
+  position: absolute;
+  inset: 0;
 }
 
 .exam-container {
@@ -987,195 +1111,11 @@ const resolvedCards = computed(() => ({
   position: relative;
   overflow: hidden;
   background: #02080d;
+  font-family: 'MiSans';
   /* 提供本地默认变量，防止未继承导致的变量缺失 */
   --ui-scale: 1;
   --density-scale: 1;
   --large-clock-scale: 1;
-}
-
-.background-ellipse {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 100%;
-  height: 45%;
-  background: radial-gradient(
-    50% 50% at 50% 50%,
-    rgba(55, 88, 255, 0.3) 0%,
-    rgba(70, 82, 255, 0) 100%
-  );
-
-  border-radius: 50%;
-  transform: translateX(-50%) translateY(-50%);
-  z-index: 0;
-}
-
-.exam-room-container {
-  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
-  display: flex;
-  justify-content: flex-end; /* 右对齐 */
-}
-
-.logo-container {
-  position: relative;
-  margin-bottom: calc((40px * 100vh / 1080px) * var(--ui-scale, 1) * var(--density-scale, 1));
-  z-index: 20;
-}
-
-.logo-text {
-  color: #ffffff;
-  font-size: calc(var(--ui-scale, 1) * 1.25rem);
-  font-weight: 600;
-  letter-spacing: 0.025em;
-}
-
-.title-section {
-  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 3rem);
-}
-
-.main-title {
-  color: #ffffff;
-  font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 1rem);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 100%;
-}
-
-.subtitle {
-  color: rgba(255, 255, 255, 0.7);
-  font-weight: 400;
-  line-height: 1.4;
-}
-
-.clock-card {
-  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
-}
-
-.clock-content {
-  display: flex;
-  align-items: center;
-  gap: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
-}
-
-.time-display {
-  font-size: calc(var(--ui-scale, 1) * 4rem);
-  line-height: 1;
-  color: #fff;
-  text-shadow: 0 calc(var(--ui-scale, 1) * 0.167rem) calc(var(--ui-scale, 1) * 1.458rem)
-    rgba(255, 255, 255, 0.3);
-  font-family: 'TCloudNumber', 'MiSans', monospace;
-  font-style: normal;
-  font-weight: 600;
-}
-
-.time-note {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: calc(var(--ui-scale, 1) * 1.5rem);
-  line-height: calc(var(--ui-scale, 1) * 2rem);
-}
-
-.exam-info-card {
-  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
-}
-
-.content-wrapper {
-  position: relative;
-  z-index: 10;
-  height: 100vh;
-  display: flex;
-  padding: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem)
-    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem)
-    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 8rem)
-    calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
-  gap: calc(100px * var(--ui-scale, 1) * var(--density-scale, 1));
-}
-
-.left-column {
-  width: 50%;
-  min-width: 0; /* 允许收缩 */
-  padding-top: calc((40px * 100vh / 1080px) * var(--ui-scale, 1) * var(--density-scale, 1));
-  overflow: hidden; /* 防止内容溢出 */
-}
-
-.right-column {
-  width: 50%;
-  min-width: 0; /* 允许收缩 */
-  padding-top: calc((40px * 100vh / 1080px) * var(--ui-scale, 1) * var(--density-scale, 1));
-  overflow: hidden; /* 防止内容溢出 */
-}
-
-/* 统一卡片间距（适配可插拔卡片） */
-.card-item {
-  margin-bottom: calc(var(--ui-scale, 1) * var(--density-scale, 1) * 2rem);
-}
-.card-item:last-child {
-  margin-bottom: 0;
-}
-
-/* 弹窗样式 */
-.room-number-modal .modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-}
-
-.room-number-modal .modal-content {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 480px;
-  max-width: calc(100vw - 32px);
-  background: #0b1220;
-  border: 1px solid #1f2a44;
-  border-radius: 12px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
-  z-index: 1001;
-  color: #fff;
-}
-
-.close-btn {
-  background: transparent;
-  border: none;
-  font-size: 20px;
-  color: #9aa4b2;
-  cursor: pointer;
-}
-
-.form-item label {
-  display: block;
-  margin-bottom: 8px;
-  color: #9aa4b2;
-}
-
-.room-input {
-  width: 100%;
-  height: 40px;
-  border-radius: 8px;
-  border: 1px solid #1f2a44;
-  background: #0e1628;
-  color: #fff;
-  padding: 0 12px;
-}
-
-.btn {
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: 1px solid transparent;
-  cursor: pointer;
-  color: #fff;
-}
-
-.btn-cancel {
-  background: #1f2a44;
-}
-
-.btn-confirm {
-  background: #1668dc;
 }
 
 /* 键盘样式 */
@@ -1236,102 +1176,5 @@ const resolvedCards = computed(() => ({
 :deep(.numeric-keyboard-dark .hg-row) {
   display: flex !important;
   justify-content: center !important;
-}
-
-/* 覆盖层与动画 */
-.overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.fade-soft-enter-active,
-.fade-soft-leave-active {
-  transition:
-    opacity 320ms ease,
-    transform 320ms ease;
-}
-.fade-soft-enter-from,
-.fade-soft-leave-to {
-  opacity: 0;
-  transform: scale(1.02);
-}
-
-/* 彩色提醒：全屏纯色信息层 */
-.colorful-overlay {
-  padding: clamp(24px, 4vw, 72px);
-  overflow: auto;
-  background: var(--colorful-bg, #ff3b30);
-  background: color-mix(in srgb, var(--colorful-bg, #ff3b30) 88%, transparent);
-  backdrop-filter: blur(2px);
-}
-.colorful-copy {
-  width: min(94vw, 1800px);
-  text-align: center;
-}
-.colorful-title {
-  color: var(--colorful-text, #fff);
-  font-size: clamp(4rem, calc(var(--ui-scale, 1) * 8vw), 10rem);
-  font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: 0.03em;
-  overflow-wrap: anywhere;
-  text-shadow: var(--colorful-shadow, 0 6px 24px rgba(0, 0, 0, 0.35));
-}
-.colorful-message {
-  margin-top: clamp(24px, 4vh, 64px);
-  color: var(--colorful-text, #fff);
-  font-size: clamp(2.5rem, calc(var(--ui-scale, 1) * 4.5vw), 5.5rem);
-  font-weight: 650;
-  line-height: 1.2;
-  overflow-wrap: anywhere;
-  white-space: pre-wrap;
-  text-shadow: var(--colorful-shadow, 0 6px 24px rgba(0, 0, 0, 0.35));
-}
-
-@media (dynamic-range: high) {
-  .colorful-overlay.hdr-highlight :is(.colorful-title, .colorful-message) {
-    color: color(display-p3 1 1 1);
-  }
-}
-
-/* 普通公告：无边框、无卡片的大字全屏信息层 */
-.notice-overlay {
-  padding: clamp(24px, 4vw, 72px);
-  overflow: auto;
-  background: rgba(0, 0, 0, 0.76);
-  backdrop-filter: blur(2px);
-}
-.notice-message {
-  width: min(94vw, 1800px);
-  color: #fff;
-  text-align: center;
-}
-.notice-content :is(h1, h2, h3) {
-  margin: 0 0 clamp(24px, 4vh, 64px);
-  font-size: clamp(4rem, calc(var(--ui-scale, 1) * 8vw), 10rem);
-  font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: 0.03em;
-  overflow-wrap: anywhere;
-}
-.notice-content :is(p, li) {
-  margin: 0;
-  font-size: clamp(2.5rem, calc(var(--ui-scale, 1) * 4.5vw), 5.5rem);
-  font-weight: 650;
-  line-height: 1.2;
-  overflow-wrap: anywhere;
-}
-.notice-content :is(ul, ol) {
-  display: inline-block;
-  margin: 0;
-  padding-left: 1.2em;
-  text-align: left;
-}
-.notice-message :deep(.t-button) {
-  margin-top: clamp(28px, 5vh, 72px);
 }
 </style>

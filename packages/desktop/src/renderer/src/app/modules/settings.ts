@@ -76,10 +76,17 @@ export const settingsModule: AppModule = {
       },
       {
         id: 'appearance',
-        label: '外观',
+        label: '主题',
         icon: 'palette',
         order: 1,
         component: () => import('@renderer/views/settings/AppearanceSettings.vue')
+      },
+      {
+        id: 'subjects',
+        label: '学科',
+        icon: 'book',
+        order: 1.5,
+        component: () => import('@renderer/views/settings/SubjectSettings.vue')
       },
       {
         id: 'control',

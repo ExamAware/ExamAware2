@@ -167,15 +167,24 @@ const PLUGIN_WINDOW_KINDS = new Set<PluginWindowKind>([
   'logs',
   'plugin-store',
   'control-bind',
+  'quick-start',
   'tray',
   'plugin'
 ])
 
+// v1 manifests without activation.rendererWindows predate the quick-start window;
+// keep them out so only v2 plugins can opt in explicitly.
+const V1_DEFAULT_RENDERER_WINDOWS = Array.from(PLUGIN_WINDOW_KINDS).filter(
+  (kind) => kind !== 'quick-start'
+)
+
 function normalizeRendererWindows(input: unknown, apiVersion: 1 | 2): PluginWindowKind[] {
-  if (input === undefined) return apiVersion === 2 ? ['main'] : Array.from(PLUGIN_WINDOW_KINDS)
+  if (input === undefined) {
+    return apiVersion === 2 ? ['main'] : [...V1_DEFAULT_RENDERER_WINDOWS]
+  }
   if (!Array.isArray(input)) {
     if (apiVersion === 2) throw new Error('activation.rendererWindows must be an array')
-    return Array.from(PLUGIN_WINDOW_KINDS)
+    return [...V1_DEFAULT_RENDERER_WINDOWS]
   }
   const invalid = input.filter(
     (kind): kind is unknown =>
@@ -184,7 +193,7 @@ function normalizeRendererWindows(input: unknown, apiVersion: 1 | 2): PluginWind
   if (apiVersion === 2 && invalid.length) {
     throw new Error(`Invalid renderer window kind: ${invalid.map(String).join(', ')}`)
   }
-  return Array.from(
+  const kinds = Array.from(
     new Set(
       input.filter(
         (kind): kind is PluginWindowKind =>
@@ -192,6 +201,7 @@ function normalizeRendererWindows(input: unknown, apiVersion: 1 | 2): PluginWind
       )
     )
   )
+  return apiVersion === 1 ? kinds.filter((kind) => kind !== 'quick-start') : kinds
 }
 
 function normalizePermissions(

@@ -199,6 +199,7 @@ export interface DesktopBridge {
     openSettings(page?: string): void
     openPluginStore(): void
     openBindControl(): void
+    openQuickStart(): void
     onSettingsNavigate(listener: (page: string) => void): () => void
     minimize(): void
     closeCurrent(): void

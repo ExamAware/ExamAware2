@@ -1,0 +1,29 @@
+{
+  "type": "object",
+  "properties": {
+    "backgroundId": {
+      "type": "string",
+      "default": "campus",
+      "description": "当前播放器背景图 ID。"
+    },
+    "coverOrigin": {
+      "type": "string",
+      "default": "宝鸡中学",
+      "description": "加载封面 Chart 文案。"
+    },
+    "customBackgrounds": {
+      "type": "array",
+      "default": [],
+      "description": "用户添加的背景图。",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "dataUrl": { "type": "string" }
+        },
+        "required": ["id", "name", "dataUrl"]
+      }
+    }
+  }
+}

@@ -29,6 +29,10 @@ export { providePlayerToolbar, usePlayerToolbar } from './composables/usePlayerT
 export { createPlayerToolbarRegistry, playerToolbarRegistryKey } from './core/toolbarRegistry';
 export type { UIDensity, DensityOption } from './types/toolbar';
 
+// Player themes
+export { defaultPlayerTheme, builtinPlayerThemes } from './themes';
+export * from './types/theme';
+
 // Types
 export type * from './types';
 

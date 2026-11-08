@@ -12,6 +12,7 @@ import {
   clampUiScale,
   clampLargeClockScale,
   normalizeDensity,
+  normalizeThemeId,
   type PlaybackSettingsRefs
 } from '../composables/usePlaybackSettings'
 import { useControlAgent } from '../composables/useControlAgent'
@@ -289,6 +290,7 @@ function createPlaybackApi(): PlaybackAPI {
       refs.largeClockEnabled.value = false
       refs.largeClockScale.value = clampLargeClockScale(1)
       refs.examInfoLargeFont.value = false
+      refs.themeId.value = normalizeThemeId('default')
     }
   }
 }

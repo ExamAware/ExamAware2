@@ -2,7 +2,6 @@
   <div class="bind-control-wizard">
     <component :is="bindingView.component" v-if="bindingView" class="plugin-binding-view" />
     <template v-else>
-      <window-frame title="绑定学校集控" />
       <div class="wizard-content">
         <t-steps v-model:current="currentStep" readonly>
           <t-step-item title="服务器" />
@@ -124,11 +123,11 @@ const finishWizard = () => window.api.windows.closeCurrent()
 
 <style scoped>
 .plugin-binding-view {
-  min-height: 100vh;
+  min-height: 100%;
 }
 .bind-control-wizard {
   box-sizing: border-box;
-  min-height: 100vh;
+  min-height: 100%;
   padding: 56px 40px 32px;
 }
 

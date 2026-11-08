@@ -1,5 +1,8 @@
 import type { Ref } from 'vue'
 import type { UIDensity } from '@dsz-examaware/player'
+
+// 本地常量：避免设置模块运行时导入整个播放器包（组件、TDesign、键盘样式）。
+const DEFAULT_PLAYER_THEME_ID = 'default'
 import { useSettingRef } from './useSetting'
 
 const roundToStep = (value: number, step: number) => {
@@ -32,12 +35,17 @@ export const normalizeDensity = (value: unknown): UIDensity => {
   return 'comfortable'
 }
 
+export const normalizeThemeId = (value: unknown): string => {
+  return typeof value === 'string' && value.trim() ? value.trim() : DEFAULT_PLAYER_THEME_ID
+}
+
 export interface PlaybackSettingsRefs {
   uiScale: Ref<number>
   uiDensity: Ref<UIDensity>
   largeClockEnabled: Ref<boolean>
   largeClockScale: Ref<number>
   examInfoLargeFont: Ref<boolean>
+  themeId: Ref<string>
 }
 
 export const usePlaybackSettings = (): PlaybackSettingsRefs => {
@@ -66,12 +74,18 @@ export const usePlaybackSettings = (): PlaybackSettingsRefs => {
     mapOut: (val) => Boolean(val)
   })
 
+  const themeId = useSettingRef<string>('player.themeId', DEFAULT_PLAYER_THEME_ID, {
+    mapIn: normalizeThemeId,
+    mapOut: normalizeThemeId
+  })
+
   return {
     uiScale,
     uiDensity,
     largeClockEnabled,
     largeClockScale,
-    examInfoLargeFont
+    examInfoLargeFont,
+    themeId
   }
 }
 

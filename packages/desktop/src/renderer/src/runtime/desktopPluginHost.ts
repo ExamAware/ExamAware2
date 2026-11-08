@@ -242,6 +242,11 @@ export function createDesktopPluginHost(ctx: AppContext): RendererPluginHost {
       }
       const entryUrl = await bridge.rendererEntry(plugin.name)
       if (!entryUrl) return
+      if (plugin.apiVersion !== 2) {
+        console.warn(
+          `[DesktopPluginHost] Plugin ${plugin.name} uses deprecated API v1; v1 is unmaintained and will be removed. Migrate to API v2.`
+        )
+      }
       const mod = (await import(/* @vite-ignore */ entryUrl)) as PluginModuleExport
       const factory = resolveFactory(mod)
       const entryApiVersion = (factory as { apiVersion?: number }).apiVersion

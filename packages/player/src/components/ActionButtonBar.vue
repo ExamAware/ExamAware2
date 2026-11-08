@@ -11,7 +11,8 @@
     :class="{
       collapsed: isCollapsed,
       'settings-open': showSettings,
-      'manual-collapsed': manualCollapsed
+      'manual-collapsed': manualCollapsed,
+      'bar-inline': variant === 'inline'
     }"
     @mouseenter="handleUserActivity"
     @mousemove="handleUserActivity"
@@ -113,6 +114,8 @@
     :exam-info-large-font="tempExamInfoLargeFont"
     :density-options="densityOptions"
     :format-scale="formatScale"
+    :themes="themes"
+    :theme-id="themeId"
     :is-dev-mode="isDevMode"
     @update:visible="handleSettingsVisibleChange"
     @update:scale="handleTempScaleUpdate"
@@ -120,6 +123,7 @@
     @update:largeClockEnabled="handleTempLargeClockEnabledUpdate"
     @update:largeClockScale="handleTempLargeClockScaleUpdate"
     @update:examInfoLargeFont="handleTempExamInfoLargeFontUpdate"
+    @update:themeId="emit('themeChange', $event)"
     @close="handleSettingsClosed"
     @confirm="handleSettingsConfirm"
     @dev-reminder-test="triggerDevReminderTest"
@@ -136,6 +140,7 @@ import type {
   DevReminderPreset,
   DevReminderPayload
 } from '../types/toolbar';
+import type { PlayerThemeOption } from '../types/theme';
 import { defaultDensityOptions } from '../types/toolbar';
 import PlaybackSettingsDrawer from './PlaybackSettingsDrawer.vue';
 const props = withDefaults(
@@ -146,9 +151,12 @@ const props = withDefaults(
     initialLargeClockEnabled?: boolean;
     initialExamInfoLargeFont?: boolean;
     extraTools?: readonly PlayerToolbarItem[];
+    themes?: readonly PlayerThemeOption[];
+    themeId?: string;
     allowExit?: boolean;
     showCallProctor?: boolean;
     callProctorLoading?: boolean;
+    variant?: 'fixed' | 'inline';
   }>(),
   {
     initialScale: undefined,
@@ -156,9 +164,12 @@ const props = withDefaults(
     initialLargeClockScale: 1,
     initialLargeClockEnabled: false,
     initialExamInfoLargeFont: false,
+    themes: () => [],
+    themeId: 'default',
     allowExit: true,
     showCallProctor: false,
     callProctorLoading: false,
+    variant: 'fixed',
     extraTools: () => []
   }
 );
@@ -169,6 +180,7 @@ const emit = defineEmits<{
   (e: 'clockScaleChange', scale: number): void;
   (e: 'largeClockToggle', enabled: boolean): void;
   (e: 'examInfoLargeFontToggle', enabled: boolean): void;
+  (e: 'themeChange', themeId: string): void;
   (e: 'devReminderTest', preset: DevReminderPreset | DevReminderPayload): void;
   (e: 'devReminderHide'): void;
   (e: 'callProctor'): void;
@@ -793,6 +805,13 @@ const formatScale = (value: number | string) => {
   transition:
     transform 0.25s ease,
     opacity 0.25s ease;
+}
+
+.action-button-bar.bar-inline {
+  position: relative;
+  inset: auto;
+  z-index: 1;
+  width: 100%;
 }
 
 .button-container {

@@ -3,7 +3,7 @@
     <t-card title="应用设置" :bordered="false">
       <t-form labelAlign="top">
         <!-- 主题设置 -->
-        <t-form-item label="主题模式">
+        <t-form-item label="明暗风格">
           <t-radio-group v-model="themeMode" @change="handleThemeChange">
             <t-radio value="light">浅色</t-radio>
             <t-radio value="dark">深色</t-radio>

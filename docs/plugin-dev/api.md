@@ -146,6 +146,148 @@ export default defineRendererPlugin<DemoSettings>({
 - `ctx.api.ui.settings.registerPage()` 需要 `ui.contribute` 权限，返回资源在卸载时自动清理。
 - `ctx.window.kind` / `ctx.window.route` 可用于同一 renderer 入口里的窗口分流。
 
+## 快速开始扩展
+
+插件需在 manifest 中声明 `activation.rendererWindows: ["quick-start"]` 才会在快速开始窗口激活；下列接口均要求 `ui.contribute` 权限：
+
+```ts
+ctx.api.ui.quickStart.registerSubject({ id: 'physics', name: '物理', duration: 75 });
+ctx.api.ui.quickStart.registerSchedulePreset({
+  id: 'morning',
+  name: '上午场',
+  examsPerDay: 4,
+  firstExamTime: '08:00',
+  gapMinutes: 30
+});
+ctx.api.ui.quickStart.registerWords({
+  id: 'school-terms',
+  label: '学校',
+  words: ['一中', '二中', '实验中学']
+});
+ctx.api.ui.quickStart.registerAction({
+  id: 'export',
+  label: '导出配置',
+  icon: 'download',
+  run: (config) => {
+    ctx.logger.info(`快速开始完成：${config.examName}`);
+  }
+});
+ctx.api.ui.quickStart.registerPanel({
+  id: 'notice',
+  step: 'schedule',
+  title: '插件提示',
+  component: () => import('./components/QuickStartNotice.vue')
+});
+```
+
+`registerPanel` 的 `step` 可选 `basic`、`subjects`、`schedule`、`complete`，组件会收到 `config`（当前生成结果，可能为 `null`）与 `step` 两个 props。
+
+## 播放器主题
+
+播放器主题是**全屏布局组件**，不是 CSS 变量或默认布局里的局部插槽。主题可以完全重排页面，例如上方大时钟、下方考试信息，或车站大屏式布局；考试数据、计时、提醒和考场号弹窗仍由播放器壳层统一提供，插件只写视觉与布局。
+
+主题注册需要 `player.contribute` 权限，并让 renderer 入口在播放器窗口激活：
+
+```json
+{
+  "examaware": {
+    "permissions": ["player.contribute"],
+    "activation": {
+      "rendererWindows": ["player"]
+    }
+  }
+}
+```
+
+```ts
+ctx.api.ui.player.registerTheme({
+  id: 'station',
+  name: '车站大屏',
+  description: '上方时钟、下方考试信息',
+  order: 100,
+  component: () => import('./components/StationTheme.vue')
+});
+```
+
+`component` 可以是组件对象或返回组件的异步工厂；函数会被当作异步工厂处理。主题组件会收到 `context` prop：
+
+```vue
+<script setup lang="ts">
+import type { PlayerThemeProps } from '@dsz-examaware/player';
+
+const props = defineProps<PlayerThemeProps>();
+</script>
+
+<template>
+  <main class="station-theme">
+    <component :is="props.context.cards.clock" />
+    <section>
+      <h1>{{ props.context.examConfig.value?.examName }}</h1>
+      <p>{{ props.context.currentExamName.value }}</p>
+      <p>{{ props.context.remainingTime.value }}</p>
+    </section>
+    <component :is="props.context.cards.examInfo" />
+    <component :is="props.context.cards.list" />
+  </main>
+</template>
+```
+
+如果插件项目需要 `PlayerThemeProps` 类型，可执行 `pnpm add @dsz-examaware/player`；主题运行时只使用宿主传入的 props，不需要自己创建播放器实例。
+
+`context` 提供：
+
+- 考试数据与状态：`examConfig`、`currentExam`、`sortedExamInfos`、`formattedExamInfos`、`examStatus`、`currentExamName`、`currentExamTimeRange`。
+- 时间与播放状态：`formattedCurrentTime`、`remainingTime`、`displayedRemainingTime`、`roomNumber`、`timeSyncStatus`、`density`、`largeClockEnabled`、`largeClockScale`、`examInfoLargeFont`。
+- 可复用卡片：`cards.clock`、`cards.examInfo`、`cards.room`、`cards.list`。
+- 动作：`actions.switchToExam(index)`、`actions.openRoomNumberDialog()`、`actions.exit()`、`actions.callProctor()`。
+- 提醒：`alerts.colorful`、`alerts.notice`、`alerts.closeNotice()`、`alerts.hideColorful()`。
+- 壳层：`chrome.showActionBar`、`chrome.allowExit`、`chrome.showCallProctor`、`chrome.callProctorLoading`、`chrome.toolbarItems`。
+- 标准壳层组件：`components.actionBar`、`components.colorfulAlert`、`components.notice`。
+- 主题选择：`theme.options`、`theme.currentId`、`theme.set(id)`。
+- 旧插槽：`slots.logo`、`slots.title`（可选渲染）。
+
+`context` 中除 `cards` / `actions` / `slots` / `alerts` / `chrome` / `components` / `theme` 外的字段都是只读 ref，组件内需使用 `.value`。`context.slots` 包含旧版 `logo`、`title` 插槽函数，主题可选择渲染或忽略；`extra` 插槽仍由壳层渲染。
+
+### 接管操作栏与全屏提醒
+
+主题可以声明接管壳层的一部分，例如车站大屏：
+
+```ts
+ctx.api.ui.player.registerTheme({
+  id: 'station',
+  name: '车站大屏',
+  chrome: {
+    actionBar: true,
+    colorfulAlert: true,
+    notice: true
+  },
+  component: () => import('./components/StationTheme.vue')
+});
+```
+
+对应标记为 `true` 时，播放器不再渲染默认操作栏/提醒层，主题必须自行渲染。复用标准实现：
+
+```vue
+<template>
+  <main class="station-theme">
+    <component :is="context.components.colorfulAlert" />
+    <component :is="context.components.notice" />
+    <component :is="context.components.actionBar" variant="inline" />
+  </main>
+</template>
+```
+
+`components.actionBar` 支持 `variant="fixed"`（默认）或 `variant="inline"`；`inline` 不使用固定定位，便于嵌入主题布局。
+
+完全自绘时使用：
+
+- `context.alerts.colorful.value` / `context.alerts.notice.value` 获取当前提醒；无提醒为 `null`。
+- `context.alerts.closeNotice()` / `context.alerts.hideColorful()` 关闭提醒。
+- `context.chrome` 读取操作栏可见性、退出/巡考开关和工具栏项。
+- `context.actions` 执行退出、呼叫巡考、切换考试和打开考场号。
+
+注册返回的 `Disposable` 会自动进入插件作用域；插件卸载或重载后主题消失。若用户当前选中的就是该主题，播放器会回退到内置 `default` 主题。用户在播放设置中切换主题，选择结果由宿主持久化。
+
 ## 设置页组件
 
 ```vue

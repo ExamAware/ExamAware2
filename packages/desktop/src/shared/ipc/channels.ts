@@ -253,6 +253,7 @@ export const ipcChannels = {
     openLogs: sendEndpoint('open-logs-window'),
     openSettings: sendEndpoint<[page?: string]>('open-settings-window'),
     openBindControl: sendEndpoint('open-bind-control-window'),
+    openQuickStart: sendEndpoint('open-quick-start-window'),
     settingsNavigate: eventEndpoint<[page: string]>('settings:navigate'),
     openPluginStore: sendEndpoint('open-plugin-store-window'),
     minimize: sendEndpoint('window-minimize'),

@@ -1,0 +1,147 @@
+.plugin-baozhong-settings {
+  padding: 16px;
+  color: var(--td-text-color-primary, #1f2329);
+}
+
+.plugin-baozhong-settings h2 {
+  margin: 0 0 6px;
+  font-size: 20px;
+}
+
+.plugin-baozhong-settings h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.plugin-baozhong-settings .intro,
+.plugin-baozhong-settings .meta,
+.plugin-baozhong-settings .empty {
+  margin: 0;
+  color: var(--td-text-color-secondary, #5f6672);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.plugin-baozhong-settings .settings-section {
+  margin-top: 18px;
+  border-radius: 10px;
+  background: var(--td-bg-color-container, #fff);
+  padding: 14px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 8%);
+}
+
+.plugin-baozhong-settings .settings-section .t-card__body {
+  padding: 0;
+}
+
+.plugin-baozhong-settings .section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.plugin-baozhong-settings .origin-field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.plugin-baozhong-settings .origin-field span {
+  color: var(--td-text-color-secondary, #5f6672);
+  font-size: 13px;
+}
+
+.plugin-baozhong-settings .current-name {
+  font-weight: 600;
+}
+
+.plugin-baozhong-settings .current-preview {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 280px;
+  border-radius: 8px;
+  background-color: #222;
+  background-position: center;
+  background-size: cover;
+}
+
+.plugin-baozhong-settings .background-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 10px;
+}
+
+.plugin-baozhong-settings .background-card {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: var(--td-bg-color-secondarycontainer, #f3f4f6);
+  padding: 6px;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.plugin-baozhong-settings .background-card.selected {
+  border-color: var(--td-brand-color, #0052d9);
+}
+
+.plugin-baozhong-settings .background-card .t-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0;
+}
+
+.plugin-baozhong-settings .thumb {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 5px;
+  background-color: #222;
+  background-position: center;
+  background-size: cover;
+}
+
+.plugin-baozhong-settings .card-title {
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plugin-baozhong-settings .card-meta {
+  overflow: hidden;
+  color: var(--td-text-color-secondary, #5f6672);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plugin-baozhong-settings .custom-card {
+  padding-bottom: 30px;
+}
+
+.plugin-baozhong-settings .delete-button {
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+}
+
+.plugin-baozhong-settings .file-input {
+  display: none;
+}
+
+.plugin-baozhong-settings .error {
+  margin-top: 12px;
+  color: var(--td-color-error, #d54941);
+  font-size: 13px;
+}

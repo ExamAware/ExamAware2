@@ -15,9 +15,14 @@
       </t-aside>
       <t-content class="settings-content">
         <transition name="settings-fade-slide" mode="out-in">
-          <component v-if="currentComponent" :is="currentComponent" :key="active" />
+          <div v-if="currentPage" :key="currentPage.id" class="settings-page-host">
+            <component :is="currentPage.component" />
+          </div>
         </transition>
-        <div v-if="!currentComponent" class="empty">暂无可用设置页面</div>
+        <div v-if="!currentPage" class="empty">
+          <span v-if="loadError" class="error">{{ loadError }}</span>
+          <span v-else>暂无可用设置页面</span>
+        </div>
       </t-content>
     </t-layout>
   </div>
@@ -48,26 +53,42 @@ onUnmounted(() => {
 })
 const active = ref<string | null>(null)
 
-const currentComponent = shallowRef<any>(null)
+interface LoadedSettingsPage {
+  id: string
+  component: any
+}
+
+// 页面组件与 key 必须同时切换，避免过渡期间 key 先变、组件后变导致离场动画卡死。
+const currentPage = shallowRef<LoadedSettingsPage | null>(null)
+const loadError = ref<string | null>(null)
+let loadToken = 0
 
 async function loadCurrent() {
   const id = active.value
+  const token = ++loadToken
   if (!id) {
-    currentComponent.value = null
+    currentPage.value = null
+    loadError.value = null
     return
   }
   const meta = registry.get(id)
   if (!meta) {
-    currentComponent.value = null
+    currentPage.value = null
+    loadError.value = null
     return
   }
+  // 已展示同一页面时无需重复加载（插件注册表刷新会触发重新校验）。
+  if (currentPage.value?.id === id) return
   try {
     const comp = await meta.component()
-    currentComponent.value = comp?.default || comp
-  } catch (e) {
-    currentComponent.value = {
-      template: `<div style='padding:16px;color:var(--td-color-error)'>加载页面失败: ${String(e)}</div>`
-    }
+    // 丢弃过期结果：快速切换时只允许最后一次请求生效。
+    if (token !== loadToken || active.value !== id) return
+    currentPage.value = { id, component: comp?.default || comp }
+    loadError.value = null
+  } catch (error) {
+    if (token !== loadToken || active.value !== id) return
+    currentPage.value = null
+    loadError.value = `加载页面失败: ${String(error)}`
   }
 }
 
@@ -85,7 +106,11 @@ watch(
   () => ensureActiveFromRoute()
 )
 watch(active, () => loadCurrent())
-watch(pages, () => ensureActiveFromRoute())
+// 插件在窗口启动后才注册设置页，注册表变化时需要重新尝试加载当前页面。
+watch(pages, () => {
+  ensureActiveFromRoute()
+  void loadCurrent()
+})
 
 onMounted(() => {
   stopSettingsNavigation = window.api.windows.onSettingsNavigate((page) => {
@@ -107,9 +132,16 @@ onMounted(() => {
   height: 100%;
   overflow: auto;
 }
+.settings-page-host {
+  min-height: 100%;
+  box-sizing: border-box;
+}
 .empty {
   padding: 24px;
   color: var(--td-text-color-secondary);
+}
+.empty .error {
+  color: var(--td-color-error);
 }
 
 /* 修复侧栏顶部出现的多余留白：覆盖 TDesign Menu 默认内边距 */
