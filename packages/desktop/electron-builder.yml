@@ -68,14 +68,14 @@ mac:
         - arm64
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
-    - NSCameraUsageDescription: 'ExamAware needs access to your camera for exam monitoring and verification purposes.'
-    - NSMicrophoneUsageDescription: 'ExamAware needs access to your microphone for exam monitoring and audio recording.'
-    - NSDocumentsFolderUsageDescription: 'ExamAware needs access to your Documents folder to save and load exam files.'
-    - NSDownloadsFolderUsageDescription: 'ExamAware needs access to your Downloads folder to import exam materials.'
-    - CFBundleURLTypes:
-        - CFBundleURLName: 'ExamAware Document'
-          CFBundleURLSchemes:
-            - 'examaware'
+    NSCameraUsageDescription: 'ExamAware needs access to your camera for exam monitoring and verification purposes.'
+    NSMicrophoneUsageDescription: 'ExamAware needs access to your microphone for exam monitoring and audio recording.'
+    NSDocumentsFolderUsageDescription: 'ExamAware needs access to your Documents folder to save and load exam files.'
+    NSDownloadsFolderUsageDescription: 'ExamAware needs access to your Downloads folder to import exam materials.'
+    CFBundleURLTypes:
+      - CFBundleURLName: 'ExamAware Document'
+        CFBundleURLSchemes:
+          - 'examaware'
   notarize: false
   hardenedRuntime: true
   gatekeeperAssess: false
