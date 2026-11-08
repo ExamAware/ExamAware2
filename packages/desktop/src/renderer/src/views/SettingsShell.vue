@@ -98,7 +98,7 @@ function ensureActiveFromRoute() {
 }
 
 function onChange(val: string) {
-  router.replace({ path: `/settings/${val}` })
+  router.replace({ name: 'settings', params: { page: val } })
 }
 
 watch(
