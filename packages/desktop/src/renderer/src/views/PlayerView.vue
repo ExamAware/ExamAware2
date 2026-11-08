@@ -15,6 +15,8 @@
       :large-clock="largeClockEnabled"
       :large-clock-scale="largeClockScaleSetting"
       :exam-info-large-font="examInfoLargeFontSetting"
+      :themes="pluginPlayerThemes"
+      :theme-id="themeIdSetting"
       :hdr-highlight="hdrHighlightSetting"
       :allow-exit="allowUserExit"
       :show-call-proctor="isControlSession"
@@ -27,6 +29,7 @@
       @large-clock-toggle="handleLargeClockToggle"
       @large-clock-scale-change="handleLargeClockScaleChange"
       @exam-info-large-font-toggle="handleExamInfoLargeFontToggle"
+      @theme-change="handleThemeChange"
       @exam-start="handleExamStart"
       @exam-end="handleExamEnd"
       @exam-alert="handleExamAlert"
@@ -34,30 +37,29 @@
       @exam-switch="handleExamSwitch"
       @error="handleError"
       @call-proctor="handleCallProctor"
-    >
-      <!-- 额外内容插槽保留为空，由 ExamPlayer 内部处理考场号设置 -->
-      <template #extra>
-        <t-button
-          v-for="item in playerToolbarItems"
-          :key="item.id"
-          size="small"
-          variant="text"
-          :title="item.tooltip ?? item.label"
-          @click="void item.action()"
-        >
-          <component :is="item.icon" v-if="item.icon" />
-          <span v-else>{{ item.label }}</span>
-        </t-button>
-      </template>
-    </ExamPlayer>
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
+import {
+  ref,
+  onMounted,
+  onUnmounted,
+  computed,
+  watch,
+  defineAsyncComponent,
+  type Component
+} from 'vue'
 import { NotifyPlugin } from 'tdesign-vue-next'
 import { BROADCAST_SEVERITY } from '@dsz-examaware/control-protocol'
-import { ExamPlayer, type PlayerConfig } from '@dsz-examaware/player'
+import {
+  ExamPlayer,
+  type PlayerConfig,
+  type PlayerThemeComponent,
+  type PlayerThemeDefinition,
+  type PlayerToolbarItem
+} from '@dsz-examaware/player'
 // 导入 player 包的样式
 import '@dsz-examaware/player/dist/player.css'
 import { useConfigLoader } from '@renderer/composables/useConfigLoader'
@@ -67,11 +69,15 @@ import { useSettingsStore } from '@renderer/stores/settingsStore'
 import {
   clampUiScale,
   clampLargeClockScale,
-  normalizeDensity
+  normalizeDensity,
+  normalizeThemeId
 } from '@renderer/composables/usePlaybackSettings'
 import { useDesktopApi, type UIDensity } from '@renderer/runtime/desktopApi'
 import { formatExamAlertMessage } from '@renderer/utils/playerAlerts'
-import { playerToolbarContributions } from '@renderer/runtime/pluginApi/contributions'
+import {
+  playerThemeContributions,
+  playerToolbarContributions
+} from '@renderer/runtime/pluginApi/contributions'
 import {
   createReminderSoundController,
   normalizeReminderSoundSettings,
@@ -97,7 +103,27 @@ const reportConfigStatus = (status: {
   }
 }
 
-const playerToolbarItems = playerToolbarContributions.items
+const resolveThemeComponent = (component: unknown): PlayerThemeComponent => {
+  if (typeof component === 'function') {
+    return defineAsyncComponent(
+      component as () => Promise<PlayerThemeComponent>
+    ) as PlayerThemeComponent
+  }
+  return component as PlayerThemeComponent
+}
+
+const pluginPlayerThemes = computed<PlayerThemeDefinition[]>(() =>
+  playerThemeContributions.items.value.map((theme) => ({
+    id: theme.id,
+    name: theme.name,
+    description: theme.description,
+    author: theme.author,
+    version: theme.version,
+    order: theme.order,
+    chrome: theme.chrome,
+    component: resolveThemeComponent(theme.component)
+  }))
+)
 
 const settingsStore = useSettingsStore()
 const desktopApi = useDesktopApi()
@@ -106,7 +132,8 @@ const {
   uiDensity: uiDensitySetting,
   largeClockEnabled: largeClockEnabledSetting,
   largeClockScale: largeClockScaleSetting,
-  examInfoLargeFont: examInfoLargeFontSetting
+  examInfoLargeFont: examInfoLargeFontSetting,
+  themeId: themeIdSetting
 } = desktopApi.playback
 
 const defaultRoomSetting = computed(() => {
@@ -184,7 +211,43 @@ const examPlayerRef = ref<{
     forceWhiteText?: boolean
   }): void
   hideColorfulAlert(): void
+  toolbar: {
+    register(item: PlayerToolbarItem): () => void
+    unregister(id: string): void
+    clear(): void
+  }
 } | null>(null)
+
+let toolbarDisposers: Array<() => void> = []
+
+const resolveToolbarIcon = (icon: unknown): Component | undefined => {
+  if (!icon) return undefined
+  if (typeof icon === 'function') {
+    return defineAsyncComponent(icon as () => Promise<Component>) as Component
+  }
+  return icon as Component
+}
+
+const syncToolbarItems = () => {
+  toolbarDisposers.forEach((dispose) => dispose())
+  toolbarDisposers = []
+  const player = examPlayerRef.value
+  if (!player?.toolbar) return
+  for (const item of playerToolbarContributions.items.value) {
+    toolbarDisposers.push(
+      player.toolbar.register({
+        id: item.id,
+        label: item.label,
+        icon: resolveToolbarIcon(item.icon),
+        order: item.order,
+        tooltip: item.tooltip,
+        onClick: () => item.action()
+      })
+    )
+  }
+}
+
+watch([examPlayerRef, playerToolbarContributions.items], syncToolbarItems, { immediate: true })
 let disposeControlEvents = () => {}
 const isControlSession = ref(false)
 const allowUserExit = computed(
@@ -279,6 +342,12 @@ const handleDensitySettingChange = (density: UIDensity) => {
   const normalized = normalizeDensity(density)
   if (uiDensitySetting.value === normalized) return
   uiDensitySetting.value = normalized
+}
+
+const handleThemeChange = (themeId: string) => {
+  const normalized = normalizeThemeId(themeId)
+  if (themeIdSetting.value === normalized) return
+  themeIdSetting.value = normalized
 }
 
 const handleLargeClockToggle = (enabled: boolean) => {
@@ -512,6 +581,8 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
+  toolbarDisposers.forEach((dispose) => dispose())
+  toolbarDisposers = []
   console.log('PlayerViewNew 卸载')
   disposeControlEvents()
   disposePlayerSessionEvents()

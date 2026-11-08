@@ -1,6 +1,7 @@
 import { shallowRef, type ShallowRef } from 'vue'
 import type {
   ControlBindingContribution,
+  PlayerThemeContribution,
   PlayerToolbarContribution,
   QuickStartActionContribution,
   QuickStartPanelContribution,
@@ -45,6 +46,7 @@ class ContributionRegistry<T extends { id: string; order?: number }> {
 }
 
 export const playerToolbarContributions = new ContributionRegistry<PlayerToolbarContribution>()
+export const playerThemeContributions = new ContributionRegistry<PlayerThemeContribution>()
 export const controlBindingContributions = new ContributionRegistry<ControlBindingContribution>()
 export const pluginMenuContributions = new ContributionRegistry<PluginMenuContribution>()
 export const quickStartSubjectContributions =

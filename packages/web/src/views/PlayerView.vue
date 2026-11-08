@@ -14,6 +14,7 @@
       :large-clock="largeClock"
       :large-clock-scale="largeClockScale"
       :exam-info-large-font="examInfoLargeFont"
+      :theme-id="themeId"
       :allow-exit="true"
       @exit="handleExit"
       @room-number-change="handleRoomNumberChange"
@@ -22,6 +23,7 @@
       @large-clock-toggle="handleLargeClockToggle"
       @large-clock-scale-change="handleLargeClockScaleChange"
       @exam-info-large-font-toggle="handleExamInfoLargeFontToggle"
+      @theme-change="handleThemeChange"
       @exam-start="handleExamStart"
       @exam-end="handleExamEnd"
       @exam-alert="handleExamAlert"
@@ -66,6 +68,7 @@ const uiDensity = ref<UIDensity>(
 const largeClock = ref(localStorage.getItem('examaware:web:large-clock') === 'true');
 const largeClockScale = ref(Number(localStorage.getItem('examaware:web:large-clock-scale') || 1));
 const examInfoLargeFont = ref(localStorage.getItem('examaware:web:large-font') === 'true');
+const themeId = ref(localStorage.getItem('examaware:web:theme') || 'default');
 const config = ref(readStoredConfig());
 const playerConfig = computed<PlayerConfig>(() => ({
   roomNumber: roomNumber.value,
@@ -138,6 +141,10 @@ function handleLargeClockScaleChange(value: number) {
 function handleExamInfoLargeFontToggle(value: boolean) {
   examInfoLargeFont.value = value;
   localStorage.setItem('examaware:web:large-font', String(value));
+}
+function handleThemeChange(value: string) {
+  themeId.value = value;
+  localStorage.setItem('examaware:web:theme', value);
 }
 function handleExamStart(exam: ExamInfo) {
   void MessagePlugin.success(`“${exam.name || '考试'}”开始`);

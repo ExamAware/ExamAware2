@@ -51,6 +51,7 @@ import {
 } from '../../../../shared/pluginApi/runtime'
 import {
   controlBindingContributions,
+  playerThemeContributions,
   playerToolbarContributions,
   pluginMenuContributions,
   quickStartActionContributions,
@@ -803,6 +804,15 @@ function createUiApi(
         permissions.require(PluginPermissions.Player.Contribute)
         return own({
           dispose: playerToolbarContributions.register({ ...item, id: contributionId(item.id) })
+        })
+      },
+      registerTheme: (theme) => {
+        permissions.require(PluginPermissions.Player.Contribute)
+        return own({
+          dispose: playerThemeContributions.register({
+            ...theme,
+            id: contributionId(theme.id)
+          })
         })
       }
     },

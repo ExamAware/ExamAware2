@@ -116,7 +116,7 @@ const unbinding = ref(false)
 const managedValues = reactive<Record<string, unknown>>({})
 
 const settingLabels: Record<string, string> = {
-  'appearance.theme': '主题',
+  'appearance.theme': '明暗风格',
   'player.uiScale': '界面缩放',
   'player.uiDensity': '界面密度',
   'player.largeClockEnabled': '大时钟',
