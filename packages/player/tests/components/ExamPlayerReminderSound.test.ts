@@ -62,6 +62,7 @@ beforeEach(() => {
       currentExamName: computed(() => currentExam.value?.name ?? ''),
       currentExamTimeRange: computed(() => ''),
       remainingTime: computed(() => ''),
+      currentTime: ref(Date.now()),
       formattedCurrentTime: computed(() => ''),
       switchToExam: vi.fn(),
       updateConfig,
