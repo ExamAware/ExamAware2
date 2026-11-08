@@ -137,7 +137,20 @@ const staticWordGroups: QuickWordGroup[] = [
   { label: '常用', words: ['第', '次', '届', '学期', '学年', '上', '下'].map(toWord) },
   {
     label: '类型',
-    words: ['月考', '期中', '期末', '周测', '联考', '统考', '一模', '二模', '三模'].map(toWord)
+    words: [
+      '月考',
+      '期中',
+      '期末',
+      '周测',
+      '联考',
+      '统考',
+      '一模',
+      '二模',
+      '三模',
+      '模拟',
+      '模考',
+      '模'
+    ].map(toWord)
   },
   {
     label: '年级',
