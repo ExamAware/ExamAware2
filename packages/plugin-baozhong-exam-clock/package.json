@@ -1,5 +1,5 @@
 {
-  "name": "examaware-plugin-baozhong-exam-clock",
+  "name": "@dsz-examaware/plugin-baozhong-exam-clock",
   "version": "0.1.0",
   "private": false,
   "type": "module",

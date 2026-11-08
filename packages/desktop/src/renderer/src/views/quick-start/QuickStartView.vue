@@ -679,6 +679,7 @@ const {
 }
 .complete-heading h2 {
   margin: 0;
+  color: var(--td-text-color-primary);
   font-size: 22px;
   line-height: 1.3;
 }
