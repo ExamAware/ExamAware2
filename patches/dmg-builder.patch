@@ -1,0 +1,11 @@
+--- a/vendor/dmgbuild/core.py
++++ b/vendor/dmgbuild/core.py
+@@ -255,7 +255,7 @@
+       icvp['backgroundColorBlue'] = float(c.b)
+     elif background_file:
+       alias = Alias.for_file(background_file)
+-      background_bmk = Bookmark.for_file(background_file)
++      # background_bmk = Bookmark.for_file(background_file)  # macOS 26.2+ Finder: pBBk breaks DMG background rendering
+ 
+       icvp['backgroundType'] = 2
+       icvp['backgroundImageAlias'] = biplist.Data(alias.to_bytes())
