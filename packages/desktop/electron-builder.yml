@@ -87,13 +87,14 @@ dmg:
   background: build/dmg-background.png
   window:
     width: 540
-    height: 380
+    # 380 为背景图内容高度，+32 是 macOS 窗口标题栏高度，保证 DMG 内容区与 final.png 的 540x380 完全一致
+    height: 412
   contents:
     - x: 130
-      y: 220
+      y: 190
       type: file
     - x: 410
-      y: 220
+      y: 190
       type: link
       path: /Applications
 linux:
