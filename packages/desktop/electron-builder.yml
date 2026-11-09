@@ -68,14 +68,14 @@ mac:
         - arm64
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
-    - NSCameraUsageDescription: 'ExamAware needs access to your camera for exam monitoring and verification purposes.'
-    - NSMicrophoneUsageDescription: 'ExamAware needs access to your microphone for exam monitoring and audio recording.'
-    - NSDocumentsFolderUsageDescription: 'ExamAware needs access to your Documents folder to save and load exam files.'
-    - NSDownloadsFolderUsageDescription: 'ExamAware needs access to your Downloads folder to import exam materials.'
-    - CFBundleURLTypes:
-        - CFBundleURLName: 'ExamAware Document'
-          CFBundleURLSchemes:
-            - 'examaware'
+    NSCameraUsageDescription: 'ExamAware needs access to your camera for exam monitoring and verification purposes.'
+    NSMicrophoneUsageDescription: 'ExamAware needs access to your microphone for exam monitoring and audio recording.'
+    NSDocumentsFolderUsageDescription: 'ExamAware needs access to your Documents folder to save and load exam files.'
+    NSDownloadsFolderUsageDescription: 'ExamAware needs access to your Downloads folder to import exam materials.'
+    CFBundleURLTypes:
+      - CFBundleURLName: 'ExamAware Document'
+        CFBundleURLSchemes:
+          - 'examaware'
   notarize: false
   hardenedRuntime: true
   gatekeeperAssess: false
@@ -87,13 +87,14 @@ dmg:
   background: build/dmg-background.png
   window:
     width: 540
-    height: 380
+    # 380 为背景图内容高度，+32 是 macOS 窗口标题栏高度，保证 DMG 内容区与 540x380 背景图一致
+    height: 412
   contents:
     - x: 130
-      y: 220
+      y: 190
       type: file
     - x: 410
-      y: 220
+      y: 190
       type: link
       path: /Applications
 linux:

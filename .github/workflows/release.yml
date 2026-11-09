@@ -43,8 +43,10 @@ jobs:
             build_script: desktop:build:win
             eb_cache: C:/Users/runneradmin/AppData/Local/Temp/eb-cache-${{ github.run_id }}
             eb_tmp: C:/Users/runneradmin/AppData/Local/Temp/eb-tmp-${{ github.run_id }}
-          # - os: macos-latest
-          #   build_script: desktop:build:mac
+          - os: macos-latest
+            build_script: desktop:build:mac
+            eb_cache: ${{ github.workspace }}/.tmp/electron-builder-cache-${{ github.run_id }}-macos-latest
+            eb_tmp: ${{ github.workspace }}/.tmp/electron-builder-tmp-${{ github.run_id }}-macos-latest
           - os: ubuntu-latest
             build_script: desktop:build:linux
             eb_cache: ${{ github.workspace }}/.tmp/electron-builder-cache-${{ github.run_id }}-ubuntu-latest
@@ -122,6 +124,24 @@ jobs:
           echo "ELECTRON_BUILDER_TMPDIR=$TMP" >> "$GITHUB_ENV"
           echo "ELECTRON_BUILDER_TMP_DIR=$TMP" >> "$GITHUB_ENV"
 
+      - name: Ensure electron-builder cache dirs (macOS)
+        if: matrix.os == 'macos-latest'
+        shell: bash
+        run: |
+          CACHE="${ELECTRON_BUILDER_CACHE:-/tmp/electron-builder-cache-${GITHUB_RUN_ID}-macos-latest}"
+          TMP="${ELECTRON_BUILDER_TMPDIR:-/tmp/electron-builder-tmp-${GITHUB_RUN_ID}-macos-latest}"
+          if ! mkdir -p "$CACHE" "$TMP" 2>/dev/null; then
+            CACHE="/tmp/electron-builder-cache-${GITHUB_RUN_ID}-macos-latest"
+            TMP="/tmp/electron-builder-tmp-${GITHUB_RUN_ID}-macos-latest"
+            mkdir -p "$CACHE" "$TMP"
+          fi
+          chmod -R 777 "$CACHE" "$TMP"
+          echo "ELECTRON_BUILDER_CACHE=$CACHE" >> "$GITHUB_ENV"
+          echo "ELECTRON_BUILDER_TMPDIR=$TMP" >> "$GITHUB_ENV"
+          echo "ELECTRON_BUILDER_TMP_DIR=$TMP" >> "$GITHUB_ENV"
+          echo "runner: $(uname -a)"
+          sw_vers
+
       - name: Install system dependencies (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
@@ -147,6 +167,25 @@ jobs:
 
       - name: Build desktop application
         run: pnpm ${{ matrix.build_script }}
+
+      - name: Verify macOS artifacts
+        if: matrix.os == 'macos-latest'
+        shell: bash
+        run: |
+          ls -lh packages/desktop/out
+          dmg="$(find packages/desktop/out -maxdepth 1 -type f -name '*.dmg' | head -n 1)"
+          zip_archive="$(find packages/desktop/out -maxdepth 1 -type f -name '*.zip' | head -n 1)"
+          app="$(find packages/desktop/out -maxdepth 2 -type d -name '*.app' | head -n 1)"
+          if [ -z "$dmg" ] || [ -z "$zip_archive" ] || [ -z "$app" ]; then
+            echo "Missing macOS artifacts (dmg/zip/app)." >&2
+            exit 1
+          fi
+          if [ ! -s "$dmg" ] || [ ! -s "$zip_archive" ]; then
+            echo "Empty macOS artifacts (dmg/zip)." >&2
+            exit 1
+          fi
+          hdiutil verify "$dmg"
+          du -sh "$dmg" "$zip_archive" "$app"
 
       - name: Upload artifacts to workflow
         uses: actions/upload-artifact@v4

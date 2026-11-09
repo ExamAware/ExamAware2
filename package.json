@@ -82,6 +82,9 @@
       "electron",
       "esbuild",
       "vue-demi"
-    ]
+    ],
+    "patchedDependencies": {
+      "dmg-builder@26.0.12": "patches/dmg-builder.patch"
+    }
   }
 }
